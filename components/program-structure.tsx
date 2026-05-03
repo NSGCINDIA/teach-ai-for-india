@@ -1,4 +1,7 @@
+"use client"
+
 import { Lightbulb, Hammer, Rocket } from "lucide-react"
+import { useFadeUp } from "@/hooks/use-fade-up"
 
 const steps = [
   {
@@ -6,7 +9,7 @@ const steps = [
     icon: Lightbulb,
     title: "Introduction to AI",
     description:
-      "Students are introduced to what AI is, how it works, and its real-world applications through engaging presentations and group discussions.",
+      "Students discover what AI is, how it works, and where it already shows up in their daily lives — through engaging stories and live demonstrations.",
     color: "#FF9933",
   },
   {
@@ -14,7 +17,7 @@ const steps = [
     icon: Hammer,
     title: "Hands-on Activities",
     description:
-      "Interactive exercises where students use AI tools, write prompts, and explore AI-generated outputs to develop practical skills.",
+      "Interactive exercises where students use real AI tools, write prompts, and explore outputs. Learning by doing, not by watching.",
     color: "#138808",
   },
   {
@@ -22,54 +25,55 @@ const steps = [
     icon: Rocket,
     title: "Projects & Application",
     description:
-      "Students apply their learning to real-world problems, building mini-projects that showcase AI solutions for community challenges.",
+      "Students build mini-projects that apply AI to problems in their own community — turning knowledge into action.",
     color: "#1d7adb",
   },
 ]
 
 export default function ProgramStructure() {
+  const headingRef = useFadeUp()
+  const stepsRef = useFadeUp()
+
   return (
-    <section id="program" className="section-padding" style={{ backgroundColor: "#f8f9fa" }}>
+    <section id="program" className="section-padding" style={{ backgroundColor: "#f7f7f7" }}>
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#FF9933" }}>
-            Program Structure
-          </p>
+        <div ref={headingRef} className="fade-up text-center mb-14">
+          <p className="section-label mb-3" style={{ color: "#FF9933" }}>Program Structure</p>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground text-balance">
             A Clear 3-Phase Learning Journey
           </h2>
-          <p className="text-muted-foreground mt-3 max-w-xl mx-auto leading-relaxed">
-            Each school visit is structured into three progressive phases that build on each other.
+          <p className="text-muted-foreground mt-3 max-w-lg mx-auto leading-relaxed text-sm">
+            Each school visit follows three progressive phases that build confidence and capability at every step.
           </p>
         </div>
 
-        {/* Steps */}
-        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Connecting line (desktop) */}
+        <div ref={stepsRef} className="fade-up relative grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Connector line */}
           <div
-            className="hidden md:block absolute top-10 left-[calc(16.67%+1.5rem)] right-[calc(16.67%+1.5rem)] h-0.5"
-            style={{ background: "linear-gradient(90deg, #FF9933, #138808, #1d7adb)" }}
+            className="hidden md:block absolute top-[3.25rem] left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px"
+            style={{ background: "linear-gradient(90deg, #FF9933 0%, #138808 50%, #1d7adb 100%)" }}
           />
 
-          {steps.map((step) => {
+          {steps.map((step, i) => {
             const Icon = step.icon
+            const stagger = ["stagger-1","stagger-2","stagger-3"][i]
             return (
               <div
                 key={step.step}
-                className="card-hover relative bg-white rounded-2xl border border-border p-7 shadow-sm flex flex-col items-center text-center gap-4"
+                className={`card-hover relative bg-white rounded-2xl border border-border p-7 flex flex-col items-center text-center gap-4 ${stagger}`}
               >
-                {/* Step number badge */}
+                {/* Step badge */}
                 <div
-                  className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold px-3 py-1 rounded-full text-white shadow-sm"
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full text-white shadow-sm"
                   style={{ backgroundColor: step.color }}
                 >
                   {step.step}
                 </div>
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center mt-2"
-                  style={{ backgroundColor: `${step.color}18` }}
+                  style={{ backgroundColor: `${step.color}15` }}
                 >
-                  <Icon size={26} style={{ color: step.color }} />
+                  <Icon size={24} style={{ color: step.color }} />
                 </div>
                 <div>
                   <h3 className="font-bold text-base text-foreground mb-2">{step.title}</h3>

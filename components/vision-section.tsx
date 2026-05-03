@@ -1,40 +1,35 @@
+"use client"
+
+import { useFadeUp } from "@/hooks/use-fade-up"
+
 export default function VisionSection() {
+  const ref = useFadeUp()
+
   return (
-    <section
-      className="section-padding"
-      style={{
-        background:
-          "radial-gradient(ellipse 100% 80% at 50% 50%, rgba(255,153,51,0.07) 0%, rgba(19,136,8,0.07) 100%), #fafafa",
-      }}
-    >
-      <div className="max-w-3xl mx-auto text-center">
-        {/* Quote mark */}
+    <section className="section-padding bg-white">
+      <div ref={ref} className="fade-up max-w-3xl mx-auto text-center">
+        {/* Decorative quote mark */}
         <div
-          className="text-7xl font-serif leading-none mb-4 select-none"
-          style={{ color: "#FF9933", opacity: 0.5 }}
+          className="text-[5rem] font-serif leading-none mb-3 select-none"
+          style={{ color: "#FF9933", opacity: 0.35 }}
           aria-hidden="true"
         >
           &ldquo;
         </div>
 
         <blockquote>
-          <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground text-balance leading-tight">
-            Every student should learn AI and use it{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #138808, #0d6606)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              responsibly.
-            </span>
+          <p className="text-2xl md:text-3xl lg:text-[2.2rem] font-bold text-foreground text-balance leading-snug">
+            Every student should learn AI{" "}
+            <br className="hidden md:block" />
+            and use it{" "}
+            <span style={{ color: "#138808" }}>responsibly.</span>
           </p>
-          <footer className="mt-6">
-            <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
-              Our Shared Vision
-            </p>
+          <footer className="mt-8 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              <div className="h-px w-8" style={{ backgroundColor: "#FF9933" }} />
+              <p className="section-label text-muted-foreground">Our Shared Vision</p>
+              <div className="h-px w-8" style={{ backgroundColor: "#138808" }} />
+            </div>
           </footer>
         </blockquote>
       </div>

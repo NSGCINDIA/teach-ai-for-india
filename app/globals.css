@@ -5,30 +5,30 @@
 
 :root {
   --background: oklch(0.99 0 0);
-  --foreground: oklch(0.13 0 0);
+  --foreground: oklch(0.09 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.13 0 0);
+  --card-foreground: oklch(0.09 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.13 0 0);
+  --popover-foreground: oklch(0.09 0 0);
   --primary: oklch(0.71 0.18 46.5);       /* #FF9933 saffron */
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.41 0.12 145.5);    /* #138808 green */
   --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.52 0 0);
+  --muted: oklch(0.965 0 0);
+  --muted-foreground: oklch(0.50 0 0);
   --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.13 0 0);
+  --accent-foreground: oklch(0.09 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.91 0 0);
-  --input: oklch(0.91 0 0);
+  --border: oklch(0.915 0 0);
+  --input: oklch(0.915 0 0);
   --ring: oklch(0.71 0.18 46.5);
   --radius: 0.75rem;
 
   /* Brand tokens */
   --saffron: #FF9933;
   --india-green: #138808;
-  --navy: #0a0a2e;
+  --surface: #f5f5f5;
 }
 
 @theme inline {
@@ -73,21 +73,39 @@
 
 @layer utilities {
   .section-padding {
-    @apply py-16 md:py-24 px-4 md:px-8 lg:px-16;
+    @apply py-20 md:py-28 px-4 md:px-8 lg:px-16;
   }
+  .section-padding-sm {
+    @apply py-14 md:py-20 px-4 md:px-8 lg:px-16;
+  }
+  /* Fade-up animation */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Stagger helpers */
+  .stagger-1 { transition-delay: 0.05s; }
+  .stagger-2 { transition-delay: 0.10s; }
+  .stagger-3 { transition-delay: 0.15s; }
+  .stagger-4 { transition-delay: 0.20s; }
+  .stagger-5 { transition-delay: 0.25s; }
+  .stagger-6 { transition-delay: 0.30s; }
+  /* Card hover */
   .card-hover {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-md;
   }
-  .gradient-text-saffron {
-    background: linear-gradient(135deg, #FF9933, #e8820a);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* Section label */
+  .section-label {
+    @apply text-xs font-semibold uppercase tracking-widest;
   }
-  .gradient-text-green {
-    background: linear-gradient(135deg, #138808, #0d6606);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* Divider stripe */
+  .india-stripe {
+    background: linear-gradient(90deg, #FF9933 0%, #ffffff 50%, #138808 100%);
   }
 }

@@ -1,118 +1,91 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { ArrowRight, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useFadeUp } from "@/hooks/use-fade-up"
+
+const trustStats = [
+  { value: "1,820+", label: "Students" },
+  { value: "8+", label: "Campuses" },
+  { value: "2", label: "States" },
+  { value: "41", label: "Schools" },
+]
 
 export default function Hero() {
+  const badgeRef = useFadeUp()
+  const headingRef = useFadeUp()
+  const subRef = useFadeUp()
+  const ctaRef = useFadeUp()
+  const statsRef = useFadeUp()
+
   return (
     <section
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[60px]"
       style={{
         background:
-          "radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255,153,51,0.12) 0%, rgba(255,255,255,0) 55%), radial-gradient(ellipse 120% 80% at 50% 100%, rgba(19,136,8,0.10) 0%, rgba(255,255,255,0) 55%), #fafafa",
+          "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,153,51,0.10) 0%, transparent 65%), #fafafa",
       }}
     >
-      {/* Decorative top stripe */}
-      <div
-        className="absolute top-16 left-0 right-0 h-1"
-        style={{
-          background: "linear-gradient(90deg, #FF9933 0%, #ffffff 50%, #138808 100%)",
-        }}
-      />
+      {/* India stripe accent at top */}
+      <div className="absolute top-[60px] left-0 right-0 h-[2px] india-stripe opacity-70" />
 
-      <div className="max-w-5xl mx-auto px-4 md:px-8 text-center py-24">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white shadow-sm text-sm font-medium text-foreground mb-8">
-          <span
-            className="w-2 h-2 rounded-full animate-pulse"
-            style={{ backgroundColor: "#138808" }}
-          />
+      <div className="max-w-4xl mx-auto px-5 md:px-10 text-center py-28">
+        {/* Live badge */}
+        <div ref={badgeRef} className="fade-up inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border bg-white shadow-sm text-xs font-semibold text-foreground mb-7">
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#138808" }} />
           Live Across 8 Campuses
         </div>
 
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png"
-            alt="Teach AI For India — NIAT Student General Council"
-            width={280}
-            height={110}
-            className="object-contain drop-shadow-md"
-            priority
-          />
-        </div>
-
         {/* Heading */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground text-balance mb-6 leading-[1.1]">
-          Building India&apos;s First{" "}
-          <span
-            className="inline-block"
-            style={{
-              background: "linear-gradient(135deg, #FF9933, #e8820a)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            Student-Led
-          </span>{" "}
+        <h1
+          ref={headingRef}
+          className="fade-up stagger-1 text-[2.6rem] md:text-6xl lg:text-[4.5rem] font-extrabold tracking-tight text-foreground text-balance leading-[1.05] mb-5"
+        >
+          {"Building India's First"}{" "}
+          <span style={{ color: "#FF9933" }}>Student-Led</span>{" "}
           AI Education{" "}
-          <span
-            className="inline-block"
-            style={{
-              background: "linear-gradient(135deg, #138808, #0d6606)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            Movement
-          </span>
+          <span style={{ color: "#138808" }}>Movement</span>
         </h1>
 
         {/* Subtext */}
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed text-pretty">
-          Scaling AI literacy across multiple campuses, empowering government school students with
-          real-world AI skills, creativity, and future-ready knowledge.
+        <p
+          ref={subRef}
+          className="fade-up stagger-2 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-9 leading-relaxed text-pretty"
+        >
+          Scaling AI literacy across government schools through campus-led execution, structured learning, and real community impact.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+        <div ref={ctaRef} className="fade-up stagger-3 flex flex-col sm:flex-row gap-3 justify-center items-center">
           <Button
             size="lg"
             asChild
-            className="text-white font-semibold px-8 rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105"
+            className="text-white font-semibold px-8 rounded-xl shadow-sm hover:shadow-md transition-all hover:opacity-90 h-12 text-base"
             style={{ backgroundColor: "#FF9933" }}
           >
             <Link href="#access">
-              Get Started <ArrowRight size={16} className="ml-1" />
+              Get Started <ArrowRight size={16} className="ml-1.5" />
             </Link>
           </Button>
           <Button
             size="lg"
             variant="outline"
             asChild
-            className="font-semibold px-8 rounded-xl hover:scale-105 transition-all"
+            className="font-semibold px-8 rounded-xl h-12 text-base hover:bg-muted transition-all"
           >
             <Link href="#impact">
-              View Impact <TrendingUp size={16} className="ml-1" />
+              View Impact <TrendingUp size={16} className="ml-1.5" />
             </Link>
           </Button>
         </div>
 
         {/* Trust bar */}
-        <div className="mt-14 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-          {[
-            { value: "1,820+", label: "Students" },
-            { value: "8+", label: "Campuses" },
-            { value: "2", label: "States" },
-            { value: "41", label: "Schools" },
-          ].map((item) => (
-            <div key={item.label} className="flex items-center gap-2">
-              <span className="font-bold text-foreground text-base">{item.value}</span>
-              <span>{item.label}</span>
+        <div ref={statsRef} className="fade-up stagger-4 mt-16 flex flex-wrap items-center justify-center gap-8">
+          {trustStats.map((item, i) => (
+            <div key={item.label} className="flex flex-col items-center gap-0.5">
+              <span className="text-2xl font-extrabold text-foreground leading-none">{item.value}</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-widest">{item.label}</span>
             </div>
           ))}
         </div>
