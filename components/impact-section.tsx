@@ -1,7 +1,9 @@
 "use client"
 
+import { useRef } from "react"
 import { Users, School, CalendarCheck, Map, Building2, Heart } from "lucide-react"
-import { useFadeUp } from "@/hooks/use-fade-up"
+import { motion, useInView, useScroll, useTransform } from "framer-motion"
+import { staggerContainer, cardItem, fadeUp } from "@/lib/motion"
 
 const stats = [
   { value: "1,820+", label: "Students Impacted",   icon: Users,         color: "#FF9933" },
@@ -12,44 +14,76 @@ const stats = [
   { value: "30+",    label: "Volunteers",           icon: Heart,         color: "#e04040" },
 ]
 
-const staggerClasses = ["stagger-1","stagger-2","stagger-3","stagger-4","stagger-5","stagger-6"]
-
 export default function ImpactSection() {
-  const headingRef = useFadeUp()
-  const gridRef = useFadeUp()
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: "-80px" })
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"])
 
   return (
-    <section id="impact" className="section-padding" style={{ backgroundColor: "#f7f7f7" }}>
-      <div className="max-w-6xl mx-auto">
-        <div ref={headingRef} className="fade-up text-center mb-14">
-          <p className="section-label mb-3" style={{ color: "#FF9933" }}>Our Growing Impact</p>
+    <section id="impact" ref={ref} className="relative section-padding overflow-hidden" style={{ backgroundColor: "#f7f7f7" }}>
+      {/* Subtle parallax bg pattern */}
+      <motion.div
+        style={{ y: bgY }}
+        className="absolute inset-0 dot-grid opacity-30 pointer-events-none"
+      />
+
+      <div className="relative max-w-6xl mx-auto z-10">
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate={inView ? "show" : "hidden"}
+          className="text-center mb-14"
+        >
+          <motion.p
+            initial={{ opacity: 0, letterSpacing: "0.05em" }}
+            animate={inView ? { opacity: 1, letterSpacing: "0.18em" } : {}}
+            transition={{ duration: 0.8 }}
+            className="section-label mb-3"
+            style={{ color: "#FF9933" }}
+          >
+            Our Growing Impact
+          </motion.p>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground text-balance">
             Making a Real Difference Across India
           </h2>
-        </div>
+        </motion.div>
 
-        <div ref={gridRef} className="fade-up grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {stats.map((stat, i) => {
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate={inView ? "show" : "hidden"}
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
+        >
+          {stats.map((stat) => {
             const Icon = stat.icon
             return (
-              <div
+              <motion.div
                 key={stat.label}
-                className={`card-hover bg-white rounded-2xl border border-border p-6 flex flex-col items-center text-center gap-3 ${staggerClasses[i]}`}
+                variants={cardItem}
+                whileHover={{
+                  y: -8,
+                  scale: 1.04,
+                  boxShadow: `0 16px 40px -8px ${stat.color}30`,
+                  transition: { type: "spring", stiffness: 400, damping: 18 },
+                }}
+                className="bg-white rounded-2xl border border-border p-6 flex flex-col items-center text-center gap-3 cursor-default"
               >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: `${stat.color}15` }}
+                <motion.div
+                  whileHover={{ rotate: [0, -10, 10, 0], transition: { duration: 0.5 } }}
+                  className="w-11 h-11 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: `${stat.color}18` }}
                 >
-                  <Icon size={19} style={{ color: stat.color }} />
-                </div>
+                  <Icon size={20} style={{ color: stat.color }} />
+                </motion.div>
                 <div>
-                  <p className="text-[1.65rem] font-extrabold text-foreground leading-none tabular-nums">{stat.value}</p>
+                  <p className="text-[1.7rem] font-extrabold text-foreground leading-none tabular-nums">{stat.value}</p>
                   <p className="text-xs text-muted-foreground mt-1.5 leading-snug">{stat.label}</p>
                 </div>
-              </div>
+              </motion.div>
             )
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   )
