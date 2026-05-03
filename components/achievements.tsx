@@ -51,11 +51,7 @@ export default function Achievements() {
                 className="rounded-2xl border border-border bg-white p-8 flex flex-col items-center text-center gap-5 cursor-default"
               >
                 <motion.div
-                  animate={inView ? {
-                    rotate: [0, -5, 5, 0],
-                    scale: [1, 1.1, 1],
-                  } : {}}
-                  transition={{ delay: 0.3 + i * 0.15, duration: 0.7, type: "spring" }}
+                  whileHover={{ scale: 1.15, rotate: 8, transition: { type: "spring", stiffness: 400, damping: 15 } }}
                   className="w-16 h-16 rounded-2xl flex items-center justify-center"
                   style={{ backgroundColor: `${item.color}18` }}
                 >

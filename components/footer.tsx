@@ -79,17 +79,13 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Teach AI For India. All rights reserved.
           </p>
           <div className="flex items-center gap-2">
-            {["#FF9933", "border", "#138808"].map((color, i) => (
+            {["#FF9933", "#e5e7eb", "#138808"].map((color, i) => (
               <motion.span
                 key={i}
-                animate={{ scale: [1, 1.25, 1] }}
-                transition={{ repeat: Infinity, duration: 2.5, delay: i * 0.4 }}
+                animate={{ opacity: [0.6, 1, 0.6] }}
+                transition={{ repeat: Infinity, duration: 2.5, delay: i * 0.4, ease: "easeInOut" }}
                 className="w-2.5 h-2.5 rounded-full"
-                style={
-                  color === "border"
-                    ? { backgroundColor: "white", border: "1px solid #e5e7eb" }
-                    : { backgroundColor: color }
-                }
+                style={{ backgroundColor: color }}
               />
             ))}
           </div>

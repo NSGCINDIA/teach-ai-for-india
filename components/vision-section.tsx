@@ -11,7 +11,7 @@ export default function VisionSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0])
 
   return (
-    <section ref={ref} className="section-padding bg-white overflow-hidden">
+    <section ref={ref} className="section-padding bg-white overflow-hidden relative">
       <motion.div
         style={{ scale, opacity }}
         className="max-w-3xl mx-auto text-center"

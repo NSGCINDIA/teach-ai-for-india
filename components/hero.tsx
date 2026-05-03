@@ -35,15 +35,13 @@ export default function Hero() {
 
       {/* Saffron orb */}
       <motion.div
-        style={{ y: orb1Y }}
-        className="absolute -top-24 -left-24 w-[520px] h-[520px] rounded-full pointer-events-none orb-pulse"
         style={{ y: orb1Y, background: "radial-gradient(circle, rgba(255,153,51,0.18) 0%, transparent 70%)" }}
+        className="absolute -top-24 -left-24 w-[520px] h-[520px] rounded-full pointer-events-none orb-pulse"
       />
       {/* Green orb */}
       <motion.div
-        style={{ y: orb2Y }}
-        className="absolute -bottom-32 -right-32 w-[480px] h-[480px] rounded-full pointer-events-none"
         style={{ y: orb2Y, background: "radial-gradient(circle, rgba(19,136,8,0.14) 0%, transparent 70%)" }}
+        className="absolute -bottom-32 -right-32 w-[480px] h-[480px] rounded-full pointer-events-none"
       />
 
       {/* India stripe */}
@@ -87,7 +85,9 @@ export default function Hero() {
               width={380}
               height={148}
               className="object-contain drop-shadow-lg"
+              style={{ width: "clamp(220px, 40vw, 380px)", height: "auto" }}
               priority
+              loading="eager"
             />
           </motion.div>
         </motion.div>

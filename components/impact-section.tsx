@@ -70,7 +70,7 @@ export default function ImpactSection() {
                 className="bg-white rounded-2xl border border-border p-6 flex flex-col items-center text-center gap-3 cursor-default"
               >
                 <motion.div
-                  whileHover={{ rotate: [0, -10, 10, 0], transition: { duration: 0.5 } }}
+                  whileHover={{ rotate: 12, scale: 1.12, transition: { type: "spring", stiffness: 400, damping: 15 } }}
                   className="w-11 h-11 rounded-xl flex items-center justify-center"
                   style={{ backgroundColor: `${stat.color}18` }}
                 >

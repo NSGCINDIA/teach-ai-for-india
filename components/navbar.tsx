@@ -44,9 +44,11 @@ export default function Navbar() {
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png"
               alt="Teach AI For India"
               width={190}
-              height={72}
-              className="object-contain h-[52px] w-auto"
+              height={52}
+              className="object-contain"
+              style={{ width: "auto", height: "52px" }}
               priority
+              loading="eager"
             />
           </motion.div>
         </Link>
