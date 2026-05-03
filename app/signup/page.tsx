@@ -6,10 +6,11 @@ import Image from "next/image"
 import { User, Mail, Lock, Hash, MapPin, ArrowRight, CheckCircle2, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { addUser, getUserByEmail, type StoredUser } from "@/lib/storage"
 
 const CAMPUSES = ["KKH", "CDU", "NSRIT", "NRI", "CIET", "Chevella", "Aurora", "Annamacharya", "MRV"]
 
-type UIState = "form" | "success"
+type UIState = "form" | "success" | "duplicate_email"
 
 interface FormData {
   fullName: string
@@ -42,6 +43,7 @@ export default function SignupPage() {
   function set(field: keyof FormData, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }))
     setErrors((prev) => ({ ...prev, [field]: undefined }))
+    if (uiState === "duplicate_email") setUiState("form")
   }
 
   function validate(): boolean {
@@ -59,11 +61,32 @@ export default function SignupPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) return
+
     setLoading(true)
-    setTimeout(() => {
+
+    // Check for duplicate email
+    const existing = getUserByEmail(form.email.trim().toLowerCase())
+    if (existing) {
+      setErrors((prev) => ({ ...prev, email: "An account with this email already exists" }))
+      setUiState("duplicate_email")
       setLoading(false)
-      setUiState("success")
-    }, 900)
+      return
+    }
+
+    const newUser: StoredUser = {
+      id:        crypto.randomUUID(),
+      fullName:  form.fullName.trim(),
+      niatId:    form.niatId.trim(),
+      campus:    form.campus,
+      email:     form.email.trim().toLowerCase(),
+      password:  form.password,
+      status:    "pending",
+      createdAt: new Date().toISOString(),
+    }
+
+    addUser(newUser)
+    setLoading(false)
+    setUiState("success")
   }
 
   // ── Success screen ────────────────────────────────────────────
@@ -79,7 +102,7 @@ export default function SignupPage() {
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-3">Account Created Successfully</h1>
           <p className="text-muted-foreground leading-relaxed text-sm max-w-sm mx-auto">
-            Your account is pending admin approval. Please wait until you are approved before accessing the dashboard.
+            Your account is pending admin approval. You will be able to access the dashboard once approved.
           </p>
 
           <div className="mt-8 p-4 rounded-2xl border border-border bg-white text-left space-y-2.5">
@@ -87,6 +110,10 @@ export default function SignupPage() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Name</span>
               <span className="font-medium text-foreground">{form.fullName}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">NIAT ID</span>
+              <span className="font-medium text-foreground font-mono text-xs">{form.niatId}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Campus</span>

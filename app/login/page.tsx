@@ -1,52 +1,67 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Mail, Lock, ArrowRight, Clock, CheckCircle2, AlertCircle } from "lucide-react"
+import { Mail, Lock, ArrowRight, Clock, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-
-// Simulated users
-const MOCK_USERS = [
-  { email: "approved@campus.edu", password: "password123", status: "approved", campus: "MRV" },
-  { email: "pending@campus.edu",  password: "password123", status: "pending",  campus: "CDU" },
-]
+import {
+  getUserByEmail,
+  saveCurrentUser,
+  getCurrentUser,
+  type StoredUser,
+} from "@/lib/storage"
 
 type UIState = "form" | "pending" | "error"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail]       = useState("")
-  const [password, setPassword] = useState("")
-  const [uiState, setUiState]   = useState<UIState>("form")
-  const [loading, setLoading]   = useState(false)
+  const [email, setEmail]           = useState("")
+  const [password, setPassword]     = useState("")
+  const [showPassword, setShow]     = useState(false)
+  const [uiState, setUiState]       = useState<UIState>("form")
+  const [loading, setLoading]       = useState(false)
+  const [pendingUser, setPendingUser] = useState<StoredUser | null>(null)
+
+  // If already logged in and approved, redirect immediately
+  useEffect(() => {
+    const cur = getCurrentUser()
+    if (cur?.status === "approved") router.replace("/dashboard")
+  }, [router])
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
 
+    // Small delay for UX feel
     setTimeout(() => {
-      const user = MOCK_USERS.find(
-        (u) => u.email === email.trim().toLowerCase() && u.password === password
-      )
+      const user = getUserByEmail(email.trim().toLowerCase())
 
-      if (!user) {
+      if (!user || user.password !== password) {
         setUiState("error")
         setLoading(false)
         return
       }
 
       if (user.status === "pending") {
+        setPendingUser(user)
         setUiState("pending")
         setLoading(false)
         return
       }
 
-      // approved — go to dashboard
+      if (user.status === "rejected") {
+        setUiState("error")
+        setLoading(false)
+        return
+      }
+
+      // approved — persist session and go to dashboard
+      saveCurrentUser(user)
       router.push("/dashboard")
-    }, 900)
+    }, 600)
   }
 
   // ── Pending screen ───────────────────────────────────────────
@@ -62,17 +77,35 @@ export default function LoginPage() {
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-3">Waiting for Approval</h1>
           <p className="text-muted-foreground leading-relaxed text-sm max-w-sm mx-auto">
-            Your account is under review. You will get access once admin approves your account.
+            Your account is under review. You will get access once an admin approves your account.
           </p>
-          <div className="mt-8 p-4 rounded-2xl border border-border bg-white text-left space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Account Info</p>
-            <p className="text-sm text-foreground font-medium">{email}</p>
-            <span
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
-              style={{ backgroundColor: "#FF993318", color: "#FF9933" }}
-            >
-              <Clock size={11} /> Pending Approval
-            </span>
+          <div className="mt-8 p-4 rounded-2xl border border-border bg-white text-left space-y-2.5">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Account Info</p>
+            {pendingUser && (
+              <>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Name</span>
+                  <span className="font-medium text-foreground">{pendingUser.fullName}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Campus</span>
+                  <span className="font-medium text-foreground">{pendingUser.campus}</span>
+                </div>
+              </>
+            )}
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Email</span>
+              <span className="font-medium text-foreground">{email}</span>
+            </div>
+            <div className="pt-1 border-t border-border flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Status</span>
+              <span
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
+                style={{ backgroundColor: "#FF993318", color: "#FF9933" }}
+              >
+                <Clock size={11} /> Pending Approval
+              </span>
+            </div>
           </div>
           <button
             onClick={() => { setUiState("form"); setEmail(""); setPassword("") }}
@@ -118,9 +151,7 @@ export default function LoginPage() {
             style={{ backgroundColor: "#fff1f0", borderColor: "#fca5a5", color: "#dc2626" }}
           >
             <AlertCircle size={15} className="shrink-0" />
-            Invalid email or password. Try{" "}
-            <code className="font-mono text-xs">approved@campus.edu</code> or{" "}
-            <code className="font-mono text-xs">pending@campus.edu</code>
+            Invalid email or password. Please try again.
           </div>
         )}
 
@@ -155,13 +186,20 @@ export default function LoginPage() {
               <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className="pl-9 rounded-xl"
+                className="pl-9 pr-9 rounded-xl"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setUiState("form") }}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShow((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
             </div>
           </div>
 
@@ -197,11 +235,17 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        {/* Demo hint */}
-        <div className="mt-4 p-3.5 rounded-xl bg-white border border-border text-xs text-muted-foreground space-y-1">
-          <p className="font-semibold text-foreground text-xs mb-1.5">Demo credentials</p>
-          <p className="flex items-center gap-1.5"><CheckCircle2 size={11} style={{ color: "#138808" }} /> <span className="font-mono">approved@campus.edu</span> / <span className="font-mono">password123</span> — goes to dashboard</p>
-          <p className="flex items-center gap-1.5"><Clock size={11} style={{ color: "#FF9933" }} /> <span className="font-mono">pending@campus.edu</span> / <span className="font-mono">password123</span> — shows waiting screen</p>
+        {/* Hint */}
+        <div className="mt-4 p-3.5 rounded-xl bg-white border border-border text-xs text-muted-foreground space-y-1.5">
+          <p className="font-semibold text-foreground text-xs mb-1">How to test</p>
+          <p className="flex items-start gap-1.5">
+            <CheckCircle2 size={11} className="mt-0.5 shrink-0" style={{ color: "#138808" }} />
+            Sign up with any email, then approve yourself in <Link href="/admin" className="underline">Admin Panel</Link>, then log in.
+          </p>
+          <p className="flex items-start gap-1.5">
+            <Clock size={11} className="mt-0.5 shrink-0" style={{ color: "#FF9933" }} />
+            Unapproved accounts see the pending screen.
+          </p>
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-5">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
@@ -11,16 +11,15 @@ import {
   ChevronDown, Bell, X, Menu,
 } from "lucide-react"
 import { cardItem, fadeUp, staggerContainer } from "@/lib/motion"
+import {
+  getUsers,
+  updateUserStatus,
+  getSubmissions,
+  type StoredUser,
+  type Submission,
+} from "@/lib/storage"
 
-// ─── Mock Data ───────────────────────────────────────────────────────────────
-
-const pendingUsers = [
-  { id: 1, name: "Riya Sharma", niatId: "NIAT-2024-001", campus: "MRV", email: "riya.sharma@niat.edu" },
-  { id: 2, name: "Arjun Reddy", niatId: "NIAT-2024-002", campus: "CDU", email: "arjun.reddy@niat.edu" },
-  { id: 3, name: "Priya Lakshmi", niatId: "NIAT-2024-003", campus: "NSRIT", email: "priya.lakshmi@niat.edu" },
-  { id: 4, name: "Karan Mehta", niatId: "NIAT-2024-004", campus: "Aurora", email: "karan.mehta@niat.edu" },
-  { id: 5, name: "Sneha Patel", niatId: "NIAT-2024-005", campus: "NRI", email: "sneha.patel@niat.edu" },
-]
+// ─── Static reference data ────────────────────────────────────────────────────
 
 const campusData = [
   { name: "KKH",          sessions: 6,  students: 240, status: "Active" },
@@ -34,21 +33,6 @@ const campusData = [
   { name: "MRV",          sessions: 9,  students: 360, status: "Active" },
 ]
 
-const sessionData = [
-  { campus: "MRV",          school: "ZP High School Miyapur",     visit: "First Visit",  students: 65,  topic: "Intro to AI",         date: "2024-04-28" },
-  { campus: "Chevella",     school: "MPPS Chevella Central",       visit: "Second Visit", students: 72,  topic: "Prompt Writing",      date: "2024-04-27" },
-  { campus: "CDU",          school: "ZP High School Dundigal",     visit: "First Visit",  students: 58,  topic: "AI Awareness",        date: "2024-04-26" },
-  { campus: "NSRIT",        school: "MPPS Bheemunipatnam",         visit: "Third Visit",  students: 80,  topic: "AI for Education",    date: "2024-04-25" },
-  { campus: "KKH",          school: "ZP High School Kandukur",     visit: "First Visit",  students: 45,  topic: "Intro to AI",         date: "2024-04-24" },
-  { campus: "NRI",          school: "MPPS Agiripalli",             visit: "Second Visit", students: 60,  topic: "Hands-on Learning",   date: "2024-04-23" },
-  { campus: "Aurora",       school: "ZP High School Bhongir",      visit: "First Visit",  students: 52,  topic: "AI Awareness",        date: "2024-04-22" },
-  { campus: "CIET",         school: "MPPS Warangal South",         visit: "Second Visit", students: 48,  topic: "Ethical AI",          date: "2024-04-21" },
-  { campus: "Annamacharya", school: "ZP High School Rajampet",     visit: "Third Visit",  students: 70,  topic: "AI for Education",    date: "2024-04-20" },
-  { campus: "MRV",          school: "MPPS Miyapur West",           visit: "Second Visit", students: 63,  topic: "Prompt Writing",      date: "2024-04-19" },
-  { campus: "Chevella",     school: "ZP High School Shankarpally", visit: "First Visit",  students: 55,  topic: "Intro to AI",         date: "2024-04-18" },
-  { campus: "CDU",          school: "MPPS Patancheru",             visit: "Second Visit", students: 67,  topic: "Hands-on Learning",   date: "2024-04-17" },
-]
-
 const insights = [
   { text: "MRV campus conducted 9 sessions this month impacting 360+ students — highest performer overall.", color: "#138808" },
   { text: "Chevella shows highest engagement this week with 72 students per session on average.", color: "#FF9933" },
@@ -59,9 +43,8 @@ const insights = [
 
 const alerts = [
   { text: "KKH campus has not submitted session data in the last 4 days.", level: "warning" },
-  { text: "3 user approvals are pending review.", level: "warning" },
-  { text: "CDU submitted data successfully for April 17–24.", level: "info" },
   { text: "Monthly report is due in 3 days.", level: "warning" },
+  { text: "CDU submitted data successfully for April 17–24.", level: "info" },
 ]
 
 const NAV_ITEMS = [
@@ -71,15 +54,15 @@ const NAV_ITEMS = [
   { key: "reports",    label: "Reports",        icon: FileText },
 ]
 
-const visitTypes = ["All", "First Visit", "Second Visit", "Third Visit"]
+const visitTypes  = ["All", "Outreach", "Visit 1", "Visit 2", "Visit 3", "Final Visit"]
 const campusNames = ["All", ...campusData.map((c) => c.name)]
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const statusStyle: Record<string, { bg: string; text: string }> = {
   Active:  { bg: "rgba(19,136,8,0.1)",   text: "#138808" },
   Ongoing: { bg: "rgba(255,153,51,0.12)", text: "#d47000" },
 }
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
 
 function StatCard({ label, value, icon: Icon, color }: { label: string; value: string | number; icon: React.ElementType; color: string }) {
   return (
@@ -100,19 +83,34 @@ function StatCard({ label, value, icon: Icon, color }: { label: string; value: s
 // ─── Section: Dashboard ───────────────────────────────────────────────────────
 
 function DashboardSection() {
-  const total = campusData.reduce((s, c) => s + c.students, 0)
-  const sessions = campusData.reduce((s, c) => s + c.sessions, 0)
+  const [liveUsers, setLiveUsers] = useState<StoredUser[]>([])
+  const [liveSubs, setLiveSubs]   = useState<Submission[]>([])
+
+  useEffect(() => {
+    setLiveUsers(getUsers())
+    setLiveSubs(getSubmissions())
+  }, [])
+
+  const totalStudents = campusData.reduce((s, c) => s + c.students, 0)
+  const totalSessions = campusData.reduce((s, c) => s + c.sessions, 0)
+  const pendingCount  = liveUsers.filter((u) => u.status === "pending").length
+
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-8">
-      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Students Impacted" value={total.toLocaleString()} icon={Users}       color="#FF9933" />
-        <StatCard label="Total Sessions"           value={sessions}              icon={BookOpen}    color="#138808" />
+        <StatCard label="Total Students Impacted" value={totalStudents.toLocaleString()} icon={Users}       color="#FF9933" />
+        <StatCard label="Total Sessions"           value={totalSessions}                 icon={BookOpen}    color="#138808" />
         <StatCard label="Active Campuses"          value={campusData.filter(c => c.status === "Active").length} icon={Building2} color="#1d7adb" />
-        <StatCard label="Schools Covered"          value="41"                    icon={School}      color="#e04040" />
+        <StatCard label="Submitted Records"        value={liveSubs.length}               icon={School}      color="#e04040" />
       </div>
 
-      {/* Campus performance */}
+      {pendingCount > 0 && (
+        <motion.div variants={fadeUp} className="flex items-start gap-3 rounded-xl border p-3.5 text-xs bg-amber-50 border-amber-200 text-amber-800">
+          <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+          {pendingCount} user approval{pendingCount !== 1 ? "s" : ""} pending review. Go to <strong className="ml-1">User Approvals</strong>.
+        </motion.div>
+      )}
+
       <motion.div variants={fadeUp} className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
           <h2 className="font-bold text-sm text-foreground">Campus Performance</h2>
@@ -131,17 +129,12 @@ function DashboardSection() {
               {campusData.map((c, i) => {
                 const s = statusStyle[c.status]
                 return (
-                  <tr
-                    key={c.name}
-                    className={`transition-colors hover:bg-muted/30 ${i !== campusData.length - 1 ? "border-b border-border" : ""}`}
-                  >
+                  <tr key={c.name} className={`transition-colors hover:bg-muted/30 ${i !== campusData.length - 1 ? "border-b border-border" : ""}`}>
                     <td className="px-5 py-3.5 font-semibold text-foreground">{c.name}</td>
                     <td className="px-5 py-3.5 text-muted-foreground">{c.sessions}</td>
                     <td className="px-5 py-3.5 text-muted-foreground">{c.students.toLocaleString()}</td>
                     <td className="px-5 py-3.5">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: s.bg, color: s.text }}>
-                        {c.status}
-                      </span>
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: s.bg, color: s.text }}>{c.status}</span>
                     </td>
                   </tr>
                 )
@@ -151,16 +144,11 @@ function DashboardSection() {
         </div>
       </motion.div>
 
-      {/* Insights */}
       <motion.div variants={fadeUp}>
         <h2 className="font-bold text-sm text-foreground mb-3">Insights &amp; Summary</h2>
         <div className="grid md:grid-cols-2 gap-3">
           {insights.map((ins, i) => (
-            <motion.div
-              key={i}
-              variants={cardItem}
-              className="bg-white border border-border rounded-xl p-4 flex gap-3 items-start shadow-sm hover:shadow-md transition-shadow"
-            >
+            <motion.div key={i} variants={cardItem} className="bg-white border border-border rounded-xl p-4 flex gap-3 items-start shadow-sm hover:shadow-md transition-shadow">
               <span className="mt-0.5 shrink-0 w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${ins.color}15` }}>
                 <Lightbulb size={13} style={{ color: ins.color }} />
               </span>
@@ -170,16 +158,11 @@ function DashboardSection() {
         </div>
       </motion.div>
 
-      {/* Alerts */}
       <motion.div variants={fadeUp}>
         <h2 className="font-bold text-sm text-foreground mb-3">Alerts</h2>
         <div className="space-y-2">
           {alerts.map((a, i) => (
-            <div key={i} className={`flex items-start gap-3 rounded-xl border p-3.5 text-xs ${
-              a.level === "warning"
-                ? "bg-amber-50 border-amber-200 text-amber-800"
-                : "bg-blue-50 border-blue-200 text-blue-800"
-            }`}>
+            <div key={i} className={`flex items-start gap-3 rounded-xl border p-3.5 text-xs ${a.level === "warning" ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-blue-50 border-blue-200 text-blue-800"}`}>
               <AlertTriangle size={13} className="mt-0.5 shrink-0" />
               {a.text}
             </div>
@@ -193,13 +176,29 @@ function DashboardSection() {
 // ─── Section: Approvals ───────────────────────────────────────────────────────
 
 function ApprovalsSection() {
-  const [users, setUsers] = useState(pendingUsers)
+  const [users, setUsers] = useState<StoredUser[]>([])
   const [toasts, setToasts] = useState<{ id: number; msg: string; type: "ok" | "reject" }[]>([])
 
-  const act = (id: number, approve: boolean) => {
-    const user = users.find((u) => u.id === id)!
+  useEffect(() => {
+    // Load only pending users from localStorage
+    setUsers(getUsers().filter((u) => u.status === "pending"))
+  }, [])
+
+  const act = (id: string, approve: boolean) => {
+    const user = users.find((u) => u.id === id)
+    if (!user) return
+
+    // Update localStorage
+    updateUserStatus(id, approve ? "approved" : "rejected")
+
+    // Remove from local list
     setUsers((prev) => prev.filter((u) => u.id !== id))
-    const toast = { id: Date.now(), msg: approve ? `${user.name} approved successfully.` : `${user.name} was rejected.`, type: (approve ? "ok" : "reject") as "ok" | "reject" }
+
+    const toast = {
+      id: Date.now(),
+      msg: approve ? `${user.fullName} approved successfully.` : `${user.fullName} was rejected.`,
+      type: (approve ? "ok" : "reject") as "ok" | "reject",
+    }
     setToasts((t) => [...t, toast])
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== toast.id)), 3500)
   }
@@ -230,8 +229,11 @@ function ApprovalsSection() {
       </div>
 
       {users.length === 0 ? (
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-          className="bg-white border border-border rounded-2xl p-12 flex flex-col items-center gap-3 text-center shadow-sm">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white border border-border rounded-2xl p-12 flex flex-col items-center gap-3 text-center shadow-sm"
+        >
           <CheckCircle2 size={36} className="text-[#138808]" />
           <p className="font-semibold text-foreground">All caught up!</p>
           <p className="text-xs text-muted-foreground">No pending approvals at this time.</p>
@@ -242,7 +244,7 @@ function ApprovalsSection() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                  {["Full Name", "NIAT ID", "Campus", "Email", "Actions"].map((h) => (
+                  {["Full Name", "NIAT ID", "Campus", "Email", "Signed Up", "Actions"].map((h) => (
                     <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-muted-foreground">{h}</th>
                   ))}
                 </tr>
@@ -257,12 +259,15 @@ function ApprovalsSection() {
                       transition={{ duration: 0.25 }}
                       className={`transition-colors hover:bg-muted/30 ${i !== users.length - 1 ? "border-b border-border" : ""}`}
                     >
-                      <td className="px-5 py-3.5 font-semibold text-foreground">{u.name}</td>
+                      <td className="px-5 py-3.5 font-semibold text-foreground">{u.fullName}</td>
                       <td className="px-5 py-3.5 text-muted-foreground font-mono text-xs">{u.niatId}</td>
                       <td className="px-5 py-3.5">
                         <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">{u.campus}</span>
                       </td>
                       <td className="px-5 py-3.5 text-muted-foreground text-xs">{u.email}</td>
+                      <td className="px-5 py-3.5 text-muted-foreground text-xs whitespace-nowrap">
+                        {new Date(u.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
+                      </td>
                       <td className="px-5 py-3.5">
                         <div className="flex gap-2">
                           <button
@@ -288,6 +293,56 @@ function ApprovalsSection() {
           </div>
         </div>
       )}
+
+      {/* All users overview */}
+      <AllUsersTable />
+    </div>
+  )
+}
+
+function AllUsersTable() {
+  const [allUsers, setAllUsers] = useState<StoredUser[]>([])
+  useEffect(() => { setAllUsers(getUsers()) }, [])
+
+  if (allUsers.length === 0) return null
+
+  const statusBadge = (s: StoredUser["status"]) => {
+    if (s === "approved") return { bg: "rgba(19,136,8,0.1)", text: "#138808", label: "Approved" }
+    if (s === "rejected") return { bg: "rgba(220,38,38,0.1)", text: "#dc2626", label: "Rejected" }
+    return { bg: "rgba(255,153,51,0.12)", text: "#d47000", label: "Pending" }
+  }
+
+  return (
+    <div>
+      <h3 className="font-bold text-sm text-foreground mb-3">All Registered Users ({allUsers.length})</h3>
+      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/40">
+                {["Name", "Campus", "Email", "Status"].map((h) => (
+                  <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-muted-foreground">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {allUsers.map((u, i) => {
+                const badge = statusBadge(u.status)
+                return (
+                  <tr key={u.id} className={`transition-colors hover:bg-muted/30 ${i !== allUsers.length - 1 ? "border-b border-border" : ""}`}>
+                    <td className="px-5 py-3 font-medium text-foreground">{u.fullName}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{u.campus}</td>
+                    <td className="px-5 py-3 text-muted-foreground text-xs">{u.email}</td>
+                    <td className="px-5 py-3">
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: badge.bg, color: badge.text }}>{badge.label}</span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }
@@ -296,44 +351,45 @@ function ApprovalsSection() {
 
 function DataSection() {
   const [campusFilter, setCampusFilter] = useState("All")
-  const [visitFilter, setVisitFilter] = useState("All")
+  const [visitFilter, setVisitFilter]   = useState("All")
+  const [allSubs, setAllSubs]           = useState<Submission[]>([])
 
-  const filtered = sessionData.filter(
-    (s) => (campusFilter === "All" || s.campus === campusFilter) && (visitFilter === "All" || s.visit === visitFilter)
+  useEffect(() => {
+    setAllSubs(getSubmissions())
+  }, [])
+
+  const filtered = allSubs.filter(
+    (s) =>
+      (campusFilter === "All" || s.campus === campusFilter) &&
+      (visitFilter  === "All" || s.visitType === visitFilter)
   )
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="font-bold text-sm text-foreground">Submitted Session Data</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">{filtered.length} records found</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{filtered.length} record{filtered.length !== 1 ? "s" : ""} found</p>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
           <Filter size={13} /> Filter:
         </div>
-        <div className="relative">
-          <select
-            value={campusFilter}
-            onChange={(e) => setCampusFilter(e.target.value)}
-            className="appearance-none bg-white border border-border rounded-lg px-3 py-1.5 pr-7 text-xs font-medium text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            {campusNames.map((c) => <option key={c}>{c}</option>)}
-          </select>
-          <ChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-        </div>
-        <div className="relative">
-          <select
-            value={visitFilter}
-            onChange={(e) => setVisitFilter(e.target.value)}
-            className="appearance-none bg-white border border-border rounded-lg px-3 py-1.5 pr-7 text-xs font-medium text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            {visitTypes.map((v) => <option key={v}>{v}</option>)}
-          </select>
-          <ChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-        </div>
+        {[
+          { value: campusFilter, onChange: setCampusFilter, options: campusNames },
+          { value: visitFilter,  onChange: setVisitFilter,  options: visitTypes },
+        ].map((f, i) => (
+          <div key={i} className="relative">
+            <select
+              value={f.value}
+              onChange={(e) => f.onChange(e.target.value)}
+              className="appearance-none bg-white border border-border rounded-lg px-3 py-1.5 pr-7 text-xs font-medium text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              {f.options.map((c) => <option key={c}>{c}</option>)}
+            </select>
+            <ChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          </div>
+        ))}
       </div>
 
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
@@ -341,46 +397,52 @@ function DataSection() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40">
-                {["Campus", "School Name", "Visit Type", "Students", "Topic Covered", "Date"].map((h) => (
+                {["Campus", "School Name", "Visit Type", "Students", "Topic", "Date"].map((h) => (
                   <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               <AnimatePresence mode="wait">
-                {filtered.map((row, i) => (
-                  <motion.tr
-                    key={`${row.campus}-${row.school}-${i}`}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ delay: i * 0.03, duration: 0.2 }}
-                    className={`transition-colors hover:bg-muted/30 ${i !== filtered.length - 1 ? "border-b border-border" : ""}`}
-                  >
-                    <td className="px-5 py-3.5 font-semibold text-foreground whitespace-nowrap">{row.campus}</td>
-                    <td className="px-5 py-3.5 text-muted-foreground">{row.school}</td>
-                    <td className="px-5 py-3.5 whitespace-nowrap">
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{
-                        background: row.visit === "First Visit" ? "rgba(29,122,219,0.1)" : row.visit === "Second Visit" ? "rgba(255,153,51,0.1)" : "rgba(19,136,8,0.1)",
-                        color: row.visit === "First Visit" ? "#1d7adb" : row.visit === "Second Visit" ? "#d47000" : "#138808",
-                      }}>
-                        {row.visit}
-                      </span>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={6}>
+                      <div className="py-16 flex flex-col items-center gap-2 text-muted-foreground">
+                        <Database size={28} className="opacity-30" />
+                        <p className="text-sm">
+                          {allSubs.length === 0
+                            ? "No session data submitted yet. Team members need to log sessions from their dashboard."
+                            : "No records match the selected filters."}
+                        </p>
+                      </div>
                     </td>
-                    <td className="px-5 py-3.5 text-muted-foreground font-semibold">{row.students}</td>
-                    <td className="px-5 py-3.5 text-muted-foreground">{row.topic}</td>
-                    <td className="px-5 py-3.5 text-muted-foreground font-mono text-xs whitespace-nowrap">{row.date}</td>
-                  </motion.tr>
-                ))}
+                  </tr>
+                ) : (
+                  filtered.map((row, i) => (
+                    <motion.tr
+                      key={row.id}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ delay: i * 0.03, duration: 0.2 }}
+                      className={`transition-colors hover:bg-muted/30 ${i !== filtered.length - 1 ? "border-b border-border" : ""}`}
+                    >
+                      <td className="px-5 py-3.5 font-semibold text-foreground whitespace-nowrap">{row.campus}</td>
+                      <td className="px-5 py-3.5 text-muted-foreground max-w-[160px] truncate">{row.schoolName}</td>
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-orange-50 text-orange-700">{row.visitType}</span>
+                      </td>
+                      <td className="px-5 py-3.5 text-muted-foreground font-semibold">{row.studentsCount}</td>
+                      <td className="px-5 py-3.5 text-muted-foreground max-w-[180px] truncate">{row.topicCovered}</td>
+                      <td className="px-5 py-3.5 text-muted-foreground font-mono text-xs whitespace-nowrap">
+                        {new Date(row.submittedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                      </td>
+                    </motion.tr>
+                  ))
+                )}
               </AnimatePresence>
             </tbody>
           </table>
-          {filtered.length === 0 && (
-            <div className="py-16 flex flex-col items-center gap-2 text-muted-foreground">
-              <Database size={28} className="opacity-30" />
-              <p className="text-sm">No records match the selected filters.</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -390,20 +452,24 @@ function DataSection() {
 // ─── Section: Reports ────────────────────────────────────────────────────────
 
 function ReportsSection() {
-  const [report, setReport] = useState<string | null>(null)
+  const [report, setReport]       = useState<string | null>(null)
   const [generating, setGenerating] = useState(false)
 
   const generate = (type: "weekly" | "monthly") => {
     setGenerating(true)
     setReport(null)
+    const subs  = getSubmissions()
+    const users = getUsers()
+    const approved = users.filter((u) => u.status === "approved").length
+    const totalStudents = campusData.reduce((s, c) => s + c.students, 0)
+    const totalSessions = campusData.reduce((s, c) => s + c.sessions, 0)
+
     setTimeout(() => {
       setGenerating(false)
-      const totalStudents = campusData.reduce((s, c) => s + c.students, 0)
-      const totalSessions = campusData.reduce((s, c) => s + c.sessions, 0)
       setReport(
         type === "weekly"
-          ? `Weekly Report — Week of April 22–28, 2024\n\n${totalSessions} total sessions were conducted across ${campusData.length} campuses, impacting ${totalStudents.toLocaleString()} students. MRV led with 9 sessions. Chevella showed the highest per-session student count at 72. CDU, NSRIT, and Aurora submitted regular updates. 'Intro to AI' remained the most covered topic across campuses. 3 user approvals are pending action.`
-          : `Monthly Report — April 2024\n\n${totalSessions * 4} sessions estimated across all campuses throughout April, reaching approximately ${(totalStudents * 3.8).toLocaleString()} students across Telangana and Andhra Pradesh. MRV and Chevella performed above monthly targets. CIET and KKH are tracking steady growth. All 9 campuses remain active with consistent school visits. The cluster-based model is showing measurable scale — 41 schools covered in total.`
+          ? `Weekly Report — Week of ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}\n\n${totalSessions} total sessions conducted across ${campusData.length} campuses, impacting ${totalStudents.toLocaleString()} students.\n\nRegistered users: ${users.length} total, ${approved} approved.\nSession records in system: ${subs.length}.\n\nMRV led with 9 sessions. Chevella showed the highest per-session student count at 72. 'Intro to AI' remained the most covered topic across campuses.`
+          : `Monthly Report — ${new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}\n\nApproximate ${totalSessions * 4} sessions across all campuses, reaching ~${(totalStudents * 3.8).toLocaleString()} students.\n\nRegistered users: ${users.length} total, ${approved} approved, ${users.filter((u) => u.status === "pending").length} pending.\nTotal session records: ${subs.length}.\n\nAll 9 campuses active with consistent school visits. The cluster-based model is showing measurable scale — 41 schools covered in total.`
       )
     }, 900)
   }
@@ -456,7 +522,12 @@ function ReportsSection() {
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState("dashboard")
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen]     = useState(false)
+  const [pendingCount, setPendingCount]   = useState(0)
+
+  useEffect(() => {
+    setPendingCount(getUsers().filter((u) => u.status === "pending").length)
+  }, [activeSection]) // re-check when switching sections
 
   const sectionComponents: Record<string, React.ReactNode> = {
     dashboard: <DashboardSection />,
@@ -467,14 +538,12 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f7f8] flex">
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
       <aside className={`fixed top-0 left-0 h-full w-60 bg-white border-r border-border z-40 flex flex-col transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:z-auto`}>
-        {/* Logo */}
         <div className="px-5 py-5 border-b border-border flex items-center justify-between">
           <Link href="/">
             <Image
@@ -491,7 +560,6 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* Nav items */}
         <nav className="flex-1 px-3 py-4 space-y-1">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon
@@ -501,16 +569,14 @@ export default function AdminPage() {
                 key={item.key}
                 onClick={() => { setActiveSection(item.key); setSidebarOpen(false) }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  active
-                    ? "bg-[#FF9933] text-white shadow-sm"
-                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  active ? "bg-[#FF9933] text-white shadow-sm" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 }`}
               >
                 <Icon size={16} />
                 {item.label}
-                {item.key === "approvals" && (
+                {item.key === "approvals" && pendingCount > 0 && (
                   <span className={`ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full ${active ? "bg-white/25 text-white" : "bg-red-100 text-red-600"}`}>
-                    {pendingUsers.length}
+                    {pendingCount}
                   </span>
                 )}
               </button>
@@ -518,52 +584,49 @@ export default function AdminPage() {
           })}
         </nav>
 
-        {/* Logout */}
         <div className="px-3 pb-5">
           <Link
             href="/"
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-red-50 hover:text-red-600 transition-colors"
           >
             <LogOut size={16} />
-            Logout
+            Back to Home
           </Link>
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
         <header className="bg-white border-b border-border px-5 py-3.5 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-3">
             <button className="md:hidden text-muted-foreground hover:text-foreground transition-colors" onClick={() => setSidebarOpen(true)}>
               <Menu size={20} />
             </button>
             <div>
-              <h1 className="font-bold text-sm text-foreground">Admin Dashboard</h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">Manage operations and track impact across campuses</p>
+              <h1 className="font-bold text-sm text-foreground">Admin Panel</h1>
+              <p className="text-xs text-muted-foreground hidden sm:block">Manage users, sessions, and operations</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <button className="relative text-muted-foreground hover:text-foreground transition-colors">
               <Bell size={17} />
-              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center font-bold">3</span>
+              {pendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center font-bold">
+                  {pendingCount}
+                </span>
+              )}
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-[#FF9933]/20 flex items-center justify-center text-xs font-bold text-[#FF9933]">
-                A
-              </div>
+              <div className="w-7 h-7 rounded-full bg-[#FF9933]/20 flex items-center justify-center text-xs font-bold text-[#FF9933]">A</div>
               <div className="hidden sm:block text-right">
                 <p className="text-xs font-semibold text-foreground">admin@teachai.in</p>
                 <p className="text-[10px] text-muted-foreground">Administrator</p>
               </div>
             </div>
-            <span className="hidden sm:block text-xs font-bold px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#138808" }}>
-              Admin
-            </span>
+            <span className="hidden sm:block text-xs font-bold px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#138808" }}>Admin</span>
           </div>
         </header>
 
-        {/* Section content */}
         <main className="flex-1 px-5 py-7 max-w-5xl w-full mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
