@@ -35,18 +35,15 @@ export default function Navbar() {
     >
       <nav className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
+        <Link href="/" className="flex items-center shrink-0">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-utVImw7aIF3hRy6UnXGxCDPl9BkpVL.png"
-            alt="Teach AI For India logo"
-            width={36}
-            height={36}
-            className="rounded-lg"
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png"
+            alt="Teach AI For India — NIAT Student General Council"
+            width={160}
+            height={60}
+            className="object-contain"
+            priority
           />
-          <span className="font-bold text-base text-foreground leading-tight hidden sm:block">
-            Teach <span style={{ color: "#FF9933" }}>AI</span> For{" "}
-            <span style={{ color: "#138808" }}>India</span>
-          </span>
         </Link>
 
         {/* Desktop nav */}

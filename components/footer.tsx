@@ -9,19 +9,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="flex items-center gap-3">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-utVImw7aIF3hRy6UnXGxCDPl9BkpVL.png"
-              alt="Teach AI For India"
-              width={32}
-              height={32}
-              className="rounded-lg"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png"
+              alt="Teach AI For India — NIAT Student General Council"
+              width={130}
+              height={50}
+              className="object-contain"
             />
-            <div>
-              <p className="font-bold text-sm text-foreground">
-                Teach <span style={{ color: "#FF9933" }}>AI</span> For{" "}
-                <span style={{ color: "#138808" }}>India</span>
-              </p>
-              <p className="text-xs text-muted-foreground">Built by NIAT Students</p>
-            </div>
           </div>
 
           {/* Links */}

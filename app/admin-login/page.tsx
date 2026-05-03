@@ -18,18 +18,14 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2.5 justify-center mb-6">
+          <Link href="/" className="inline-flex justify-center mb-6">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-utVImw7aIF3hRy6UnXGxCDPl9BkpVL.png"
-              alt="Teach AI For India"
-              width={44}
-              height={44}
-              className="rounded-xl"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png"
+              alt="Teach AI For India — NIAT Student General Council"
+              width={200}
+              height={78}
+              className="object-contain"
             />
-            <span className="font-bold text-lg text-foreground">
-              Teach <span style={{ color: "#FF9933" }}>AI</span> For{" "}
-              <span style={{ color: "#138808" }}>India</span>
-            </span>
           </Link>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-3 text-white" style={{ backgroundColor: "#138808" }}>
             <ShieldCheck size={12} />

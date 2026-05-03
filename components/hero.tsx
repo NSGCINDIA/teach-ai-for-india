@@ -35,11 +35,11 @@ export default function Hero() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-utVImw7aIF3hRy6UnXGxCDPl9BkpVL.png"
-            alt="Teach AI For India"
-            width={120}
-            height={120}
-            className="rounded-2xl shadow-lg"
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png"
+            alt="Teach AI For India — NIAT Student General Council"
+            width={280}
+            height={110}
+            className="object-contain drop-shadow-md"
             priority
           />
         </div>
