@@ -39,13 +39,12 @@ export default function GeographicReach() {
     >
       {/* Animated parallax orbs */}
       <motion.div
-        style={{ y: bgY }}
-        className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full pointer-events-none"
         style={{ y: bgY, background: "radial-gradient(circle, rgba(255,153,51,0.1) 0%, transparent 65%)" }}
+        className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full pointer-events-none"
       />
       <motion.div
-        className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full pointer-events-none"
         style={{ y: useTransform(scrollYProgress, [0, 1], ["0%", "-20%"]), background: "radial-gradient(circle, rgba(19,136,8,0.1) 0%, transparent 65%)" }}
+        className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full pointer-events-none"
       />
       {/* Dot grid overlay */}
       <div className="absolute inset-0 dot-grid opacity-10 pointer-events-none" />
@@ -147,7 +146,7 @@ export default function GeographicReach() {
               >
                 <motion.span
                   animate={{ opacity: [1, 0.3, 1] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", type: "tween" }}
                   className="w-1.5 h-1.5 rounded-full"
                   style={{ backgroundColor: state.color }}
                 />

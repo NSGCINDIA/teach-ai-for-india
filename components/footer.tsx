@@ -83,7 +83,7 @@ export default function Footer() {
               <motion.span
                 key={i}
                 animate={{ opacity: [0.6, 1, 0.6] }}
-                transition={{ repeat: Infinity, duration: 2.5, delay: i * 0.4, ease: "easeInOut" }}
+                transition={{ repeat: Infinity, duration: 2.5, delay: i * 0.4, ease: "easeInOut", type: "tween" }}
                 className="w-2.5 h-2.5 rounded-full"
                 style={{ backgroundColor: color }}
               />

@@ -30,13 +30,13 @@ export default function LiveExecution() {
           <motion.div variants={slideLeft} initial="hidden" animate={inView ? "show" : "hidden"}>
             <motion.div
               animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider mb-3 text-white"
               style={{ backgroundColor: "#138808" }}
             >
               <motion.span
                 animate={{ opacity: [1, 0.3, 1] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut", type: "tween" }}
               >
                 <Wifi size={10} />
               </motion.span>
@@ -54,10 +54,10 @@ export default function LiveExecution() {
           >
             <motion.span
               animate={{ opacity: [1, 0.4, 1] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", type: "tween" }}
               className="w-2 h-2 rounded-full"
               style={{ backgroundColor: "#138808" }}
-            />
+          />
             5 campuses active right now
           </motion.div>
         </div>
@@ -98,7 +98,7 @@ export default function LiveExecution() {
                   >
                     <motion.span
                       animate={{ opacity: [1, 0.3, 1] }}
-                      transition={{ repeat: Infinity, duration: 2 }}
+                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", type: "tween" }}
                       className="w-1.5 h-1.5 rounded-full"
                       style={{ backgroundColor: cfg.dot }}
                     />

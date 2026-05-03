@@ -57,9 +57,8 @@ export default function ProgramStructure() {
           {/* Animated connector line */}
           <div className="hidden md:block absolute top-[3.5rem] left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-[2px] overflow-hidden rounded-full bg-border">
             <motion.div
-              style={{ scaleX: lineScale, originX: 0 }}
+              style={{ scaleX: lineScale, originX: 0, background: "linear-gradient(90deg, #FF9933 0%, #138808 50%, #1d7adb 100%)" }}
               className="absolute inset-0 rounded-full"
-              style={{ background: "linear-gradient(90deg, #FF9933 0%, #138808 50%, #1d7adb 100%)", scaleX: lineScale, originX: 0 }}
             />
           </div>
 

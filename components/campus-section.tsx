@@ -78,7 +78,7 @@ export default function CampusSection() {
                   >
                     <motion.span
                       animate={{ opacity: [1, 0.3, 1] }}
-                      transition={{ repeat: Infinity, duration: 2.5 }}
+                      transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut", type: "tween" }}
                       className="w-1.5 h-1.5 rounded-full"
                       style={{ backgroundColor: style.dot }}
                     />
