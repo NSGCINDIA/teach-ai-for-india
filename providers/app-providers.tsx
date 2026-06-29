@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from 'next-themes'
+import { MotionConfig } from 'framer-motion'
 import { Toaster } from '@/components/ui/sonner'
 
 /**
@@ -34,8 +35,13 @@ export function AppProviders({ children }: { children: ReactNode }) {
         // so React 19 doesn't warn "Encountered a script tag while rendering" on the client.
         scriptProps={{ type: 'text/javascript' }}
       >
-        {children}
-        <Toaster richColors position="top-right" />
+        {/* reducedMotion="user" honors the OS setting WITHOUT branching the React
+            tree per component, so SSR and client markup stay identical (no
+            hydration mismatch from useReducedMotion). */}
+        <MotionConfig reducedMotion="user">
+          {children}
+          <Toaster richColors position="top-right" />
+        </MotionConfig>
       </ThemeProvider>
     </QueryClientProvider>
   )

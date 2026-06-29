@@ -21,6 +21,7 @@ on conflict (slug) do nothing;
 -- ─── CMS content blocks (PRD §7.10) — one JSONB blob per block_key ────────────
 insert into content_blocks (block_key, content) values
   ('hero', jsonb_build_object(
+      'eyebrow', 'Now live across Telangana & Andhra Pradesh',
       'headline', 'Building India''s first student-led AI education movement',
       'subheadline', 'We bring applied AI literacy to government school students across Telangana & Andhra Pradesh — run entirely by students.',
       'primaryCtaText', 'See our impact',
