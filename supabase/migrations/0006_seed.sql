@@ -66,5 +66,10 @@ insert into content_blocks (block_key, content) values
 
   ('contact_info', jsonb_build_object(
       'email','hello@teachaiforindia.org',
-      'instagram',null,'linkedin',null,'phone',null))
+      'phone','+91 90000 00000',
+      'address','Hyderabad, Telangana, India',
+      'social', jsonb_build_array(
+        jsonb_build_object('label','Instagram','href','#'),
+        jsonb_build_object('label','LinkedIn','href','#'),
+        jsonb_build_object('label','Twitter','href','#'))))
 on conflict (block_key) do nothing;
