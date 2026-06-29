@@ -25,7 +25,15 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+        // Explicit type marks the anti-flash inline script as an executable data block,
+        // so React 19 doesn't warn "Encountered a script tag while rendering" on the client.
+        scriptProps={{ type: 'text/javascript' }}
+      >
         {children}
         <Toaster richColors position="top-right" />
       </ThemeProvider>
