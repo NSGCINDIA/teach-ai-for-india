@@ -1,12 +1,41 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Mail, Lock, ShieldCheck, ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Mail, Lock, ShieldCheck, ArrowRight, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { getUserByEmail, saveCurrentUser, getCurrentUser, DEFAULT_ADMIN } from "@/lib/storage"
 
 export default function AdminLoginPage() {
+  const router = useRouter()
+  const [email, setEmail]       = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError]       = useState(false)
+  const [loading, setLoading]   = useState(false)
+
+  useEffect(() => {
+    const cur = getCurrentUser()
+    if (cur?.role === "admin") router.replace("/admin")
+  }, [router])
+
+  function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setTimeout(() => {
+      const user = getUserByEmail(email.trim().toLowerCase())
+      if (!user || user.password !== password || user.role !== "admin") {
+        setError(true)
+        setLoading(false)
+        return
+      }
+      saveCurrentUser(user)
+      router.push("/admin")
+    }, 500)
+  }
+
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4"
@@ -35,8 +64,18 @@ export default function AdminLoginPage() {
           <p className="text-sm text-muted-foreground mt-1">Platform administrator access</p>
         </div>
 
+        {error && (
+          <div
+            className="flex items-center gap-2.5 text-sm p-3.5 rounded-xl mb-4 border"
+            style={{ backgroundColor: "#fff1f0", borderColor: "#fca5a5", color: "#dc2626" }}
+          >
+            <AlertCircle size={15} className="shrink-0" />
+            Invalid admin credentials.
+          </div>
+        )}
+
         {/* Card */}
-        <div className="bg-white rounded-2xl border border-border shadow-sm p-8 space-y-4">
+        <form onSubmit={handleLogin} className="bg-white rounded-2xl border border-border shadow-sm p-8 space-y-4">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground" htmlFor="email">
               Admin Email
@@ -48,6 +87,9 @@ export default function AdminLoginPage() {
                 type="email"
                 placeholder="admin@teachaiforindia.org"
                 className="pl-9 rounded-xl"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(false) }}
+                required
               />
             </div>
           </div>
@@ -63,18 +105,27 @@ export default function AdminLoginPage() {
                 type="password"
                 placeholder="••••••••"
                 className="pl-9 rounded-xl"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setError(false) }}
+                required
               />
             </div>
           </div>
 
           <Button
+            type="submit"
+            disabled={loading}
             className="w-full rounded-xl text-white font-semibold mt-2 hover:opacity-90"
             style={{ backgroundColor: "#138808" }}
-            asChild
           >
-            <Link href="/admin">
-              Access Admin Panel <ArrowRight size={15} className="ml-1" />
-            </Link>
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                Signing in...
+              </span>
+            ) : (
+              <>Access Admin Panel <ArrowRight size={15} className="ml-1" /></>
+            )}
           </Button>
 
           <p className="text-center text-xs text-muted-foreground">
@@ -83,6 +134,13 @@ export default function AdminLoginPage() {
               Team Login
             </Link>
           </p>
+        </form>
+
+        {/* Default credentials hint */}
+        <div className="mt-4 p-3.5 rounded-xl bg-white border border-border text-xs text-muted-foreground">
+          <p className="font-semibold text-foreground mb-1">Default admin login</p>
+          <p className="font-mono">{DEFAULT_ADMIN.email}</p>
+          <p className="font-mono">{DEFAULT_ADMIN.password}</p>
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6">

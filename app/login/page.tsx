@@ -28,7 +28,7 @@ export default function LoginPage() {
   // If already logged in and approved, redirect immediately
   useEffect(() => {
     const cur = getCurrentUser()
-    if (cur?.status === "approved") router.replace("/dashboard")
+    if (cur?.status === "approved") router.replace(cur.role === "admin" ? "/admin" : "/dashboard")
   }, [router])
 
   function handleLogin(e: React.FormEvent) {
@@ -58,9 +58,9 @@ export default function LoginPage() {
         return
       }
 
-      // approved — persist session and go to dashboard
+      // approved — persist session and route by role
       saveCurrentUser(user)
-      router.push("/dashboard")
+      router.push(user.role === "admin" ? "/admin" : "/dashboard")
     }, 600)
   }
 

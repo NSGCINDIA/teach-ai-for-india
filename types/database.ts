@@ -1,0 +1,186 @@
+/**
+ * Database types — hand-authored to mirror supabase/migrations exactly.
+ * Shaped to match `supabase gen types` so it drops in as the SupabaseClient
+ * generic: createClient<Database>(). Regenerate with the CLI once the project
+ * exists to keep this in lockstep.
+ */
+
+// ─── Enums (mirror 0001_schema.sql) ──────────────────────────────────────────
+export type UserRole =
+  | 'super_admin' | 'mgmt_admin' | 'campus_lead' | 'outreach_head'
+  | 'exec_lead' | 'volunteer' | 'school_poc' | 'viewer'
+
+export type SchoolTypeEnum = 'government' | 'government_aided' | 'private'
+export type BoardType = 'state' | 'cbse' | 'icse' | 'other'
+export type SchoolStatus =
+  | 'lead_identified' | 'contacted' | 'followup_pending' | 'approval_requested'
+  | 'approval_received' | 'session_scheduled' | 'session_in_progress'
+  | 'completed' | 'archived'
+export type SessionType =
+  | 'awareness' | 'hands_on' | 'prompt_writing' | 'ethics_safety'
+  | 'application_project' | 'followup'
+export type SessionStatus =
+  | 'planned' | 'in_progress' | 'reported' | 'campus_approved' | 'verified' | 'cancelled'
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'left_early'
+export type ReimbursementStatus =
+  | 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'paid'
+export type TravelMode = 'auto' | 'bus' | 'cab' | 'train' | 'own_vehicle' | 'other'
+export type MediaFileType =
+  | 'photo' | 'video' | 'document' | 'receipt' | 'letter' | 'presentation' | 'other'
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected'
+export type MediaEntityType = 'session' | 'school' | 'campus' | 'reimbursement'
+
+type Timestamps = { created_at: string; updated_at: string }
+
+// ─── Row shapes ──────────────────────────────────────────────────────────────
+export interface CampusRow extends Timestamps {
+  id: string; name: string; university_name: string; city: string; state: string
+  slug: string; lead_user_id: string | null; is_active: boolean
+  target_schools: number; target_students: number; target_sessions: number
+  quarter: string | null; description: string | null; hero_image_url: string | null
+}
+
+export interface UserRow extends Timestamps {
+  id: string; email: string; full_name: string; phone: string | null
+  role: UserRole; campus_id: string | null; avatar_url: string | null
+  is_active: boolean; invited_by: string | null; invited_at: string | null
+  last_login_at: string | null
+}
+
+export interface SchoolRow extends Timestamps {
+  id: string; name: string; school_type: SchoolTypeEnum; board: BoardType
+  state: string; district: string; cluster: string | null; mandal: string | null
+  address: string | null; dise_code: string | null; campus_id: string | null
+  outreach_lead_id: string | null; status: SchoolStatus; next_action_date: string | null
+  notes: string | null; total_sessions: number; total_students: number
+  is_duplicate_flagged: boolean; created_by: string | null
+}
+
+export interface SchoolContactRow {
+  id: string; school_id: string; name: string; designation: string
+  phone: string | null; email: string | null; whatsapp: string | null
+  is_primary: boolean; created_at: string
+}
+
+export interface SchoolStatusHistoryRow {
+  id: string; school_id: string; previous_status: string | null; new_status: string
+  changed_by: string | null; note: string | null; created_at: string
+}
+
+export interface SessionRow extends Timestamps {
+  id: string; school_id: string; campus_id: string | null; session_number: number
+  session_type: SessionType; date: string; start_time: string | null
+  end_time: string | null; duration_minutes: number | null; status: SessionStatus
+  topic: string; student_count: number | null; volunteer_count: number | null
+  team_members_present: string[]; notes: string | null; challenges: string | null
+  next_steps: string | null; improvement_notes: string | null
+  type_details: Record<string, unknown>; previous_session_id: string | null
+  created_by: string | null; reviewed_by: string | null; reviewed_at: string | null
+  verified_by: string | null; verified_at: string | null
+}
+
+export interface AttendanceRow {
+  id: string; session_id: string; user_id: string; status: AttendanceStatus
+  arrival_time: string | null; departure_time: string | null; notes: string | null
+  marked_by: string | null; created_at: string
+}
+
+export interface ReimbursementRow extends Timestamps {
+  id: string; reference_number: string; claimant_id: string; session_id: string | null
+  campus_id: string | null; amount: number; travel_mode: TravelMode; reason: string | null
+  claim_date: string; status: ReimbursementStatus; reviewed_by: string | null
+  reviewed_at: string | null; reviewer_note: string | null; payment_date: string | null
+  payment_reference: string | null; payment_method: string | null; anomaly_flags: string[]
+}
+
+export interface MediaAssetRow {
+  id: string; storage_path: string; file_name: string; file_type: MediaFileType
+  mime_type: string | null; file_size_bytes: number | null
+  entity_type: MediaEntityType; entity_id: string; campus_id: string | null
+  school_id: string | null; session_id: string | null; is_featured: boolean
+  is_public: boolean; approval_status: ApprovalStatus; caption: string | null
+  uploaded_by: string | null; approved_by: string | null; deleted_at: string | null
+  created_at: string
+}
+
+export interface NotificationRow {
+  id: string; recipient_id: string; type: string; title: string; body: string | null
+  action_url: string | null; entity_type: string | null; entity_id: string | null
+  is_read: boolean; read_at: string | null; created_at: string
+}
+
+export interface ContentBlockRow {
+  id: string; block_key: string; content: Record<string, unknown>
+  updated_by: string | null; updated_at: string
+}
+
+export interface AuditLogRow {
+  id: string; actor_id: string | null; action: string; entity_type: string
+  entity_id: string | null; detail: Record<string, unknown>; created_at: string
+}
+
+// View rows
+export interface PublicImpactStats {
+  schools_reached: number; students_impacted: number; sessions_completed: number
+  active_campuses: number; states_count: number
+}
+export interface PublicCampusCard {
+  id: string; name: string; slug: string; university_name: string; city: string
+  state: string; description: string | null; hero_image_url: string | null
+  lead_name: string | null; lead_avatar_url: string | null
+  schools_reached: number; students_impacted: number; sessions_completed: number
+}
+export interface CampusRollup {
+  campus_id: string; name: string; slug: string
+  target_schools: number; target_students: number; target_sessions: number; quarter: string | null
+  schools_total: number; schools_reached: number; sessions_completed: number
+  students_impacted: number; volunteers: number; last_session_date: string | null
+}
+
+// ─── Database generic (supabase-js) ──────────────────────────────────────────
+type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
+  Row: Row; Insert: Insert; Update: Update; Relationships: []
+}
+
+export interface Database {
+  public: {
+    Tables: {
+      campuses: TableDef<CampusRow>
+      users: TableDef<UserRow>
+      schools: TableDef<SchoolRow>
+      school_contacts: TableDef<SchoolContactRow>
+      school_status_history: TableDef<SchoolStatusHistoryRow>
+      sessions: TableDef<SessionRow>
+      attendance_records: TableDef<AttendanceRow>
+      reimbursements: TableDef<ReimbursementRow>
+      media_assets: TableDef<MediaAssetRow>
+      notifications: TableDef<NotificationRow>
+      content_blocks: TableDef<ContentBlockRow>
+      audit_log: TableDef<AuditLogRow>
+    }
+    Views: {
+      public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
+      public_campus_cards: { Row: PublicCampusCard; Relationships: [] }
+      campus_rollups: { Row: CampusRollup; Relationships: [] }
+      finance_campus_spend: { Row: Record<string, number | string | null>; Relationships: [] }
+      finance_monthly_trend: { Row: { month: string; approved_total: number }; Relationships: [] }
+    }
+    Functions: {
+      change_school_status: {
+        Args: { p_school_id: string; p_new_status: SchoolStatus; p_note?: string }
+        Returns: undefined
+      }
+      find_similar_schools: {
+        Args: { p_name: string; p_district: string; p_threshold?: number }
+        Returns: { id: string; name: string; district: string; campus_id: string; status: SchoolStatus; similarity: number }[]
+      }
+    }
+    Enums: {
+      user_role: UserRole; school_type: SchoolTypeEnum; board_type: BoardType
+      school_status: SchoolStatus; session_type: SessionType; session_status: SessionStatus
+      attendance_status: AttendanceStatus; reimbursement_status: ReimbursementStatus
+      travel_mode: TravelMode; media_file_type: MediaFileType; approval_status: ApprovalStatus
+      media_entity_type: MediaEntityType
+    }
+  }
+}

@@ -3,10 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { User, Mail, Lock, Hash, MapPin, ArrowRight, CheckCircle2, Eye, EyeOff } from "lucide-react"
+import { User, Mail, Lock, Hash, MapPin, ArrowRight, CheckCircle2, Eye, EyeOff, Users, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { addUser, getUserByEmail, type StoredUser } from "@/lib/storage"
+import { addUser, getUserByEmail, type StoredUser, type Role } from "@/lib/storage"
 
 const CAMPUSES = ["KKH", "CDU", "NSRIT", "NRI", "CIET", "Chevella", "Aurora", "Annamacharya", "MRV"]
 
@@ -16,6 +16,7 @@ interface FormData {
   fullName: string
   niatId: string
   campus: string
+  role: Exclude<Role, "admin">
   email: string
   password: string
   confirmPassword: string
@@ -36,12 +37,12 @@ export default function SignupPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState<FormData>({
-    fullName: "", niatId: "", campus: "", email: "", password: "", confirmPassword: "",
+    fullName: "", niatId: "", campus: "", role: "volunteer", email: "", password: "", confirmPassword: "",
   })
   const [errors, setErrors] = useState<Errors>({})
 
   function set(field: keyof FormData, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value as never }))
     setErrors((prev) => ({ ...prev, [field]: undefined }))
     if (uiState === "duplicate_email") setUiState("form")
   }
@@ -78,6 +79,7 @@ export default function SignupPage() {
       fullName:  form.fullName.trim(),
       niatId:    form.niatId.trim(),
       campus:    form.campus,
+      role:      form.role,
       email:     form.email.trim().toLowerCase(),
       password:  form.password,
       status:    "pending",
@@ -118,6 +120,10 @@ export default function SignupPage() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Campus</span>
               <span className="font-medium text-foreground">{form.campus}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Role</span>
+              <span className="font-medium text-foreground">{form.role === "campus_lead" ? "Campus Lead" : "Volunteer"}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Email</span>
@@ -210,6 +216,36 @@ export default function SignupPage() {
               </select>
             </div>
             {errors.campus && <p className="text-xs text-destructive">{errors.campus}</p>}
+          </div>
+
+          {/* Role */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">I am joining as a</label>
+            <div className="grid grid-cols-2 gap-2.5">
+              {([
+                { value: "volunteer",   label: "Volunteer",   desc: "Run sessions & log data", icon: Users },
+                { value: "campus_lead", label: "Campus Lead", desc: "Coordinate a campus",     icon: Crown },
+              ] as const).map(({ value, label, desc, icon: Icon }) => {
+                const selected = form.role === value
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => set("role", value)}
+                    className="text-left p-3 rounded-xl border transition-all"
+                    style={
+                      selected
+                        ? { borderColor: "#138808", backgroundColor: "#13880810" }
+                        : { borderColor: "var(--border)", backgroundColor: "#fff" }
+                    }
+                  >
+                    <Icon size={16} style={{ color: selected ? "#138808" : "var(--muted-foreground)" }} />
+                    <p className="text-sm font-semibold text-foreground mt-1.5">{label}</p>
+                    <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{desc}</p>
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Email */}
