@@ -190,8 +190,8 @@ export interface Database {
         Returns: undefined
       }
       find_similar_schools: {
-        Args: { p_name: string; p_district: string; p_threshold?: number }
-        Returns: { id: string; name: string; district: string; campus_id: string; status: SchoolStatus; similarity: number }[]
+        Args: { p_name: string; p_district: string; p_max_distance?: number }
+        Returns: { id: string; name: string; district: string; campus_id: string | null; status: SchoolStatus; distance: number }[]
       }
     }
     Enums: {

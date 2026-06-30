@@ -82,6 +82,23 @@ export function isAdmin(role: UserRole): boolean {
   return role === 'super_admin' || role === 'mgmt_admin'
 }
 
+/**
+ * Resolve a campus-scoped permission against a specific entity. 'all' → always,
+ * 'own' → only when the entity belongs to the user's campus, false → never.
+ * Mirrors the RLS rule; UI gating only (the DB is the real check).
+ */
+export function canForEntity(
+  role: UserRole,
+  permission: Permission,
+  userCampusId: string | null,
+  entityCampusId: string | null,
+): boolean {
+  const scope = can(role, permission)
+  if (scope === 'all') return true
+  if (scope === 'own') return !!userCampusId && userCampusId === entityCampusId
+  return false
+}
+
 /** Where a role lands after login. Admins → admin panel; everyone else → dashboard. */
 export function roleHomePath(role: UserRole): string {
   if (isAdmin(role)) return '/admin'

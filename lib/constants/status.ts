@@ -41,6 +41,30 @@ export const SCHOOL_PIPELINE: SchoolStatus[] = [
   'approval_received', 'session_scheduled', 'session_in_progress', 'completed',
 ]
 
+/**
+ * Legal status transitions — MUST mirror school_transition_allowed() in
+ * 0011_school_state_machine.sql. The UI uses this to offer only valid next
+ * states; the DB is the real enforcement (PRD §13.3). 'archived' → reopen is
+ * admin-only and surfaced separately.
+ */
+export const SCHOOL_TRANSITIONS: Record<SchoolStatus, SchoolStatus[]> = {
+  lead_identified:     ['contacted', 'archived'],
+  contacted:           ['followup_pending', 'approval_requested', 'lead_identified', 'archived'],
+  followup_pending:    ['contacted', 'approval_requested', 'archived'],
+  approval_requested:  ['approval_received', 'followup_pending', 'archived'],
+  approval_received:   ['session_scheduled', 'approval_requested', 'archived'],
+  session_scheduled:   ['session_in_progress', 'approval_received', 'archived'],
+  session_in_progress: ['completed', 'session_scheduled', 'archived'],
+  completed:           ['archived'],
+  archived:            ['lead_identified'],
+}
+
+/** Transitions that always require a reason note (archive + every backward step). */
+export function schoolTransitionNeedsNote(from: SchoolStatus, to: SchoolStatus): boolean {
+  if (to === 'archived') return true
+  return SCHOOL_PIPELINE.indexOf(to) < SCHOOL_PIPELINE.indexOf(from)
+}
+
 export const SESSION_STATUS_META: Record<SessionStatus, { label: string; tone: StatusTone }> = {
   planned:        { label: 'Planned',         tone: 'neutral' },
   in_progress:    { label: 'In Progress',     tone: 'progress' },

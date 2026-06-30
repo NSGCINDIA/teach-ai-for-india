@@ -17,7 +17,7 @@ export interface NavItem {
 const DASHBOARD_NAV: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'My Sessions', href: '/dashboard/sessions', icon: CalendarDays, soon: true },
-  { label: 'My Schools', href: '/dashboard/schools', icon: School, soon: true },
+  { label: 'My Schools', href: '/dashboard/schools', icon: School },
   { label: 'Attendance', href: '/dashboard/attendance', icon: ClipboardCheck, soon: true },
   { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: Receipt, soon: true },
   { label: 'Evidence', href: '/dashboard/evidence', icon: Images, soon: true },
@@ -28,7 +28,7 @@ const DASHBOARD_NAV: NavItem[] = [
 const ADMIN_NAV: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
   { label: 'Campuses', href: '/admin/campuses', icon: Building2, soon: true },
-  { label: 'Schools', href: '/admin/schools', icon: School, soon: true },
+  { label: 'Schools', href: '/admin/schools', icon: School },
   { label: 'Sessions', href: '/admin/sessions', icon: CalendarDays, soon: true },
   { label: 'Volunteers', href: '/admin/volunteers', icon: Users, soon: true },
   { label: 'Finance', href: '/admin/finance', icon: Wallet, soon: true },
