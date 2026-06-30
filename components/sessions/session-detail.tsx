@@ -1,24 +1,27 @@
 import Link from 'next/link'
-import { ArrowLeft, CalendarDays, Clock, ClipboardCheck, MapPin, Pencil, Users } from 'lucide-react'
-import type { SessionDetail } from '@/lib/data/sessions'
-import type { TeamMember } from '@/lib/data/sessions'
+import { ArrowLeft, CalendarDays, Clock, ClipboardCheck, Images, MapPin, Pencil, Users } from 'lucide-react'
+import type { SessionDetail, TeamMember } from '@/lib/data/sessions'
+import type { EvidenceListItem } from '@/lib/data/evidence'
 import { SESSION_TYPE_META, SESSION_TYPE_FIELD } from '@/lib/constants/sessions'
+import { MEDIA_TYPE_META } from '@/lib/constants/evidence'
 import { formatDate } from '@/lib/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { SessionStatusControl } from '@/components/sessions/session-status-control'
 import { AttendanceEditor } from '@/components/sessions/attendance-editor'
+import { EvidenceUploader } from '@/components/evidence/evidence-uploader'
 
 interface Props {
   session: SessionDetail
   members: TeamMember[]
+  evidence: EvidenceListItem[]
   basePath: string
   schoolBasePath: string
   canEdit: boolean
 }
 
-export function SessionDetailView({ session, members, basePath, schoolBasePath, canEdit }: Props) {
+export function SessionDetailView({ session, members, evidence, basePath, schoolBasePath, canEdit }: Props) {
   const field = SESSION_TYPE_FIELD[session.session_type]
   const detail = session.type_details?.[field.key] as string | undefined
   const time = [session.start_time, session.end_time].filter(Boolean).map((t) => t!.slice(0, 5)).join(' – ')
@@ -84,6 +87,47 @@ export function SessionDetailView({ session, members, basePath, schoolBasePath, 
                 }))}
                 canEdit={canEdit}
               />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Images className="size-4" /> Evidence</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Reporting needs at least 1 photo and 1 attendance document. {evidence.length} file{evidence.length === 1 ? '' : 's'} attached.
+              </p>
+              {canEdit && (
+                <EvidenceUploader
+                  entityType="session"
+                  entityId={session.id}
+                  campusId={session.campus_id}
+                  schoolId={session.school_id}
+                  sessionId={session.id}
+                />
+              )}
+              {evidence.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {evidence.map((m) => (
+                    <a
+                      key={m.id}
+                      href={m.signed_url ?? undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group relative block aspect-square overflow-hidden rounded-lg border border-border bg-muted"
+                      title={`${m.file_name} · ${MEDIA_TYPE_META[m.file_type].label}`}
+                    >
+                      {m.file_type === 'photo' && m.signed_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={m.signed_url} alt={m.caption ?? m.file_name} className="size-full object-cover" loading="lazy" />
+                      ) : (
+                        <span className="grid size-full place-items-center px-1 text-center text-[10px] text-muted-foreground">
+                          {MEDIA_TYPE_META[m.file_type].label}
+                        </span>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
