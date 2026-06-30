@@ -92,18 +92,18 @@ export async function getContactInfo(): Promise<ContactInfo> {
   }
 }
 
-export async function getPublicGallery(limit = 24): Promise<EvidenceItem[]> {
+export async function getPublicGallery(limit = 24, campusId?: string): Promise<EvidenceItem[]> {
   if (!hasSupabaseEnv()) return []
   try {
     const supabase = await createClient()
-    const { data } = await supabase
+    let query = supabase
       .from('media_assets')
-      .select('id, storage_path, file_name, file_type, caption')
+      .select('id, storage_path, file_name, file_type, caption, campus_id, created_at')
       .eq('is_public', true)
       .eq('approval_status', 'approved')
       .is('deleted_at', null)
-      .order('created_at', { ascending: false })
-      .limit(limit)
+    if (campusId) query = query.eq('campus_id', campusId)
+    const { data } = await query.order('created_at', { ascending: false }).limit(limit)
     if (!data) return []
     const base = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/public-assets/`
     return data.map((m) => ({
@@ -112,6 +112,8 @@ export async function getPublicGallery(limit = 24): Promise<EvidenceItem[]> {
       fileType: m.file_type as MediaFileType,
       fileName: m.file_name,
       caption: m.caption,
+      campusId: m.campus_id,
+      createdAt: m.created_at,
     }))
   } catch {
     return []

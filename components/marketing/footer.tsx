@@ -13,6 +13,7 @@ const ENGAGE_LINKS = [
   { href: '/faq', label: 'FAQ' },
   { href: '/contact', label: 'Contact' },
   { href: '/join', label: 'Volunteer' },
+  { href: '/login', label: 'Login' },
 ]
 
 /** Multi-column site footer with contact details from the CMS and an India-made tagline. */
