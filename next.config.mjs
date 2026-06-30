@@ -18,9 +18,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     formats: ['image/webp'],
     remotePatterns: [

@@ -3,6 +3,11 @@
  * Shaped to match `supabase gen types` so it drops in as the SupabaseClient
  * generic: createClient<Database>(). Regenerate with the CLI once the project
  * exists to keep this in lockstep.
+ *
+ * NOTE: Row shapes MUST be `type` aliases (not `interface`). Supabase's
+ * GenericSchema constraint requires `Record<string, unknown>`-compatible types,
+ * and TS interfaces do not satisfy an index signature — using `interface` here
+ * silently makes `supabase.from(...)` resolve to `never`.
  */
 
 // ─── Enums (mirror 0001_schema.sql) ──────────────────────────────────────────
@@ -29,25 +34,26 @@ export type MediaFileType =
   | 'photo' | 'video' | 'document' | 'receipt' | 'letter' | 'presentation' | 'other'
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected'
 export type MediaEntityType = 'session' | 'school' | 'campus' | 'reimbursement'
+export type ApplicationStatus = 'new' | 'reviewing' | 'invited' | 'rejected'
 
 type Timestamps = { created_at: string; updated_at: string }
 
 // ─── Row shapes ──────────────────────────────────────────────────────────────
-export interface CampusRow extends Timestamps {
+export type CampusRow = Timestamps & {
   id: string; name: string; university_name: string; city: string; state: string
   slug: string; lead_user_id: string | null; is_active: boolean
   target_schools: number; target_students: number; target_sessions: number
   quarter: string | null; description: string | null; hero_image_url: string | null
 }
 
-export interface UserRow extends Timestamps {
+export type UserRow = Timestamps & {
   id: string; email: string; full_name: string; phone: string | null
   role: UserRole; campus_id: string | null; avatar_url: string | null
   is_active: boolean; invited_by: string | null; invited_at: string | null
   last_login_at: string | null
 }
 
-export interface SchoolRow extends Timestamps {
+export type SchoolRow = Timestamps & {
   id: string; name: string; school_type: SchoolTypeEnum; board: BoardType
   state: string; district: string; cluster: string | null; mandal: string | null
   address: string | null; dise_code: string | null; campus_id: string | null
@@ -56,18 +62,18 @@ export interface SchoolRow extends Timestamps {
   is_duplicate_flagged: boolean; created_by: string | null
 }
 
-export interface SchoolContactRow {
+export type SchoolContactRow = {
   id: string; school_id: string; name: string; designation: string
   phone: string | null; email: string | null; whatsapp: string | null
   is_primary: boolean; created_at: string
 }
 
-export interface SchoolStatusHistoryRow {
+export type SchoolStatusHistoryRow = {
   id: string; school_id: string; previous_status: string | null; new_status: string
   changed_by: string | null; note: string | null; created_at: string
 }
 
-export interface SessionRow extends Timestamps {
+export type SessionRow = Timestamps & {
   id: string; school_id: string; campus_id: string | null; session_number: number
   session_type: SessionType; date: string; start_time: string | null
   end_time: string | null; duration_minutes: number | null; status: SessionStatus
@@ -79,13 +85,13 @@ export interface SessionRow extends Timestamps {
   verified_by: string | null; verified_at: string | null
 }
 
-export interface AttendanceRow {
+export type AttendanceRow = {
   id: string; session_id: string; user_id: string; status: AttendanceStatus
   arrival_time: string | null; departure_time: string | null; notes: string | null
   marked_by: string | null; created_at: string
 }
 
-export interface ReimbursementRow extends Timestamps {
+export type ReimbursementRow = Timestamps & {
   id: string; reference_number: string; claimant_id: string; session_id: string | null
   campus_id: string | null; amount: number; travel_mode: TravelMode; reason: string | null
   claim_date: string; status: ReimbursementStatus; reviewed_by: string | null
@@ -93,7 +99,7 @@ export interface ReimbursementRow extends Timestamps {
   payment_reference: string | null; payment_method: string | null; anomaly_flags: string[]
 }
 
-export interface MediaAssetRow {
+export type MediaAssetRow = {
   id: string; storage_path: string; file_name: string; file_type: MediaFileType
   mime_type: string | null; file_size_bytes: number | null
   entity_type: MediaEntityType; entity_id: string; campus_id: string | null
@@ -103,34 +109,45 @@ export interface MediaAssetRow {
   created_at: string
 }
 
-export interface NotificationRow {
+export type NotificationRow = {
   id: string; recipient_id: string; type: string; title: string; body: string | null
   action_url: string | null; entity_type: string | null; entity_id: string | null
   is_read: boolean; read_at: string | null; created_at: string
 }
 
-export interface ContentBlockRow {
+export type ContentBlockRow = {
   id: string; block_key: string; content: Record<string, unknown>
   updated_by: string | null; updated_at: string
 }
 
-export interface AuditLogRow {
+export type AuditLogRow = {
   id: string; actor_id: string | null; action: string; entity_type: string
   entity_id: string | null; detail: Record<string, unknown>; created_at: string
 }
 
+export type VolunteerApplicationRow = {
+  id: string; full_name: string; email: string; phone: string | null
+  campus_slug: string | null; motivation: string | null; status: ApplicationStatus
+  reviewed_by: string | null; created_at: string
+}
+
+export type ContactMessageRow = {
+  id: string; name: string; email: string; subject: string | null
+  message: string; is_handled: boolean; created_at: string
+}
+
 // View rows
-export interface PublicImpactStats {
+export type PublicImpactStats = {
   schools_reached: number; students_impacted: number; sessions_completed: number
   active_campuses: number; states_count: number
 }
-export interface PublicCampusCard {
+export type PublicCampusCard = {
   id: string; name: string; slug: string; university_name: string; city: string
   state: string; description: string | null; hero_image_url: string | null
   lead_name: string | null; lead_avatar_url: string | null
   schools_reached: number; students_impacted: number; sessions_completed: number
 }
-export interface CampusRollup {
+export type CampusRollup = {
   campus_id: string; name: string; slug: string
   target_schools: number; target_students: number; target_sessions: number; quarter: string | null
   schools_total: number; schools_reached: number; sessions_completed: number
@@ -157,12 +174,14 @@ export interface Database {
       notifications: TableDef<NotificationRow>
       content_blocks: TableDef<ContentBlockRow>
       audit_log: TableDef<AuditLogRow>
+      volunteer_applications: TableDef<VolunteerApplicationRow>
+      contact_messages: TableDef<ContactMessageRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
       public_campus_cards: { Row: PublicCampusCard; Relationships: [] }
       campus_rollups: { Row: CampusRollup; Relationships: [] }
-      finance_campus_spend: { Row: Record<string, number | string | null>; Relationships: [] }
+      finance_campus_spend: { Row: { campus_id: string | null; pending_count: number; approved_total: number; paid_total: number; unpaid_liabilities: number; month_to_date: number }; Relationships: [] }
       finance_monthly_trend: { Row: { month: string; approved_total: number }; Relationships: [] }
     }
     Functions: {
@@ -180,7 +199,8 @@ export interface Database {
       school_status: SchoolStatus; session_type: SessionType; session_status: SessionStatus
       attendance_status: AttendanceStatus; reimbursement_status: ReimbursementStatus
       travel_mode: TravelMode; media_file_type: MediaFileType; approval_status: ApprovalStatus
-      media_entity_type: MediaEntityType
+      media_entity_type: MediaEntityType; application_status: ApplicationStatus
     }
+    CompositeTypes: Record<string, never>
   }
 }

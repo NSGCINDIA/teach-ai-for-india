@@ -1,7 +1,9 @@
 import type { NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
-export async function middleware(request: NextRequest) {
+// Next 16 "proxy" convention (formerly middleware): runs before rendering to
+// refresh the Supabase session and enforce route protection + role routing.
+export async function proxy(request: NextRequest) {
   return updateSession(request)
 }
 

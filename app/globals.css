@@ -3,36 +3,91 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Design tokens — PRD §12.2. shadcn semantic vars are mapped onto the brand
+   palette (do NOT use shadcn defaults directly — PRD §12.3).
+   ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.09 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.09 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.09 0 0);
-  --primary: oklch(0.71 0.18 46.5);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.41 0.12 145.5);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.965 0 0);
-  --muted-foreground: oklch(0.50 0 0);
-  --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.09 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.915 0 0);
-  --input: oklch(0.915 0 0);
-  --ring: oklch(0.71 0.18 46.5);
   --radius: 0.875rem;
 
-  --saffron: #FF9933;
-  --india-green: #138808;
-  --surface: #f5f5f5;
+  /* Brand */
+  --brand: #1b4dff;          /* Trust, technology */
+  --brand-orange: #ff6b35;   /* Energy, India */
+  --brand-teal: #00c9a7;     /* Growth, education */
+
+  /* shadcn semantic (light) */
+  --background: #ffffff;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #1b4dff;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f3f9;
+  --secondary-foreground: #111827;
+  --muted: #f8f9fc;
+  --muted-foreground: #6b7280;
+  --accent: #eef1fb;
+  --accent-foreground: #1b4dff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e4e7ef;
+  --input: #e4e7ef;
+  --ring: #1b4dff;
+  --placeholder: #9ca3af;
+
+  /* Semantic */
+  --success: #16a34a;
+  --warning: #d97706;
+  --error: #dc2626;
+  --info: #2563eb;
+
+  /* Status badge colors (CRM + sessions — PRD §12.2) */
+  --status-lead: #9ca3af;
+  --status-contacted: #60a5fa;
+  --status-pending: #fbbf24;
+  --status-approved: #34d399;
+  --status-completed: #6366f1;
+  --status-archived: #e5e7eb;
+
+  --chart-1: #1b4dff;
+  --chart-2: #ff6b35;
+  --chart-3: #00c9a7;
+  --chart-4: #6366f1;
+  --chart-5: #fbbf24;
+}
+
+.dark {
+  --background: #0b0e14;
+  --foreground: #f8f9fc;
+  --card: #11151d;
+  --card-foreground: #f8f9fc;
+  --popover: #11151d;
+  --popover-foreground: #f8f9fc;
+  --primary: #5c82ff;
+  --primary-foreground: #0b0e14;
+  --secondary: #1a2030;
+  --secondary-foreground: #f8f9fc;
+  --muted: #161b26;
+  --muted-foreground: #9ca3af;
+  --accent: #1a2233;
+  --accent-foreground: #5c82ff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #232a38;
+  --input: #232a38;
+  --ring: #5c82ff;
+  --placeholder: #6b7280;
+
+  --status-archived: #2a3140;
 }
 
 @theme inline {
-  --font-sans: 'Inter', 'Geist', sans-serif;
-  --font-mono: 'Geist Mono', monospace;
+  --font-sans: var(--font-body), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), 'Plus Jakarta Sans', ui-sans-serif, sans-serif;
+  --font-mono: var(--font-mono-code), 'JetBrains Mono', ui-monospace, monospace;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -52,10 +107,34 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  /* Brand + semantic utilities (bg-brand, text-brand-teal, bg-success, …) */
+  --color-brand: var(--brand);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-teal: var(--brand-teal);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+
+  --color-status-lead: var(--status-lead);
+  --color-status-contacted: var(--status-contacted);
+  --color-status-pending: var(--status-pending);
+  --color-status-approved: var(--status-approved);
+  --color-status-completed: var(--status-completed);
+  --color-status-archived: var(--status-archived);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 12px);
 }
 
 @layer base {
@@ -64,80 +143,91 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
   html {
     scroll-behavior: smooth;
-    perspective: 1200px;
+  }
+  ::placeholder {
+    color: var(--placeholder);
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Utilities
+   ═══════════════════════════════════════════════════════════════════════════ */
 @layer utilities {
   .section-padding {
-    @apply py-24 md:py-32 px-4 md:px-8 lg:px-16;
+    @apply py-20 md:py-28 px-5 md:px-8 lg:px-16;
   }
   .section-padding-sm {
-    @apply py-16 md:py-22 px-4 md:px-8 lg:px-16;
+    @apply py-14 md:py-20 px-5 md:px-8 lg:px-16;
+  }
+  .container-wide {
+    @apply mx-auto w-full max-w-7xl;
   }
   .section-label {
     @apply text-xs font-bold uppercase tracking-[0.18em];
   }
-  .india-stripe {
-    background: linear-gradient(90deg, #FF9933 0%, #ffffff 50%, #138808 100%);
+  .text-gradient-brand {
+    background: linear-gradient(120deg, var(--brand) 0%, #4f46e5 45%, var(--brand-teal) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  /* Floating dot grid background */
+  .text-gradient-warm {
+    background: linear-gradient(120deg, var(--brand-orange) 0%, #f43f5e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .glass {
+    background: color-mix(in srgb, var(--card) 70%, transparent);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+  }
   .dot-grid {
-    background-image: radial-gradient(circle, #00000010 1px, transparent 1px);
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px);
     background-size: 24px 24px;
   }
-  /* Glow effects */
-  .glow-saffron {
-    box-shadow: 0 0 40px 0 rgba(255, 153, 51, 0.18), 0 8px 32px -8px rgba(255, 153, 51, 0.15);
+  .shadow-soft {
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.12);
   }
-  .glow-green {
-    box-shadow: 0 0 40px 0 rgba(19, 136, 8, 0.15), 0 8px 32px -8px rgba(19, 136, 8, 0.12);
+  .shadow-soft-lg {
+    box-shadow: 0 2px 4px rgba(16, 24, 40, 0.05), 0 24px 48px -20px rgba(16, 24, 40, 0.18);
   }
-  /* 3D perspective container */
-  .perspective-card {
-    transform-style: preserve-3d;
-    will-change: transform;
-  }
-  /* Gradient text */
-  .text-gradient-india {
-    background: linear-gradient(135deg, #FF9933 0%, #e07000 50%, #138808 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  /* Shimmer loading bar */
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-  .shimmer::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
-    animation: shimmer 2.5s infinite;
-  }
-  /* Orb pulse animation */
-  @keyframes orb-pulse {
-    0%, 100% { opacity: 0.4; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(1.08); }
-  }
-  .orb-pulse { animation: orb-pulse 4s ease-in-out infinite; }
-  /* Ticker scroll */
-  @keyframes ticker {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-  .ticker-track { animation: ticker 20s linear infinite; }
-  .ticker-track:hover { animation-play-state: paused; }
-  /* Number counter flash */
-  @keyframes count-up {
-    from { opacity: 0; transform: translateY(12px); }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .count-up { animation: count-up 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .animate-fade-up { animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+  .shimmer { position: relative; overflow: hidden; }
+  .shimmer::after {
+    content: '';
+    position: absolute; inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--foreground) 6%, transparent), transparent);
+    animation: shimmer 1.8s infinite;
+  }
+}
+
+/* Accessibility — respect prefers-reduced-motion (PRD §12.4) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

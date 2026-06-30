@@ -17,7 +17,7 @@ export async function getSessionUser(): Promise<UserRow | null> {
     .eq('id', user.id)
     .single()
 
-  return (profile as UserRow) ?? null
+  return profile ?? null
 }
 
 /** Use in server components/actions that require auth. Redirects to /login otherwise. */

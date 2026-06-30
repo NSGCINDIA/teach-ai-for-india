@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import type { Database } from '@/types/database'
 import type { UserRole } from '@/types/database'
 import { roleHomePath, canAccessPath } from '@/lib/auth/rbac'
+import { SUPABASE_URL, SUPABASE_ANON_KEY, hasSupabaseEnv } from '@/lib/supabase/env'
 
 /**
  * Refreshes the Supabase session cookie on every request and enforces
@@ -15,13 +16,13 @@ export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
 
   // Before Supabase is configured, the app must still serve the public site.
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  if (!hasSupabaseEnv()) {
     return response
   }
 
   const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL!,
+    SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
