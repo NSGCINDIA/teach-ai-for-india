@@ -19,7 +19,7 @@ const DASHBOARD_NAV: NavItem[] = [
   { label: 'My Sessions', href: '/dashboard/sessions', icon: CalendarDays },
   { label: 'My Schools', href: '/dashboard/schools', icon: School },
   { label: 'Attendance', href: '/dashboard/attendance', icon: ClipboardCheck, soon: true },
-  { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: Receipt, soon: true },
+  { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: Receipt },
   { label: 'Evidence', href: '/dashboard/evidence', icon: Images },
   { label: 'Notifications', href: '/dashboard/notifications', icon: Bell, soon: true },
 ]
@@ -31,7 +31,7 @@ const ADMIN_NAV: NavItem[] = [
   { label: 'Schools', href: '/admin/schools', icon: School },
   { label: 'Sessions', href: '/admin/sessions', icon: CalendarDays },
   { label: 'Volunteers', href: '/admin/volunteers', icon: Users, soon: true },
-  { label: 'Finance', href: '/admin/finance', icon: Wallet, soon: true },
+  { label: 'Finance', href: '/admin/finance', icon: Wallet },
   { label: 'Evidence', href: '/admin/evidence', icon: Images },
   { label: 'Reports', href: '/admin/reports', icon: FileBarChart, soon: true },
   { label: 'Analytics', href: '/admin/analytics', icon: BarChart3, soon: true },

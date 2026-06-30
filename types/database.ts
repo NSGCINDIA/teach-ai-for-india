@@ -193,6 +193,10 @@ export interface Database {
         Args: { p_name: string; p_district: string; p_max_distance?: number }
         Returns: { id: string; name: string; district: string; campus_id: string | null; status: SchoolStatus; distance: number }[]
       }
+      reimbursement_window_days: {
+        Args: Record<string, never>
+        Returns: number
+      }
     }
     Enums: {
       user_role: UserRole; school_type: SchoolTypeEnum; board_type: BoardType
