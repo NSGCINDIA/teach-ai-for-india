@@ -74,6 +74,20 @@ export const SESSION_STATUS_META: Record<SessionStatus, { label: string; tone: S
   cancelled:      { label: 'Cancelled',       tone: 'danger' },
 }
 
+/**
+ * Legal session transitions — MUST mirror enforce_session_transition() in
+ * 0010_lifecycles_and_rules.sql. Cancellation is reachable from any non-terminal
+ * state (Campus Lead+ only, with a reason). The DB is the real enforcement.
+ */
+export const SESSION_TRANSITIONS: Record<SessionStatus, SessionStatus[]> = {
+  planned:         ['in_progress', 'cancelled'],
+  in_progress:     ['reported', 'cancelled'],
+  reported:        ['campus_approved', 'in_progress', 'cancelled'],
+  campus_approved: ['verified', 'reported', 'cancelled'],
+  verified:        ['cancelled'],
+  cancelled:       [],
+}
+
 export const REIMBURSEMENT_STATUS_META: Record<ReimbursementStatus, { label: string; tone: StatusTone }> = {
   draft:        { label: 'Draft',        tone: 'neutral' },
   submitted:    { label: 'Submitted',    tone: 'info' },

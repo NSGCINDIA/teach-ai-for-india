@@ -99,6 +99,24 @@ export function canForEntity(
   return false
 }
 
+/**
+ * Whether a user may edit/report a session. Mirrors the sessions_update RLS:
+ * admins, the session's creator, or a campus_lead/exec_lead of its campus.
+ */
+export function canEditSession(
+  role: UserRole,
+  userId: string,
+  userCampusId: string | null,
+  session: { campus_id: string | null; created_by: string | null },
+): boolean {
+  if (isAdmin(role)) return true
+  if (session.created_by && session.created_by === userId) return true
+  if ((role === 'campus_lead' || role === 'exec_lead') && !!userCampusId && session.campus_id === userCampusId) {
+    return true
+  }
+  return false
+}
+
 /** Where a role lands after login. Admins → admin panel; everyone else → dashboard. */
 export function roleHomePath(role: UserRole): string {
   if (isAdmin(role)) return '/admin'

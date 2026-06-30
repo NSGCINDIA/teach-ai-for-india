@@ -16,7 +16,7 @@ export interface NavItem {
 /** Team dashboard nav (PRD §8 IA). Filtered per role via canAccessPath. */
 const DASHBOARD_NAV: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'My Sessions', href: '/dashboard/sessions', icon: CalendarDays, soon: true },
+  { label: 'My Sessions', href: '/dashboard/sessions', icon: CalendarDays },
   { label: 'My Schools', href: '/dashboard/schools', icon: School },
   { label: 'Attendance', href: '/dashboard/attendance', icon: ClipboardCheck, soon: true },
   { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: Receipt, soon: true },
@@ -29,7 +29,7 @@ const ADMIN_NAV: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
   { label: 'Campuses', href: '/admin/campuses', icon: Building2, soon: true },
   { label: 'Schools', href: '/admin/schools', icon: School },
-  { label: 'Sessions', href: '/admin/sessions', icon: CalendarDays, soon: true },
+  { label: 'Sessions', href: '/admin/sessions', icon: CalendarDays },
   { label: 'Volunteers', href: '/admin/volunteers', icon: Users, soon: true },
   { label: 'Finance', href: '/admin/finance', icon: Wallet, soon: true },
   { label: 'Evidence', href: '/admin/evidence', icon: Images, soon: true },
