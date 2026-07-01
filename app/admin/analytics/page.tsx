@@ -1,5 +1,6 @@
 import { School, CalendarCheck, GraduationCap, Users, Building2, Banknote } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
+import { can } from '@/lib/auth/rbac'
 import {
   getProgramSummary,
   listCampusPerformance,
@@ -38,7 +39,8 @@ function orderedItems<S extends string>(
 }
 
 export default async function AdminAnalyticsPage() {
-  await requireAccess('/admin/analytics')
+  const user = await requireAccess('/admin/analytics')
+  const canExport = can(user.role, 'export_data') !== false
   const [summary, campuses, funnel, pipeline, monthly] = await Promise.all([
     getProgramSummary(),
     listCampusPerformance(),
@@ -65,7 +67,7 @@ export default async function AdminAnalyticsPage() {
             Program-wide impact, campus performance vs target, and operational breakdowns.
           </p>
         </div>
-        <ExportMenu />
+        {canExport && <ExportMenu />}
       </header>
 
       {/* Tier 1 — management summary (PRD §7.8 / US-ANLT-01) */}

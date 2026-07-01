@@ -27,16 +27,16 @@ const DASHBOARD_NAV: NavItem[] = [
 /** Admin panel nav (PRD §7.9 / §8). */
 const ADMIN_NAV: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
-  { label: 'Campuses', href: '/admin/campuses', icon: Building2, soon: true },
+  { label: 'Campuses', href: '/admin/campuses', icon: Building2 },
   { label: 'Schools', href: '/admin/schools', icon: School },
   { label: 'Sessions', href: '/admin/sessions', icon: CalendarDays },
-  { label: 'Volunteers', href: '/admin/volunteers', icon: Users, soon: true },
+  { label: 'Volunteers', href: '/admin/volunteers', icon: Users },
   { label: 'Finance', href: '/admin/finance', icon: Wallet },
   { label: 'Evidence', href: '/admin/evidence', icon: Images },
-  { label: 'Reports', href: '/admin/reports', icon: FileBarChart, soon: true },
+  { label: 'Reports', href: '/admin/reports', icon: FileBarChart },
   { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-  { label: 'Content', href: '/admin/content', icon: FileText, soon: true },
-  { label: 'Settings', href: '/admin/settings', icon: Settings, soon: true },
+  { label: 'Content', href: '/admin/content', icon: FileText },
+  { label: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 
 export function dashboardNav(role: UserRole): NavItem[] {
