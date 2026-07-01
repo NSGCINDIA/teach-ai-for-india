@@ -3,17 +3,40 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Sparkles } from 'lucide-react'
+import {
+  Menu, Sparkles,
+  LayoutDashboard, CalendarDays, School, ClipboardCheck, Receipt, Images, Bell,
+  Building2, Users, Wallet, FileBarChart, BarChart3, FileText, Settings,
+  type LucideIcon,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { roleLabel } from '@/lib/auth/roles'
-import type { NavItem } from '@/lib/navigation'
+import type { NavItem, NavIconKey } from '@/lib/navigation'
 import type { UserRole } from '@/types/database'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { SignOutButton } from '@/components/dashboard/sign-out-button'
+
+/** Resolves serializable nav icon keys (from the server) to Lucide components. */
+const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
+  overview: LayoutDashboard,
+  sessions: CalendarDays,
+  schools: School,
+  attendance: ClipboardCheck,
+  reimbursements: Receipt,
+  evidence: Images,
+  notifications: Bell,
+  campuses: Building2,
+  volunteers: Users,
+  finance: Wallet,
+  reports: FileBarChart,
+  analytics: BarChart3,
+  content: FileText,
+  settings: Settings,
+}
 
 interface ShellUser {
   full_name: string
@@ -89,7 +112,7 @@ function SidebarContent({
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
         {items.map((item) => {
           const active = pathname === item.href
-          const Icon = item.icon
+          const Icon = NAV_ICONS[item.icon]
           if (item.soon) {
             return (
               <span
