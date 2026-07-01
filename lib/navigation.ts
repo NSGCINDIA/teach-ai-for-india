@@ -34,7 +34,7 @@ const ADMIN_NAV: NavItem[] = [
   { label: 'Finance', href: '/admin/finance', icon: Wallet },
   { label: 'Evidence', href: '/admin/evidence', icon: Images },
   { label: 'Reports', href: '/admin/reports', icon: FileBarChart, soon: true },
-  { label: 'Analytics', href: '/admin/analytics', icon: BarChart3, soon: true },
+  { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { label: 'Content', href: '/admin/content', icon: FileText, soon: true },
   { label: 'Settings', href: '/admin/settings', icon: Settings, soon: true },
 ]

@@ -153,6 +153,22 @@ export type CampusRollup = {
   schools_total: number; schools_reached: number; sessions_completed: number
   students_impacted: number; volunteers: number; last_session_date: string | null
 }
+// Analytics (0012_analytics_views.sql)
+export type ProgramSummary = {
+  schools_total: number; schools_reached: number; sessions_completed: number
+  students_impacted: number; active_volunteers: number; active_campuses: number
+  states_count: number; approved_spend: number; pending_claims: number
+  target_students: number; target_sessions: number; target_schools: number
+}
+export type CampusPerformance = {
+  campus_id: string; name: string; slug: string
+  target_schools: number; target_students: number; target_sessions: number; quarter: string | null
+  schools_total: number; schools_reached: number; sessions_completed: number
+  students_impacted: number; volunteers: number; approved_spend: number
+  last_session_date: string | null
+}
+export type StatusCount = { status: string; count: number }
+export type MonthlyActivity = { month: string; sessions_completed: number; students_impacted: number }
 
 // ─── Database generic (supabase-js) ──────────────────────────────────────────
 type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
@@ -183,6 +199,11 @@ export interface Database {
       campus_rollups: { Row: CampusRollup; Relationships: [] }
       finance_campus_spend: { Row: { campus_id: string | null; pending_count: number; approved_total: number; paid_total: number; unpaid_liabilities: number; month_to_date: number }; Relationships: [] }
       finance_monthly_trend: { Row: { month: string; approved_total: number }; Relationships: [] }
+      program_summary: { Row: ProgramSummary; Relationships: [] }
+      campus_performance: { Row: CampusPerformance; Relationships: [] }
+      session_funnel: { Row: StatusCount; Relationships: [] }
+      school_pipeline: { Row: StatusCount; Relationships: [] }
+      monthly_activity: { Row: MonthlyActivity; Relationships: [] }
     }
     Functions: {
       change_school_status: {
