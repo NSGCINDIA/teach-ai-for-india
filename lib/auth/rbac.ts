@@ -16,6 +16,7 @@ export type Permission =
   | 'view_analytics_all'
   | 'view_analytics_campus'
   | 'upload_evidence'
+  | 'assign_volunteers'
   | 'edit_cms'
   | 'manage_user_roles'
   | 'export_data'
@@ -28,49 +29,55 @@ const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
     view_all_campuses: 'all', edit_school: 'all', create_session: 'all',
     submit_reimbursement: 'all', approve_reimbursement: 'all',
     view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: 'all',
-    edit_cms: 'all', manage_user_roles: 'all', export_data: 'all',
+    assign_volunteers: 'all', edit_cms: 'all', manage_user_roles: 'all', export_data: 'all',
   },
   mgmt_admin: {
     view_all_campuses: 'all', edit_school: 'all', create_session: 'all',
     submit_reimbursement: false, approve_reimbursement: 'all',
     view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: 'all',
-    edit_cms: 'all', manage_user_roles: false, export_data: 'all',
+    assign_volunteers: 'all', edit_cms: 'all', manage_user_roles: false, export_data: 'all',
   },
   campus_lead: {
     view_all_campuses: false, edit_school: 'own', create_session: 'own',
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
-    edit_cms: false, manage_user_roles: 'own', export_data: 'own',
+    assign_volunteers: 'own', edit_cms: false, manage_user_roles: 'own', export_data: 'own',
   },
   outreach_head: {
     view_all_campuses: false, edit_school: 'own', create_session: false,
     submit_reimbursement: 'own', approve_reimbursement: false,
-    view_analytics_all: false, view_analytics_campus: false, upload_evidence: 'own',
-    edit_cms: false, manage_user_roles: false, export_data: false,
+    view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
+    assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
   exec_lead: {
     view_all_campuses: false, edit_school: false, create_session: 'own',
     submit_reimbursement: 'own', approve_reimbursement: false,
-    view_analytics_all: false, view_analytics_campus: false, upload_evidence: 'own',
-    edit_cms: false, manage_user_roles: false, export_data: false,
+    view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
+    assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
+  },
+  volunteer_lead: {
+    view_all_campuses: false, edit_school: false, create_session: false,
+    submit_reimbursement: false, approve_reimbursement: false,
+    view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: false,
+    assign_volunteers: 'own', edit_cms: false, manage_user_roles: false, export_data: false,
   },
   volunteer: {
     view_all_campuses: false, edit_school: false, create_session: false,
     submit_reimbursement: 'own', approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: false, upload_evidence: 'own',
-    edit_cms: false, manage_user_roles: false, export_data: false,
+    assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
   school_poc: {
     view_all_campuses: false, edit_school: false, create_session: false,
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: false, upload_evidence: false,
-    edit_cms: false, manage_user_roles: false, export_data: false,
+    assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
   viewer: {
     view_all_campuses: 'all', edit_school: false, create_session: false,
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: false,
-    edit_cms: false, manage_user_roles: false, export_data: false,
+    assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
 }
 
@@ -128,7 +135,7 @@ export function roleHomePath(role: UserRole): string {
 // Most specific matching prefix wins. Roles not listed → 403.
 
 const TEAM_ROLES: UserRole[] = [
-  'super_admin', 'mgmt_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer',
+  'super_admin', 'mgmt_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead', 'volunteer',
 ]
 
 const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
@@ -140,8 +147,9 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
   { prefix: '/admin', roles: ['super_admin', 'mgmt_admin'] },
 
   // Dashboard subsections (US-AUTH-02): outreach head has NO finance, etc.
-  { prefix: '/dashboard/schools', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'outreach_head', 'exec_lead'] },
-  { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer'] },
+  // Volunteer Lead & Volunteer get schools read-only (matrix: Read Only / Assigned Only) — RLS + RBAC gate mutations.
+  { prefix: '/dashboard/schools', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead', 'volunteer'] },
+  { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead', 'volunteer'] },
   { prefix: '/dashboard', roles: TEAM_ROLES },
 ]
 

@@ -1,58 +1,44 @@
-import { CalendarDays, Receipt, School, Sparkles } from 'lucide-react'
 import { requireUser } from '@/lib/auth/user'
 import { roleLabel } from '@/lib/auth/roles'
-import { Card } from '@/components/ui/card'
+import {
+  getCampusLeadData, getOutreachData, getVolunteerLeadData, getExecData, getVolunteerData,
+} from '@/lib/data/dashboard'
+import {
+  CampusLeadOverview, OutreachOverview, VolunteerLeadOverview, ExecOverview,
+  VolunteerOverview, NoCampusOverview,
+} from '@/components/dashboard/overviews'
 
 export const metadata = { title: 'Dashboard' }
 
+/**
+ * Role-adaptive dashboard home (Team Dashboard PRD). Each leadership role sees a
+ * distinct overview wired to campus-scoped data; RLS enforces the boundary.
+ */
 export default async function DashboardOverview() {
   const user = await requireUser('/dashboard')
+  const name = user.full_name.split(' ')[0]
+  const campusId = user.campus_id
 
-  return (
-    <div className="space-y-6">
-      <header>
-        <p className="text-sm text-muted-foreground">{roleLabel(user.role)}</p>
-        <h1 className="font-display text-2xl font-bold tracking-tight">
-          Welcome back, {user.full_name.split(' ')[0]} 👋
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          This is your home base. Your operational modules light up here as we roll them out.
-        </p>
-      </header>
+  // Volunteers don't need a campus for their personal view; everyone else does.
+  if (user.role === 'volunteer') {
+    return <VolunteerOverview name={name} data={await getVolunteerData(user.id)} />
+  }
 
-      <Card className="flex items-start gap-4 border-brand/20 bg-brand/5 p-5">
-        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand text-primary-foreground">
-          <Sparkles className="size-5" />
-        </span>
-        <div>
-          <h2 className="font-display font-semibold">Phase 1 is live</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Authentication, role-based access, the public site, and the full database are in place.
-            Sessions, schools, reimbursements, and evidence arrive in Phase 2.
-          </p>
-        </div>
-      </Card>
+  if (!campusId) {
+    return <NoCampusOverview name={name} role={roleLabel(user.role)} />
+  }
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <UpcomingCard icon={CalendarDays} title="My Sessions" desc="See sessions you’re assigned to and file reports." />
-        <UpcomingCard icon={School} title="My Schools" desc="Track outreach and move schools through the pipeline." />
-        <UpcomingCard icon={Receipt} title="Reimbursements" desc="Submit travel claims and track payment status." />
-      </div>
-    </div>
-  )
-}
-
-function UpcomingCard({ icon: Icon, title, desc }: { icon: typeof School; title: string; desc: string }) {
-  return (
-    <Card className="p-5">
-      <span className="grid size-9 place-items-center rounded-lg bg-accent text-accent-foreground">
-        <Icon className="size-5" />
-      </span>
-      <h3 className="mt-3 font-display font-semibold">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
-      <span className="mt-3 inline-block rounded bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-        Phase 2
-      </span>
-    </Card>
-  )
+  switch (user.role) {
+    case 'campus_lead':
+      return <CampusLeadOverview name={name} data={await getCampusLeadData(campusId)} />
+    case 'outreach_head':
+      return <OutreachOverview name={name} data={await getOutreachData(campusId)} />
+    case 'volunteer_lead':
+      return <VolunteerLeadOverview name={name} data={await getVolunteerLeadData(campusId)} />
+    case 'exec_lead':
+      return <ExecOverview name={name} data={await getExecData(campusId, user.id)} />
+    // Admins / viewers who land here (they normally route to /admin).
+    default:
+      return <CampusLeadOverview name={name} data={await getCampusLeadData(campusId)} />
+  }
 }

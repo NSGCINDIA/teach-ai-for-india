@@ -13,7 +13,7 @@
 // ─── Enums (mirror 0001_schema.sql) ──────────────────────────────────────────
 export type UserRole =
   | 'super_admin' | 'mgmt_admin' | 'campus_lead' | 'outreach_head'
-  | 'exec_lead' | 'volunteer' | 'school_poc' | 'viewer'
+  | 'exec_lead' | 'volunteer_lead' | 'volunteer' | 'school_poc' | 'viewer'
 
 export type SchoolTypeEnum = 'government' | 'government_aided' | 'private'
 export type BoardType = 'state' | 'cbse' | 'icse' | 'other'
