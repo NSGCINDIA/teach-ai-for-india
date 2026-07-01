@@ -155,6 +155,18 @@ export async function rejectSignup(_prev: AdminActionState, formData: FormData):
     detail: { email: req.email },
   })
 
+  // Tell the applicant, and give them a way to re-apply (the email + credential
+  // are now free, so /signup will accept a fresh request).
+  await sendEmail({
+    to: req.email,
+    subject: 'Update on your Teach AI for India account request',
+    html: `<p>Hi ${req.full_name},</p>
+      <p>Thanks for your interest in Teach AI for India. After review, we weren’t able to approve your account request this time.</p>
+      <p>If you think this was a mistake or your details have changed, you’re welcome to request an account again:</p>
+      <p><a href="${siteUrl()}/signup" style="display:inline-block;padding:10px 18px;background:#FF6B35;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">Request again</a></p>
+      <p style="color:#667085;font-size:13px">Or visit ${siteUrl()}/signup</p>`,
+  })
+
   revalidatePath('/admin/volunteers')
   return { ok: true, message: `${req.full_name}’s request was rejected.` }
 }
