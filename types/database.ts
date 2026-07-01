@@ -92,6 +92,23 @@ export type SessionRow = Timestamps & {
   verified_by: string | null; verified_at: string | null
 }
 
+export type SessionPlanStatus = 'draft' | 'approved' | 'cancelled'
+
+export type SessionPlanRow = Timestamps & {
+  id: string; school_id: string; campus_id: string | null; status: SessionPlanStatus
+  coordinator_name: string | null; coordinator_phone: string | null
+  coordinator_designation: string | null
+  student_strength: number | null; num_classes: number | null
+  num_sections: number | null; num_classrooms: number | null
+  has_lab: boolean; has_projector: boolean; has_internet: boolean
+  session_type: SessionType; topic: string | null
+  planned_date: string | null; backup_date: string | null
+  start_time: string | null; end_time: string | null
+  approval_letter_path: string | null; image_paths: string[]
+  logistics_notes: string | null; session_id: string | null
+  created_by: string | null; approved_by: string | null; approved_at: string | null
+}
+
 export type AttendanceRow = {
   id: string; session_id: string; user_id: string; status: AttendanceStatus
   arrival_time: string | null; departure_time: string | null; notes: string | null
@@ -208,6 +225,7 @@ export interface Database {
       volunteer_applications: TableDef<VolunteerApplicationRow>
       contact_messages: TableDef<ContactMessageRow>
       signup_requests: TableDef<SignupRequestRow>
+      session_plans: TableDef<SessionPlanRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -235,6 +253,10 @@ export interface Database {
       reimbursement_window_days: {
         Args: Record<string, never>
         Returns: number
+      }
+      approve_session_plan: {
+        Args: { p_plan_id: string }
+        Returns: string
       }
     }
     Enums: {

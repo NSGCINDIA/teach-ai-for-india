@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft, History, Mail, MapPin, Pencil, Phone, Star, Users } from 'lucide-react'
+import { ArrowLeft, ClipboardList, History, Mail, MapPin, Pencil, Phone, Star, Users } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { formatDate, formatDateTime } from '@/lib/format'
@@ -7,7 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { StatusControl } from '@/components/schools/status-control'
+import { PlanningPanel } from '@/components/schools/planning-panel'
 import { AddContact } from '@/components/schools/add-contact'
+
+/** Planning becomes relevant once approval is received (or already started). */
+const PLANNING_STATUSES = new Set<SchoolDetail['status']>([
+  'approval_received', 'session_scheduled', 'session_in_progress', 'completed',
+])
 
 interface SchoolDetailProps {
   school: SchoolDetail
@@ -62,6 +68,25 @@ export function SchoolDetailView({ school, basePath, canEdit }: SchoolDetailProp
               {school.notes && <Detail label="Notes" value={school.notes} className="col-span-2 sm:col-span-3" />}
             </CardContent>
           </Card>
+
+          {(PLANNING_STATUSES.has(school.status) || school.plan) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <ClipboardList className="size-4" /> Session planning
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PlanningPanel
+                  schoolId={school.id}
+                  schoolStatus={school.status}
+                  plan={school.plan}
+                  canEdit={canEdit}
+                  basePath={basePath}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">

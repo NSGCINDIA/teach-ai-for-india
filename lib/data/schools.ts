@@ -5,6 +5,7 @@ import type {
   SchoolStatusHistoryRow,
   SchoolStatus,
   CampusRow,
+  SessionPlanRow,
 } from '@/types/database'
 
 export type SchoolListItem = SchoolRow & {
@@ -15,6 +16,8 @@ export type SchoolDetail = SchoolRow & {
   campus: Pick<CampusRow, 'id' | 'name'> | null
   contacts: SchoolContactRow[]
   history: SchoolStatusHistoryRow[]
+  /** The outreach→execution planning record, if one has been started. */
+  plan: SessionPlanRow | null
 }
 
 export type SimilarSchool = {
@@ -81,6 +84,14 @@ export async function getSchool(id: string): Promise<SchoolDetail | null> {
   detail.contacts = (detail.contacts ?? []).sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary),
   )
+  // The planning record is a to-one relation; fetch it separately so the type
+  // stays a single object (RLS scopes visibility to the campus).
+  const { data: plan } = await supabase
+    .from('session_plans')
+    .select('*')
+    .eq('school_id', id)
+    .maybeSingle()
+  detail.plan = (plan as SessionPlanRow | null) ?? null
   return detail
 }
 
