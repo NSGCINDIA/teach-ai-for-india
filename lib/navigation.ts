@@ -33,6 +33,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: 'Sessions', href: '/dashboard/sessions', icon: 'sessions' },
+    { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers', soon: true },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
@@ -53,7 +54,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   volunteer_lead: [
     OVERVIEW,
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers', soon: true },
-    { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments', soon: true },
+    { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments' },
     { label: 'Availability', href: '/dashboard/availability', icon: 'availability', soon: true },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
     NOTIFICATIONS,
@@ -70,6 +71,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   volunteer: [
     OVERVIEW,
     { label: 'My Sessions', href: '/dashboard/sessions', icon: 'sessions' },
+    { label: 'My Assignments', href: '/dashboard/assignments', icon: 'assignments' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
     { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },

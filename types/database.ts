@@ -115,6 +115,15 @@ export type AttendanceRow = {
   marked_by: string | null; created_at: string
 }
 
+export type AssignmentStatus =
+  | 'assigned' | 'accepted' | 'declined' | 'replacement_requested' | 'cancelled'
+
+export type SessionAssignmentRow = Timestamps & {
+  id: string; session_id: string; volunteer_id: string; campus_id: string | null
+  status: AssignmentStatus; note: string | null; assigned_by: string | null
+  assigned_at: string; responded_at: string | null
+}
+
 export type ReimbursementRow = Timestamps & {
   id: string; reference_number: string; claimant_id: string; session_id: string | null
   campus_id: string | null; amount: number; travel_mode: TravelMode; reason: string | null
@@ -226,6 +235,7 @@ export interface Database {
       contact_messages: TableDef<ContactMessageRow>
       signup_requests: TableDef<SignupRequestRow>
       session_plans: TableDef<SessionPlanRow>
+      session_assignments: TableDef<SessionAssignmentRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -257,6 +267,14 @@ export interface Database {
       approve_session_plan: {
         Args: { p_plan_id: string }
         Returns: string
+      }
+      assign_volunteers: {
+        Args: { p_session_id: string; p_volunteer_ids: string[] }
+        Returns: number
+      }
+      respond_to_assignment: {
+        Args: { p_assignment_id: string; p_status: AssignmentStatus; p_note?: string }
+        Returns: undefined
       }
     }
     Enums: {

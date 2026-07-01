@@ -3,6 +3,7 @@ import type {
   SessionStatus,
   ReimbursementStatus,
   ApprovalStatus,
+  AssignmentStatus,
 } from '@/types/database'
 
 /**
@@ -101,4 +102,12 @@ export const APPROVAL_STATUS_META: Record<ApprovalStatus, { label: string; tone:
   pending:  { label: 'Pending Review', tone: 'pending' },
   approved: { label: 'Approved',       tone: 'success' },
   rejected: { label: 'Rejected',       tone: 'danger' },
+}
+
+export const ASSIGNMENT_STATUS_META: Record<AssignmentStatus, { label: string; tone: StatusTone }> = {
+  assigned:              { label: 'Awaiting reply',  tone: 'pending' },
+  accepted:              { label: 'Accepted',        tone: 'success' },
+  declined:              { label: 'Declined',        tone: 'danger' },
+  replacement_requested: { label: 'Needs swap',      tone: 'pending' },
+  cancelled:             { label: 'Cancelled',       tone: 'muted' },
 }

@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { ArrowLeft, CalendarDays, Clock, ClipboardCheck, Images, MapPin, Pencil, Users } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Clock, ClipboardCheck, Images, MapPin, Pencil, UserCheck, Users } from 'lucide-react'
 import type { SessionDetail, TeamMember } from '@/lib/data/sessions'
+import type { AssignmentWithVolunteer } from '@/lib/data/assignments'
 import type { EvidenceListItem } from '@/lib/data/evidence'
 import { SESSION_TYPE_META, SESSION_TYPE_FIELD } from '@/lib/constants/sessions'
 import { MEDIA_TYPE_META } from '@/lib/constants/evidence'
@@ -10,18 +11,25 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { SessionStatusControl } from '@/components/sessions/session-status-control'
 import { AttendanceEditor } from '@/components/sessions/attendance-editor'
+import { AssignmentPanel } from '@/components/sessions/assignment-panel'
 import { EvidenceUploader } from '@/components/evidence/evidence-uploader'
 
 interface Props {
   session: SessionDetail
   members: TeamMember[]
+  assignments: AssignmentWithVolunteer[]
+  assignCandidates: TeamMember[]
+  canAssign: boolean
   evidence: EvidenceListItem[]
   basePath: string
   schoolBasePath: string
   canEdit: boolean
 }
 
-export function SessionDetailView({ session, members, evidence, basePath, schoolBasePath, canEdit }: Props) {
+export function SessionDetailView({
+  session, members, assignments, assignCandidates, canAssign,
+  evidence, basePath, schoolBasePath, canEdit,
+}: Props) {
   const field = SESSION_TYPE_FIELD[session.session_type]
   const detail = session.type_details?.[field.key] as string | undefined
   const time = [session.start_time, session.end_time].filter(Boolean).map((t) => t!.slice(0, 5)).join(' – ')
@@ -137,6 +145,20 @@ export function SessionDetailView({ session, members, evidence, basePath, school
             <CardHeader><CardTitle className="text-base">Lifecycle</CardTitle></CardHeader>
             <CardContent><SessionStatusControl sessionId={session.id} current={session.status} canEdit={canEdit} /></CardContent>
           </Card>
+
+          {(canAssign || assignments.length > 0) && (
+            <Card>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-base"><UserCheck className="size-4" /> Assigned team</CardTitle></CardHeader>
+              <CardContent>
+                <AssignmentPanel
+                  sessionId={session.id}
+                  assignments={assignments}
+                  candidates={assignCandidates}
+                  canAssign={canAssign}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Users className="size-4" /> Team present</CardTitle></CardHeader>
