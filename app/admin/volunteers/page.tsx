@@ -1,15 +1,20 @@
 import { requireAccess } from '@/lib/auth/user'
-import { can } from '@/lib/auth/rbac'
-import { listAdminUsers } from '@/lib/data/admin'
+import { can, isAdmin } from '@/lib/auth/rbac'
+import { listAdminUsers, listPendingSignups } from '@/lib/data/admin'
 import { listCampusOptions } from '@/lib/data/schools'
 import { UsersTable } from '@/components/admin/users-table'
 import { InviteForm } from '@/components/admin/invite-form'
+import { SignupRequests } from '@/components/admin/signup-requests'
 
 export const metadata = { title: 'Volunteers · Admin' }
 
 export default async function AdminVolunteersPage() {
   const user = await requireAccess('/admin/volunteers')
-  const [users, campuses] = await Promise.all([listAdminUsers(), listCampusOptions()])
+  const [users, campuses, signups] = await Promise.all([
+    listAdminUsers(),
+    listCampusOptions(),
+    isAdmin(user.role) ? listPendingSignups() : Promise.resolve([]),
+  ])
   const canManage = can(user.role, 'manage_user_roles') !== false
 
   return (
@@ -23,6 +28,8 @@ export default async function AdminVolunteersPage() {
         </div>
         <InviteForm campuses={campuses} />
       </header>
+
+      <SignupRequests requests={signups} />
 
       {!canManage && (
         <p className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">

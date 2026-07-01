@@ -7,7 +7,7 @@ import { getSessionUser } from '@/lib/auth/user'
 import { roleHomePath, isAdmin } from '@/lib/auth/rbac'
 import { roleLabel } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
-import { signInSchema, emailSchema, setPasswordSchema, inviteSchema } from '@/lib/validations/auth'
+import { signInSchema, emailSchema, setPasswordSchema, inviteSchema, signupSchema } from '@/lib/validations/auth'
 import type { UserRole } from '@/types/database'
 
 export type ActionState = { error?: string; ok?: boolean; message?: string }
@@ -33,7 +33,13 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
     .eq('id', data.user.id)
     .single()
 
-  if (profile && profile.is_active === false) {
+  // No profile row → a self-signup that an admin hasn't approved yet (PRD §7.2).
+  if (!profile) {
+    await supabase.auth.signOut()
+    return { error: 'Your account is awaiting admin approval. You’ll be able to log in once it’s approved.' }
+  }
+
+  if (profile.is_active === false) {
     await supabase.auth.signOut()
     return { error: 'Your account is inactive. Contact your admin.' }
   }
@@ -81,6 +87,97 @@ export async function updatePassword(_prev: ActionState, formData: FormData): Pr
 
   const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
   redirect(roleHomePath((profile?.role as UserRole) ?? 'volunteer'))
+}
+
+// ─── Public self-signup — request an account (admin-approval gated, PRD §7.2) ─
+export async function requestSignup(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = signupSchema.safeParse({
+    full_name: formData.get('full_name'),
+    niat_id: formData.get('niat_id'),
+    campus_id: formData.get('campus_id'),
+    email: formData.get('email'),
+    password: formData.get('password'),
+    confirm: formData.get('confirm'),
+  })
+  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  const { full_name, niat_id, campus_id, email, password } = parsed.data
+
+  const admin = createAdminClient()
+
+  // Block obvious repeats early (a live request or an existing account).
+  const { data: pending } = await admin
+    .from('signup_requests')
+    .select('id')
+    .eq('status', 'pending')
+    .ilike('email', email)
+    .maybeSingle()
+  if (pending) {
+    return { error: 'A request with this email is already awaiting admin approval.' }
+  }
+
+  // Create the credential up-front (so the applicant sets their own password),
+  // but flag it so handle_new_user() keeps it OUT of public.users until approval.
+  const { data: created, error: createErr } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: false,
+    user_metadata: { full_name, campus_id, niat_id, pending_approval: 'true' },
+  })
+  if (createErr || !created?.user) {
+    if (/already|registered|exists/i.test(createErr?.message ?? '')) {
+      return { error: 'An account with this email already exists. Try logging in instead.' }
+    }
+    return { error: 'Could not submit your request. Please try again.' }
+  }
+
+  const { error: reqErr } = await admin.from('signup_requests').insert({
+    auth_user_id: created.user.id,
+    full_name,
+    niat_id,
+    email,
+    campus_id,
+    status: 'pending',
+  })
+  if (reqErr) {
+    // Roll back the inert auth user so a retry isn't blocked by a dangling credential.
+    await admin.auth.admin.deleteUser(created.user.id)
+    return { error: 'Could not submit your request. Please try again.' }
+  }
+
+  // Notify every active admin — in-app feed + email.
+  const { data: admins } = await admin
+    .from('users')
+    .select('id, email')
+    .in('role', ['super_admin', 'mgmt_admin'])
+    .eq('is_active', true)
+
+  if (admins?.length) {
+    await admin.from('notifications').insert(
+      admins.map((a) => ({
+        recipient_id: a.id,
+        type: 'signup_request',
+        title: 'New account signup',
+        body: `${full_name} (${email}) requested an account.`,
+        action_url: '/admin/volunteers',
+        entity_type: 'signup_request',
+      })),
+    )
+    const to = admins.map((a) => a.email).filter(Boolean)
+    if (to.length) {
+      await sendEmail({
+        to,
+        subject: 'New account signup awaiting approval',
+        html: `<p><strong>${full_name}</strong> (${email}) has requested an account.</p>
+          <p>NIAT ID: ${niat_id}</p>
+          <p>Review and approve it from the <a href="${siteUrl()}/admin/volunteers">Volunteers &amp; team</a> page.</p>`,
+      })
+    }
+  }
+
+  return {
+    ok: true,
+    message: 'Request submitted! An admin will review it and you’ll be able to log in once approved.',
+  }
 }
 
 // ─── Admin: invite a new team member (US-AUTH-01) ────────────────────────────

@@ -2,8 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { requireUser } from '@/lib/auth/user'
 import { can, isAdmin } from '@/lib/auth/rbac'
+import { sendEmail } from '@/lib/email/resend'
 import {
   roleChangeSchema,
   userActiveSchema,
@@ -58,6 +60,96 @@ export async function setUserActive(_prev: AdminActionState, formData: FormData)
 
   revalidatePath('/admin/volunteers')
   return { ok: true, message: parsed.data.is_active ? 'Account activated.' : 'Account deactivated.' }
+}
+
+// ─── Self-signup requests — approve / reject (PRD §7.2) ──────────────────────
+const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+
+export async function approveSignup(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const me = await requireUser('/admin/volunteers')
+  if (!isAdmin(me.role)) return { error: 'Not authorized to approve signups.' }
+  const id = String(formData.get('id') ?? '')
+  if (!id) return { error: 'Missing request id.' }
+
+  const admin = createAdminClient()
+  const { data: req } = await admin.from('signup_requests').select('*').eq('id', id).maybeSingle()
+  if (!req) return { error: 'Signup request not found.' }
+  if (req.status !== 'pending') return { error: 'This request has already been reviewed.' }
+  if (!req.auth_user_id) return { error: 'This request is missing its credential and cannot be approved.' }
+
+  // Materialise the profile the handle_new_user trigger deliberately skipped.
+  const { error: insErr } = await admin.from('users').insert({
+    id: req.auth_user_id,
+    email: req.email,
+    full_name: req.full_name,
+    role: 'volunteer',
+    campus_id: req.campus_id,
+    niat_id: req.niat_id,
+    is_active: true,
+    invited_by: me.id,
+    invited_at: new Date().toISOString(),
+  })
+  if (insErr) return { error: humanize(insErr.message) }
+
+  // Confirm the email and clear the pending flag so they can log in.
+  await admin.auth.admin.updateUserById(req.auth_user_id, {
+    email_confirm: true,
+    user_metadata: { full_name: req.full_name, campus_id: req.campus_id, niat_id: req.niat_id, pending_approval: null },
+  })
+
+  await admin
+    .from('signup_requests')
+    .update({ status: 'approved', reviewed_by: me.id, reviewed_at: new Date().toISOString() })
+    .eq('id', id)
+
+  await admin.from('notifications').insert({
+    recipient_id: req.auth_user_id,
+    type: 'signup_approved',
+    title: 'Your account is approved 🎉',
+    body: 'Welcome to Teach AI for India. You can now log in.',
+    action_url: '/login',
+  })
+  await admin.from('audit_log').insert({
+    actor_id: me.id, action: 'approve', entity_type: 'signup_request', entity_id: id,
+    detail: { email: req.email },
+  })
+  await sendEmail({
+    to: req.email,
+    subject: 'Your Teach AI for India account is approved',
+    html: `<p>Hi ${req.full_name},</p>
+      <p>Your account has been approved. You can now <a href="${siteUrl()}/login">log in</a> with the email and password you signed up with.</p>`,
+  })
+
+  revalidatePath('/admin/volunteers')
+  return { ok: true, message: `${req.full_name} approved and can now log in.` }
+}
+
+export async function rejectSignup(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const me = await requireUser('/admin/volunteers')
+  if (!isAdmin(me.role)) return { error: 'Not authorized to reject signups.' }
+  const id = String(formData.get('id') ?? '')
+  if (!id) return { error: 'Missing request id.' }
+
+  const admin = createAdminClient()
+  const { data: req } = await admin.from('signup_requests').select('*').eq('id', id).maybeSingle()
+  if (!req) return { error: 'Signup request not found.' }
+  if (req.status !== 'pending') return { error: 'This request has already been reviewed.' }
+
+  // Remove the inert credential so the email is free to apply again later.
+  if (req.auth_user_id) await admin.auth.admin.deleteUser(req.auth_user_id)
+
+  await admin
+    .from('signup_requests')
+    .update({ status: 'rejected', reviewed_by: me.id, reviewed_at: new Date().toISOString() })
+    .eq('id', id)
+
+  await admin.from('audit_log').insert({
+    actor_id: me.id, action: 'reject', entity_type: 'signup_request', entity_id: id,
+    detail: { email: req.email },
+  })
+
+  revalidatePath('/admin/volunteers')
+  return { ok: true, message: `${req.full_name}’s request was rejected.` }
 }
 
 // ─── Campus management (PRD §7.9 — campus config) ────────────────────────────

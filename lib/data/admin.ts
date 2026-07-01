@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import type { CampusRow, UserRow, UserRole } from '@/types/database'
+import type { CampusRow, UserRow, UserRole, SignupRequestRow } from '@/types/database'
 import type { StatusTone } from '@/lib/constants/status'
 
 // ─── Alert feed (PRD §7.9 — 6 always-on alert types) ─────────────────────────
@@ -17,7 +17,7 @@ export async function getAdminAlerts(): Promise<AdminAlert[]> {
   const today = new Date().toISOString().slice(0, 10)
 
   const head = { count: 'exact' as const, head: true }
-  const [claims, verify, anomalyRows, followups, applications, messages] = await Promise.all([
+  const [claims, verify, anomalyRows, followups, applications, messages, signups] = await Promise.all([
     supabase.from('reimbursements').select('id', head).in('status', ['submitted', 'under_review']),
     supabase.from('sessions').select('id', head).in('status', ['reported', 'campus_approved']),
     // Array-length filters are fragile over PostgREST — count non-empty flags in JS.
@@ -26,6 +26,7 @@ export async function getAdminAlerts(): Promise<AdminAlert[]> {
       .not('status', 'in', '(completed,archived)'),
     supabase.from('volunteer_applications').select('id', head).eq('status', 'new'),
     supabase.from('contact_messages').select('id', head).eq('is_handled', false),
+    supabase.from('signup_requests').select('id', head).eq('status', 'pending'),
   ])
   const anomalyCount = ((anomalyRows.data as { anomaly_flags: string[] | null }[] | null) ?? [])
     .filter((r) => (r.anomaly_flags?.length ?? 0) > 0).length
@@ -35,6 +36,7 @@ export async function getAdminAlerts(): Promise<AdminAlert[]> {
     { key: 'verify', label: 'Sessions awaiting verification', count: verify.count ?? 0, href: '/admin/sessions', tone: 'info' },
     { key: 'anomalies', label: 'Claims flagged for anomalies', count: anomalyCount, href: '/admin/finance', tone: 'danger' },
     { key: 'followups', label: 'Schools with overdue follow-up', count: followups.count ?? 0, href: '/admin/schools', tone: 'pending' },
+    { key: 'signups', label: 'Account signups awaiting approval', count: signups.count ?? 0, href: '/admin/volunteers', tone: 'pending' },
     { key: 'applications', label: 'New volunteer applications', count: applications.count ?? 0, href: '/admin/volunteers', tone: 'progress' },
     { key: 'messages', label: 'Unhandled contact messages', count: messages.count ?? 0, href: '/admin/settings', tone: 'neutral' },
   ]
@@ -61,6 +63,19 @@ export async function listAdminUsers(filters: UserFilters = {}): Promise<AdminUs
   if (filters.active !== undefined) query = query.eq('is_active', filters.active)
   const { data } = await query
   return (data as unknown as AdminUser[]) ?? []
+}
+
+// ─── Self-signup requests (PRD §7.2) ─────────────────────────────────────────
+export type PendingSignup = SignupRequestRow & { campus: { id: string; name: string } | null }
+
+export async function listPendingSignups(): Promise<PendingSignup[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('signup_requests')
+    .select('*, campus:campuses(id, name)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+  return (data as unknown as PendingSignup[]) ?? []
 }
 
 // ─── Campus management (PRD §7.9 — campus config) ────────────────────────────

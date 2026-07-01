@@ -50,7 +50,14 @@ export type UserRow = Timestamps & {
   id: string; email: string; full_name: string; phone: string | null
   role: UserRole; campus_id: string | null; avatar_url: string | null
   is_active: boolean; invited_by: string | null; invited_at: string | null
-  last_login_at: string | null
+  last_login_at: string | null; niat_id: string | null
+}
+
+export type SignupRequestStatus = 'pending' | 'approved' | 'rejected'
+export type SignupRequestRow = {
+  id: string; auth_user_id: string | null; full_name: string; niat_id: string
+  email: string; campus_id: string | null; status: SignupRequestStatus
+  reviewed_by: string | null; reviewed_at: string | null; created_at: string
 }
 
 export type SchoolRow = Timestamps & {
@@ -200,6 +207,7 @@ export interface Database {
       audit_log: TableDef<AuditLogRow>
       volunteer_applications: TableDef<VolunteerApplicationRow>
       contact_messages: TableDef<ContactMessageRow>
+      signup_requests: TableDef<SignupRequestRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
