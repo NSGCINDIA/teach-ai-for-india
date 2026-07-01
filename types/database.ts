@@ -169,6 +169,14 @@ export type CampusPerformance = {
 }
 export type StatusCount = { status: string; count: number }
 export type MonthlyActivity = { month: string; sessions_completed: number; students_impacted: number }
+// Public campus detail (0013_public_campus_detail.sql)
+export type PublicCampusSession = {
+  id: string; campus_id: string | null; topic: string; session_type: SessionType
+  date: string; student_count: number | null; school_name: string; school_district: string
+}
+export type PublicCampusTeamMember = {
+  id: string; campus_id: string | null; full_name: string; role: UserRole; avatar_url: string | null
+}
 
 // ─── Database generic (supabase-js) ──────────────────────────────────────────
 type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
@@ -204,6 +212,8 @@ export interface Database {
       session_funnel: { Row: StatusCount; Relationships: [] }
       school_pipeline: { Row: StatusCount; Relationships: [] }
       monthly_activity: { Row: MonthlyActivity; Relationships: [] }
+      public_campus_sessions: { Row: PublicCampusSession; Relationships: [] }
+      public_campus_team: { Row: PublicCampusTeamMember; Relationships: [] }
     }
     Functions: {
       change_school_status: {

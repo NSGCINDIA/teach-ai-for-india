@@ -10,8 +10,8 @@ const links = [
   { label: "Program",  href: "/#program" },
   { label: "Campuses", href: "/#campuses" },
   { label: "Login",    href: "/login" },
-  { label: "Privacy",  href: "#" },
-  { label: "Contact",  href: "#" },
+  { label: "Gallery",  href: "/gallery" },
+  { label: "Contact",  href: "/contact" },
 ]
 
 export default function Footer() {

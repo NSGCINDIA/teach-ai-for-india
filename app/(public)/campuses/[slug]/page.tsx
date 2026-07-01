@@ -2,20 +2,25 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Building2, GraduationCap, ImageIcon, MapPin, PlayCircle, Quote, UserRound, Users } from 'lucide-react'
+import { ArrowLeft, Building2, CalendarDays, GraduationCap, ImageIcon, MapPin, PlayCircle, Quote, UserRound, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Reveal } from '@/components/marketing/reveal'
 import { AnimatedCounter } from '@/components/shared/animated-counter'
 import { EvidenceGrid } from '@/components/shared/evidence-grid'
 import { EmptyState } from '@/components/shared/states'
-import { getCampusBySlug, getCampusCards, getContentBlock, getPublicGallery } from '@/lib/data/public'
+import {
+  getCampusBySlug, getCampusCards, getContentBlock, getPublicGallery,
+  getCampusSessions, getCampusTeam,
+} from '@/lib/data/public'
 import {
   HOW_IT_WORKS_FALLBACK,
   STORIES_FALLBACK,
   type HowItWorksContent,
   type StoriesContent,
 } from '@/app/(public)/content'
-import { formatDate } from '@/lib/format'
+import { SESSION_TYPE_META } from '@/lib/constants/sessions'
+import { roleLabel } from '@/lib/auth/roles'
+import { formatDate, formatNumber } from '@/lib/format'
 
 export const revalidate = 300
 
@@ -47,10 +52,12 @@ export default async function CampusDetailPage({ params }: { params: Promise<{ s
   if (!campus) notFound()
 
   // All public data sources, fetched in parallel + degrading gracefully.
-  const [gallery, stories, howItWorks] = await Promise.all([
+  const [gallery, stories, howItWorks, sessions, team] = await Promise.all([
     getPublicGallery(12, campus.id),
     getContentBlock<StoriesContent>('stories', STORIES_FALLBACK),
     getContentBlock<HowItWorksContent>('how_it_works', HOW_IT_WORKS_FALLBACK),
+    getCampusSessions(campus.id),
+    getCampusTeam(campus.id),
   ])
 
   // Prefer a story tagged to this campus; otherwise lead with the latest overall.
@@ -174,33 +181,97 @@ export default async function CampusDetailPage({ params }: { params: Promise<{ s
         </div>
       </section>
 
-      {/* Session timeline — no public per-session feed exists yet, so we show the
-          repeatable delivery flow every session at this campus follows (PRD §7.1). */}
+      {/* Session timeline — real verified sessions when we have them (PRD §7.1),
+          otherwise the documented delivery flow every session will follow. */}
       <section className="section-padding pt-0">
         <div className="container-wide">
-          <Reveal>
-            <h2 className="font-display text-2xl font-bold">How a session runs here</h2>
-            <p className="mt-2 max-w-2xl text-pretty text-muted-foreground">
-              {campus.sessions_completed > 0
-                ? `Every one of the ${campus.sessions_completed} sessions delivered at ${campus.name} follows the same documented five-step journey.`
-                : `As ${campus.name} begins delivering sessions, each one will follow the same documented five-step journey.`}
-            </p>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <ol className="mt-8 space-y-6 border-l border-border pl-6">
-              {howItWorks.steps.map((step, i) => (
-                <li key={step.title} className="relative">
-                  <span className="absolute -left-[1.95rem] grid size-8 place-items-center rounded-full bg-brand text-sm font-bold text-white">
-                    {i + 1}
-                  </span>
-                  <h3 className="font-display font-bold">{step.title}</h3>
-                  <p className="mt-1 text-pretty text-muted-foreground">{step.description}</p>
-                </li>
-              ))}
-            </ol>
-          </Reveal>
+          {sessions.length > 0 ? (
+            <>
+              <Reveal>
+                <h2 className="font-display text-2xl font-bold">Recent sessions</h2>
+                <p className="mt-2 max-w-2xl text-pretty text-muted-foreground">
+                  The latest verified sessions delivered by the {campus.name} team.
+                </p>
+              </Reveal>
+              <Reveal delay={0.08}>
+                <ol className="mt-8 space-y-6 border-l border-border pl-6">
+                  {sessions.map((s) => (
+                    <li key={s.id} className="relative">
+                      <span
+                        aria-hidden
+                        className="absolute -left-[1.7rem] top-1.5 size-3 rounded-full border-2 border-brand bg-background"
+                      />
+                      <p className="section-label text-brand">
+                        {formatDate(s.date)} · {SESSION_TYPE_META[s.session_type]?.label ?? s.session_type}
+                      </p>
+                      <h3 className="mt-1 font-display font-bold">{s.topic}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {s.school_name}, {s.school_district}
+                        {s.student_count ? ` · ${formatNumber(s.student_count)} students` : ''}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </Reveal>
+            </>
+          ) : (
+            <>
+              <Reveal>
+                <h2 className="font-display text-2xl font-bold">How a session runs here</h2>
+                <p className="mt-2 max-w-2xl text-pretty text-muted-foreground">
+                  As {campus.name} begins delivering sessions, each one will follow the same documented five-step journey.
+                </p>
+              </Reveal>
+              <Reveal delay={0.08}>
+                <ol className="mt-8 space-y-6 border-l border-border pl-6">
+                  {howItWorks.steps.map((step, i) => (
+                    <li key={step.title} className="relative">
+                      <span className="absolute -left-[1.95rem] grid size-8 place-items-center rounded-full bg-brand text-sm font-bold text-white">
+                        {i + 1}
+                      </span>
+                      <h3 className="font-display font-bold">{step.title}</h3>
+                      <p className="mt-1 text-pretty text-muted-foreground">{step.description}</p>
+                    </li>
+                  ))}
+                </ol>
+              </Reveal>
+            </>
+          )}
         </div>
       </section>
+
+      {/* Team roster */}
+      {team.length > 0 && (
+        <section className="section-padding pt-0">
+          <div className="container-wide">
+            <Reveal>
+              <h2 className="font-display text-2xl font-bold">The team</h2>
+              <p className="mt-2 max-w-2xl text-pretty text-muted-foreground">
+                {formatNumber(team.length)} student volunteer{team.length === 1 ? '' : 's'} powering AI education at {campus.name}.
+              </p>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {team.map((m) => (
+                  <li key={m.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-soft">
+                    <span className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-full bg-accent text-brand">
+                      {m.avatar_url ? (
+                        <Image src={m.avatar_url} alt="" fill sizes="44px" className="object-cover" />
+                      ) : (
+                        <UserRound className="size-5" aria-hidden />
+                      )}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{m.full_name}</p>
+                      <p className="truncate text-xs text-muted-foreground">{roleLabel(m.role)}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* Featured story */}
       {featuredStory && (

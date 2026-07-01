@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabaseEnv } from '@/lib/supabase/env'
-import type { PublicImpactStats, PublicCampusCard, MediaFileType } from '@/types/database'
+import type {
+  PublicImpactStats, PublicCampusCard, MediaFileType,
+  PublicCampusSession, PublicCampusTeamMember,
+} from '@/types/database'
 import type { EvidenceItem } from '@/components/shared/evidence-grid'
 import { CONTACT_INFO_FALLBACK, type ContactInfo } from '@/app/(public)/content'
 
@@ -60,6 +63,43 @@ export async function getCampusBySlug(slug: string): Promise<PublicCampusCard | 
     return data ?? null
   } catch {
     return null
+  }
+}
+
+/** Recent verified sessions for a campus — the public timeline (PRD §7.1). */
+export async function getCampusSessions(campusId: string, limit = 8): Promise<PublicCampusSession[]> {
+  if (!hasSupabaseEnv()) return []
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from('public_campus_sessions')
+      .select('*')
+      .eq('campus_id', campusId)
+      .order('date', { ascending: false })
+      .limit(limit)
+    return (data as PublicCampusSession[] | null) ?? []
+  } catch {
+    return []
+  }
+}
+
+/** Active team roster for a campus — leads first, then execs, then volunteers. */
+export async function getCampusTeam(campusId: string): Promise<PublicCampusTeamMember[]> {
+  if (!hasSupabaseEnv()) return []
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from('public_campus_team')
+      .select('*')
+      .eq('campus_id', campusId)
+      .limit(60)
+    const rows = (data as PublicCampusTeamMember[] | null) ?? []
+    const order: Record<string, number> = { campus_lead: 0, outreach_head: 1, exec_lead: 2, volunteer: 3 }
+    return rows.sort(
+      (a, b) => (order[a.role] ?? 9) - (order[b.role] ?? 9) || a.full_name.localeCompare(b.full_name),
+    )
+  } catch {
+    return []
   }
 }
 
