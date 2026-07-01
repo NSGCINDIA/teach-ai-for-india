@@ -8,6 +8,7 @@ import {
   LayoutDashboard, CalendarDays, School, ClipboardCheck, Receipt, Images, Bell,
   Building2, Users, Wallet, FileBarChart, BarChart3, FileText, Settings,
   CalendarRange, UserRoundCheck, CalendarClock, Award, ClipboardList, UserCircle,
+  Megaphone,
   type LucideIcon,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -43,6 +44,7 @@ const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
   certificates: Award,
   outreach: ClipboardList,
   profile: UserCircle,
+  announcements: Megaphone,
 }
 
 interface ShellUser {

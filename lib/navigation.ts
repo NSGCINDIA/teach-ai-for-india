@@ -11,6 +11,7 @@ export type NavIconKey =
   | 'evidence' | 'notifications' | 'campuses' | 'volunteers' | 'finance'
   | 'reports' | 'analytics' | 'content' | 'settings'
   | 'calendar' | 'assignments' | 'availability' | 'certificates' | 'outreach' | 'profile'
+  | 'announcements'
 
 export interface NavItem {
   label: string
@@ -39,7 +40,8 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
     { label: 'Finance', href: '/dashboard/reimbursements', icon: 'finance' },
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics', soon: true },
-    { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar', soon: true },
+    { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
+    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
     NOTIFICATIONS,
     { label: 'Settings', href: '/dashboard/settings', icon: 'settings', soon: true },
   ],
@@ -48,34 +50,42 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: 'Outreach Forms', href: '/dashboard/schools/new', icon: 'outreach' },
     { label: 'Approval Letters', href: '/dashboard/approval-letters', icon: 'reports', soon: true },
-    { label: 'Visit Schedule', href: '/dashboard/visit-schedule', icon: 'calendar', soon: true },
+    { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
+    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
     NOTIFICATIONS,
   ],
   volunteer_lead: [
     OVERVIEW,
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers', soon: true },
     { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments' },
-    { label: 'Availability', href: '/dashboard/availability', icon: 'availability', soon: true },
+    { label: 'Availability', href: '/dashboard/availability', icon: 'availability' },
+    { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
+    { label: 'Certificates', href: '/dashboard/certificates', icon: 'certificates' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
+    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
     NOTIFICATIONS,
   ],
   exec_lead: [
     OVERVIEW,
     { label: "Today's Sessions", href: '/dashboard/sessions', icon: 'sessions' },
     { label: 'Reports', href: '/dashboard/reports', icon: 'reports', soon: true },
+    { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
     { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },
+    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
     NOTIFICATIONS,
   ],
   volunteer: [
     OVERVIEW,
     { label: 'My Sessions', href: '/dashboard/sessions', icon: 'sessions' },
     { label: 'My Assignments', href: '/dashboard/assignments', icon: 'assignments' },
+    { label: 'Availability', href: '/dashboard/availability', icon: 'availability' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
     { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },
-    { label: 'Certificates', href: '/dashboard/certificates', icon: 'certificates', soon: true },
+    { label: 'Certificates', href: '/dashboard/certificates', icon: 'certificates' },
+    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
     { label: 'Profile', href: '/dashboard/profile', icon: 'profile', soon: true },
   ],
   // Roles that don't primarily live in the team dashboard fall back to the

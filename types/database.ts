@@ -124,6 +124,25 @@ export type SessionAssignmentRow = Timestamps & {
   assigned_at: string; responded_at: string | null
 }
 
+export type AvailabilityStatus = 'available' | 'unavailable' | 'tentative'
+export type CertificateKind = 'participation' | 'milestone' | 'excellence' | 'completion'
+
+export type AnnouncementRow = Timestamps & {
+  id: string; campus_id: string | null; title: string; body: string
+  pinned: boolean; posted_by: string | null
+}
+
+export type AvailabilityRow = Timestamps & {
+  id: string; volunteer_id: string; campus_id: string | null; date: string
+  status: AvailabilityStatus; note: string | null
+}
+
+export type CertificateRow = {
+  id: string; volunteer_id: string; campus_id: string | null; kind: CertificateKind
+  title: string; description: string | null; sessions_count: number | null
+  serial: string | null; issued_by: string | null; issued_at: string; created_at: string
+}
+
 export type ReimbursementRow = Timestamps & {
   id: string; reference_number: string; claimant_id: string; session_id: string | null
   campus_id: string | null; amount: number; travel_mode: TravelMode; reason: string | null
@@ -236,6 +255,9 @@ export interface Database {
       signup_requests: TableDef<SignupRequestRow>
       session_plans: TableDef<SessionPlanRow>
       session_assignments: TableDef<SessionAssignmentRow>
+      announcements: TableDef<AnnouncementRow>
+      volunteer_availability: TableDef<AvailabilityRow>
+      certificates: TableDef<CertificateRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
