@@ -154,6 +154,18 @@ export async function markMessageHandled(_prev: AdminActionState, formData: Form
   return { ok: true, message: 'Marked as handled.' }
 }
 
+// ─── Monthly summary — on-demand email (PRD §7.8) ────────────────────────────
+export async function emailMonthlySummary(_prev: AdminActionState, _formData: FormData): Promise<AdminActionState> {
+  const me = await requireUser('/admin/reports')
+  if (!isAdmin(me.role)) return { error: 'Not authorized.' }
+
+  const { sendMonthlySummary } = await import('@/lib/email/monthly-summary')
+  const res = await sendMonthlySummary()
+  if (res.error) return { error: res.error }
+  if (res.skipped) return { ok: true, message: 'Email provider not configured — nothing sent (set RESEND_API_KEY).' }
+  return { ok: true, message: `Summary emailed to ${res.sent} admin${res.sent === 1 ? '' : 's'}.` }
+}
+
 function humanize(msg: string): string {
   if (/Insufficient privilege|cannot assign admin roles/i.test(msg)) return 'You do not have permission for that change.'
   if (/duplicate key|unique/i.test(msg)) return 'That slug is already taken by another campus.'

@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { BarChart3, Download, FileBarChart } from 'lucide-react'
+import { BarChart3, Download, FileBarChart, FileText } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ExportMenu } from '@/components/analytics/export-menu'
+import { EmailSummaryButton } from '@/components/admin/email-summary-button'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -27,6 +28,24 @@ export default async function AdminReportsPage() {
             Export any analytics view as CSV. Exports respect your access scope.
           </p>
           <ExportMenu />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base"><FileText className="size-4" /> Management summary</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            A one-page program + campus summary. Save it as a PDF, or email it to all admins now.
+            (Automated monthly via the <code className="rounded bg-muted px-1">/api/cron/monthly-summary</code> route.)
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/admin/analytics/summary" className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'gap-1.5')}>
+              <FileText className="size-4" /> Open printable summary
+            </Link>
+            <EmailSummaryButton />
+          </div>
         </CardContent>
       </Card>
 
