@@ -18,10 +18,10 @@ const DASHBOARD_NAV: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'My Sessions', href: '/dashboard/sessions', icon: CalendarDays },
   { label: 'My Schools', href: '/dashboard/schools', icon: School },
-  { label: 'Attendance', href: '/dashboard/attendance', icon: ClipboardCheck, soon: true },
+  { label: 'Attendance', href: '/dashboard/attendance', icon: ClipboardCheck },
   { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: Receipt },
   { label: 'Evidence', href: '/dashboard/evidence', icon: Images },
-  { label: 'Notifications', href: '/dashboard/notifications', icon: Bell, soon: true },
+  { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
 ]
 
 /** Admin panel nav (PRD §7.9 / §8). */
