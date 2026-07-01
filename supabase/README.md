@@ -45,3 +45,19 @@ supabase db push        # applies supabase/migrations/*
   exposed as RPCs (`change_school_status`) rather than raw updates.
 - Append-only tables (`school_status_history`, `audit_log`) deliberately have **no**
   update/delete policies (PRD §13.3).
+
+## Auth session policy (PRD §7.2)
+
+- **JWT 8h / refresh 30d**: set in `config.toml` (`[auth] jwt_expiry = 28800`,
+  `[auth.sessions] timebox = "720h"`). config.toml only applies to the Supabase
+  **CLI**; for the **hosted** project set the same values in the dashboard under
+  *Authentication → Sessions* (Time-box = 30 days) and *→ JWT* (Expiry = 28800s).
+  This is the one remaining step that cannot be done from code.
+- **Force-logout on role change / deactivation** is enforced in code, not via
+  token revocation:
+  - Authorization never trusts JWT claims — `middleware`/`getSessionUser` read
+    the role **fresh from `public.users` on every request**, so a role change
+    takes effect on the very next request (no stale-permission window).
+  - **Deactivation** (`is_active = false`) signs the user out on their next
+    request — enforced in both the proxy middleware and `requireUser()`
+    (defense-in-depth, so server actions also reject inactive users).

@@ -20,11 +20,21 @@ export async function getSessionUser(): Promise<UserRow | null> {
   return profile ?? null
 }
 
-/** Use in server components/actions that require auth. Redirects to /login otherwise. */
+/**
+ * Use in server components/actions that require auth. Redirects to /login
+ * otherwise. Defense-in-depth beyond middleware: also rejects DEACTIVATED
+ * accounts (PRD §7.2) so a server action can never run for an inactive user,
+ * even on a path the proxy matcher misses.
+ */
 export async function requireUser(nextPath?: string): Promise<UserRow> {
   const profile = await getSessionUser()
   if (!profile) {
     redirect(`/login${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ''}`)
+  }
+  if (profile.is_active === false) {
+    const supabase = await createClient()
+    await supabase.auth.signOut()
+    redirect('/login?error=account_inactive')
   }
   return profile
 }

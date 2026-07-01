@@ -1,0 +1,15 @@
+# Supabase local/CLI config. For the HOSTED project these same values must be
+# set in the dashboard (Authentication → Sessions / JWT) — config.toml only
+# applies to `supabase start` and CLI-linked deploys.
+
+[auth]
+# PRD §7.2 — access token (JWT) lifetime: 8 hours.
+jwt_expiry = 28800
+
+# Rotate refresh tokens on use, and detect reuse (stolen-token defense).
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+
+[auth.sessions]
+# PRD §7.2 — force re-authentication after 30 days regardless of activity.
+timebox = "720h"
