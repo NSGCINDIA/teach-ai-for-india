@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 import { hasSupabaseEnv } from '@/lib/supabase/env'
 import type {
   PublicImpactStats, PublicCampusCard, MediaFileType,
@@ -24,7 +24,7 @@ export const FALLBACK_IMPACT: PublicImpactStats = {
 export async function getImpactStats(): Promise<PublicImpactStats> {
   if (!hasSupabaseEnv()) return FALLBACK_IMPACT
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase.from('public_impact_stats').select('*').single()
     if (error || !data) return FALLBACK_IMPACT
     // Never show zeros on a live site that has history — fall back per-field.
@@ -43,7 +43,7 @@ export async function getImpactStats(): Promise<PublicImpactStats> {
 export async function getCampusCards(): Promise<PublicCampusCard[]> {
   if (!hasSupabaseEnv()) return []
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('public_campus_cards')
       .select('*')
@@ -58,7 +58,7 @@ export async function getCampusCards(): Promise<PublicCampusCard[]> {
 export async function getCampusBySlug(slug: string): Promise<PublicCampusCard | null> {
   if (!hasSupabaseEnv()) return null
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data } = await supabase.from('public_campus_cards').select('*').eq('slug', slug).single()
     return data ?? null
   } catch {
@@ -70,7 +70,7 @@ export async function getCampusBySlug(slug: string): Promise<PublicCampusCard | 
 export async function getCampusSessions(campusId: string, limit = 8): Promise<PublicCampusSession[]> {
   if (!hasSupabaseEnv()) return []
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data } = await supabase
       .from('public_campus_sessions')
       .select('*')
@@ -87,7 +87,7 @@ export async function getCampusSessions(campusId: string, limit = 8): Promise<Pu
 export async function getCampusTeam(campusId: string): Promise<PublicCampusTeamMember[]> {
   if (!hasSupabaseEnv()) return []
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data } = await supabase
       .from('public_campus_team')
       .select('*')
@@ -109,7 +109,7 @@ export async function getContentBlock<T = Record<string, unknown>>(
 ): Promise<T> {
   if (!hasSupabaseEnv()) return fallback
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data } = await supabase.from('content_blocks').select('content').eq('block_key', key).single()
     return (data?.content as T) ?? fallback
   } catch {
@@ -135,7 +135,7 @@ export async function getContactInfo(): Promise<ContactInfo> {
 export async function getPublicGallery(limit = 24, campusId?: string): Promise<EvidenceItem[]> {
   if (!hasSupabaseEnv()) return []
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     let query = supabase
       .from('media_assets')
       .select('id, storage_path, file_name, file_type, caption, campus_id, created_at')
