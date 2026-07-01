@@ -4,6 +4,7 @@ import { useActionState } from 'react'
 import { Check, Loader2, UserRoundCheck, X } from 'lucide-react'
 import type { PendingSignup } from '@/lib/data/admin'
 import { approveSignup, rejectSignup, type AdminActionState } from '@/actions/admin'
+import { roleLabel } from '@/lib/auth/roles'
 import { formatDate } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 
@@ -29,6 +30,7 @@ export function SignupRequests({ requests }: { requests: PendingSignup[] }) {
               <th className="p-3 font-medium">Name</th>
               <th className="p-3 font-medium">NIAT ID</th>
               <th className="p-3 font-medium">Campus</th>
+              <th className="p-3 font-medium">Role</th>
               <th className="p-3 font-medium">Requested</th>
               <th className="p-3 font-medium text-right">Decision</th>
             </tr>
@@ -59,6 +61,9 @@ function SignupRow({ req }: { req: PendingSignup }) {
       </td>
       <td className="p-3 text-muted-foreground">{req.niat_id}</td>
       <td className="p-3 text-muted-foreground">{req.campus?.name ?? '—'}</td>
+      <td className="p-3">
+        <span className="rounded-full bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand">{roleLabel(req.requested_role)}</span>
+      </td>
       <td className="p-3 text-muted-foreground">{formatDate(req.created_at)}</td>
       <td className="p-3">
         <div className="flex items-center justify-end gap-2">

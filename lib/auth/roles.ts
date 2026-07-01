@@ -30,6 +30,15 @@ export const INVITABLE_ROLES: UserRole[] = [
   'mgmt_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead', 'volunteer', 'viewer',
 ]
 
+/**
+ * Roles an applicant may request on public /signup — non-privileged team roles
+ * only (an admin still approves). Mirrors the CHECK in 0019. Admin, viewer, and
+ * school_poc are invite-only and can never be self-requested.
+ */
+export const SELF_SIGNUP_ROLES: UserRole[] = [
+  'volunteer', 'volunteer_lead', 'exec_lead', 'outreach_head', 'campus_lead',
+]
+
 export function roleLabel(role: UserRole): string {
   return ROLE_LABELS[role] ?? role
 }

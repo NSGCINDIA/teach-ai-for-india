@@ -3,9 +3,10 @@
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import {
-  AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Hash, Loader2, Lock, Mail, MapPin, User,
+  AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Hash, Loader2, Lock, Mail, MapPin, User, UserCog,
 } from 'lucide-react'
 import { requestSignup, type ActionState } from '@/actions/auth'
+import { SELF_SIGNUP_ROLES, roleLabel } from '@/lib/auth/roles'
 import type { CampusRow } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -52,6 +53,12 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
         <select id="campus_id" name="campus_id" required defaultValue="" className={SELECT_CLASS}>
           <option value="" disabled>Select your campus</option>
           {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+      </Field>
+
+      <Field label="Role" htmlFor="requested_role" icon={<UserCog className="size-4" />}>
+        <select id="requested_role" name="requested_role" required defaultValue="volunteer" className={SELECT_CLASS}>
+          {SELF_SIGNUP_ROLES.map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}
         </select>
       </Field>
 

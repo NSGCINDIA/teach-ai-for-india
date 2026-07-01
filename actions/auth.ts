@@ -95,12 +95,13 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     full_name: formData.get('full_name'),
     niat_id: formData.get('niat_id'),
     campus_id: formData.get('campus_id'),
+    requested_role: formData.get('requested_role'),
     email: formData.get('email'),
     password: formData.get('password'),
     confirm: formData.get('confirm'),
   })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
-  const { full_name, niat_id, campus_id, email, password } = parsed.data
+  const { full_name, niat_id, campus_id, requested_role, email, password } = parsed.data
 
   const admin = createAdminClient()
 
@@ -136,6 +137,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     niat_id,
     email,
     campus_id,
+    requested_role,
     status: 'pending',
   })
   if (reqErr) {

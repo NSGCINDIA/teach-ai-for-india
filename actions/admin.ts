@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireUser } from '@/lib/auth/user'
 import { can, isAdmin } from '@/lib/auth/rbac'
+import { SELF_SIGNUP_ROLES } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
 import {
   roleChangeSchema,
@@ -77,12 +78,18 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
   if (req.status !== 'pending') return { error: 'This request has already been reviewed.' }
   if (!req.auth_user_id) return { error: 'This request is missing its credential and cannot be approved.' }
 
+  // Honour the applicant's requested role, but never trust it for a privileged
+  // role — clamp to the self-requestable set (defence-in-depth atop the DB CHECK).
+  const grantedRole: UserRole = SELF_SIGNUP_ROLES.includes(req.requested_role as UserRole)
+    ? (req.requested_role as UserRole)
+    : 'volunteer'
+
   // Materialise the profile the handle_new_user trigger deliberately skipped.
   const { error: insErr } = await admin.from('users').insert({
     id: req.auth_user_id,
     email: req.email,
     full_name: req.full_name,
-    role: 'volunteer',
+    role: grantedRole,
     campus_id: req.campus_id,
     niat_id: req.niat_id,
     is_active: true,

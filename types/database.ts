@@ -56,7 +56,7 @@ export type UserRow = Timestamps & {
 export type SignupRequestStatus = 'pending' | 'approved' | 'rejected'
 export type SignupRequestRow = {
   id: string; auth_user_id: string | null; full_name: string; niat_id: string
-  email: string; campus_id: string | null; status: SignupRequestStatus
+  email: string; campus_id: string | null; requested_role: UserRole; status: SignupRequestStatus
   reviewed_by: string | null; reviewed_at: string | null; created_at: string
 }
 
