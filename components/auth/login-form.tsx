@@ -1,8 +1,8 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import Link from 'next/link'
-import { AlertCircle, Loader2 } from 'lucide-react'
+import { AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react'
 import { signIn, type ActionState } from '@/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +12,7 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
   const [state, action, pending] = useActionState<ActionState, FormData>(signIn, {
     error: initialError,
   })
+  const [showPassword, setShowPassword] = useState(false)
 
   return (
     <form action={action} className="space-y-4" noValidate>
@@ -35,7 +36,25 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
             Forgot password?
           </Link>
         </div>
-        <Input id="password" name="password" type="password" autoComplete="current-password" required />
+        <div className="relative">
+          <Input
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
+            required
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            tabIndex={-1}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
+        </div>
       </div>
 
       <Button type="submit" className="w-full" disabled={pending}>
