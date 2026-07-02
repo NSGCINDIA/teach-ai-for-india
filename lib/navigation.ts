@@ -49,7 +49,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: 'Outreach Forms', href: '/dashboard/schools/new', icon: 'outreach' },
-    { label: 'Approval Letters', href: '/dashboard/approval-letters', icon: 'reports', soon: true },
+    { label: 'Approval Letters', href: '/dashboard/approval-letters', icon: 'reports' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
     NOTIFICATIONS,
