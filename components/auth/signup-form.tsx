@@ -7,10 +7,12 @@ import {
 } from 'lucide-react'
 import { requestSignup, type ActionState } from '@/actions/auth'
 import { SELF_SIGNUP_ROLES, roleLabel } from '@/lib/auth/roles'
+import { useDebouncedValue } from '@/hooks/use-debounce'
 import type { CampusRow } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PasswordMatch, PasswordStrength } from '@/components/auth/password-feedback'
 
 const SELECT_CLASS =
   'border-input h-10 w-full rounded-md border bg-transparent pl-9 pr-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
@@ -19,6 +21,10 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
   const [state, action, pending] = useActionState<ActionState, FormData>(requestSignup, {})
   const [showPw, setShowPw] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [pw, setPw] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const debouncedPw = useDebouncedValue(pw)
+  const debouncedConfirm = useDebouncedValue(confirm)
 
   if (state.ok) {
     return (
@@ -70,17 +76,21 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
         <Input
           id="password" name="password" type={showPw ? 'text' : 'password'} autoComplete="new-password"
           required placeholder="Min. 8 characters" className="h-10 pl-9 pr-10"
+          value={pw} onChange={(e) => setPw(e.target.value)}
         />
         <PwToggle shown={showPw} onToggle={() => setShowPw((v) => !v)} />
       </Field>
+      <PasswordStrength value={debouncedPw} />
 
       <Field label="Confirm Password" htmlFor="confirm" icon={<Lock className="size-4" />}>
         <Input
           id="confirm" name="confirm" type={showConfirm ? 'text' : 'password'} autoComplete="new-password"
           required placeholder="Re-enter password" className="h-10 pl-9 pr-10"
+          value={confirm} onChange={(e) => setConfirm(e.target.value)}
         />
         <PwToggle shown={showConfirm} onToggle={() => setShowConfirm((v) => !v)} />
       </Field>
+      <PasswordMatch password={debouncedPw} confirm={debouncedConfirm} />
 
       <Button type="submit" disabled={pending} className="h-11 w-full bg-brand-orange text-white hover:bg-brand-orange/90">
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
