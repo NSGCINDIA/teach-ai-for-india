@@ -68,7 +68,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   exec_lead: [
     OVERVIEW,
     { label: "Today's Sessions", href: '/dashboard/sessions', icon: 'sessions' },
-    { label: 'Reports', href: '/dashboard/reports', icon: 'reports', soon: true },
+    { label: 'Reports', href: '/dashboard/reports', icon: 'reports' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
