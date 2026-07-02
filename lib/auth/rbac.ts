@@ -150,6 +150,11 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
   // Volunteer Lead & Volunteer get schools read-only (matrix: Read Only / Assigned Only) — RLS + RBAC gate mutations.
   { prefix: '/dashboard/schools', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead', 'volunteer'] },
   { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead', 'volunteer'] },
+  { prefix: '/dashboard/volunteers', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'volunteer_lead'] },
+  { prefix: '/dashboard/analytics', roles: ['super_admin', 'mgmt_admin', 'campus_lead'] },
+  { prefix: '/dashboard/settings', roles: ['super_admin', 'mgmt_admin', 'campus_lead'] },
+  { prefix: '/dashboard/reports', roles: ['super_admin', 'mgmt_admin', 'exec_lead'] },
+  { prefix: '/dashboard/approval-letters', roles: ['super_admin', 'mgmt_admin', 'outreach_head'] },
   { prefix: '/dashboard', roles: TEAM_ROLES },
 ]
 

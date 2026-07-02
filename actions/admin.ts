@@ -41,6 +41,7 @@ export async function changeUserRole(_prev: AdminActionState, formData: FormData
   if (error) return { error: humanize(error.message) }
 
   revalidatePath('/admin/volunteers')
+  revalidatePath('/dashboard/volunteers')
   return { ok: true, message: 'Role updated.' }
 }
 
@@ -60,6 +61,7 @@ export async function setUserActive(_prev: AdminActionState, formData: FormData)
   if (error) return { error: humanize(error.message) }
 
   revalidatePath('/admin/volunteers')
+  revalidatePath('/dashboard/volunteers')
   return { ok: true, message: parsed.data.is_active ? 'Account activated.' : 'Account deactivated.' }
 }
 
