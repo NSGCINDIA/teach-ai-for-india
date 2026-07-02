@@ -39,7 +39,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
     { label: 'Finance', href: '/dashboard/reimbursements', icon: 'finance' },
-    { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics', soon: true },
+    { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
     NOTIFICATIONS,
