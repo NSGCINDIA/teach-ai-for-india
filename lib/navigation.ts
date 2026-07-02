@@ -43,7 +43,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
     NOTIFICATIONS,
-    { label: 'Settings', href: '/dashboard/settings', icon: 'settings', soon: true },
+    { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
   ],
   outreach_head: [
     OVERVIEW,
