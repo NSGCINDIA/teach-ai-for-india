@@ -86,7 +86,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },
     { label: 'Certificates', href: '/dashboard/certificates', icon: 'certificates' },
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
-    { label: 'Profile', href: '/dashboard/profile', icon: 'profile', soon: true },
+    { label: 'Profile', href: '/dashboard/profile', icon: 'profile' },
   ],
   // Roles that don't primarily live in the team dashboard fall back to the
   // campus-lead layout when they visit it.
