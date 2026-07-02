@@ -140,9 +140,9 @@ export function CampusLeadOverview({ name, data }: { name: string; data: CampusL
 
 function QuickActions() {
   const actions = [
-    { label: 'Add School', href: '/dashboard/schools/new', icon: School },
-    { label: 'Plan Session', href: '/dashboard/sessions/new', icon: CalendarDays },
-    { label: 'Upload Evidence', href: '/dashboard/evidence', icon: Images },
+    { label: 'View Schools', href: '/dashboard/schools', icon: School },
+    { label: 'View Planned Sessions', href: '/dashboard/sessions', icon: CalendarDays },
+    { label: 'View Evidence', href: '/dashboard/evidence', icon: Images },
     { label: 'View Attendance', href: '/dashboard/attendance', icon: ClipboardList },
   ]
   return (
