@@ -60,6 +60,11 @@ export type SignupRequestRow = {
   reviewed_by: string | null; reviewed_at: string | null; created_at: string
 }
 
+// Signup rate limiting (0021_signup_rate_limit.sql)
+export type SignupAttemptRow = {
+  id: number; ip_address: string; created_at: string
+}
+
 export type SchoolRow = Timestamps & {
   id: string; name: string; school_type: SchoolTypeEnum; board: BoardType
   state: string; district: string; cluster: string | null; mandal: string | null
@@ -253,6 +258,7 @@ export interface Database {
       volunteer_applications: TableDef<VolunteerApplicationRow>
       contact_messages: TableDef<ContactMessageRow>
       signup_requests: TableDef<SignupRequestRow>
+      signup_attempts: TableDef<SignupAttemptRow>
       session_plans: TableDef<SessionPlanRow>
       session_assignments: TableDef<SessionAssignmentRow>
       announcements: TableDef<AnnouncementRow>
