@@ -7,6 +7,7 @@ import { requireUser } from '@/lib/auth/user'
 import { can, isAdmin } from '@/lib/auth/rbac'
 import { SELF_SIGNUP_ROLES } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
+import { escapeHtml } from '@/lib/security/sanitize'
 import {
   roleChangeSchema,
   userActiveSchema,
@@ -125,11 +126,12 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
   await sendEmail({
     to: req.email,
     subject: 'Your Teach AI for India account is approved',
-    html: `<p>Hi ${req.full_name},</p>
+    html: `<p>Hi ${escapeHtml(req.full_name)},</p>
       <p>Your account has been approved. You can now <a href="${siteUrl()}/login">log in</a> with the email and password you signed up with.</p>`,
   })
 
   revalidatePath('/admin/volunteers')
+  revalidatePath('/dashboard/volunteers') // new member joins the campus roster
   return { ok: true, message: `${req.full_name} approved and can now log in.` }
 }
 
@@ -162,7 +164,7 @@ export async function rejectSignup(_prev: AdminActionState, formData: FormData):
   await sendEmail({
     to: req.email,
     subject: 'Update on your Teach AI for India account request',
-    html: `<p>Hi ${req.full_name},</p>
+    html: `<p>Hi ${escapeHtml(req.full_name)},</p>
       <p>Thanks for your interest in Teach AI for India. After review, we weren’t able to approve your account request this time.</p>
       <p>If you think this was a mistake or your details have changed, you’re welcome to request an account again:</p>
       <p><a href="${siteUrl()}/signup" style="display:inline-block;padding:10px 18px;background:#FF6B35;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">Request again</a></p>

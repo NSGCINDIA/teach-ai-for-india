@@ -55,13 +55,16 @@ export async function listAdminUsers(filters: UserFilters = {}): Promise<AdminUs
   const supabase = await createClient()
   let query = supabase
     .from('users')
-    .select('*, campus:campuses(id, name)')
+    // Disambiguate the FK: campuses links back to users twice (campus_id and
+    // lead_user_id), so an unqualified embed errors (PGRST201) and drops rows.
+    .select('*, campus:campuses!users_campus_id_fkey(id, name)')
     .order('created_at', { ascending: false })
     .limit(1000)
   if (filters.role) query = query.eq('role', filters.role)
   if (filters.campus_id) query = query.eq('campus_id', filters.campus_id)
   if (filters.active !== undefined) query = query.eq('is_active', filters.active)
-  const { data } = await query
+  const { data, error } = await query
+  if (error) throw new Error(`listAdminUsers failed: ${error.message}`)
   return (data as unknown as AdminUser[]) ?? []
 }
 

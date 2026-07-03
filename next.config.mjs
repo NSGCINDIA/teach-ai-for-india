@@ -12,6 +12,40 @@ const supabaseHost = (() => {
   }
 })()
 
+// ─── Security headers (issue #10) ────────────────────────────────────────────
+// A pragmatic baseline: strict framing/sniffing/referrer/permissions controls,
+// HSTS, and a CSP scoped to the sources this app actually loads. Script/style
+// keep 'unsafe-inline' because Next.js injects inline bootstrap scripts and
+// runtime styles; everything else is locked down (no third-party origins).
+const supabaseWs = supabaseHost ? `wss://${supabaseHost}` : ''
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  `connect-src 'self' ${supabaseHost ? `https://${supabaseHost} ${supabaseWs}` : ''} https://*.supabase.co wss://*.supabase.co`,
+  "frame-src 'none'",
+  'upgrade-insecure-requests',
+]
+  .filter(Boolean)
+  .join('; ')
+  .replace(/\s+/g, ' ')
+  .trim()
+
+const securityHeaders = [
+  { key: 'Content-Security-Policy', value: contentSecurityPolicy },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()' },
+  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+]
+
 const nextConfig = {
   // Strict TypeScript is enforced in CI via `tsc --noEmit`. Build errors are
   // surfaced (no longer silently ignored) now that the codebase is typed.
@@ -33,6 +67,10 @@ const nextConfig = {
   experimental: {
     // Server Actions are used for auth + mutations.
     serverActions: { bodySizeLimit: '10mb' },
+  },
+  // Apply the security headers to every route (issue #10).
+  async headers() {
+    return [{ source: '/:path*', headers: securityHeaders }]
   },
 }
 
