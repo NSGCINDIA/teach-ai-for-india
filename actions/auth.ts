@@ -7,6 +7,7 @@ import { getSessionUser } from '@/lib/auth/user'
 import { roleHomePath, isAdmin } from '@/lib/auth/rbac'
 import { roleLabel } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
+import { escapeHtml } from '@/lib/security/sanitize'
 import { signInSchema, emailSchema, setPasswordSchema, inviteSchema, signupSchema } from '@/lib/validations/auth'
 import type { UserRole } from '@/types/database'
 
@@ -169,8 +170,8 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
       await sendEmail({
         to,
         subject: 'New account signup awaiting approval',
-        html: `<p><strong>${full_name}</strong> (${email}) has requested an account.</p>
-          <p>NIAT ID: ${niat_id}</p>
+        html: `<p><strong>${escapeHtml(full_name)}</strong> (${escapeHtml(email)}) has requested an account.</p>
+          <p>NIAT ID: ${escapeHtml(niat_id)}</p>
           <p>Review and approve it from the <a href="${siteUrl()}/admin/volunteers">Volunteers &amp; team</a> page.</p>`,
       })
     }
@@ -210,7 +211,7 @@ export async function inviteUser(_prev: ActionState, formData: FormData): Promis
   await sendEmail({
     to: parsed.data.email,
     subject: 'You’re invited to Teach AI for India',
-    html: `<p>Hi ${parsed.data.full_name},</p>
+    html: `<p>Hi ${escapeHtml(parsed.data.full_name)},</p>
       <p>You’ve been invited to join Teach AI for India as a <strong>${roleLabel(parsed.data.role as UserRole)}</strong>.</p>
       <p>Check your inbox for the secure sign-in link to set your password. The link expires in 48 hours.</p>`,
   })
