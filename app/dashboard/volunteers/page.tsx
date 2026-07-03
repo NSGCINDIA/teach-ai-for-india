@@ -1,6 +1,7 @@
 import { requireAccess } from '@/lib/auth/user'
 import { can, isAdmin } from '@/lib/auth/rbac'
 import { listAdminUsers } from '@/lib/data/admin'
+import { listCampusOptions } from '@/lib/data/schools'
 import { UsersTable } from '@/components/admin/users-table'
 import { EmptyState } from '@/components/shared/states'
 
@@ -28,7 +29,12 @@ export default async function DashboardVolunteersPage() {
     )
   }
 
-  const users = await listAdminUsers({ campus_id: user.campus_id ?? undefined })
+  // Admins see every registered user across all campuses; campus leads stay
+  // scoped to their own campus. Admins also get the campus filter dropdown.
+  const [users, campuses] = await Promise.all([
+    listAdminUsers(scoped ? { campus_id: user.campus_id ?? undefined } : {}),
+    scoped ? Promise.resolve([]) : listCampusOptions(),
+  ])
   const canManage = can(user.role, 'manage_user_roles') !== false
 
   return (
@@ -36,7 +42,8 @@ export default async function DashboardVolunteersPage() {
       <header>
         <h1 className="font-display text-2xl font-bold tracking-tight">Volunteers</h1>
         <p className="mt-1 text-muted-foreground">
-          {users.length} member{users.length === 1 ? '' : 's'} on your campus team.
+          {users.length} member{users.length === 1 ? '' : 's'}{' '}
+          {scoped ? 'on your campus team.' : 'across every campus.'}
         </p>
       </header>
 
@@ -47,9 +54,16 @@ export default async function DashboardVolunteersPage() {
       )}
 
       {users.length === 0 ? (
-        <EmptyState title="No team members yet" description="Volunteers invited to your campus will appear here." />
+        <EmptyState
+          title="No team members yet"
+          description={
+            scoped
+              ? 'Volunteers invited to your campus will appear here.'
+              : 'Registered users will appear here once accounts are approved.'
+          }
+        />
       ) : (
-        <UsersTable users={users} campuses={[]} canManage={canManage} currentUserId={user.id} />
+        <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} />
       )}
     </div>
   )
