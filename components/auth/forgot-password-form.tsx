@@ -1,13 +1,13 @@
 'use client'
 
 import { useActionState } from 'react'
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Info, Loader2 } from 'lucide-react'
 import { requestPasswordReset, type ActionState } from '@/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-export function ForgotPasswordForm() {
+export function ForgotPasswordForm({ notice }: { notice?: string }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(requestPasswordReset, {})
 
   if (state.ok) {
@@ -20,6 +20,11 @@ export function ForgotPasswordForm() {
 
   return (
     <form action={action} className="space-y-4" noValidate>
+      {notice && (
+        <p className="flex items-center gap-2 rounded-lg bg-brand/10 px-3 py-2 text-sm text-muted-foreground">
+          <Info className="size-4 shrink-0 text-brand" /> {notice}
+        </p>
+      )}
       {state.error && (
         <p role="alert" className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
           <AlertCircle className="size-4 shrink-0" /> {state.error}
