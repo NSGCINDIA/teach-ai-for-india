@@ -8,7 +8,8 @@ import { getSessionUser } from '@/lib/auth/user'
 import { roleHomePath, isAdmin } from '@/lib/auth/rbac'
 import { roleLabel } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
-import { clientIp, failureCount, recordFailure, clearFailures } from '@/lib/security/rate-limit'
+import { clientIp, failureCount, recordFailure, clearFailures, rateLimit } from '@/lib/security/rate-limit'
+import { escapeHtml } from '@/lib/security/sanitize'
 import { signInSchema, emailSchema, setPasswordSchema, inviteSchema, signupSchema } from '@/lib/validations/auth'
 import type { UserRole } from '@/types/database'
 
@@ -98,11 +99,51 @@ export async function requestPasswordReset(_prev: ActionState, formData: FormDat
   const parsed = emailSchema.safeParse({ email: formData.get('email') })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
+  const ip = clientIp(await headers())
+  const email = parsed.data.email.toLowerCase()
+
+  // Apply rate limits to prevent bulk email enumeration probing.
+  const ipVerdict = rateLimit(`reset-ip:${ip}`, 10, 15 * 60 * 1000)
+  const emailVerdict = rateLimit(`reset-email:${email}`, 3, 15 * 60 * 1000)
+
+  if (!ipVerdict.allowed || !emailVerdict.allowed) {
+    return { error: 'Too many password reset requests. Please wait a few minutes and try again.' }
+  }
+
+  // Graceful degradation when Supabase is not configured (PRD §15 / README)
+  const isConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                       !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-ref') &&
+                       process.env.SUPABASE_SERVICE_ROLE_KEY && 
+                       !process.env.SUPABASE_SERVICE_ROLE_KEY.includes('your-service-role-key');
+
+  if (!isConfigured) {
+    const mockUsers = ['admin@teachaiforindia.org', 'hello@teachaiforindia.org'];
+    if (mockUsers.includes(email)) {
+      return { ok: true, message: 'If that email exists, a reset link is on its way.' }
+    }
+    return { error: "This email isn't registered. Please create an account first." }
+  }
+
+  const admin = createAdminClient()
+  const { data: userExists, error: checkError } = await admin
+    .from('users')
+    .select('id')
+    .ilike('email', email)
+    .maybeSingle()
+
+  if (checkError) {
+    return { error: 'Something went wrong. Please try again.' }
+  }
+
+  if (!userExists) {
+    return { error: "This email isn't registered. Please create an account first." }
+  }
+
   const supabase = await createClient()
   await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${siteUrl()}/auth/callback?next=/reset-password`,
   })
-  // Always report success (don't leak which emails exist).
+
   return { ok: true, message: 'If that email exists, a reset link is on its way.' }
 }
 
