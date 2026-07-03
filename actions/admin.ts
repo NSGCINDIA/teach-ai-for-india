@@ -130,6 +130,7 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
   })
 
   revalidatePath('/admin/volunteers')
+  revalidatePath('/dashboard/volunteers') // new member joins the campus roster
   return { ok: true, message: `${req.full_name} approved and can now log in.` }
 }
 
