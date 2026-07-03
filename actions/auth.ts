@@ -1,18 +1,36 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getSessionUser } from '@/lib/auth/user'
 import { roleHomePath, isAdmin } from '@/lib/auth/rbac'
 import { roleLabel } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
+import { clientIp, failureCount, recordFailure, clearFailures } from '@/lib/security/rate-limit'
 import { signInSchema, emailSchema, setPasswordSchema, inviteSchema, signupSchema } from '@/lib/validations/auth'
 import type { UserRole } from '@/types/database'
 
 export type ActionState = { error?: string; ok?: boolean; message?: string }
 
 const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+
+// Login brute-force thresholds (issue #10): failed attempts only.
+const LOGIN_WINDOW_MS = 15 * 60 * 1000
+const LOGIN_MAX_PER_ACCOUNT = 8 // this IP against one account
+const LOGIN_MAX_PER_IP = 30 // this IP across all accounts (spray protection)
+
+/**
+ * Only allow same-origin relative paths as a post-login redirect (issue #10).
+ * Rejects protocol-relative (`//evil.com`), backslash tricks, and absolute URLs
+ * so the `next` param can't be turned into an open redirect.
+ */
+function safeNextPath(next: string): string | null {
+  if (!next || !next.startsWith('/')) return null
+  if (next.startsWith('//') || next.startsWith('/\\') || next.startsWith('/%2f') || next.startsWith('/%5c')) return null
+  return next
+}
 
 // ─── Sign in (email + password) ──────────────────────────────────────────────
 export async function signIn(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -22,9 +40,27 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
   })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
+  // Throttle repeated FAILED attempts per account and per IP (issue #10).
+  const ip = clientIp(await headers())
+  const email = parsed.data.email.toLowerCase()
+  const acctKey = `login:${ip}:${email}`
+  const ipKey = `login-ip:${ip}`
+  if (
+    failureCount(acctKey, LOGIN_WINDOW_MS) >= LOGIN_MAX_PER_ACCOUNT ||
+    failureCount(ipKey, LOGIN_WINDOW_MS) >= LOGIN_MAX_PER_IP
+  ) {
+    return { error: 'Too many failed sign-in attempts. Please wait a few minutes and try again.' }
+  }
+
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data)
-  if (error) return { error: 'Invalid email or password.' }
+  if (error) {
+    recordFailure(acctKey)
+    recordFailure(ipKey)
+    return { error: 'Invalid email or password.' }
+  }
+  clearFailures(acctKey)
+  clearFailures(ipKey)
 
   // Record login + read role for redirect.
   const { data: profile } = await supabase
@@ -46,8 +82,8 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
 
   await supabase.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', data.user.id)
 
-  const next = (formData.get('next') as string) || ''
-  redirect(next && next.startsWith('/') ? next : roleHomePath((profile?.role as UserRole) ?? 'volunteer'))
+  const next = safeNextPath((formData.get('next') as string) || '')
+  redirect(next ?? roleHomePath((profile?.role as UserRole) ?? 'volunteer'))
 }
 
 // ─── Sign out ────────────────────────────────────────────────────────────────
