@@ -1,6 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getSessionUser } from '@/lib/auth/user'
@@ -90,7 +91,35 @@ export async function updatePassword(_prev: ActionState, formData: FormData): Pr
 }
 
 // ─── Public self-signup — request an account (admin-approval gated, PRD §7.2) ─
+const SIGNUP_MAX_PER_DAY = 5
+const SIGNUP_WINDOW_MS = 24 * 60 * 60 * 1000
+
+/** Best-effort client IP from the deployment proxy headers (issue #9). */
+async function callerIp(): Promise<string> {
+  const h = await headers()
+  const fwd = h.get('x-forwarded-for')
+  if (fwd) return fwd.split(',')[0].trim() || 'unknown'
+  return h.get('x-real-ip')?.trim() || 'unknown'
+}
+
 export async function requestSignup(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const admin = createAdminClient()
+
+  // Rate limit BEFORE validation (issue #9): the attempt is recorded up-front so
+  // that even submissions which fail validation count toward the per-IP daily
+  // cap — otherwise the limit could be bypassed by intentionally failing first.
+  const ip = await callerIp()
+  const since = new Date(Date.now() - SIGNUP_WINDOW_MS).toISOString()
+  const { count } = await admin
+    .from('signup_attempts')
+    .select('id', { count: 'exact', head: true })
+    .eq('ip_address', ip)
+    .gte('created_at', since)
+  if ((count ?? 0) >= SIGNUP_MAX_PER_DAY) {
+    return { error: 'Too many signup attempts from this network. Please try again tomorrow.' }
+  }
+  await admin.from('signup_attempts').insert({ ip_address: ip })
+
   const parsed = signupSchema.safeParse({
     full_name: formData.get('full_name'),
     niat_id: formData.get('niat_id'),
@@ -102,8 +131,6 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
   })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
   const { full_name, niat_id, campus_id, requested_role, email, password } = parsed.data
-
-  const admin = createAdminClient()
 
   // Block obvious repeats early (a live request or an existing account).
   const { data: pending } = await admin
