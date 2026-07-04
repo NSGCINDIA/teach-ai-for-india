@@ -7,10 +7,13 @@ import { useDebouncedValue } from '@/hooks/use-debounce'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PwToggle } from '@/components/auth/pw-toggle'
 import { PasswordMatch, PasswordStrength } from '@/components/auth/password-feedback'
 
 export function SetPasswordForm({ cta = 'Update password' }: { cta?: string }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(updatePassword, {})
+  const [showPw, setShowPw] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [pw, setPw] = useState('')
   const [confirm, setConfirm] = useState('')
   const debouncedPw = useDebouncedValue(pw)
@@ -25,10 +28,13 @@ export function SetPasswordForm({ cta = 'Update password' }: { cta?: string }) {
       )}
       <div className="space-y-1.5">
         <Label htmlFor="password">New password</Label>
-        <Input
-          id="password" name="password" type="password" autoComplete="new-password" required
-          value={pw} onChange={(e) => setPw(e.target.value)}
-        />
+        <div className="relative">
+          <Input
+            id="password" name="password" type={showPw ? 'text' : 'password'} autoComplete="new-password" required
+            className="pr-10" value={pw} onChange={(e) => setPw(e.target.value)}
+          />
+          <PwToggle shown={showPw} onToggle={() => setShowPw((v) => !v)} />
+        </div>
         {debouncedPw ? (
           <PasswordStrength value={debouncedPw} />
         ) : (
@@ -37,10 +43,13 @@ export function SetPasswordForm({ cta = 'Update password' }: { cta?: string }) {
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="confirm">Confirm password</Label>
-        <Input
-          id="confirm" name="confirm" type="password" autoComplete="new-password" required
-          value={confirm} onChange={(e) => setConfirm(e.target.value)}
-        />
+        <div className="relative">
+          <Input
+            id="confirm" name="confirm" type={showConfirm ? 'text' : 'password'} autoComplete="new-password" required
+            className="pr-10" value={confirm} onChange={(e) => setConfirm(e.target.value)}
+          />
+          <PwToggle shown={showConfirm} onToggle={() => setShowConfirm((v) => !v)} />
+        </div>
         <PasswordMatch password={debouncedPw} confirm={debouncedConfirm} />
       </div>
       <Button type="submit" className="w-full" disabled={pending}>
