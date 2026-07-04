@@ -3,7 +3,7 @@
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import {
-  AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Hash, Loader2, Lock, Mail, MapPin, User, UserCog,
+  AlertCircle, ArrowRight, CheckCircle2, Hash, Loader2, Lock, Mail, MapPin, User, UserCog,
 } from 'lucide-react'
 import { requestSignup, type ActionState } from '@/actions/auth'
 import { SELF_SIGNUP_ROLES, roleLabel } from '@/lib/auth/roles'
@@ -12,6 +12,7 @@ import type { CampusRow } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PwToggle } from '@/components/auth/pw-toggle'
 import { PasswordMatch, PasswordStrength } from '@/components/auth/password-feedback'
 
 const SELECT_CLASS =
@@ -119,17 +120,5 @@ function Field({
         {children}
       </div>
     </div>
-  )
-}
-
-function PwToggle({ shown, onToggle }: { shown: boolean; onToggle: () => void }) {
-  return (
-    <button
-      type="button" onClick={onToggle} tabIndex={-1}
-      aria-label={shown ? 'Hide password' : 'Show password'}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-    >
-      {shown ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-    </button>
   )
 }
