@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import Link from 'next/link'
 import { AlertCircle, CheckCircle2, Info, Loader2 } from 'lucide-react'
 import { requestPasswordReset, type ActionState } from '@/actions/auth'
 import { Button } from '@/components/ui/button'
@@ -26,8 +27,21 @@ export function ForgotPasswordForm({ notice }: { notice?: string }) {
         </p>
       )}
       {state.error && (
-        <p role="alert" className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
-          <AlertCircle className="size-4 shrink-0" /> {state.error}
+        <p role="alert" className="flex items-start gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
+          <AlertCircle className="size-4 shrink-0 mt-0.5" />
+          <span>
+            {state.error === "This email isn't registered. Please create an account first." ? (
+              <>
+                This email isn't registered. Please{' '}
+                <Link href="/signup" className="underline font-semibold hover:text-error/80">
+                  create an account
+                </Link>{' '}
+                first.
+              </>
+            ) : (
+              state.error
+            )}
+          </span>
         </p>
       )}
       <div className="space-y-1.5">
