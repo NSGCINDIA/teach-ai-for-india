@@ -27,6 +27,25 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
   const debouncedPw = useDebouncedValue(pw)
   const debouncedConfirm = useDebouncedValue(confirm)
 
+  // Track field values to gate the submit button (issue #32), mirroring the
+  // login form (issue #22). Inputs stay uncontrolled so browser/password-manager
+  // autofill keeps working — we only read values via onChange, which fires on
+  // autofill too. `requested_role` is omitted: it defaults to a valid value.
+  const [fullName, setFullName] = useState('')
+  const [niatId, setNiatId] = useState('')
+  const [campusId, setCampusId] = useState('')
+  const [email, setEmail] = useState('')
+
+  const canSubmit =
+    fullName.trim().length > 0 &&
+    niatId.trim().length > 0 &&
+    campusId.length > 0 &&
+    email.trim().length > 0 &&
+    pw.length > 0 &&
+    confirm.length > 0 &&
+    pw === confirm &&
+    !pending
+
   if (state.ok) {
     return (
       <div className="rounded-xl border border-success/30 bg-success/5 p-6 text-center">
@@ -49,15 +68,15 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
       )}
 
       <Field label="Full Name" htmlFor="full_name" icon={<User className="size-4" />}>
-        <Input id="full_name" name="full_name" required placeholder="Your full name" className="h-10 pl-9" />
+        <Input id="full_name" name="full_name" required placeholder="Your full name" className="h-10 pl-9" onChange={(e) => setFullName(e.target.value)} />
       </Field>
 
       <Field label="NIAT ID" htmlFor="niat_id" icon={<Hash className="size-4" />}>
-        <Input id="niat_id" name="niat_id" required placeholder="Your NIAT student ID" className="h-10 pl-9" />
+        <Input id="niat_id" name="niat_id" required placeholder="Your NIAT student ID" className="h-10 pl-9" onChange={(e) => setNiatId(e.target.value)} />
       </Field>
 
       <Field label="Campus" htmlFor="campus_id" icon={<MapPin className="size-4" />}>
-        <select id="campus_id" name="campus_id" required defaultValue="" className={SELECT_CLASS}>
+        <select id="campus_id" name="campus_id" required defaultValue="" className={SELECT_CLASS} onChange={(e) => setCampusId(e.target.value)}>
           <option value="" disabled>Select your campus</option>
           {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
@@ -70,7 +89,7 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
       </Field>
 
       <Field label="Email" htmlFor="email" icon={<Mail className="size-4" />}>
-        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" className="h-10 pl-9" />
+        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" className="h-10 pl-9" onChange={(e) => setEmail(e.target.value)} />
       </Field>
 
       <Field label="Password" htmlFor="password" icon={<Lock className="size-4" />}>
@@ -93,7 +112,7 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
       </Field>
       <PasswordMatch password={debouncedPw} confirm={debouncedConfirm} />
 
-      <Button type="submit" disabled={pending} className="h-11 w-full bg-brand-orange text-white hover:bg-brand-orange/90">
+      <Button type="submit" disabled={!canSubmit} className="h-11 w-full bg-brand-orange text-white hover:bg-brand-orange/90">
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
         Create Account
         {!pending && <ArrowRight className="size-4" />}
