@@ -1,10 +1,18 @@
+import { cache } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { UserRow, UserRole } from '@/types/database'
 import { canAccessPath } from '@/lib/auth/rbac'
 
-/** Returns the current user's profile row, or null if not signed in. */
-export async function getSessionUser(): Promise<UserRow | null> {
+/**
+ * Returns the current user's profile row, or null if not signed in.
+ *
+ * Wrapped in React `cache()` so the auth round-trips (a network `getUser()`
+ * JWT check + the `users` lookup) run at most once per request, no matter how
+ * many times the layout, page, and nested server components ask for the user.
+ * Without this, a single page render repeats both calls for every caller.
+ */
+export const getSessionUser = cache(async (): Promise<UserRow | null> => {
   const supabase = await createClient()
   const {
     data: { user },
@@ -18,7 +26,7 @@ export async function getSessionUser(): Promise<UserRow | null> {
     .single()
 
   return profile ?? null
-}
+})
 
 /**
  * Use in server components/actions that require auth. Redirects to /login
