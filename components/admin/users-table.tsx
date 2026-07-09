@@ -102,6 +102,7 @@ function UserRowItem({ user, canManage, isSelf }: { user: AdminUser; canManage: 
           <form action={roleAction} className="flex items-center gap-1.5">
             <input type="hidden" name="user_id" value={user.id} />
             <select
+              key={`${user.role}:${roleState.error ?? ''}`}
               name="role" defaultValue={user.role} className={SELECT_CLASS}
               onChange={(e) => e.currentTarget.form?.requestSubmit()} aria-label={`Role for ${user.full_name}`}
             >
