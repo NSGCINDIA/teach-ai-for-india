@@ -175,6 +175,48 @@ export async function rejectSignup(_prev: AdminActionState, formData: FormData):
   return { ok: true, message: `${req.full_name}’s request was rejected.` }
 }
 
+// ─── Volunteer applications — accept / reject (PRD §7.1/§11) ─────────────────
+export async function reviewVolunteerApplication(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const me = await requireUser('/admin/volunteers')
+  if (!isAdmin(me.role)) return { error: 'Not authorized to review applications.' }
+
+  const id = String(formData.get('id') ?? '')
+  const decision = String(formData.get('decision') ?? '')
+  if (!id) return { error: 'Missing application id.' }
+  if (decision !== 'invited' && decision !== 'rejected') return { error: 'Invalid decision.' }
+
+  const supabase = await createClient()
+  const { data: application } = await supabase
+    .from('volunteer_applications')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+  if (!application) return { error: 'Application not found.' }
+  if (application.status !== 'new' && application.status !== 'reviewing') {
+    return { error: 'This application has already been reviewed.' }
+  }
+
+  const { error } = await supabase
+    .from('volunteer_applications')
+    .update({ status: decision, reviewed_by: me.id })
+    .eq('id', id)
+  if (error) return { error: humanize(error.message) }
+
+  await supabase.from('audit_log').insert({
+    actor_id: me.id,
+    action: decision === 'invited' ? 'invite' : 'reject',
+    entity_type: 'volunteer_application',
+    entity_id: id,
+    detail: { email: application.email },
+  })
+
+  revalidatePath('/admin/volunteers')
+  return {
+    ok: true,
+    message: decision === 'invited' ? `${application.full_name} marked as invited.` : `${application.full_name}’s application was rejected.`,
+  }
+}
+
 // ─── Campus management (PRD §7.9 — campus config) ────────────────────────────
 export async function saveCampus(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const me = await requireUser('/admin/campuses')

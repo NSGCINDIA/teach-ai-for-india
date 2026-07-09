@@ -1,19 +1,21 @@
 import { requireAccess } from '@/lib/auth/user'
 import { can, isAdmin } from '@/lib/auth/rbac'
-import { listAdminUsers, listPendingSignups } from '@/lib/data/admin'
+import { listAdminUsers, listPendingSignups, listVolunteerApplications } from '@/lib/data/admin'
 import { listCampusOptions } from '@/lib/data/schools'
 import { UsersTable } from '@/components/admin/users-table'
 import { InviteForm } from '@/components/admin/invite-form'
 import { SignupRequests } from '@/components/admin/signup-requests'
+import { VolunteerApplications } from '@/components/admin/volunteer-applications'
 
 export const metadata = { title: 'Volunteers · Admin' }
 
 export default async function AdminVolunteersPage() {
   const user = await requireAccess('/admin/volunteers')
-  const [users, campuses, signups] = await Promise.all([
+  const [users, campuses, signups, applications] = await Promise.all([
     listAdminUsers(),
     listCampusOptions(),
     isAdmin(user.role) ? listPendingSignups() : Promise.resolve([]),
+    isAdmin(user.role) ? listVolunteerApplications() : Promise.resolve([]),
   ])
   const canManage = can(user.role, 'manage_user_roles') !== false
 
@@ -30,6 +32,7 @@ export default async function AdminVolunteersPage() {
       </header>
 
       <SignupRequests requests={signups} />
+      <VolunteerApplications applications={applications} />
 
       {!canManage && (
         <p className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">

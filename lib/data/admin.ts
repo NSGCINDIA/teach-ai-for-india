@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import type { CampusRow, UserRow, UserRole, SignupRequestRow } from '@/types/database'
+import type { CampusRow, UserRow, UserRole, SignupRequestRow, VolunteerApplicationRow } from '@/types/database'
 import type { StatusTone } from '@/lib/constants/status'
 
 // ─── Alert feed (PRD §7.9 — 6 always-on alert types) ─────────────────────────
@@ -79,6 +79,17 @@ export async function listPendingSignups(): Promise<PendingSignup[]> {
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
   return (data as unknown as PendingSignup[]) ?? []
+}
+
+// ─── Volunteer applications (PRD §7.1/§11 — public "Join" form triage) ───────
+export async function listVolunteerApplications(): Promise<VolunteerApplicationRow[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('volunteer_applications')
+    .select('*')
+    .in('status', ['new', 'reviewing'])
+    .order('created_at', { ascending: true })
+  return (data as VolunteerApplicationRow[]) ?? []
 }
 
 // ─── Campus management (PRD §7.9 — campus config) ────────────────────────────
