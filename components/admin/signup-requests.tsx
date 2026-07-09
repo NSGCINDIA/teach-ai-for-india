@@ -56,7 +56,7 @@ function SignupRow({ req }: { req: PendingSignup }) {
     <tr className="border-b border-brand-orange/10 align-middle last:border-0">
       <td className="p-3">
         <div className="font-medium">{req.full_name}</div>
-        <div className="text-xs text-muted-foreground">{req.email}</div>
+        <div className="text-xs text-muted-foreground">{req.email}{req.phone ? ` · ${req.phone}` : ''}</div>
         {error && <div role="alert" className="mt-1 text-xs text-error">{error}</div>}
       </td>
       <td className="p-3 text-muted-foreground">{req.niat_id}</td>

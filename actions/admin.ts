@@ -92,6 +92,7 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
     id: req.auth_user_id,
     email: req.email,
     full_name: req.full_name,
+    phone: req.phone,
     role: grantedRole,
     campus_id: req.campus_id,
     niat_id: req.niat_id,
@@ -104,7 +105,7 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
   // Confirm the email and clear the pending flag so they can log in.
   await admin.auth.admin.updateUserById(req.auth_user_id, {
     email_confirm: true,
-    user_metadata: { full_name: req.full_name, campus_id: req.campus_id, niat_id: req.niat_id, pending_approval: null },
+    user_metadata: { full_name: req.full_name, campus_id: req.campus_id, niat_id: req.niat_id, phone: req.phone, pending_approval: null },
   })
 
   await admin

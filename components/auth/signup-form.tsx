@@ -3,7 +3,7 @@
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import {
-  AlertCircle, ArrowRight, CheckCircle2, Hash, Loader2, Lock, Mail, MapPin, User, UserCog,
+  AlertCircle, ArrowRight, CheckCircle2, Hash, Loader2, Lock, Mail, MapPin, Phone, User, UserCog,
 } from 'lucide-react'
 import { requestSignup, type ActionState } from '@/actions/auth'
 import { SELF_SIGNUP_ROLES, roleLabel } from '@/lib/auth/roles'
@@ -33,12 +33,14 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
   // autofill too. `requested_role` is omitted: it defaults to a valid value.
   const [fullName, setFullName] = useState('')
   const [niatId, setNiatId] = useState('')
+  const [phone, setPhone] = useState('')
   const [campusId, setCampusId] = useState('')
   const [email, setEmail] = useState('')
 
   const canSubmit =
     fullName.trim().length > 0 &&
     niatId.trim().length > 0 &&
+    phone.trim().length > 0 &&
     campusId.length > 0 &&
     email.trim().length > 0 &&
     pw.length > 0 &&
@@ -73,6 +75,10 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
 
       <Field label="NIAT ID" htmlFor="niat_id" icon={<Hash className="size-4" />}>
         <Input id="niat_id" name="niat_id" required placeholder="Your NIAT student ID" className="h-10 pl-9" onChange={(e) => setNiatId(e.target.value)} />
+      </Field>
+
+      <Field label="Phone" htmlFor="phone" icon={<Phone className="size-4" />}>
+        <Input id="phone" name="phone" type="tel" autoComplete="tel" required placeholder="+91 98765 43210" className="h-10 pl-9" onChange={(e) => setPhone(e.target.value)} />
       </Field>
 
       <Field label="Campus" htmlFor="campus_id" icon={<MapPin className="size-4" />}>

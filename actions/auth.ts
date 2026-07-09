@@ -199,6 +199,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
   const parsed = signupSchema.safeParse({
     full_name: formData.get('full_name'),
     niat_id: formData.get('niat_id'),
+    phone: formData.get('phone'),
     campus_id: formData.get('campus_id'),
     requested_role: formData.get('requested_role'),
     email: formData.get('email'),
@@ -206,7 +207,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     confirm: formData.get('confirm'),
   })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
-  const { full_name, niat_id, campus_id, requested_role, email, password } = parsed.data
+  const { full_name, niat_id, phone, campus_id, requested_role, email, password } = parsed.data
 
   // Block obvious repeats early (a live request or an existing account).
   const { data: pending } = await admin
@@ -225,7 +226,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     email,
     password,
     email_confirm: false,
-    user_metadata: { full_name, campus_id, niat_id, pending_approval: 'true' },
+    user_metadata: { full_name, campus_id, niat_id, phone, pending_approval: 'true' },
   })
   if (createErr || !created?.user) {
     if (/already|registered|exists/i.test(createErr?.message ?? '')) {
@@ -238,6 +239,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     auth_user_id: created.user.id,
     full_name,
     niat_id,
+    phone,
     email,
     campus_id,
     requested_role,
