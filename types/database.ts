@@ -157,7 +157,8 @@ export type ReimbursementRow = Timestamps & {
 }
 
 export type MediaAssetRow = {
-  id: string; storage_path: string; file_name: string; file_type: MediaFileType
+  id: string; storage_path: string | null; external_url: string | null
+  file_name: string; file_type: MediaFileType
   mime_type: string | null; file_size_bytes: number | null
   entity_type: MediaEntityType; entity_id: string; campus_id: string | null
   school_id: string | null; session_id: string | null; is_featured: boolean

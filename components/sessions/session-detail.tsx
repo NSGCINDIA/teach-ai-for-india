@@ -124,7 +124,7 @@ export function SessionDetailView({
                       className="group relative block aspect-square overflow-hidden rounded-lg border border-border bg-muted"
                       title={`${m.file_name} · ${MEDIA_TYPE_META[m.file_type].label}`}
                     >
-                      {m.file_type === 'photo' && m.signed_url ? (
+                      {m.file_type === 'photo' && m.signed_url && !m.external_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={m.signed_url} alt={m.caption ?? m.file_name} className="size-full object-cover" loading="lazy" />
                       ) : (

@@ -19,7 +19,7 @@ const SELECT_CLASS =
   'border-input h-9 rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 const ICON: Partial<Record<MediaFileType, typeof FileText>> = {
-  video: Film, document: FileText, presentation: FileText, receipt: Receipt, letter: ScrollText,
+  photo: ImageIcon, video: Film, document: FileText, presentation: FileText, receipt: Receipt, letter: ScrollText,
 }
 
 interface FilterOptions {
@@ -113,7 +113,7 @@ export function EvidenceBrowser({ items, options, canModerate, showCampusFilter 
             return (
               <div key={m.id} className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
                 <div className="relative aspect-[4/3] bg-muted">
-                  {m.file_type === 'photo' && m.signed_url ? (
+                  {m.file_type === 'photo' && m.signed_url && !m.external_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={m.signed_url} alt={m.caption ?? m.file_name} className="size-full object-cover" loading="lazy" />
                   ) : (
@@ -143,7 +143,7 @@ export function EvidenceBrowser({ items, options, canModerate, showCampusFilter 
                         <Check className="size-3.5" /> Approve
                       </Button>
                     )}
-                    {canModerate && isPubliclyPromotable(m.file_type) && !m.is_public && (
+                    {canModerate && isPubliclyPromotable(m.file_type, !!m.storage_path) && !m.is_public && (
                       <Button size="sm" variant="outline" className="h-7 px-2 text-xs" disabled={pending} onClick={() => run(approveEvidence, m.id, true)}>
                         <Globe className="size-3.5" /> Publish
                       </Button>

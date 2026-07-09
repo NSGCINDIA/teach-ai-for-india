@@ -1,13 +1,10 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertCircle, CheckCircle2, Loader2, Upload } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { AlertCircle, CheckCircle2, Link2, Loader2 } from 'lucide-react'
 import { recordUpload } from '@/actions/evidence'
-import {
-  ACCEPT_ATTR, MEDIA_TYPES, MEDIA_TYPE_META, inferFileType, maxBytesFor, ACCEPTED_MIME,
-} from '@/lib/constants/evidence'
+import { MEDIA_TYPES, MEDIA_TYPE_META } from '@/lib/constants/evidence'
 import type { MediaEntityType, MediaFileType } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,50 +21,39 @@ interface Props {
   sessionId?: string | null
 }
 
-function safeName(name: string) {
-  return name.replace(/[^\w.-]+/g, '_').slice(-80)
+function isHttpUrl(value: string) {
+  try {
+    const u = new URL(value)
+    return u.protocol === 'http:' || u.protocol === 'https:'
+  } catch {
+    return false
+  }
 }
 
 export function EvidenceUploader({ entityType, entityId, campusId, schoolId, sessionId }: Props) {
   const router = useRouter()
-  const fileRef = useRef<HTMLInputElement>(null)
   const [fileType, setFileType] = useState<MediaFileType>('photo')
   const [caption, setCaption] = useState('')
+  const [url, setUrl] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState<string | null>(null)
 
-  async function onPick(file: File, type: MediaFileType) {
+  async function onAddLink() {
     setError(null)
     setDone(null)
-    const mime = file.type || 'application/octet-stream'
-    if (mime && !ACCEPTED_MIME.includes(mime)) {
-      setError('Unsupported file type.')
-      return
-    }
-    if (file.size > maxBytesFor(mime)) {
-      setError(`File is too large (max ${mime.startsWith('video/') ? '200MB' : '25MB'}).`)
+    const trimmed = url.trim()
+    if (!isHttpUrl(trimmed)) {
+      setError('Enter a valid link (e.g. a Google Drive share link).')
       return
     }
 
     setBusy(true)
     try {
-      const supabase = createClient()
-      const path = [campusId ?? 'unscoped', schoolId ?? '_', sessionId ?? '_', type,
-        `${crypto.randomUUID()}-${safeName(file.name)}`].join('/')
-
-      const { error: upErr } = await supabase.storage.from('evidence').upload(path, file, {
-        contentType: mime,
-        upsert: false,
-      })
-      if (upErr) throw new Error(upErr.message)
-
       const res = await recordUpload({
-        storage_path: path,
-        file_name: file.name,
-        file_type: type,
-        mime_type: mime,
-        file_size_bytes: file.size,
+        external_url: trimmed,
+        file_name: caption.trim() || 'Google Drive link',
+        file_type: fileType,
         entity_type: entityType,
         entity_id: entityId,
         campus_id: campusId ?? '',
@@ -77,12 +63,12 @@ export function EvidenceUploader({ entityType, entityId, campusId, schoolId, ses
       })
       if (res.error) throw new Error(res.error)
 
-      setDone(file.name)
+      setDone(trimmed)
       setCaption('')
-      if (fileRef.current) fileRef.current.value = ''
+      setUrl('')
       router.refresh()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Upload failed.')
+      setError(e instanceof Error ? e.message : 'Could not save the link.')
     } finally {
       setBusy(false)
     }
@@ -97,7 +83,7 @@ export function EvidenceUploader({ entityType, entityId, campusId, schoolId, ses
       )}
       {done && (
         <p role="status" className="flex items-center gap-2 rounded bg-success/10 px-2 py-1.5 text-xs text-success">
-          <CheckCircle2 className="size-3.5 shrink-0" /> Uploaded {done}
+          <CheckCircle2 className="size-3.5 shrink-0" /> Link added
         </p>
       )}
 
@@ -114,25 +100,23 @@ export function EvidenceUploader({ entityType, entityId, campusId, schoolId, ses
         </div>
       </div>
 
-      <input
-        ref={fileRef}
-        type="file"
-        accept={ACCEPT_ATTR}
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0]
-          if (f) {
-            // If the user left the default 'photo' but picked a non-image, infer.
-            const type = fileType === 'photo' && !f.type.startsWith('image/') ? inferFileType(f.type) : fileType
-            setFileType(type)
-            void onPick(f, type)
-          }
-        }}
-      />
-      <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => fileRef.current?.click()}>
-        {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
-        {busy ? 'Uploading…' : 'Upload file'}
-      </Button>
+      <div className="space-y-1.5">
+        <Label htmlFor="ev-url">Google Drive link</Label>
+        <div className="flex gap-2">
+          <Input
+            id="ev-url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://drive.google.com/..."
+            className="flex-1"
+          />
+          <Button type="button" variant="outline" size="sm" disabled={busy || !url.trim()} onClick={onAddLink}>
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Link2 className="size-4" />}
+            {busy ? 'Saving…' : 'Add link'}
+          </Button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">Set sharing to "Anyone with the link can view" before pasting it here.</p>
+      </div>
     </div>
   )
 }

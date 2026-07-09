@@ -22,11 +22,12 @@ export async function recordUpload(input: unknown): Promise<EvidenceActionState>
   const { data, error } = await supabase
     .from('media_assets')
     .insert({
-      storage_path: d.storage_path,
+      storage_path: d.storage_path || null,
+      external_url: d.external_url || null,
       file_name: d.file_name,
       file_type: d.file_type,
       mime_type: d.mime_type || null,
-      file_size_bytes: d.file_size_bytes,
+      file_size_bytes: d.file_size_bytes ?? null,
       entity_type: d.entity_type,
       entity_id: d.entity_id,
       campus_id: orNull(d.campus_id),
@@ -88,15 +89,15 @@ export async function approveEvidence(
     if (!isAdmin(user.role) && user.role !== 'campus_lead') {
       return { error: 'Only admins or campus leads can publish to the public gallery.' }
     }
-    if (!isPubliclyPromotable(asset.file_type)) {
-      return { error: 'Only photos can be published to the public gallery.' }
+    if (!isPubliclyPromotable(asset.file_type, !!asset.storage_path)) {
+      return { error: 'Only uploaded photos can be published to the public gallery (linked evidence cannot be published).' }
     }
     // Copy the object from the private evidence bucket into public-assets.
-    const { data: file, error: dlErr } = await supabase.storage.from('evidence').download(asset.storage_path)
+    const { data: file, error: dlErr } = await supabase.storage.from('evidence').download(asset.storage_path as string)
     if (dlErr || !file) return { error: 'Could not read the file to publish it.' }
     const { error: upErr } = await supabase.storage
       .from('public-assets')
-      .upload(asset.storage_path, file, { upsert: true, contentType: file.type })
+      .upload(asset.storage_path as string, file, { upsert: true, contentType: file.type })
     if (upErr) return { error: `Could not publish: ${upErr.message}` }
     isPublic = true
   }
