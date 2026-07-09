@@ -4,13 +4,19 @@ import type {
   SchoolContactRow,
   SchoolStatusHistoryRow,
   SchoolStatus,
+  SessionStatus,
   CampusRow,
   SessionPlanRow,
 } from '@/types/database'
 
+export interface SchoolProgress {
+  latest_session_number: number
+  latest_session_status: SessionStatus
+}
+
 export type SchoolListItem = SchoolRow & {
   campus: Pick<CampusRow, 'id' | 'name'> | null
-}
+} & Partial<SchoolProgress>
 
 export type SchoolDetail = SchoolRow & {
   campus: Pick<CampusRow, 'id' | 'name' | 'quarter'> | null
@@ -18,6 +24,8 @@ export type SchoolDetail = SchoolRow & {
   history: SchoolStatusHistoryRow[]
   /** The outreach→execution planning record, if one has been started. */
   plan: SessionPlanRow | null
+  /** Curriculum position — the highest-numbered non-cancelled session (spec §5). */
+  progress: SchoolProgress | null
 }
 
 export type SimilarSchool = {
@@ -58,9 +66,30 @@ export async function listSchools(filters: SchoolFilters = {}): Promise<SchoolLi
     query = query.or(`name.ilike.${term},district.ilike.${term},dise_code.ilike.${term}`)
   }
 
-  const { data, error } = await query
+  const [{ data, error }, progress] = await Promise.all([query, listSchoolProgress()])
   if (error || !data) return []
-  return data as unknown as SchoolListItem[]
+  const rows = data as unknown as SchoolListItem[]
+  for (const r of rows) Object.assign(r, progress.get(r.id))
+  return rows
+}
+
+/**
+ * Bulk curriculum-progress lookup — ONE query, RLS-scoped (school_session_progress
+ * is security_invoker), for however many schools the caller can see. Schools with
+ * zero non-cancelled sessions simply have no entry (callers fall back to the
+ * pipeline status badge). Never per-row — see 0029_mandatory_evidence.sql.
+ */
+export async function listSchoolProgress(): Promise<Map<string, SchoolProgress>> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('school_session_progress')
+    .select('school_id, latest_session_number, latest_session_status')
+    .limit(2000)
+  const map = new Map<string, SchoolProgress>()
+  for (const r of (data ?? []) as { school_id: string; latest_session_number: number; latest_session_status: SessionStatus }[]) {
+    map.set(r.school_id, { latest_session_number: r.latest_session_number, latest_session_status: r.latest_session_status })
+  }
+  return map
 }
 
 export async function getSchool(id: string): Promise<SchoolDetail | null> {
@@ -92,6 +121,14 @@ export async function getSchool(id: string): Promise<SchoolDetail | null> {
     .eq('school_id', id)
     .maybeSingle()
   detail.plan = (plan as SessionPlanRow | null) ?? null
+
+  const { data: progress } = await supabase
+    .from('school_session_progress')
+    .select('latest_session_number, latest_session_status')
+    .eq('school_id', id)
+    .maybeSingle()
+  detail.progress = (progress as SchoolProgress | null) ?? null
+
   return detail
 }
 

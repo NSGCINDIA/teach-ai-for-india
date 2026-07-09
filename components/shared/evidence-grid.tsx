@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { FileText, Film, Receipt, ScrollText, File } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { isImageFileType } from '@/lib/constants/evidence'
 import type { MediaFileType } from '@/types/database'
 
 export interface EvidenceItem {
@@ -20,6 +21,8 @@ const NON_IMAGE_ICON: Partial<Record<MediaFileType, typeof FileText>> = {
   receipt: Receipt,
   letter: ScrollText,
   other: File,
+  student_testimonial: Film,
+  teacher_testimonial: Film,
 }
 
 /**
@@ -38,7 +41,7 @@ export function EvidenceGrid({
   return (
     <div className={cn('columns-2 gap-3 sm:columns-3 lg:columns-4 [&>*]:mb-3', className)}>
       {items.map((item) => {
-        const isImage = item.fileType === 'photo'
+        const isImage = isImageFileType(item.fileType)
         const Icon = NON_IMAGE_ICON[item.fileType] ?? File
         const Tag = onSelect ? 'button' : 'div'
         return (

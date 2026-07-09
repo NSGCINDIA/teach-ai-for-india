@@ -16,6 +16,8 @@ import { AttendanceEditor } from '@/components/sessions/attendance-editor'
 import { AssignmentPanel } from '@/components/sessions/assignment-panel'
 import { ExecutionPlanPanel } from '@/components/sessions/execution-plan-panel'
 import { EvidenceUploader } from '@/components/evidence/evidence-uploader'
+import { MandatoryEvidenceChecklist } from '@/components/evidence/mandatory-evidence-checklist'
+import { isImageFileType } from '@/lib/constants/evidence'
 
 interface Props {
   session: SessionDetail
@@ -129,8 +131,9 @@ export function SessionDetailView({
             <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Images className="size-4" /> Evidence</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <p className="text-xs text-muted-foreground">
-                Reporting needs at least 1 photo and 1 attendance document. {evidence.length} file{evidence.length === 1 ? '' : 's'} attached.
+                Reporting needs all 5 categories below. {evidence.length} file{evidence.length === 1 ? '' : 's'} attached.
               </p>
+              <MandatoryEvidenceChecklist evidence={evidence} />
               {canUploadEvidence && (
                 <EvidenceUploader
                   entityType="session"
@@ -151,7 +154,7 @@ export function SessionDetailView({
                       className="group relative block aspect-square overflow-hidden rounded-lg border border-border bg-muted"
                       title={`${m.file_name} · ${MEDIA_TYPE_META[m.file_type].label}`}
                     >
-                      {m.file_type === 'photo' && m.signed_url && !m.external_url ? (
+                      {isImageFileType(m.file_type) && m.signed_url && !m.external_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={m.signed_url} alt={m.caption ?? m.file_name} className="size-full object-cover" loading="lazy" />
                       ) : (

@@ -1,6 +1,11 @@
 import { z } from 'zod'
 
-const FILE_TYPES = ['photo', 'video', 'document', 'receipt', 'letter', 'presentation', 'other'] as const
+// Kept in sync with the DB enum (supabase/migrations, most recently 0029)
+// and lib/constants/evidence.ts's MEDIA_TYPE_META — no shared source today.
+const FILE_TYPES = [
+  'photo', 'video', 'document', 'receipt', 'letter', 'presentation', 'other',
+  'team_photo', 'principal_photo', 'student_group_photo', 'student_testimonial', 'teacher_testimonial',
+] as const
 const ENTITY_TYPES = ['session', 'school', 'campus', 'reimbursement'] as const
 
 /**

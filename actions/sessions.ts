@@ -6,13 +6,14 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/auth/user'
 import { can } from '@/lib/auth/rbac'
 import { SESSION_TYPE_FIELD, PRESENT_STATUSES } from '@/lib/constants/sessions'
+import { MEDIA_TYPE_META } from '@/lib/constants/evidence'
 import {
   sessionSchema,
   sessionUpdateSchema,
   changeSessionStatusSchema,
   attendanceSchema,
 } from '@/lib/validations/sessions'
-import type { SessionType, AttendanceStatus, SessionRow } from '@/types/database'
+import type { SessionType, AttendanceStatus, SessionRow, MediaFileType } from '@/types/database'
 
 export type SessionActionState = { error?: string; ok?: boolean; message?: string }
 
@@ -162,8 +163,11 @@ function humanizeDbError(msg: string): string {
   if (/execution plan must be approved/i.test(msg))
     return 'This session needs an approved execution plan before it can start.'
   if (/Illegal session transition/.test(msg)) return 'That status change is not allowed from the current stage.'
-  if (/at least 1 photo and 1 attendance document/.test(msg))
-    return 'To report, upload at least 1 photo and 1 attendance document first (Evidence).'
+  const missing = msg.match(/missing required evidence — (.+)$/)
+  if (missing) {
+    const labels = missing[1].split(', ').map((t) => MEDIA_TYPE_META[t as MediaFileType]?.label ?? t)
+    return `To report, add evidence for: ${labels.join(', ')}. See the Evidence checklist below.`
+  }
   if (/student count, volunteer count and topic/.test(msg))
     return 'Fill in student count, volunteer count and topic before reporting.'
   if (/Only Campus Lead or above may cancel/.test(msg)) return 'Only a Campus Lead or above may cancel a session.'

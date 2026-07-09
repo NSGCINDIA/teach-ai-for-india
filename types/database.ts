@@ -33,6 +33,7 @@ export type ReimbursementStatus =
 export type TravelMode = 'auto' | 'bus' | 'cab' | 'train' | 'own_vehicle' | 'other'
 export type MediaFileType =
   | 'photo' | 'video' | 'document' | 'receipt' | 'letter' | 'presentation' | 'other'
+  | 'team_photo' | 'principal_photo' | 'student_group_photo' | 'student_testimonial' | 'teacher_testimonial'
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected'
 export type MediaEntityType = 'session' | 'school' | 'campus' | 'reimbursement'
 export type ApplicationStatus = 'new' | 'reviewing' | 'invited' | 'rejected'
@@ -249,6 +250,11 @@ export type CampusRollup = {
   schools_total: number; schools_reached: number; sessions_completed: number
   students_impacted: number; volunteers: number; last_session_date: string | null
 }
+// Curriculum progress (0029_mandatory_evidence.sql)
+export type SchoolSessionProgressRow = {
+  school_id: string; latest_session_id: string
+  latest_session_number: number; latest_session_status: SessionStatus
+}
 // Analytics (0012_analytics_views.sql)
 export type ProgramSummary = {
   schools_total: number; schools_reached: number; sessions_completed: number
@@ -320,6 +326,7 @@ export interface Database {
       monthly_activity: { Row: MonthlyActivity; Relationships: [] }
       public_campus_sessions: { Row: PublicCampusSession; Relationships: [] }
       public_campus_team: { Row: PublicCampusTeamMember; Relationships: [] }
+      school_session_progress: { Row: SchoolSessionProgressRow; Relationships: [] }
     }
     Functions: {
       change_school_status: {

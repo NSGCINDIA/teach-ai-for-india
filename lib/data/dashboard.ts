@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { PRESENT_STATUSES } from '@/lib/constants/sessions'
+import { listSchoolProgress } from '@/lib/data/schools'
 import type { SchoolStatus, SessionStatus } from '@/types/database'
 
 /**
@@ -25,6 +26,8 @@ export interface SchoolLite {
   district: string
   status: SchoolStatus
   next_action_date: string | null
+  latest_session_number?: number
+  latest_session_status?: SessionStatus
 }
 export interface ReimbLite {
   id: string
@@ -130,14 +133,18 @@ export interface OutreachData {
 export async function getOutreachData(campusId: string): Promise<OutreachData> {
   const supabase = await createClient()
   const t = today()
-  const { data } = await supabase
-    .from('schools')
-    .select('id, name, district, status, next_action_date, created_at')
-    .eq('campus_id', campusId)
-    .order('created_at', { ascending: false })
-    .limit(1000)
+  const [{ data }, progress] = await Promise.all([
+    supabase
+      .from('schools')
+      .select('id, name, district, status, next_action_date, created_at')
+      .eq('campus_id', campusId)
+      .order('created_at', { ascending: false })
+      .limit(1000),
+    listSchoolProgress(),
+  ])
 
   const rows = (data as (SchoolLite & { created_at: string })[] | null) ?? []
+  for (const r of rows) Object.assign(r, progress.get(r.id))
   const counts = new Map<SchoolStatus, number>()
   for (const r of rows) counts.set(r.status, (counts.get(r.status) ?? 0) + 1)
 

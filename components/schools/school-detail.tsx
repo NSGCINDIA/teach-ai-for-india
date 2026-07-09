@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import { ArrowLeft, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users } from 'lucide-react'
+import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
 import type { SchoolStatusAccess, OutreachVisitRequestAccess } from '@/lib/auth/rbac'
 import type { OutreachVisitRequestRow, CampusBudgetRow } from '@/types/database'
 import type { TeamMember } from '@/lib/data/sessions'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
+import { curriculumStageLabel } from '@/lib/constants/sessions'
 import { formatDate, formatDateTime } from '@/lib/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -63,6 +64,12 @@ export function SchoolDetailView({
             {[school.mandal, school.district, school.state].filter(Boolean).join(', ')}
             {' · '}{TYPE_LABEL[school.school_type]} · {school.board.toUpperCase()}
           </p>
+          {school.progress && (
+            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+              <BookOpen className="size-3.5" />
+              Session {school.progress.latest_session_number} of 4 — {curriculumStageLabel(school.progress.latest_session_number)}
+            </p>
+          )}
         </div>
         {canEdit && (
           <Button asChild variant="outline" size="sm">

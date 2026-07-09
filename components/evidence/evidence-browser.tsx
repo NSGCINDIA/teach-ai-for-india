@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { approveEvidence, rejectEvidence, softDeleteEvidence, type EvidenceActionState } from '@/actions/evidence'
 import type { EvidenceListItem } from '@/lib/data/evidence'
-import { MEDIA_TYPE_META, MEDIA_TYPES, isPubliclyPromotable } from '@/lib/constants/evidence'
+import { MEDIA_TYPE_META, MEDIA_TYPES, isPubliclyPromotable, isImageFileType } from '@/lib/constants/evidence'
 import type { MediaFileType, ApprovalStatus } from '@/types/database'
 import { formatDate } from '@/lib/format'
 import { Input } from '@/components/ui/input'
@@ -20,6 +20,8 @@ const SELECT_CLASS =
 
 const ICON: Partial<Record<MediaFileType, typeof FileText>> = {
   photo: ImageIcon, video: Film, document: FileText, presentation: FileText, receipt: Receipt, letter: ScrollText,
+  team_photo: ImageIcon, principal_photo: ImageIcon, student_group_photo: ImageIcon,
+  student_testimonial: Film, teacher_testimonial: Film,
 }
 
 interface FilterOptions {
@@ -113,7 +115,7 @@ export function EvidenceBrowser({ items, options, canModerate, showCampusFilter 
             return (
               <div key={m.id} className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
                 <div className="relative aspect-[4/3] bg-muted">
-                  {m.file_type === 'photo' && m.signed_url && !m.external_url ? (
+                  {isImageFileType(m.file_type) && m.signed_url && !m.external_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={m.signed_url} alt={m.caption ?? m.file_name} className="size-full object-cover" loading="lazy" />
                   ) : (

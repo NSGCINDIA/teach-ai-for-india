@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/shared/states'
 import { Card } from '@/components/ui/card'
 import { formatDate, formatCurrency, formatNumber } from '@/lib/format'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
+import { curriculumStageLabel } from '@/lib/constants/sessions'
 import type {
   CampusLeadData, OutreachData, VolunteerLeadData, ExecData, VolunteerData,
   SessionLite, SchoolLite,
@@ -62,7 +63,13 @@ function SchoolRows({ schools, empty }: { schools: SchoolLite[]; empty: string }
                 {s.district}{s.next_action_date ? ` · next: ${formatDate(s.next_action_date)}` : ''}
               </p>
             </div>
-            <StatusBadge kind="school" status={s.status} />
+            {s.latest_session_number ? (
+              <span className="shrink-0 text-xs text-muted-foreground">
+                Session {s.latest_session_number} of 4 — {curriculumStageLabel(s.latest_session_number)}
+              </span>
+            ) : (
+              <StatusBadge kind="school" status={s.status} />
+            )}
           </Link>
         </li>
       ))}
