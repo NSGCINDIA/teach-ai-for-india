@@ -1,7 +1,10 @@
 import { notFound } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
-import { canForEntity, schoolStatusAccess } from '@/lib/auth/rbac'
+import { canForEntity, schoolStatusAccess, outreachVisitRequestAccess } from '@/lib/auth/rbac'
 import { getSchool } from '@/lib/data/schools'
+import { listOutreachVisitRequestsForSchool } from '@/lib/data/outreach-visit-requests'
+import { listTeamMembers } from '@/lib/data/sessions'
+import { getCampusBudget } from '@/lib/data/budgets'
 import { SchoolDetailView } from '@/components/schools/school-detail'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -18,5 +21,25 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
 
   const canEdit = canForEntity(user.role, 'edit_school', user.campus_id, school.campus_id)
   const statusAccess = schoolStatusAccess(user.role, user.campus_id, school.campus_id)
-  return <SchoolDetailView school={school} basePath="/dashboard/schools" canEdit={canEdit} statusAccess={statusAccess} />
+  const visitAccess = outreachVisitRequestAccess(user.role, user.campus_id, school.campus_id)
+  const [visitRequests, roster] = await Promise.all([
+    listOutreachVisitRequestsForSchool(school.id),
+    listTeamMembers(school.campus_id),
+  ])
+  const budget = school.campus_id && school.campus?.quarter
+    ? await getCampusBudget(school.campus_id, school.campus.quarter)
+    : null
+
+  return (
+    <SchoolDetailView
+      school={school}
+      basePath="/dashboard/schools"
+      canEdit={canEdit}
+      statusAccess={statusAccess}
+      visitRequests={visitRequests}
+      roster={roster}
+      budget={budget}
+      visitAccess={visitAccess}
+    />
+  )
 }

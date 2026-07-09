@@ -202,6 +202,19 @@ export type CampusBudgetRow = Timestamps & {
   created_by: string | null
 }
 
+// Outreach visit requests (0027_outreach_visit_requests.sql)
+export type OutreachVisitRequestRow = Timestamps & {
+  id: string; school_id: string; campus_id: string | null
+  purpose: string; proposed_visit_date: string; estimated_travel_cost: number
+  team_member_ids: string[]
+  status: ApprovalStatus
+  campus_lead_review: ApprovalStatus; campus_lead_reviewed_by: string | null
+  campus_lead_reviewed_at: string | null; campus_lead_note: string | null
+  finance_lead_review: ApprovalStatus; finance_lead_reviewed_by: string | null
+  finance_lead_reviewed_at: string | null; finance_lead_note: string | null
+  created_by: string | null
+}
+
 // View rows
 export type PublicImpactStats = {
   schools_reached: number; students_impacted: number; sessions_completed: number
@@ -274,6 +287,7 @@ export interface Database {
       volunteer_availability: TableDef<AvailabilityRow>
       certificates: TableDef<CertificateRow>
       campus_budgets: TableDef<CampusBudgetRow>
+      outreach_visit_requests: TableDef<OutreachVisitRequestRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -317,6 +331,21 @@ export interface Database {
       set_campus_budget: {
         Args: { p_campus_id: string; p_period: string; p_allocated_amount: number; p_note?: string }
         Returns: string
+      }
+      create_outreach_visit_request: {
+        Args: {
+          p_school_id: string; p_purpose: string; p_proposed_visit_date: string
+          p_estimated_travel_cost: number; p_team_member_ids: string[]
+        }
+        Returns: string
+      }
+      review_outreach_visit_request_campus: {
+        Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      review_outreach_visit_request_finance: {
+        Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
       }
     }
     Enums: {

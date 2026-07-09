@@ -13,7 +13,7 @@ export type SchoolListItem = SchoolRow & {
 }
 
 export type SchoolDetail = SchoolRow & {
-  campus: Pick<CampusRow, 'id' | 'name'> | null
+  campus: Pick<CampusRow, 'id' | 'name' | 'quarter'> | null
   contacts: SchoolContactRow[]
   history: SchoolStatusHistoryRow[]
   /** The outreach→execution planning record, if one has been started. */
@@ -68,7 +68,7 @@ export async function getSchool(id: string): Promise<SchoolDetail | null> {
   const { data, error } = await supabase
     .from('schools')
     .select(
-      `*, campus:campuses(id, name),
+      `*, campus:campuses(id, name, quarter),
        contacts:school_contacts(*),
        history:school_status_history(*)`,
     )

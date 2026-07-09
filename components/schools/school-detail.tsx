@@ -1,7 +1,9 @@
 import Link from 'next/link'
-import { ArrowLeft, ClipboardList, History, Mail, MapPin, Pencil, Phone, Star, Users } from 'lucide-react'
+import { ArrowLeft, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
-import type { SchoolStatusAccess } from '@/lib/auth/rbac'
+import type { SchoolStatusAccess, OutreachVisitRequestAccess } from '@/lib/auth/rbac'
+import type { OutreachVisitRequestRow, CampusBudgetRow } from '@/types/database'
+import type { TeamMember } from '@/lib/data/sessions'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { formatDate, formatDateTime } from '@/lib/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,11 +11,17 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { StatusControl } from '@/components/schools/status-control'
 import { PlanningPanel } from '@/components/schools/planning-panel'
+import { VisitRequestPanel } from '@/components/schools/visit-request-panel'
 import { AddContact } from '@/components/schools/add-contact'
 
 /** Planning becomes relevant once approval is received (or already started). */
 const PLANNING_STATUSES = new Set<SchoolDetail['status']>([
   'approval_received', 'session_scheduled', 'session_in_progress', 'completed',
+])
+
+/** A visit request is relevant while a school is still early in the pipeline. */
+const VISIT_REQUEST_STATUSES = new Set<SchoolDetail['status']>([
+  'lead_identified', 'contacted', 'followup_pending', 'approval_requested',
 ])
 
 interface SchoolDetailProps {
@@ -23,13 +31,19 @@ interface SchoolDetailProps {
   canEdit: boolean
   /** Separate, possibly-narrower access to the pipeline status control (e.g. exec_lead). */
   statusAccess: SchoolStatusAccess
+  visitRequests: OutreachVisitRequestRow[]
+  roster: TeamMember[]
+  budget: CampusBudgetRow | null
+  visitAccess: OutreachVisitRequestAccess
 }
 
 const TYPE_LABEL: Record<string, string> = {
   government: 'Government', government_aided: 'Government Aided', private: 'Private',
 }
 
-export function SchoolDetailView({ school, basePath, canEdit, statusAccess }: SchoolDetailProps) {
+export function SchoolDetailView({
+  school, basePath, canEdit, statusAccess, visitRequests, roster, budget, visitAccess,
+}: SchoolDetailProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -71,6 +85,26 @@ export function SchoolDetailView({ school, basePath, canEdit, statusAccess }: Sc
               {school.notes && <Detail label="Notes" value={school.notes} className="col-span-2 sm:col-span-3" />}
             </CardContent>
           </Card>
+
+          {(VISIT_REQUEST_STATUSES.has(school.status) || visitRequests.length > 0) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <MapPinned className="size-4" /> Outreach visit request
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <VisitRequestPanel
+                  schoolId={school.id}
+                  requests={visitRequests}
+                  roster={roster}
+                  budget={budget}
+                  quarter={school.campus?.quarter ?? null}
+                  access={visitAccess}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           {(PLANNING_STATUSES.has(school.status) || school.plan) && (
             <Card>

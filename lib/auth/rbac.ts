@@ -149,6 +149,32 @@ export function schoolStatusAccess(
   return { canEdit: false }
 }
 
+export interface OutreachVisitRequestAccess {
+  canCreate: boolean
+  canReviewCampus: boolean
+  canReviewFinance: boolean
+}
+
+/**
+ * Access to an Outreach Visit Request — three independently-gated actions on
+ * one entity (create, Campus Lead review, Finance Lead review), which the
+ * generic Permission/Scope matrix can't express. Mirrors schoolStatusAccess's
+ * precedent of a bespoke access shape outside the matrix.
+ */
+export function outreachVisitRequestAccess(
+  role: UserRole,
+  userCampusId: string | null,
+  entityCampusId: string | null,
+): OutreachVisitRequestAccess {
+  const admin = isAdmin(role)
+  const ownCampus = !!userCampusId && userCampusId === entityCampusId
+  return {
+    canCreate: admin || ((role === 'campus_lead' || role === 'outreach_lead') && ownCampus),
+    canReviewCampus: admin || (role === 'campus_lead' && ownCampus),
+    canReviewFinance: admin || (role === 'finance_lead' && ownCampus),
+  }
+}
+
 /**
  * Whether a user may edit/report a session. Mirrors the sessions_update RLS:
  * admins, the session's creator, or a campus_lead/exec_lead of its campus.
