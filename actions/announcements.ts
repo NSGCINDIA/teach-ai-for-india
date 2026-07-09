@@ -8,7 +8,7 @@ import { announcementSchema, deleteAnnouncementSchema } from '@/lib/validations/
 
 export type AnnouncementActionState = { error?: string; ok?: boolean; message?: string }
 
-const CAN_POST = new Set(['campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead'])
+const CAN_POST = new Set(['campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead'])
 
 /** Post an announcement. Leads → their campus; admins → org-wide (campus_id NULL). */
 export async function postAnnouncement(

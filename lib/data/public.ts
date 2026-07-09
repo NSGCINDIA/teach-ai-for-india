@@ -94,7 +94,7 @@ export async function getCampusTeam(campusId: string): Promise<PublicCampusTeamM
       .eq('campus_id', campusId)
       .limit(60)
     const rows = (data as PublicCampusTeamMember[] | null) ?? []
-    const order: Record<string, number> = { campus_lead: 0, outreach_head: 1, exec_lead: 2, volunteer: 3 }
+    const order: Record<string, number> = { campus_lead: 0, outreach_lead: 1, exec_lead: 2, volunteer: 3 }
     return rows.sort(
       (a, b) => (order[a.role] ?? 9) - (order[b.role] ?? 9) || a.full_name.localeCompare(b.full_name),
     )

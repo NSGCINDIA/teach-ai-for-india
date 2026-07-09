@@ -46,7 +46,7 @@ const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
     assign_volunteers: 'own', edit_cms: false, manage_user_roles: 'own', export_data: 'own',
   },
-  outreach_head: {
+  outreach_lead: {
     view_all_campuses: false, edit_school: 'own', create_session: false,
     submit_reimbursement: 'own', approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
@@ -80,6 +80,20 @@ const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
     view_all_campuses: 'all', edit_school: false, create_session: false,
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: false,
+    assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
+  },
+  // Campus-scoped monitoring roles (Operational Workflow Spec v2.0, Phase 1).
+  // Read-only for now — their real review/approve workflows land in later phases.
+  campus_mgmt_admin: {
+    view_all_campuses: false, edit_school: false, create_session: false,
+    submit_reimbursement: false, approve_reimbursement: false,
+    view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: false,
+    assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
+  },
+  finance_lead: {
+    view_all_campuses: false, edit_school: false, create_session: false,
+    submit_reimbursement: false, approve_reimbursement: false,
+    view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: false,
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
 }
@@ -118,7 +132,7 @@ export interface SchoolStatusAccess {
 /**
  * Whether/how a user may move a school through the pipeline — narrower than
  * `edit_school` (which also gates the profile/contacts editors). Admins: any
- * move. campus_lead/outreach_head: any move, own campus only. exec_lead: own
+ * move. campus_lead/outreach_lead: any move, own campus only. exec_lead: own
  * campus, but only within the execution-stage subset (approval received
  * onward) — mirrors change_school_status() in 0024_exec_lead_school_status.sql.
  */
@@ -130,7 +144,7 @@ export function schoolStatusAccess(
   if (isAdmin(role)) return { canEdit: true }
   const ownCampus = !!userCampusId && userCampusId === entityCampusId
   if (!ownCampus) return { canEdit: false }
-  if (role === 'campus_lead' || role === 'outreach_head') return { canEdit: true }
+  if (role === 'campus_lead' || role === 'outreach_lead') return { canEdit: true }
   if (role === 'exec_lead') return { canEdit: true, restrictTo: EXEC_LEAD_SCHOOL_STATUSES }
   return { canEdit: false }
 }
@@ -164,7 +178,8 @@ export function roleHomePath(role: UserRole): string {
 // Most specific matching prefix wins. Roles not listed → 403.
 
 const TEAM_ROLES: UserRole[] = [
-  'super_admin', 'mgmt_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead', 'volunteer',
+  'super_admin', 'mgmt_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer',
+  'campus_mgmt_admin', 'finance_lead',
 ]
 
 const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
@@ -175,15 +190,18 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
   { prefix: '/admin/analytics', roles: ['super_admin', 'mgmt_admin', 'viewer'] },
   { prefix: '/admin', roles: ['super_admin', 'mgmt_admin'] },
 
-  // Dashboard subsections (US-AUTH-02): outreach head has NO finance, etc.
+  // Dashboard subsections (US-AUTH-02): outreach lead has NO finance, etc.
   // Volunteer Lead & Volunteer get schools read-only (matrix: Read Only / Assigned Only) — RLS + RBAC gate mutations.
-  { prefix: '/dashboard/schools', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead', 'volunteer'] },
-  { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead', 'volunteer'] },
+  // campus_mgmt_admin/finance_lead are deliberately NOT added to any subsection
+  // below yet (Phase 1) — their screens land in Phase 5; only the bare
+  // '/dashboard' catch-all (their stub nav) is reachable for now.
+  { prefix: '/dashboard/schools', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer'] },
+  { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer'] },
   { prefix: '/dashboard/volunteers', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'exec_lead', 'volunteer_lead'] },
   { prefix: '/dashboard/analytics', roles: ['super_admin', 'mgmt_admin', 'campus_lead'] },
   { prefix: '/dashboard/settings', roles: ['super_admin', 'mgmt_admin', 'campus_lead'] },
   { prefix: '/dashboard/reports', roles: ['super_admin', 'mgmt_admin', 'exec_lead'] },
-  { prefix: '/dashboard/approval-letters', roles: ['super_admin', 'mgmt_admin', 'outreach_head'] },
+  { prefix: '/dashboard/approval-letters', roles: ['super_admin', 'mgmt_admin', 'outreach_lead'] },
   { prefix: '/dashboard', roles: TEAM_ROLES },
 ]
 

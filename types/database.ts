@@ -12,8 +12,9 @@
 
 // ─── Enums (mirror 0001_schema.sql) ──────────────────────────────────────────
 export type UserRole =
-  | 'super_admin' | 'mgmt_admin' | 'campus_lead' | 'outreach_head'
+  | 'super_admin' | 'mgmt_admin' | 'campus_lead' | 'outreach_lead'
   | 'exec_lead' | 'volunteer_lead' | 'volunteer' | 'school_poc' | 'viewer'
+  | 'campus_mgmt_admin' | 'finance_lead'
 
 export type SchoolTypeEnum = 'government' | 'government_aided' | 'private'
 export type BoardType = 'state' | 'cbse' | 'icse' | 'other'
@@ -194,6 +195,13 @@ export type ContactMessageRow = {
   message: string; is_handled: boolean; created_at: string
 }
 
+// Campus budgets (0026_campus_budgets.sql)
+export type CampusBudgetRow = Timestamps & {
+  id: string; campus_id: string; period: string
+  allocated_amount: number; reserved_amount: number; notes: string | null
+  created_by: string | null
+}
+
 // View rows
 export type PublicImpactStats = {
   schools_reached: number; students_impacted: number; sessions_completed: number
@@ -265,6 +273,7 @@ export interface Database {
       announcements: TableDef<AnnouncementRow>
       volunteer_availability: TableDef<AvailabilityRow>
       certificates: TableDef<CertificateRow>
+      campus_budgets: TableDef<CampusBudgetRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -304,6 +313,10 @@ export interface Database {
       respond_to_assignment: {
         Args: { p_assignment_id: string; p_status: AssignmentStatus; p_note?: string }
         Returns: undefined
+      }
+      set_campus_budget: {
+        Args: { p_campus_id: string; p_period: string; p_allocated_amount: number; p_note?: string }
+        Returns: string
       }
     }
     Enums: {

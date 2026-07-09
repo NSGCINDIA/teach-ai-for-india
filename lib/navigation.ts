@@ -45,7 +45,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     NOTIFICATIONS,
     { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
   ],
-  outreach_head: [
+  outreach_lead: [
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: 'Outreach Forms', href: '/dashboard/schools/new', icon: 'outreach' },
@@ -94,6 +94,20 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   mgmt_admin: [],
   school_poc: [OVERVIEW, NOTIFICATIONS],
   viewer: [OVERVIEW],
+  // Campus-scoped monitoring roles (Operational Workflow Spec v2.0, Phase 1).
+  // Real screens land in later phases — stub nav keeps the IA visible now.
+  campus_mgmt_admin: [
+    OVERVIEW,
+    { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics', soon: true },
+    { label: 'Finance', href: '/dashboard/reimbursements', icon: 'finance', soon: true },
+    NOTIFICATIONS,
+  ],
+  finance_lead: [
+    OVERVIEW,
+    { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements', soon: true },
+    { label: 'Campus Budget', href: '/dashboard/finance', icon: 'finance', soon: true },
+    NOTIFICATIONS,
+  ],
 }
 
 /** Admin panel nav (PRD §7.9 / §8). */

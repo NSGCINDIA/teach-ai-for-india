@@ -45,7 +45,7 @@ export const signupSchema = z
     niat_id: freeText({ min: 1, max: 40, requiredMsg: 'Enter your NIAT ID', maxMsg: 'That NIAT ID looks too long' }),
     campus_id: z.string().uuid('Select your campus'),
     requested_role: z.enum([
-      'volunteer', 'volunteer_lead', 'exec_lead', 'outreach_head', 'campus_lead',
+      'volunteer', 'volunteer_lead', 'exec_lead', 'outreach_lead', 'campus_lead',
     ], { errorMap: () => ({ message: 'Select a role' }) }),
     email: z.string().email('Enter a valid email'),
     password: z

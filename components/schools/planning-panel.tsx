@@ -20,7 +20,7 @@ interface PlanningPanelProps {
   schoolId: string
   schoolStatus: SchoolStatus
   plan: SessionPlanRow | null
-  /** Campus-scoped edit right (campus_lead / outreach_head / admin). */
+  /** Campus-scoped edit right (campus_lead / outreach_lead / admin). */
   canEdit: boolean
   /** Where the created session lives, for the read-only "approved" view. */
   basePath: string

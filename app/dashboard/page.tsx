@@ -31,7 +31,7 @@ export default async function DashboardOverview() {
   switch (user.role) {
     case 'campus_lead':
       return <CampusLeadOverview name={name} data={await getCampusLeadData(campusId)} />
-    case 'outreach_head':
+    case 'outreach_lead':
       return <OutreachOverview name={name} data={await getOutreachData(campusId)} />
     case 'volunteer_lead':
       return <VolunteerLeadOverview name={name} data={await getVolunteerLeadData(campusId)} />
