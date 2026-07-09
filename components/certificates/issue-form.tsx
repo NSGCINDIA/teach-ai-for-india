@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { Award, AlertCircle, Loader2 } from 'lucide-react'
 import { issueCertificate, type CertificateActionState } from '@/actions/certificates'
 import { CERTIFICATE_KIND_META } from '@/lib/constants/workspace'
@@ -18,6 +18,16 @@ const KINDS = Object.entries(CERTIFICATE_KIND_META) as [CertificateKind, { label
 
 export function IssueCertificateForm({ volunteers }: { volunteers: TeamMember[] }) {
   const [state, action, pending] = useActionState<CertificateActionState, FormData>(issueCertificate, {})
+  const [showMessage, setShowMessage] = useState(false)
+
+  // useActionState's state never resets on its own, so the success banner
+  // would otherwise stay on screen forever after the first issued certificate.
+  useEffect(() => {
+    if (!state.ok) return
+    setShowMessage(true)
+    const timer = setTimeout(() => setShowMessage(false), 4000)
+    return () => clearTimeout(timer)
+  }, [state])
 
   return (
     <form action={action} className="space-y-3" noValidate>
@@ -26,7 +36,7 @@ export function IssueCertificateForm({ volunteers }: { volunteers: TeamMember[] 
           <AlertCircle className="mt-0.5 size-4 shrink-0" /> {state.error}
         </p>
       )}
-      {state.ok && state.message && (
+      {showMessage && state.ok && state.message && (
         <p role="status" className="rounded-lg bg-success/10 px-3 py-2 text-sm text-success">{state.message}</p>
       )}
 
