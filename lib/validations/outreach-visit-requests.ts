@@ -5,7 +5,7 @@ const DECISIONS = ['approved', 'rejected'] as const
 /** File a new outreach visit request. team_member_ids arrives as a JSON array. */
 export const createOutreachVisitRequestSchema = z.object({
   school_id: z.string().uuid('Select a school'),
-  purpose: z.string().trim().min(10, 'Describe the purpose of the visit').max(1000),
+  purpose: z.string().trim().min(10, 'Describe the purpose of the visit (at least 10 characters)').max(1000),
   proposed_visit_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD'),
   estimated_travel_cost: z.coerce.number().positive('Enter an estimated travel cost').max(1000000),
   team_member_ids: z

@@ -242,6 +242,7 @@ function RequestForm({ schoolId, roster }: { schoolId: string; roster: TeamMembe
       <div className="space-y-1.5">
         <Label htmlFor="purpose">Purpose of visit</Label>
         <Textarea id="purpose" name="purpose" rows={2} placeholder="Why this school, why now?" />
+        <p className="text-xs text-muted-foreground">At least 10 characters.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
