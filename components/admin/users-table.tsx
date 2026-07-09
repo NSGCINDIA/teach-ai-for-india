@@ -21,7 +21,7 @@ interface Props {
   /** True only for super_admin — enables role/status mutation (PRD §7.2). */
   canManage: boolean
   currentUserId: string
-  /** True only for super_admin/mgmt_admin — only they get the volunteer detail drill-down. */
+  /** True only for super_admin — only they get the volunteer detail drill-down. */
   canViewDetails: boolean
 }
 

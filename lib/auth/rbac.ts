@@ -32,14 +32,6 @@ const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
     view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: 'all',
     assign_volunteers: 'all', edit_cms: 'all', manage_user_roles: 'all', export_data: 'all',
   },
-  mgmt_admin: {
-    // mgmt_admin is a review/oversight role: it views sessions, schools, and
-    // evidence rather than creating/uploading them (super_admin still can).
-    view_all_campuses: 'all', edit_school: 'all', create_session: false,
-    submit_reimbursement: false, approve_reimbursement: 'all',
-    view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: false,
-    assign_volunteers: 'all', edit_cms: 'all', manage_user_roles: false, export_data: 'all',
-  },
   campus_lead: {
     view_all_campuses: false, edit_school: 'own', create_session: 'own',
     submit_reimbursement: false, approve_reimbursement: false,
@@ -70,18 +62,6 @@ const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
     view_analytics_all: false, view_analytics_campus: false, upload_evidence: 'own',
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
-  school_poc: {
-    view_all_campuses: false, edit_school: false, create_session: false,
-    submit_reimbursement: false, approve_reimbursement: false,
-    view_analytics_all: false, view_analytics_campus: false, upload_evidence: false,
-    assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
-  },
-  viewer: {
-    view_all_campuses: 'all', edit_school: false, create_session: false,
-    submit_reimbursement: false, approve_reimbursement: false,
-    view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: false,
-    assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
-  },
   // Campus-scoped monitoring roles (Operational Workflow Spec v2.0, Phase 1).
   // Read-only for now — their real review/approve workflows land in later phases.
   campus_mgmt_admin: {
@@ -103,7 +83,7 @@ export function can(role: UserRole, permission: Permission): Scope {
 }
 
 export function isAdmin(role: UserRole): boolean {
-  return role === 'super_admin' || role === 'mgmt_admin'
+  return role === 'super_admin'
 }
 
 /**
@@ -202,6 +182,34 @@ export function executionPlanAccess(
   }
 }
 
+export interface CampusBudgetAccess {
+  canAllocate: boolean
+  canRequestIncrease: boolean
+  canReviewIncrease: boolean
+}
+
+/**
+ * Access to a campus's budget lifecycle: allocate the initial amount
+ * (Finance Lead only — the RPC also enforces "insert-only", this just gates
+ * the UI), request an increase (Finance Lead), and review an increase
+ * request (Campus Lead). Mirrors outreachVisitRequestAccess's precedent of a
+ * bespoke access shape outside the generic Permission/Scope matrix.
+ */
+export function campusBudgetAccess(
+  role: UserRole,
+  userCampusId: string | null,
+  entityCampusId: string | null,
+): CampusBudgetAccess {
+  const admin = isAdmin(role)
+  const ownCampus = !!userCampusId && userCampusId === entityCampusId
+  const finance = admin || (role === 'finance_lead' && ownCampus)
+  return {
+    canAllocate: finance,
+    canRequestIncrease: finance,
+    canReviewIncrease: admin || (role === 'campus_lead' && ownCampus),
+  }
+}
+
 export interface ReimbursementReviewAccess {
   canReview: boolean
   canPay: boolean
@@ -243,7 +251,6 @@ export function canEditSession(
 /** Where a role lands after login. Admins → admin panel; everyone else → dashboard. */
 export function roleHomePath(role: UserRole): string {
   if (isAdmin(role)) return '/admin'
-  if (role === 'viewer') return '/admin/analytics'
   return '/dashboard'
 }
 
@@ -251,17 +258,13 @@ export function roleHomePath(role: UserRole): string {
 // Most specific matching prefix wins. Roles not listed → 403.
 
 const TEAM_ROLES: UserRole[] = [
-  'super_admin', 'mgmt_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer',
+  'super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer',
   'campus_mgmt_admin', 'finance_lead',
 ]
 
 const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
-  // Admin panel — management only (PRD §7.9). 'viewer' gets read analytics.
-  { prefix: '/admin/finance', roles: ['super_admin', 'mgmt_admin'] },
-  { prefix: '/admin/content', roles: ['super_admin', 'mgmt_admin'] },
-  { prefix: '/admin/settings', roles: ['super_admin', 'mgmt_admin'] },
-  { prefix: '/admin/analytics', roles: ['super_admin', 'mgmt_admin', 'viewer'] },
-  { prefix: '/admin', roles: ['super_admin', 'mgmt_admin'] },
+  // Admin panel — super_admin only.
+  { prefix: '/admin', roles: ['super_admin'] },
 
   // Dashboard subsections (US-AUTH-02): outreach lead has NO finance, etc.
   // Volunteer Lead & Volunteer get schools read-only (matrix: Read Only / Assigned Only) — RLS + RBAC gate mutations.
@@ -273,14 +276,14 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
   // pure UI inconsistency — write access is gated separately by
   // reimbursementReviewAccess) and /dashboard/analytics (both roles' campus
   // monitoring — the page has no role branching, it's already RLS-scoped).
-  { prefix: '/dashboard/schools', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
-  { prefix: '/dashboard/finance', roles: ['super_admin', 'mgmt_admin', 'finance_lead', 'campus_mgmt_admin'] },
+  { prefix: '/dashboard/schools', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
+  { prefix: '/dashboard/finance', roles: ['super_admin', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
-  { prefix: '/dashboard/volunteers', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'exec_lead', 'volunteer_lead'] },
-  { prefix: '/dashboard/analytics', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'finance_lead', 'campus_mgmt_admin'] },
-  { prefix: '/dashboard/settings', roles: ['super_admin', 'mgmt_admin', 'campus_lead'] },
-  { prefix: '/dashboard/reports', roles: ['super_admin', 'mgmt_admin', 'exec_lead'] },
-  { prefix: '/dashboard/approval-letters', roles: ['super_admin', 'mgmt_admin', 'outreach_lead'] },
+  { prefix: '/dashboard/volunteers', roles: ['super_admin', 'campus_lead', 'exec_lead', 'volunteer_lead'] },
+  { prefix: '/dashboard/analytics', roles: ['super_admin', 'campus_lead', 'finance_lead', 'campus_mgmt_admin'] },
+  { prefix: '/dashboard/settings', roles: ['super_admin', 'campus_lead'] },
+  { prefix: '/dashboard/reports', roles: ['super_admin', 'exec_lead'] },
+  { prefix: '/dashboard/approval-letters', roles: ['super_admin', 'outreach_lead'] },
   { prefix: '/dashboard', roles: TEAM_ROLES },
 ]
 

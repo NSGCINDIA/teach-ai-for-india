@@ -91,9 +91,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   // Roles that don't primarily live in the team dashboard fall back to the
   // campus-lead layout when they visit it.
   super_admin: [],
-  mgmt_admin: [],
-  school_poc: [OVERVIEW, NOTIFICATIONS],
-  viewer: [OVERVIEW],
   // Campus-scoped monitoring roles (Operational Workflow Spec v2.0). Finance
   // Lead and Campus Management Admin's real screens landed in Phase 5.
   campus_mgmt_admin: [

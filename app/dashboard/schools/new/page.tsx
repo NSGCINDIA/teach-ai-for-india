@@ -9,7 +9,7 @@ export const metadata = { title: 'Add School' }
 export default async function NewSchoolPage() {
   const user = await requireAccess('/dashboard/schools')
   const scope = can(user.role, 'edit_school')
-  if (scope === false || user.role === 'mgmt_admin') redirect('/dashboard/schools')
+  if (scope === false) redirect('/dashboard/schools')
 
   const campuses = await listCampusOptions()
 

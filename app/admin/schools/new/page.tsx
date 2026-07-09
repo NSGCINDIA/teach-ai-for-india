@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
 import { listCampusOptions } from '@/lib/data/schools'
 import { SchoolForm } from '@/components/schools/school-form'
@@ -6,8 +5,7 @@ import { SchoolForm } from '@/components/schools/school-form'
 export const metadata = { title: 'Add School · Admin' }
 
 export default async function AdminNewSchoolPage() {
-  const user = await requireAccess('/admin/schools')
-  if (user.role === 'mgmt_admin') redirect('/admin/schools')
+  await requireAccess('/admin/schools')
   const campuses = await listCampusOptions()
 
   return (

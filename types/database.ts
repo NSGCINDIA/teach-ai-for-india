@@ -12,8 +12,8 @@
 
 // ─── Enums (mirror 0001_schema.sql) ──────────────────────────────────────────
 export type UserRole =
-  | 'super_admin' | 'mgmt_admin' | 'campus_lead' | 'outreach_lead'
-  | 'exec_lead' | 'volunteer_lead' | 'volunteer' | 'school_poc' | 'viewer'
+  | 'super_admin' | 'campus_lead' | 'outreach_lead'
+  | 'exec_lead' | 'volunteer_lead' | 'volunteer'
   | 'campus_mgmt_admin' | 'finance_lead'
 
 export type SchoolTypeEnum = 'government' | 'government_aided' | 'private'
@@ -216,6 +216,15 @@ export type OutreachVisitRequestRow = Timestamps & {
   created_by: string | null
 }
 
+// Budget increase requests (0032_budget_increase_requests.sql)
+export type BudgetIncreaseRequestRow = Timestamps & {
+  id: string; campus_id: string; period: string; budget_id: string | null
+  requested_amount: number; reason: string
+  status: ApprovalStatus
+  reviewed_by: string | null; reviewed_at: string | null; review_note: string | null
+  created_by: string | null
+}
+
 // Execution plans (0029_execution_plans.sql)
 export type ExecutionPlanRow = Timestamps & {
   id: string; session_id: string; campus_id: string | null
@@ -319,6 +328,7 @@ export interface Database {
       campus_budgets: TableDef<CampusBudgetRow>
       outreach_visit_requests: TableDef<OutreachVisitRequestRow>
       execution_plans: TableDef<ExecutionPlanRow>
+      budget_increase_requests: TableDef<BudgetIncreaseRequestRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -364,6 +374,18 @@ export interface Database {
       set_campus_budget: {
         Args: { p_campus_id: string; p_period: string; p_allocated_amount: number; p_note?: string }
         Returns: string
+      }
+      finance_allocate_campus_budget: {
+        Args: { p_campus_id: string; p_allocated_amount: number; p_note?: string }
+        Returns: string
+      }
+      create_budget_increase_request: {
+        Args: { p_campus_id: string; p_requested_amount: number; p_reason: string }
+        Returns: string
+      }
+      review_budget_increase_request: {
+        Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
       }
       create_outreach_visit_request: {
         Args: {

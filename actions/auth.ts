@@ -192,7 +192,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     .eq('ip_address', ip)
     .gte('created_at', since)
   if ((count ?? 0) >= SIGNUP_MAX_PER_DAY) {
-    return { error: 'Too many signup attempts from this network. Please try again tomorrow.' }
+    return { error: 'Too many signup attempts from this device. Please try again tomorrow.' }
   }
   await admin.from('signup_attempts').insert({ ip_address: ip })
 
@@ -253,7 +253,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
   const { data: admins } = await admin
     .from('users')
     .select('id, email')
-    .in('role', ['super_admin', 'mgmt_admin'])
+    .eq('role', 'super_admin')
     .eq('is_active', true)
 
   if (admins?.length) {

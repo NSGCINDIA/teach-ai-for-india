@@ -16,7 +16,7 @@ export default async function DashboardSchoolsPage() {
     listSchools(scopedToCampus ? { campus_id: user.campus_id! } : {}),
     listCampusOptions(),
   ])
-  const canCreate = can(user.role, 'edit_school') !== false && user.role !== 'mgmt_admin'
+  const canCreate = can(user.role, 'edit_school') !== false
 
   return (
     <div className="space-y-6">

@@ -17,7 +17,7 @@ export async function sendMonthlySummary(): Promise<{ sent: number; skipped?: tr
   const [{ data: summaryRow }, { data: campusRows }, { data: recipients }] = await Promise.all([
     admin.from('program_summary').select('*').single(),
     admin.from('campus_performance').select('*').order('students_impacted', { ascending: false }),
-    admin.from('users').select('email').in('role', ['super_admin', 'mgmt_admin']).eq('is_active', true),
+    admin.from('users').select('email').eq('role', 'super_admin').eq('is_active', true),
   ])
 
   const emails = (recipients as { email: string }[] | null)?.map((r) => r.email).filter(Boolean) ?? []

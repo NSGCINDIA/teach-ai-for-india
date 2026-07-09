@@ -77,14 +77,13 @@ export async function listSchoolOptions(
   return (data as { id: string; name: string; district: string }[]) ?? []
 }
 
-/** Campus team members eligible for a session roster (active, non-POC). */
+/** Campus team members eligible for a session roster (active). */
 export async function listTeamMembers(campusId: string | null): Promise<TeamMember[]> {
   const supabase = await createClient()
   let query = supabase
     .from('users')
     .select('id, full_name, role')
     .eq('is_active', true)
-    .neq('role', 'school_poc')
     .order('full_name')
     .limit(500)
   if (campusId) query = query.eq('campus_id', campusId)

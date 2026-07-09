@@ -20,8 +20,6 @@ export function InviteForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
   const [open, setOpen] = useState(false)
   const [state, action, pending] = useActionState<ActionState, FormData>(inviteUser, {})
   const [role, setRole] = useState<UserRole>('volunteer')
-  // Admin roles are org-wide; the rest are pinned to a campus.
-  const needsCampus = role !== 'mgmt_admin' && role !== 'viewer'
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -61,9 +59,9 @@ export function InviteForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
             <p className="text-xs text-muted-foreground">{ROLE_DESCRIPTIONS[role]}</p>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="campus_id">Campus {needsCampus ? '' : '(optional)'}</Label>
-            <select id="campus_id" name="campus_id" className={SELECT_CLASS} required={needsCampus} defaultValue="">
-              <option value="">{needsCampus ? 'Select a campus…' : 'Org-wide (no campus)'}</option>
+            <Label htmlFor="campus_id">Campus</Label>
+            <select id="campus_id" name="campus_id" className={SELECT_CLASS} required defaultValue="">
+              <option value="">Select a campus…</option>
               {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
