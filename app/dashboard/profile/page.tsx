@@ -30,9 +30,21 @@ export default async function DashboardProfilePage() {
         {user.niat_id && (
           <div><dt className="text-xs text-muted-foreground">NIAT ID</dt><dd className="font-medium">{user.niat_id}</dd></div>
         )}
+        {user.role === 'volunteer' && (
+          <>
+            <div><dt className="text-xs text-muted-foreground">Full name</dt><dd className="font-medium">{user.full_name}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">Phone</dt><dd className="font-medium">{user.phone ?? '—'}</dd></div>
+          </>
+        )}
       </dl>
 
-      <ProfileForm user={user} />
+      {user.role === 'volunteer' ? (
+        <p className="text-sm text-muted-foreground">
+          Your details are managed by your campus lead. Contact them if anything needs to change.
+        </p>
+      ) : (
+        <ProfileForm user={user} />
+      )}
     </div>
   )
 }
