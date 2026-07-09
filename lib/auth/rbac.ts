@@ -175,6 +175,33 @@ export function outreachVisitRequestAccess(
   }
 }
 
+export interface ExecutionPlanAccess {
+  canSubmit: boolean
+  canReviewCampus: boolean
+  canReviewFinance: boolean
+}
+
+/**
+ * Access to a session's Execution Plan. canSubmit is exec_lead-only (+ admin)
+ * — deliberately NOT campus_lead, unlike canEditSession's precedent below:
+ * Stage 6 requires the submitter (exec_lead) and the first-leg approver
+ * (campus_lead) to be different actors, so letting campus_lead also submit
+ * would let one role submit-and-approve its own plan.
+ */
+export function executionPlanAccess(
+  role: UserRole,
+  userCampusId: string | null,
+  entityCampusId: string | null,
+): ExecutionPlanAccess {
+  const admin = isAdmin(role)
+  const ownCampus = !!userCampusId && userCampusId === entityCampusId
+  return {
+    canSubmit: admin || (role === 'exec_lead' && ownCampus),
+    canReviewCampus: admin || (role === 'campus_lead' && ownCampus),
+    canReviewFinance: admin || (role === 'finance_lead' && ownCampus),
+  }
+}
+
 /**
  * Whether a user may edit/report a session. Mirrors the sessions_update RLS:
  * admins, the session's creator, or a campus_lead/exec_lead of its campus.
@@ -218,10 +245,12 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
 
   // Dashboard subsections (US-AUTH-02): outreach lead has NO finance, etc.
   // Volunteer Lead & Volunteer get schools read-only (matrix: Read Only / Assigned Only) — RLS + RBAC gate mutations.
-  // campus_mgmt_admin/finance_lead are deliberately NOT added to any subsection
-  // below yet (Phase 1) — their screens land in Phase 5; only the bare
-  // '/dashboard' catch-all (their stub nav) is reachable for now.
-  { prefix: '/dashboard/schools', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer'] },
+  // campus_mgmt_admin/finance_lead are NOT added to most subsections below
+  // (their dedicated screens land in Phase 5) EXCEPT /dashboard/schools:
+  // finance_lead needs it to reach the Stage-2 outreach-visit-request review
+  // UI (Phase 2's visit-request-panel), and campus_mgmt_admin gets read
+  // access as a byproduct of the same role list (fits its monitoring remit).
+  { prefix: '/dashboard/schools', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer'] },
   { prefix: '/dashboard/volunteers', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'exec_lead', 'volunteer_lead'] },
   { prefix: '/dashboard/analytics', roles: ['super_admin', 'mgmt_admin', 'campus_lead'] },

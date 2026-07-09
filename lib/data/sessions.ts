@@ -16,7 +16,8 @@ export type AttendanceWithUser = AttendanceRow & {
   user: { id: string; full_name: string; role: UserRole } | null
 }
 
-export type SessionDetail = SessionListItem & {
+export type SessionDetail = Omit<SessionListItem, 'campus'> & {
+  campus: Pick<CampusRow, 'id' | 'name' | 'quarter'> | null
   attendance: AttendanceWithUser[]
 }
 
@@ -50,7 +51,7 @@ export async function getSession(id: string): Promise<SessionDetail | null> {
   const { data, error } = await supabase
     .from('sessions')
     .select(
-      `*, school:schools(id, name, district), campus:campuses(id, name),
+      `*, school:schools(id, name, district), campus:campuses(id, name, quarter),
        attendance:attendance_records(*, user:users!attendance_records_user_id_fkey(id, full_name, role))`,
     )
     .eq('id', id)

@@ -215,6 +215,23 @@ export type OutreachVisitRequestRow = Timestamps & {
   created_by: string | null
 }
 
+// Execution plans (0028_execution_plans.sql)
+export type ExecutionPlanRow = Timestamps & {
+  id: string; session_id: string; campus_id: string | null
+  logistics_notes: string
+  has_laptop: boolean; has_projector: boolean; has_hdmi_cable: boolean
+  has_extension_board: boolean; has_speaker: boolean; has_internet_device: boolean
+  other_equipment: string | null
+  teaching_resources: string | null
+  estimated_transport_cost: number; session_ready: boolean
+  status: ApprovalStatus
+  campus_lead_review: ApprovalStatus; campus_lead_reviewed_by: string | null
+  campus_lead_reviewed_at: string | null; campus_lead_note: string | null
+  finance_lead_review: ApprovalStatus; finance_lead_reviewed_by: string | null
+  finance_lead_reviewed_at: string | null; finance_lead_note: string | null
+  created_by: string | null
+}
+
 // View rows
 export type PublicImpactStats = {
   schools_reached: number; students_impacted: number; sessions_completed: number
@@ -288,6 +305,7 @@ export interface Database {
       certificates: TableDef<CertificateRow>
       campus_budgets: TableDef<CampusBudgetRow>
       outreach_visit_requests: TableDef<OutreachVisitRequestRow>
+      execution_plans: TableDef<ExecutionPlanRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -345,6 +363,24 @@ export interface Database {
       }
       review_outreach_visit_request_finance: {
         Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      create_execution_plan: {
+        Args: {
+          p_session_id: string; p_logistics_notes: string
+          p_has_laptop: boolean; p_has_projector: boolean; p_has_hdmi_cable: boolean
+          p_has_extension_board: boolean; p_has_speaker: boolean; p_has_internet_device: boolean
+          p_other_equipment?: string; p_teaching_resources?: string
+          p_estimated_transport_cost?: number; p_session_ready?: boolean
+        }
+        Returns: string
+      }
+      review_execution_plan_campus: {
+        Args: { p_plan_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      review_execution_plan_finance: {
+        Args: { p_plan_id: string; p_decision: ApprovalStatus; p_note?: string }
         Returns: undefined
       }
     }

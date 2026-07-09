@@ -159,6 +159,8 @@ export async function markAttendance(
 }
 
 function humanizeDbError(msg: string): string {
+  if (/execution plan must be approved/i.test(msg))
+    return 'This session needs an approved execution plan before it can start.'
   if (/Illegal session transition/.test(msg)) return 'That status change is not allowed from the current stage.'
   if (/at least 1 photo and 1 attendance document/.test(msg))
     return 'To report, upload at least 1 photo and 1 attendance document first (Evidence).'
