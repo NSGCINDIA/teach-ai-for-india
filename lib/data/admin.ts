@@ -28,6 +28,9 @@ export async function getAdminAlerts(): Promise<AdminAlert[]> {
     supabase.from('contact_messages').select('id', head).eq('is_handled', false),
     supabase.from('signup_requests').select('id', head).eq('status', 'pending'),
   ])
+  const failed = [claims, verify, anomalyRows, followups, applications, messages, signups].find((r) => r.error)
+  if (failed?.error) throw new Error(`getAdminAlerts failed: ${failed.error.message}`)
+
   const anomalyCount = ((anomalyRows.data as { anomaly_flags: string[] | null }[] | null) ?? [])
     .filter((r) => (r.anomaly_flags?.length ?? 0) > 0).length
 
@@ -73,22 +76,24 @@ export type PendingSignup = SignupRequestRow & { campus: { id: string; name: str
 
 export async function listPendingSignups(): Promise<PendingSignup[]> {
   const supabase = await createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('signup_requests')
     .select('*, campus:campuses(id, name)')
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
+  if (error) throw new Error(`listPendingSignups failed: ${error.message}`)
   return (data as unknown as PendingSignup[]) ?? []
 }
 
 // ─── Volunteer applications (PRD §7.1/§11 — public "Join" form triage) ───────
 export async function listVolunteerApplications(): Promise<VolunteerApplicationRow[]> {
   const supabase = await createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('volunteer_applications')
     .select('*')
     .in('status', ['new', 'reviewing'])
     .order('created_at', { ascending: true })
+  if (error) throw new Error(`listVolunteerApplications failed: ${error.message}`)
   return (data as VolunteerApplicationRow[]) ?? []
 }
 
