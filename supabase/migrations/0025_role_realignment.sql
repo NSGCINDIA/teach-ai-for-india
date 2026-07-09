@@ -67,7 +67,7 @@ create policy reimb_insert on reimbursements for insert to authenticated
 -- sessions_select and reimb_select also need to grant the two brand-new enum
 -- values ('campus_mgmt_admin', 'finance_lead') read access, but Postgres
 -- forbids using a value added by ALTER TYPE ... ADD VALUE in the same
--- transaction that added it (SQLSTATE 55P04) — see 0025b, which runs after
+-- transaction that added it (SQLSTATE 55P04) — see 0026, which runs after
 -- this migration's ADD VALUE statements have committed.
 
 drop policy if exists session_plans_select on session_plans;

@@ -11,7 +11,8 @@ import { ReviewPanel } from '@/components/finance/review-panel'
 
 interface Props {
   claim: ReimbursementListItem
-  mode: 'owner' | 'admin'
+  /** 'reviewer' = admin or finance_lead of the claim's campus (can approve/pay). 'readonly' = campus-wide read access with no review power (e.g. campus_mgmt_admin). */
+  mode: 'owner' | 'reviewer' | 'readonly'
   basePath: string
   sessionHref?: string | null
 }
@@ -43,7 +44,7 @@ export function ClaimDetailView({ claim, mode, basePath, sessionHref }: Props) {
               <Detail label="Amount" value={formatCurrency(claim.amount)} />
               <Detail label="Travel mode" value={TRAVEL_MODE_META[claim.travel_mode].label} />
               <Detail label="Date" value={formatDate(claim.claim_date)} />
-              {mode === 'admin' && <Detail label="Claimant" value={claim.claimant?.full_name} />}
+              {mode !== 'owner' && <Detail label="Claimant" value={claim.claimant?.full_name} />}
               <Detail label="Campus" value={claim.campus?.name} />
               <Detail
                 label="Session"
@@ -90,10 +91,16 @@ export function ClaimDetailView({ claim, mode, basePath, sessionHref }: Props) {
 
         <div className="space-y-6">
           <Card>
-            <CardHeader><CardTitle className="text-base">{mode === 'admin' ? 'Decision' : 'Your claim'}</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base">
+                {mode === 'reviewer' ? 'Decision' : mode === 'readonly' ? 'Status' : 'Your claim'}
+              </CardTitle>
+            </CardHeader>
             <CardContent>
-              {mode === 'admin' ? (
+              {mode === 'reviewer' ? (
                 <ReviewPanel id={claim.id} status={claim.status} />
+              ) : mode === 'readonly' ? (
+                <p className="text-sm text-muted-foreground">You do not have review access for this claim.</p>
               ) : (
                 <ClaimActions id={claim.id} status={claim.status} editHref={`${basePath}/${claim.id}/edit`} />
               )}

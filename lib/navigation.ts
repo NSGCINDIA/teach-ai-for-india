@@ -94,18 +94,18 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   mgmt_admin: [],
   school_poc: [OVERVIEW, NOTIFICATIONS],
   viewer: [OVERVIEW],
-  // Campus-scoped monitoring roles (Operational Workflow Spec v2.0, Phase 1).
-  // Real screens land in later phases — stub nav keeps the IA visible now.
+  // Campus-scoped monitoring roles (Operational Workflow Spec v2.0). Finance
+  // Lead and Campus Management Admin's real screens landed in Phase 5.
   campus_mgmt_admin: [
     OVERVIEW,
-    { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics', soon: true },
-    { label: 'Finance', href: '/dashboard/reimbursements', icon: 'finance', soon: true },
+    { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
+    { label: 'Finance', href: '/dashboard/finance', icon: 'finance' },
     NOTIFICATIONS,
   ],
   finance_lead: [
     OVERVIEW,
-    { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements', soon: true },
-    { label: 'Campus Budget', href: '/dashboard/finance', icon: 'finance', soon: true },
+    { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },
+    { label: 'Campus Finance', href: '/dashboard/finance', icon: 'finance' },
     NOTIFICATIONS,
   ],
 }

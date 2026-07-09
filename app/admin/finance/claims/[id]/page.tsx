@@ -18,7 +18,7 @@ export default async function AdminClaimPage({ params }: { params: Promise<{ id:
   return (
     <ClaimDetailView
       claim={claim}
-      mode="admin"
+      mode="reviewer"
       basePath="/admin/finance"
       sessionHref="/admin/sessions"
     />

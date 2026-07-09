@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import type { ReimbursementRow, ReimbursementStatus } from '@/types/database'
+import type { ReimbursementRow, ReimbursementStatus, CampusFinanceSummary } from '@/types/database'
 
 export type ReimbursementListItem = ReimbursementRow & {
   claimant: { id: string; full_name: string } | null
@@ -103,4 +103,42 @@ export async function getMonthlyTrend(): Promise<{ month: string; approved_total
     .select('month, approved_total')
     .order('month', { ascending: true })
   return (data as { month: string; approved_total: number }[] | null) ?? []
+}
+
+/**
+ * Campus Finance Dashboard figures (Operational Workflow Spec v2.0, Phase 5).
+ * Always scoped to a single campus — campus_finance_summary is driven from
+ * the publicly-readable `campuses` table, so an unscoped query would silently
+ * null out budget/spend for campuses the caller's RLS hides, indistinguishable
+ * from "genuinely unbudgeted."
+ */
+export async function getCampusFinanceSummary(campusId: string): Promise<CampusFinanceSummary | null> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('campus_finance_summary')
+    .select('*')
+    .eq('campus_id', campusId)
+    .maybeSingle()
+  return (data as CampusFinanceSummary | null) ?? null
+}
+
+/** Outreach visit requests / execution plans still awaiting this campus's Finance Lead review. */
+export async function getPendingFinanceReviewCounts(
+  campusId: string,
+): Promise<{ outreachPending: number; executionPending: number }> {
+  const supabase = await createClient()
+  const [{ count: outreachPending }, { count: executionPending }] = await Promise.all([
+    supabase
+      .from('outreach_visit_requests')
+      .select('id', { count: 'exact', head: true })
+      .eq('campus_id', campusId)
+      .eq('finance_lead_review', 'pending'),
+    supabase
+      .from('execution_plans')
+      .select('id', { count: 'exact', head: true })
+      .eq('campus_id', campusId)
+      .eq('finance_lead_review', 'pending')
+      .eq('campus_lead_review', 'approved'),
+  ])
+  return { outreachPending: outreachPending ?? 0, executionPending: executionPending ?? 0 }
 }

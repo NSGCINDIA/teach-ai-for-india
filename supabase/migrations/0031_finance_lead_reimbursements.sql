@@ -1,11 +1,11 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- Teach AI for India — 0030 Finance Lead reimbursements + Campus Finance
+-- Teach AI for India — 0031 Finance Lead reimbursements + Campus Finance
 -- Dashboard (Operational Workflow Spec v2.0, Phase 5, final)
 --
 -- Gives Finance Lead campus-scoped reimbursement approve/pay power (spec:
 -- "Process reimbursements") via two SECURITY DEFINER RPCs, same pattern as
 -- review_outreach_visit_request_finance()/review_execution_plan_finance()
--- (0027/0028): the RPC runs as table owner, which bypasses RLS entirely in
+-- (0028/0029): the RPC runs as table owner, which bypasses RLS entirely in
 -- Postgres (no table here has FORCE ROW LEVEL SECURITY set), so all
 -- role+campus gating lives in the function body — reimb_update's existing
 -- admin-only RLS policy needs NO change.

@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- Teach AI for India — 0025b Grant campus_mgmt_admin / finance_lead read access
+-- Teach AI for India — 0026 Grant campus_mgmt_admin / finance_lead read access
 --
 -- Split out of 0025_role_realignment.sql: Postgres forbids using a value
 -- added by ALTER TYPE ... ADD VALUE in the same transaction that added it

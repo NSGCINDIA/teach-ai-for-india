@@ -202,6 +202,26 @@ export function executionPlanAccess(
   }
 }
 
+export interface ReimbursementReviewAccess {
+  canReview: boolean
+  canPay: boolean
+}
+
+/**
+ * Access to review/pay a reimbursement claim — finance_lead of the claim's
+ * own campus (+ admin) only. campus_lead is deliberately excluded: the spec
+ * gives Campus Lead "Monitor finance requests" (view-only), which they
+ * already have via reimb_select RLS, not approval power.
+ */
+export function reimbursementReviewAccess(
+  role: UserRole,
+  userCampusId: string | null,
+  claimCampusId: string | null,
+): ReimbursementReviewAccess {
+  const allowed = isAdmin(role) || (role === 'finance_lead' && !!userCampusId && userCampusId === claimCampusId)
+  return { canReview: allowed, canPay: allowed }
+}
+
 /**
  * Whether a user may edit/report a session. Mirrors the sessions_update RLS:
  * admins, the session's creator, or a campus_lead/exec_lead of its campus.
@@ -245,15 +265,19 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
 
   // Dashboard subsections (US-AUTH-02): outreach lead has NO finance, etc.
   // Volunteer Lead & Volunteer get schools read-only (matrix: Read Only / Assigned Only) — RLS + RBAC gate mutations.
-  // campus_mgmt_admin/finance_lead are NOT added to most subsections below
-  // (their dedicated screens land in Phase 5) EXCEPT /dashboard/schools:
-  // finance_lead needs it to reach the Stage-2 outreach-visit-request review
-  // UI (Phase 2's visit-request-panel), and campus_mgmt_admin gets read
-  // access as a byproduct of the same role list (fits its monitoring remit).
+  // campus_mgmt_admin/finance_lead get /dashboard/schools (finance_lead needs
+  // it for the Stage-2 outreach-visit-request review UI), /dashboard/finance
+  // (their Phase 5 Campus Finance Dashboard), /dashboard/reimbursements
+  // (finance_lead now processes claims; campus_mgmt_admin already has
+  // campus-wide read via reimb_select RLS, so blocking the route would be a
+  // pure UI inconsistency — write access is gated separately by
+  // reimbursementReviewAccess) and /dashboard/analytics (both roles' campus
+  // monitoring — the page has no role branching, it's already RLS-scoped).
   { prefix: '/dashboard/schools', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
-  { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer'] },
+  { prefix: '/dashboard/finance', roles: ['super_admin', 'mgmt_admin', 'finance_lead', 'campus_mgmt_admin'] },
+  { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/volunteers', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'exec_lead', 'volunteer_lead'] },
-  { prefix: '/dashboard/analytics', roles: ['super_admin', 'mgmt_admin', 'campus_lead'] },
+  { prefix: '/dashboard/analytics', roles: ['super_admin', 'mgmt_admin', 'campus_lead', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/settings', roles: ['super_admin', 'mgmt_admin', 'campus_lead'] },
   { prefix: '/dashboard/reports', roles: ['super_admin', 'mgmt_admin', 'exec_lead'] },
   { prefix: '/dashboard/approval-letters', roles: ['super_admin', 'mgmt_admin', 'outreach_lead'] },
