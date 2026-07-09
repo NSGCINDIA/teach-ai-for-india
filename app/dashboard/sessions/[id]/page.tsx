@@ -20,13 +20,16 @@ export default async function DashboardSessionPage({ params }: { params: Promise
 
   const canEdit = canEditSession(user.role, user.id, user.campus_id, session)
   const canAssign = canForEntity(user.role, 'assign_volunteers', user.campus_id, session.campus_id)
-  const [members, assignments, evidence] = await Promise.all([
+  const [teamMembers, assignments, evidence] = await Promise.all([
     listTeamMembers(session.campus_id),
     getSessionAssignments(session.id),
     listSessionEvidence(session.id),
   ])
+  // Attendance/assignment rosters are volunteer-only — leads track their own
+  // attendance elsewhere and shouldn't clutter this list.
+  const members = teamMembers.filter((m) => m.role === 'volunteer')
   const assignedIds = new Set(assignments.map((a) => a.volunteer_id))
-  const assignCandidates = members.filter((m) => m.role === 'volunteer' && !assignedIds.has(m.id))
+  const assignCandidates = members.filter((m) => !assignedIds.has(m.id))
 
   return (
     <SessionDetailView
