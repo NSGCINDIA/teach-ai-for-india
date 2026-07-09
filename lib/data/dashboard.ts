@@ -36,6 +36,14 @@ export interface ReimbLite {
   status: string
   claimant_name: string
 }
+export interface BudgetRequestLite {
+  id: string
+  requested_amount: number
+  reason: string
+  period: string
+  created_at: string
+  requester_name: string
+}
 
 const SESSION_COLS = 'id, topic, date, start_time, status, school:schools(name)'
 type SessionRowRaw = {
@@ -61,6 +69,7 @@ export interface CampusLeadData {
   pendingApprovals: SchoolLite[]
   pendingReports: SessionLite[]
   pendingReimbursements: ReimbLite[]
+  pendingBudgetRequests: BudgetRequestLite[]
 }
 
 export async function getCampusLeadData(campusId: string): Promise<CampusLeadData> {
@@ -71,7 +80,7 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
   const [
     schoolsActive, sessionsCompleted, upcomingCount, volunteers, pendingReportsCount,
     pendingPayments, evidence, students,
-    todaySessions, upcomingSessions, pendingApprovals, pendingReports, pendingReimb,
+    todaySessions, upcomingSessions, pendingApprovals, pendingReports, pendingReimb, pendingBudgetReq,
   ] = await Promise.all([
     supabase.from('schools').select('id', head).eq('campus_id', campusId).neq('status', 'archived'),
     supabase.from('sessions').select('id', head).eq('campus_id', campusId).eq('status', 'verified'),
@@ -86,6 +95,7 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
     supabase.from('schools').select('id, name, district, status, next_action_date').eq('campus_id', campusId).eq('status', 'approval_requested').order('next_action_date').limit(5),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).lte('date', t).in('status', OPEN_SESSION).order('date').limit(5),
     supabase.from('reimbursements').select('id, reference_number, amount, status, claimant:users!reimbursements_claimant_id_fkey(full_name)').eq('campus_id', campusId).in('status', ['submitted', 'under_review']).order('created_at').limit(5),
+    supabase.from('budget_increase_requests').select('id, requested_amount, reason, period, created_at, requester:users!budget_increase_requests_created_by_fkey(full_name)').eq('campus_id', campusId).eq('status', 'pending').order('created_at').limit(5),
   ])
 
   const studentsImpacted = ((students.data as { total_students: number }[] | null) ?? [])
@@ -107,6 +117,7 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
     pendingApprovals: (pendingApprovals.data as SchoolLite[] | null) ?? [],
     pendingReports: toSessionLite(pendingReports.data as SessionRowRaw[] | null),
     pendingReimbursements: toReimbLite(pendingReimb.data),
+    pendingBudgetRequests: toBudgetRequestLite(pendingBudgetReq.data),
   }
 }
 
@@ -118,6 +129,17 @@ function toReimbLite(rows: unknown): ReimbLite[] {
   return ((rows as ReimbRaw[] | null) ?? []).map((r) => ({
     id: r.id, reference_number: r.reference_number, amount: r.amount, status: r.status,
     claimant_name: Array.isArray(r.claimant) ? (r.claimant[0]?.full_name ?? '—') : (r.claimant?.full_name ?? '—'),
+  }))
+}
+
+type BudgetRequestRaw = {
+  id: string; requested_amount: number; reason: string; period: string; created_at: string
+  requester: { full_name: string } | { full_name: string }[] | null
+}
+function toBudgetRequestLite(rows: unknown): BudgetRequestLite[] {
+  return ((rows as BudgetRequestRaw[] | null) ?? []).map((r) => ({
+    id: r.id, requested_amount: r.requested_amount, reason: r.reason, period: r.period, created_at: r.created_at,
+    requester_name: Array.isArray(r.requester) ? (r.requester[0]?.full_name ?? '—') : (r.requester?.full_name ?? '—'),
   }))
 }
 

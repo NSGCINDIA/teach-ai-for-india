@@ -1,9 +1,12 @@
 import { Banknote, Clock, PiggyBank, Wallet } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { getCampusFinanceSummary, getPendingFinanceReviewCounts } from '@/lib/data/finance'
+import { listBudgetIncreaseRequests } from '@/lib/data/budgets'
+import { campusBudgetAccess } from '@/lib/auth/rbac'
 import { formatCurrency, formatNumber } from '@/lib/format'
 import { MetricCard } from '@/components/shared/metric-card'
 import { EmptyState } from '@/components/shared/states'
+import { BudgetRequestPanel } from '@/components/finance/budget-request-panel'
 
 export const metadata = { title: 'Campus Finance' }
 
@@ -14,12 +17,14 @@ export default async function DashboardFinancePage() {
     return <EmptyState title="No campus assigned" description="The Campus Finance Dashboard needs a campus to scope to." />
   }
 
-  const [summary, pending] = await Promise.all([
+  const [summary, pending, requests] = await Promise.all([
     getCampusFinanceSummary(user.campus_id),
     getPendingFinanceReviewCounts(user.campus_id),
+    listBudgetIncreaseRequests(user.campus_id),
   ])
 
   const hasBudget = summary?.budget_id != null
+  const access = campusBudgetAccess(user.role, user.campus_id, user.campus_id)
 
   return (
     <div className="space-y-6">
@@ -31,11 +36,13 @@ export default async function DashboardFinancePage() {
         </p>
       </header>
 
-      {!hasBudget && (
-        <p className="rounded-lg bg-warning/10 px-3 py-2 text-sm text-warning">
-          No budget allocated for {summary?.period ?? 'this period'} — ask an admin to allocate one.
-        </p>
-      )}
+      <BudgetRequestPanel
+        campusId={user.campus_id}
+        period={summary?.period ?? null}
+        hasBudget={hasBudget}
+        requests={requests}
+        access={access}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard

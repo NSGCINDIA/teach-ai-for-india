@@ -8,6 +8,7 @@ import { MetricCard } from '@/components/shared/metric-card'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { EmptyState } from '@/components/shared/states'
 import { Card } from '@/components/ui/card'
+import { BudgetRequestReviewList } from '@/components/dashboard/budget-request-review-list'
 import { formatDate, formatCurrency, formatNumber } from '@/lib/format'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
@@ -91,7 +92,15 @@ function Kpi({ label, value, icon }: { label: string; value: string | number; ic
 }
 
 // ─── Campus Lead ────────────────────────────────────────────────────────────
-export function CampusLeadOverview({ name, data }: { name: string; data: CampusLeadData }) {
+export function CampusLeadOverview({
+  name,
+  data,
+  canReviewBudgetRequests,
+}: {
+  name: string
+  data: CampusLeadData
+  canReviewBudgetRequests: boolean
+}) {
   const k = data.kpis
   return (
     <div className="space-y-6">
@@ -139,6 +148,9 @@ export function CampusLeadOverview({ name, data }: { name: string; data: CampusL
               ))}
             </ul>
           )}
+        </Widget>
+        <Widget title="Pending Budget Requests">
+          <BudgetRequestReviewList requests={data.pendingBudgetRequests} canReview={canReviewBudgetRequests} />
         </Widget>
       </div>
     </div>

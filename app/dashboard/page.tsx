@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/auth/user'
 import { roleLabel } from '@/lib/auth/roles'
+import { campusBudgetAccess } from '@/lib/auth/rbac'
 import {
   getCampusLeadData, getOutreachData, getVolunteerLeadData, getExecData, getVolunteerData,
 } from '@/lib/data/dashboard'
@@ -28,9 +29,17 @@ export default async function DashboardOverview() {
     return <NoCampusOverview name={name} role={roleLabel(user.role)} />
   }
 
+  const canReviewBudgetRequests = campusBudgetAccess(user.role, campusId, campusId).canReviewIncrease
+
   switch (user.role) {
     case 'campus_lead':
-      return <CampusLeadOverview name={name} data={await getCampusLeadData(campusId)} />
+      return (
+        <CampusLeadOverview
+          name={name}
+          data={await getCampusLeadData(campusId)}
+          canReviewBudgetRequests={canReviewBudgetRequests}
+        />
+      )
     case 'outreach_lead':
       return <OutreachOverview name={name} data={await getOutreachData(campusId)} />
     case 'volunteer_lead':
@@ -39,6 +48,12 @@ export default async function DashboardOverview() {
       return <ExecOverview name={name} data={await getExecData(campusId, user.id)} />
     // Admins / viewers who land here (they normally route to /admin).
     default:
-      return <CampusLeadOverview name={name} data={await getCampusLeadData(campusId)} />
+      return (
+        <CampusLeadOverview
+          name={name}
+          data={await getCampusLeadData(campusId)}
+          canReviewBudgetRequests={canReviewBudgetRequests}
+        />
+      )
   }
 }
