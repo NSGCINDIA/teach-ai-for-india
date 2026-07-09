@@ -51,7 +51,7 @@ export async function getSession(id: string): Promise<SessionDetail | null> {
     .from('sessions')
     .select(
       `*, school:schools(id, name, district), campus:campuses(id, name),
-       attendance:attendance_records(*, user:users(id, full_name, role))`,
+       attendance:attendance_records(*, user:users!attendance_records_user_id_fkey(id, full_name, role))`,
     )
     .eq('id', id)
     .single()
@@ -71,7 +71,8 @@ export async function listSchoolOptions(
   const supabase = await createClient()
   let query = supabase.from('schools').select('id, name, district').order('name').limit(1000)
   if (campusId) query = query.eq('campus_id', campusId)
-  const { data } = await query
+  const { data, error } = await query
+  if (error) throw new Error(`listSchoolOptions failed: ${error.message}`)
   return (data as { id: string; name: string; district: string }[]) ?? []
 }
 
@@ -86,6 +87,7 @@ export async function listTeamMembers(campusId: string | null): Promise<TeamMemb
     .order('full_name')
     .limit(500)
   if (campusId) query = query.eq('campus_id', campusId)
-  const { data } = await query
+  const { data, error } = await query
+  if (error) throw new Error(`listTeamMembers failed: ${error.message}`)
   return (data as TeamMember[]) ?? []
 }
