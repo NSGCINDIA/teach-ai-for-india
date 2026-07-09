@@ -196,14 +196,14 @@ export type ContactMessageRow = {
   message: string; is_handled: boolean; created_at: string
 }
 
-// Campus budgets (0026_campus_budgets.sql)
+// Campus budgets (0027_campus_budgets.sql)
 export type CampusBudgetRow = Timestamps & {
   id: string; campus_id: string; period: string
   allocated_amount: number; reserved_amount: number; notes: string | null
   created_by: string | null
 }
 
-// Outreach visit requests (0027_outreach_visit_requests.sql)
+// Outreach visit requests (0028_outreach_visit_requests.sql)
 export type OutreachVisitRequestRow = Timestamps & {
   id: string; school_id: string; campus_id: string | null
   purpose: string; proposed_visit_date: string; estimated_travel_cost: number
@@ -216,7 +216,7 @@ export type OutreachVisitRequestRow = Timestamps & {
   created_by: string | null
 }
 
-// Execution plans (0028_execution_plans.sql)
+// Execution plans (0029_execution_plans.sql)
 export type ExecutionPlanRow = Timestamps & {
   id: string; session_id: string; campus_id: string | null
   logistics_notes: string
@@ -250,10 +250,17 @@ export type CampusRollup = {
   schools_total: number; schools_reached: number; sessions_completed: number
   students_impacted: number; volunteers: number; last_session_date: string | null
 }
-// Curriculum progress (0029_mandatory_evidence.sql)
+// Curriculum progress (0030_mandatory_evidence.sql)
 export type SchoolSessionProgressRow = {
   school_id: string; latest_session_id: string
   latest_session_number: number; latest_session_status: SessionStatus
+}
+// Campus Finance Dashboard (0031_finance_lead_reimbursements.sql)
+export type CampusFinanceSummary = {
+  campus_id: string; campus_name: string; period: string | null
+  budget_id: string | null; allocated_amount: number | null; reserved_amount: number | null
+  approved_expenses: number; paid_total: number; unpaid_liabilities: number; pending_count: number
+  remaining_amount: number | null
 }
 // Analytics (0012_analytics_views.sql)
 export type ProgramSummary = {
@@ -327,6 +334,7 @@ export interface Database {
       public_campus_sessions: { Row: PublicCampusSession; Relationships: [] }
       public_campus_team: { Row: PublicCampusTeamMember; Relationships: [] }
       school_session_progress: { Row: SchoolSessionProgressRow; Relationships: [] }
+      campus_finance_summary: { Row: CampusFinanceSummary; Relationships: [] }
     }
     Functions: {
       change_school_status: {
@@ -388,6 +396,17 @@ export interface Database {
       }
       review_execution_plan_finance: {
         Args: { p_plan_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      review_reimbursement_finance: {
+        Args: { p_reimbursement_id: string; p_decision: ReimbursementStatus; p_note?: string }
+        Returns: undefined
+      }
+      pay_reimbursement_finance: {
+        Args: {
+          p_reimbursement_id: string; p_payment_date?: string
+          p_payment_reference?: string; p_payment_method?: string
+        }
         Returns: undefined
       }
     }

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// Kept in sync with the DB enum (supabase/migrations, most recently 0029)
+// Kept in sync with the DB enum (supabase/migrations, most recently 0030)
 // and lib/constants/evidence.ts's MEDIA_TYPE_META — no shared source today.
 const FILE_TYPES = [
   'photo', 'video', 'document', 'receipt', 'letter', 'presentation', 'other',

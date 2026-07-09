@@ -29,7 +29,7 @@ export interface CurriculumStage { title: string }
 /**
  * Spec §5's 4-session curriculum, keyed by sessions.session_number. A
  * school's position is read off its highest session_number (see
- * school_session_progress, 0029_mandatory_evidence.sql) — session_type
+ * school_session_progress, 0030_mandatory_evidence.sql) — session_type
  * itself is untouched (locked-in decision, high blast radius across forms/
  * SESSION_TYPE_FIELD/session_plans/the public timeline). Numbers beyond 4
  * (e.g. a school with a 'followup' session) fall back to a generic label.

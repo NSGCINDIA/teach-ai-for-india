@@ -64,29 +64,11 @@ create policy reimb_insert on reimbursements for insert to authenticated
     and auth_role() in ('super_admin','outreach_lead','exec_lead','volunteer')
   );
 
--- sessions_select — live version is 0022's; also add read access for the two
--- new roles so campus_rollups (an invoker-security view) has something to
--- count for them once Phase 5 builds their dashboard.
-drop policy if exists sessions_select on sessions;
-create policy sessions_select on sessions for select to authenticated
-  using (
-    is_admin()
-    or (auth_role() in ('campus_lead','outreach_lead','exec_lead','volunteer_lead','campus_mgmt_admin','finance_lead')
-        and campus_id = auth_campus())
-    or auth.uid() = any(team_members_present)
-    or created_by = auth.uid()
-    or exists (select 1 from session_assignments sa
-        where sa.session_id = sessions.id and sa.volunteer_id = auth.uid())
-  );
-
--- reimb_select — live version is 0015's; add the two new roles, read-only.
-drop policy if exists reimb_select on reimbursements;
-create policy reimb_select on reimbursements for select to authenticated
-  using (
-    claimant_id = auth.uid()
-    or is_admin()
-    or (auth_role() in ('campus_lead','volunteer_lead','campus_mgmt_admin','finance_lead') and campus_id = auth_campus())
-  );
+-- sessions_select and reimb_select also need to grant the two brand-new enum
+-- values ('campus_mgmt_admin', 'finance_lead') read access, but Postgres
+-- forbids using a value added by ALTER TYPE ... ADD VALUE in the same
+-- transaction that added it (SQLSTATE 55P04) — see 0025b, which runs after
+-- this migration's ADD VALUE statements have committed.
 
 drop policy if exists session_plans_select on session_plans;
 create policy session_plans_select on session_plans for select to authenticated

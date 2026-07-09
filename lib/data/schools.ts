@@ -77,7 +77,7 @@ export async function listSchools(filters: SchoolFilters = {}): Promise<SchoolLi
  * Bulk curriculum-progress lookup — ONE query, RLS-scoped (school_session_progress
  * is security_invoker), for however many schools the caller can see. Schools with
  * zero non-cancelled sessions simply have no entry (callers fall back to the
- * pipeline status badge). Never per-row — see 0029_mandatory_evidence.sql.
+ * pipeline status badge). Never per-row — see 0030_mandatory_evidence.sql.
  */
 export async function listSchoolProgress(): Promise<Map<string, SchoolProgress>> {
   const supabase = await createClient()

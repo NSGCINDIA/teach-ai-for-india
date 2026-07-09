@@ -3,7 +3,7 @@ import type { MediaFileType } from '@/types/database'
 /**
  * User-selectable evidence categories (PRD §7.7). Drives the link form +
  * filtering. NOTE: this enum is duplicated in two other places that must be
- * kept in sync — supabase/migrations (DB truth, most recently 0029) and
+ * kept in sync — supabase/migrations (DB truth, most recently 0030) and
  * lib/validations/evidence.ts's FILE_TYPES const.
  */
 export const MEDIA_TYPE_META: Record<MediaFileType, { label: string }> = {
@@ -26,7 +26,7 @@ export const MEDIA_TYPES = Object.keys(MEDIA_TYPE_META) as MediaFileType[]
 /**
  * The 5 categories a session's evidence must cover before it can be reported
  * (Operational Workflow Spec v2.0, Stage 7). Keep in sync with the array
- * literal inside enforce_session_transition() (0029_mandatory_evidence.sql).
+ * literal inside enforce_session_transition() (0030_mandatory_evidence.sql).
  */
 export const MANDATORY_EVIDENCE_TYPES: MediaFileType[] = [
   'team_photo', 'principal_photo', 'student_group_photo', 'student_testimonial', 'teacher_testimonial',
