@@ -46,6 +46,7 @@ export interface PartnersContent {
 export interface FaqItem {
   question: string
   answer: string
+  category?: string
 }
 export interface FaqContent {
   items: FaqItem[]
@@ -171,26 +172,55 @@ export const FAQ_FALLBACK: FaqContent = {
       question: 'What is Teach AI for India?',
       answer:
         'We are a student-led non-profit movement bringing applied AI literacy to government school students, beginning in Telangana and Andhra Pradesh.',
+      category: 'General',
     },
     {
       question: 'Who runs the sessions?',
       answer:
         'Trained university volunteers organised into campus teams. Each campus has a lead who coordinates outreach, scheduling, and reporting.',
+      category: 'General',
     },
     {
-      question: 'Does it cost schools anything?',
+      question: 'What topics are covered in the curriculum?',
       answer:
-        'No. Every session is delivered free of charge to partner government schools.',
+        'Our curriculum focuses on applied AI literacy: prompt engineering, creative AI tools, generative safe-use guidelines, and introduction to Python coding basics.',
+      category: 'General',
     },
     {
       question: 'How can I volunteer?',
       answer:
         'Head to the Join page and submit an application. Tell us your preferred campus and why you want to be part of the movement — we will be in touch.',
+      category: 'Volunteering',
+    },
+    {
+      question: 'What is the time commitment required?',
+      answer:
+        'Typically 3-4 hours per week, which includes local travel to schools, classroom session delivery, and short reporting tasks.',
+      category: 'Volunteering',
+    },
+    {
+      question: 'Do I need prior coding or teaching experience?',
+      answer:
+        'No. We provide comprehensive training, sandbox environments, and curriculum materials to prepare all volunteers for classroom teaching.',
+      category: 'Volunteering',
+    },
+    {
+      question: 'Does it cost schools anything?',
+      answer:
+        'No. Every session and learning material is delivered entirely free of charge to partner government schools.',
+      category: 'Partnering',
     },
     {
       question: 'Can my school partner with you?',
       answer:
-        'Absolutely. Reach out through the Contact page and our outreach team will start the conversation.',
+        'Absolutely. Reach out through the Contact page and our outreach team will start the coordination process.',
+      category: 'Partnering',
+    },
+    {
+      question: 'What infrastructure does the school need?',
+      answer:
+        'A computer lab with internet connectivity is ideal. If labs are offline or lack equipment, we coordinate with campuses to arrange offline visual setups.',
+      category: 'Partnering',
     },
   ],
 }
