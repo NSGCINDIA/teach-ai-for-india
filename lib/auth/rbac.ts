@@ -1,4 +1,5 @@
-import type { UserRole } from '@/types/database'
+import type { UserRole, SchoolStatus } from '@/types/database'
+import { EXEC_LEAD_SCHOOL_STATUSES } from '@/lib/constants/status'
 
 /**
  * Role-Based Access Control — the single source of truth for the PRD §7.2
@@ -104,6 +105,32 @@ export function canForEntity(
   if (scope === 'all') return true
   if (scope === 'own') return !!userCampusId && userCampusId === entityCampusId
   return false
+}
+
+export interface SchoolStatusAccess {
+  canEdit: boolean
+  /** Present only when the role's moves are restricted to a subset (exec_lead). */
+  restrictTo?: SchoolStatus[]
+}
+
+/**
+ * Whether/how a user may move a school through the pipeline — narrower than
+ * `edit_school` (which also gates the profile/contacts editors). Admins: any
+ * move. campus_lead/outreach_head: any move, own campus only. exec_lead: own
+ * campus, but only within the execution-stage subset (approval received
+ * onward) — mirrors change_school_status() in 0024_exec_lead_school_status.sql.
+ */
+export function schoolStatusAccess(
+  role: UserRole,
+  userCampusId: string | null,
+  entityCampusId: string | null,
+): SchoolStatusAccess {
+  if (isAdmin(role)) return { canEdit: true }
+  const ownCampus = !!userCampusId && userCampusId === entityCampusId
+  if (!ownCampus) return { canEdit: false }
+  if (role === 'campus_lead' || role === 'outreach_head') return { canEdit: true }
+  if (role === 'exec_lead') return { canEdit: true, restrictTo: EXEC_LEAD_SCHOOL_STATUSES }
+  return { canEdit: false }
 }
 
 /**

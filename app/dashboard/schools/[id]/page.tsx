@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
-import { canForEntity } from '@/lib/auth/rbac'
+import { canForEntity, schoolStatusAccess } from '@/lib/auth/rbac'
 import { getSchool } from '@/lib/data/schools'
 import { SchoolDetailView } from '@/components/schools/school-detail'
 
@@ -17,5 +17,6 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
   if (!school) notFound()
 
   const canEdit = canForEntity(user.role, 'edit_school', user.campus_id, school.campus_id)
-  return <SchoolDetailView school={school} basePath="/dashboard/schools" canEdit={canEdit} />
+  const statusAccess = schoolStatusAccess(user.role, user.campus_id, school.campus_id)
+  return <SchoolDetailView school={school} basePath="/dashboard/schools" canEdit={canEdit} statusAccess={statusAccess} />
 }

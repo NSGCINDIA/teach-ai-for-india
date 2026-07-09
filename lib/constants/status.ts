@@ -66,6 +66,16 @@ export function schoolTransitionNeedsNote(from: SchoolStatus, to: SchoolStatus):
   return SCHOOL_PIPELINE.indexOf(to) < SCHOOL_PIPELINE.indexOf(from)
 }
 
+/**
+ * Execution-stage statuses exec_lead may move a school between (own campus
+ * only) — session delivery once a school is approved, not the earlier
+ * outreach/approval stages. MUST mirror change_school_status() in
+ * 0024_exec_lead_school_status.sql.
+ */
+export const EXEC_LEAD_SCHOOL_STATUSES: SchoolStatus[] = [
+  'approval_received', 'session_scheduled', 'session_in_progress', 'completed',
+]
+
 export const SESSION_STATUS_META: Record<SessionStatus, { label: string; tone: StatusTone }> = {
   planned:        { label: 'Planned',         tone: 'neutral' },
   in_progress:    { label: 'In Progress',     tone: 'progress' },

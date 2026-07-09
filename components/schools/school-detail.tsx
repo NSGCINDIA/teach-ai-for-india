@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft, ClipboardList, History, Mail, MapPin, Pencil, Phone, Star, Users } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
+import type { SchoolStatusAccess } from '@/lib/auth/rbac'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { formatDate, formatDateTime } from '@/lib/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,15 +19,17 @@ const PLANNING_STATUSES = new Set<SchoolDetail['status']>([
 interface SchoolDetailProps {
   school: SchoolDetail
   basePath: string
-  /** May the signed-in user edit / move this school (campus-scoped)? */
+  /** May the signed-in user edit the profile / contacts / planning (campus-scoped)? */
   canEdit: boolean
+  /** Separate, possibly-narrower access to the pipeline status control (e.g. exec_lead). */
+  statusAccess: SchoolStatusAccess
 }
 
 const TYPE_LABEL: Record<string, string> = {
   government: 'Government', government_aided: 'Government Aided', private: 'Private',
 }
 
-export function SchoolDetailView({ school, basePath, canEdit }: SchoolDetailProps) {
+export function SchoolDetailView({ school, basePath, canEdit, statusAccess }: SchoolDetailProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -121,7 +124,12 @@ export function SchoolDetailView({ school, basePath, canEdit }: SchoolDetailProp
           <Card>
             <CardHeader><CardTitle className="text-base">Pipeline</CardTitle></CardHeader>
             <CardContent>
-              <StatusControl schoolId={school.id} current={school.status} canEdit={canEdit} />
+              <StatusControl
+                schoolId={school.id}
+                current={school.status}
+                canEdit={statusAccess.canEdit}
+                restrictTo={statusAccess.restrictTo}
+              />
             </CardContent>
           </Card>
 
