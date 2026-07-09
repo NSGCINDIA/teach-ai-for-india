@@ -7,18 +7,15 @@ export type CertificateItem = CertificateRow & {
   campus: { name: string } | null
 }
 
-/** The signed-in volunteer's own certificates, newest first. */
-export async function listMyCertificates(): Promise<CertificateItem[]> {
+/** A volunteer's own certificates, newest first (RLS: self, or a lead/admin of their campus). */
+export async function listMyCertificates(volunteerId: string): Promise<CertificateItem[]> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return []
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('certificates')
     .select('*, volunteer:users!certificates_volunteer_id_fkey(id, full_name), issuer:users!certificates_issued_by_fkey(full_name), campus:campuses(name)')
-    .eq('volunteer_id', user.id)
+    .eq('volunteer_id', volunteerId)
     .order('issued_at', { ascending: false })
+  if (error) throw new Error(`listMyCertificates failed: ${error.message}`)
   return (data as unknown as CertificateItem[] | null) ?? []
 }
 

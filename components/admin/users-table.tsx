@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState, useActionState } from 'react'
 import { Loader2, Search, ShieldCheck } from 'lucide-react'
 import type { AdminUser } from '@/lib/data/admin'
@@ -20,9 +21,11 @@ interface Props {
   /** True only for super_admin — enables role/status mutation (PRD §7.2). */
   canManage: boolean
   currentUserId: string
+  /** True only for super_admin/mgmt_admin — only they get the volunteer detail drill-down. */
+  canViewDetails: boolean
 }
 
-export function UsersTable({ users, campuses, canManage, currentUserId }: Props) {
+export function UsersTable({ users, campuses, canManage, currentUserId, canViewDetails }: Props) {
   const [q, setQ] = useState('')
   const [role, setRole] = useState<UserRole | ''>('')
   const [campus, setCampus] = useState('')
@@ -72,7 +75,7 @@ export function UsersTable({ users, campuses, canManage, currentUserId }: Props)
             </thead>
             <tbody>
               {filtered.map((u) => (
-                <UserRowItem key={u.id} user={u} canManage={canManage} isSelf={u.id === currentUserId} />
+                <UserRowItem key={u.id} user={u} canManage={canManage} isSelf={u.id === currentUserId} canViewDetails={canViewDetails} />
               ))}
             </tbody>
           </table>
@@ -82,7 +85,9 @@ export function UsersTable({ users, campuses, canManage, currentUserId }: Props)
   )
 }
 
-function UserRowItem({ user, canManage, isSelf }: { user: AdminUser; canManage: boolean; isSelf: boolean }) {
+function UserRowItem({
+  user, canManage, isSelf, canViewDetails,
+}: { user: AdminUser; canManage: boolean; isSelf: boolean; canViewDetails: boolean }) {
   const [roleState, roleAction, roleWorking] = useActionState<AdminActionState, FormData>(changeUserRole, {})
   const [activeState, activeAction, activeWorking] = useActionState<AdminActionState, FormData>(setUserActive, {})
   const editable = canManage && !isSelf
@@ -91,7 +96,13 @@ function UserRowItem({ user, canManage, isSelf }: { user: AdminUser; canManage: 
   return (
     <tr className="border-b last:border-0 align-middle hover:bg-accent/40">
       <td className="p-3">
-        <div className="font-medium">{user.full_name}</div>
+        {canViewDetails ? (
+          <Link href={`/dashboard/volunteers/${user.id}`} className="font-medium text-brand hover:underline">
+            {user.full_name}
+          </Link>
+        ) : (
+          <span className="font-medium">{user.full_name}</span>
+        )}
         <div className="text-xs text-muted-foreground">{user.email}</div>
         {(roleState.error || activeState.error) && (
           <div role="alert" className="mt-1 text-xs text-error">{roleState.error || activeState.error}</div>

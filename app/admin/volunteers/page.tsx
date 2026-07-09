@@ -40,7 +40,7 @@ export default async function AdminVolunteersPage() {
         </p>
       )}
 
-      <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} />
+      <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} canViewDetails={isAdmin(user.role)} />
     </div>
   )
 }

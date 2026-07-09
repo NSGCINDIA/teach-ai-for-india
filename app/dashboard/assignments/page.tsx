@@ -17,7 +17,7 @@ export default async function AssignmentsPage() {
   const user = await requireAccess('/dashboard/assignments')
   const isCoordinator = can(user.role, 'assign_volunteers') !== false
 
-  return isCoordinator ? <CoordinatorBoard campusId={user.campus_id} /> : <MyAssignments />
+  return isCoordinator ? <CoordinatorBoard campusId={user.campus_id} /> : <MyAssignments userId={user.id} />
 }
 
 /** Volunteer Lead / Campus Lead coordination board across the campus. */
@@ -60,7 +60,13 @@ async function CoordinatorBoard({ campusId }: { campusId: string | null }) {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id} className="border-b last:border-0 hover:bg-accent/40">
-                  <td className="p-3 font-medium">{r.volunteer?.full_name ?? '—'}</td>
+                  <td className="p-3 font-medium">
+                    {r.volunteer ? (
+                      <Link href={`/dashboard/volunteers/${r.volunteer.id}`} className="text-brand hover:underline">
+                        {r.volunteer.full_name}
+                      </Link>
+                    ) : '—'}
+                  </td>
                   <td className="p-3">
                     {r.session ? (
                       <Link href={`/dashboard/sessions/${r.session.id}`} className="text-brand hover:underline">
@@ -84,8 +90,8 @@ async function CoordinatorBoard({ campusId }: { campusId: string | null }) {
 }
 
 /** A volunteer's own assignments with accept/decline controls. */
-async function MyAssignments() {
-  const rows = await listMyAssignments()
+async function MyAssignments({ userId }: { userId: string }) {
+  const rows = await listMyAssignments(userId)
   const pending = rows.filter((r) => r.status === 'assigned')
   const responded = rows.filter((r) => r.status !== 'assigned')
 

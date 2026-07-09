@@ -71,6 +71,17 @@ export async function listAdminUsers(filters: UserFilters = {}): Promise<AdminUs
   return (data as unknown as AdminUser[]) ?? []
 }
 
+export async function getAdminUser(id: string): Promise<AdminUser | null> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('users')
+    .select('*, campus:campuses!users_campus_id_fkey(id, name)')
+    .eq('id', id)
+    .maybeSingle()
+  if (error) throw new Error(`getAdminUser failed: ${error.message}`)
+  return (data as unknown as AdminUser) ?? null
+}
+
 // ─── Self-signup requests (PRD §7.2) ─────────────────────────────────────────
 export type PendingSignup = SignupRequestRow & { campus: { id: string; name: string } | null }
 

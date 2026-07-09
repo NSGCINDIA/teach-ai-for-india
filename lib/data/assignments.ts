@@ -36,20 +36,16 @@ export async function getSessionAssignments(sessionId: string): Promise<Assignme
   return (data as unknown as AssignmentWithVolunteer[] | null) ?? []
 }
 
-/** The signed-in volunteer's own assignments, upcoming first. */
-export async function listMyAssignments(): Promise<MyAssignment[]> {
+/** A volunteer's own assignments, upcoming first (RLS: self, or a lead/admin of their campus). */
+export async function listMyAssignments(userId: string): Promise<MyAssignment[]> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return []
   const { data, error } = await supabase
     .from('session_assignments')
     .select(
       `*, session:sessions(id, date, topic, status, start_time, end_time,
          school:schools(id, name, district), campus:campuses(id, name))`,
     )
-    .eq('volunteer_id', user.id)
+    .eq('volunteer_id', userId)
     .order('assigned_at', { ascending: false })
     .limit(200)
   if (error) throw new Error(`listMyAssignments failed: ${error.message}`)

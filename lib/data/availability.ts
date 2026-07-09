@@ -5,20 +5,17 @@ export type CampusAvailability = AvailabilityRow & {
   volunteer: { id: string; full_name: string } | null
 }
 
-/** The signed-in volunteer's own availability marks (today onward). */
-export async function listMyAvailability(fromDate: string): Promise<AvailabilityRow[]> {
+/** A volunteer's own availability marks, fromDate onward (RLS: self, or a lead/admin of their campus). */
+export async function listMyAvailability(volunteerId: string, fromDate: string): Promise<AvailabilityRow[]> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return []
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('volunteer_availability')
     .select('*')
-    .eq('volunteer_id', user.id)
+    .eq('volunteer_id', volunteerId)
     .gte('date', fromDate)
     .order('date', { ascending: true })
     .limit(200)
+  if (error) throw new Error(`listMyAvailability failed: ${error.message}`)
   return (data as AvailabilityRow[] | null) ?? []
 }
 
