@@ -33,9 +33,11 @@ const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
     assign_volunteers: 'all', edit_cms: 'all', manage_user_roles: 'all', export_data: 'all',
   },
   mgmt_admin: {
-    view_all_campuses: 'all', edit_school: 'all', create_session: 'all',
+    // mgmt_admin is a review/oversight role: it views sessions, schools, and
+    // evidence rather than creating/uploading them (super_admin still can).
+    view_all_campuses: 'all', edit_school: 'all', create_session: false,
     submit_reimbursement: false, approve_reimbursement: 'all',
-    view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: 'all',
+    view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: false,
     assign_volunteers: 'all', edit_cms: 'all', manage_user_roles: false, export_data: 'all',
   },
   campus_lead: {

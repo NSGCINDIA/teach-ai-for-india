@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
-import { canEditSession, canForEntity } from '@/lib/auth/rbac'
+import { canEditSession, canForEntity, can } from '@/lib/auth/rbac'
 import { getSession, listTeamMembers } from '@/lib/data/sessions'
 import { getSessionAssignments } from '@/lib/data/assignments'
 import { listSessionEvidence } from '@/lib/data/evidence'
@@ -19,6 +19,7 @@ export default async function AdminSessionPage({ params }: { params: Promise<{ i
   if (!session) notFound()
 
   const canEdit = canEditSession(user.role, user.id, user.campus_id, session)
+  const canUploadEvidence = canEdit && can(user.role, 'upload_evidence') !== false
   const canAssign = canForEntity(user.role, 'assign_volunteers', user.campus_id, session.campus_id)
   const [teamMembers, assignments, evidence] = await Promise.all([
     listTeamMembers(session.campus_id),
@@ -42,6 +43,7 @@ export default async function AdminSessionPage({ params }: { params: Promise<{ i
       basePath="/admin/sessions"
       schoolBasePath="/admin/schools"
       canEdit={canEdit}
+      canUploadEvidence={canUploadEvidence}
     />
   )
 }

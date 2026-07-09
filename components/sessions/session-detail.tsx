@@ -24,11 +24,12 @@ interface Props {
   basePath: string
   schoolBasePath: string
   canEdit: boolean
+  canUploadEvidence: boolean
 }
 
 export function SessionDetailView({
   session, members, assignments, assignCandidates, canAssign,
-  evidence, basePath, schoolBasePath, canEdit,
+  evidence, basePath, schoolBasePath, canEdit, canUploadEvidence,
 }: Props) {
   const field = SESSION_TYPE_FIELD[session.session_type]
   const detail = session.type_details?.[field.key] as string | undefined
@@ -104,7 +105,7 @@ export function SessionDetailView({
               <p className="text-xs text-muted-foreground">
                 Reporting needs at least 1 photo and 1 attendance document. {evidence.length} file{evidence.length === 1 ? '' : 's'} attached.
               </p>
-              {canEdit && (
+              {canUploadEvidence && (
                 <EvidenceUploader
                   entityType="session"
                   entityId={session.id}

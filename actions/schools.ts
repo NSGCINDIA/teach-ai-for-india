@@ -33,7 +33,7 @@ export async function createSchool(
   formData: FormData,
 ): Promise<SchoolActionState> {
   const user = await requireUser('/dashboard/schools')
-  if (can(user.role, 'edit_school') === false) {
+  if (can(user.role, 'edit_school') === false || user.role === 'mgmt_admin') {
     return { error: 'You do not have permission to add schools.' }
   }
 
