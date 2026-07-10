@@ -147,6 +147,7 @@ export function SchoolDetailView({
               <CardContent>
                 <VisitRequestPanel
                   schoolId={school.id}
+                  schoolStatus={school.status}
                   requests={visitRequests}
                   roster={roster}
                   budget={budget}

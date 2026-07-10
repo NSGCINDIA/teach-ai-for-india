@@ -11,7 +11,7 @@ import {
 import { roleLabel } from '@/lib/auth/roles'
 import type { OutreachVisitRequestAccess } from '@/lib/auth/rbac'
 import { formatCurrency, formatDate } from '@/lib/format'
-import type { OutreachVisitRequestRow, CampusBudgetRow, ApprovalStatus } from '@/types/database'
+import type { OutreachVisitRequestRow, CampusBudgetRow, ApprovalStatus, SchoolStatus } from '@/types/database'
 import type { TeamMember } from '@/lib/data/sessions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,6 +21,7 @@ import { StatusBadge } from '@/components/shared/status-badge'
 
 interface VisitRequestPanelProps {
   schoolId: string
+  schoolStatus: SchoolStatus
   requests: OutreachVisitRequestRow[]
   roster: TeamMember[]
   budget: CampusBudgetRow | null
@@ -28,10 +29,15 @@ interface VisitRequestPanelProps {
   access: OutreachVisitRequestAccess
 }
 
-export function VisitRequestPanel({ schoolId, requests, roster, budget, quarter, access }: VisitRequestPanelProps) {
+export function VisitRequestPanel({ schoolId, schoolStatus, requests, roster, budget, quarter, access }: VisitRequestPanelProps) {
   const active = requests.find((r) => r.status === 'pending')
+  const mostRecent = requests[0]
   const history = requests.filter((r) => r.id !== active?.id)
   const rosterById = new Map(roster.map((m) => [m.id, m]))
+  // Mirrors create_outreach_visit_request()'s own gate — filing a NEW request
+  // is only legal while the school hasn't moved past outreach_requested, so
+  // this form must stop reappearing once the school has advanced further.
+  const canFileNew = access.canCreate && (schoolStatus === 'lead_identified' || schoolStatus === 'outreach_requested')
 
   return (
     <div className="space-y-5">
@@ -44,8 +50,16 @@ export function VisitRequestPanel({ schoolId, requests, roster, budget, quarter,
           quarter={quarter}
           access={access}
         />
-      ) : access.canCreate ? (
+      ) : canFileNew ? (
         <RequestForm schoolId={schoolId} roster={roster} />
+      ) : mostRecent?.status === 'approved' ? (
+        <p className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
+          <CheckCircle2 className="size-4 shrink-0" /> Both approvals are in — the visit may proceed.
+        </p>
+      ) : mostRecent?.status === 'rejected' ? (
+        <p className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
+          <AlertCircle className="size-4 shrink-0" /> This visit request was rejected.
+        </p>
       ) : (
         <p className="text-sm text-muted-foreground">No open visit request for this school.</p>
       )}
