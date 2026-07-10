@@ -1,9 +1,14 @@
 import { z } from 'zod'
 
+const visitedAt = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Enter the visit date and time')
+  .refine((s) => new Date(s) >= new Date(), 'Please check date and time')
+
 /** Log an onboarding visit — who visited, when, and what happened. */
 export const logSchoolVisitSchema = z.object({
   school_id: z.string().uuid('Select a school'),
-  visited_at: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Enter the visit date and time'),
+  visited_at: visitedAt,
   notes: z.string().trim().max(2000).optional().or(z.literal('')),
   team_member_ids: z
     .string()
@@ -24,7 +29,7 @@ export type LogSchoolVisitInput = z.infer<typeof logSchoolVisitSchema>
 /** Edit the one existing visit record for a school — same shape, keyed by visit id. */
 export const updateSchoolVisitSchema = z.object({
   visit_id: z.string().uuid('Select a visit'),
-  visited_at: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Enter the visit date and time'),
+  visited_at: visitedAt,
   notes: z.string().trim().max(2000).optional().or(z.literal('')),
   team_member_ids: z
     .string()
