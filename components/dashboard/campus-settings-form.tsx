@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { saveCampusSettings, type CampusSettingsActionState } from '@/actions/campus-settings'
+import { fieldValue } from '@/lib/actions/form-values'
 import type { CampusRow } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,7 +30,7 @@ export function CampusSettingsForm({ campus }: { campus: CampusRow }) {
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description" name="description" rows={5}
-          defaultValue={campus.description ?? ''}
+          defaultValue={fieldValue(state, 'description', campus.description ?? '')}
           placeholder="A short public-facing description of this campus's program…"
         />
       </div>
@@ -38,7 +39,7 @@ export function CampusSettingsForm({ campus }: { campus: CampusRow }) {
         <Label htmlFor="hero_image_url">Hero image URL</Label>
         <Input
           id="hero_image_url" name="hero_image_url" type="url"
-          defaultValue={campus.hero_image_url ?? ''}
+          defaultValue={fieldValue(state, 'hero_image_url', campus.hero_image_url ?? '')}
           placeholder="https://…"
         />
       </div>

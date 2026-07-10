@@ -11,9 +11,14 @@ import { sendEmail } from '@/lib/email/resend'
 import { clientIp, failureCount, recordFailure, clearFailures, rateLimit } from '@/lib/security/rate-limit'
 import { escapeHtml } from '@/lib/security/sanitize'
 import { signInSchema, emailSchema, setPasswordSchema, inviteSchema, signupSchema } from '@/lib/validations/auth'
+import { formValues } from '@/lib/actions/form-values'
 import type { UserRole } from '@/types/database'
 
-export type ActionState = { error?: string; ok?: boolean; message?: string }
+export type ActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. Never includes password/confirm. */
+  values?: Record<string, string>
+}
 
 const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
@@ -35,11 +40,14 @@ function safeNextPath(next: string): string | null {
 
 // ─── Sign in (email + password) ──────────────────────────────────────────────
 export async function signIn(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  // Only the email is ever echoed back on error — never the password (issue: form-reset fix).
+  const values = { email: String(formData.get('email') ?? '') }
+
   const parsed = signInSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
   })
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   // Throttle repeated FAILED attempts per account and per IP (issue #10).
   const ip = clientIp(await headers())
@@ -50,7 +58,7 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
     failureCount(acctKey, LOGIN_WINDOW_MS) >= LOGIN_MAX_PER_ACCOUNT ||
     failureCount(ipKey, LOGIN_WINDOW_MS) >= LOGIN_MAX_PER_IP
   ) {
-    return { error: 'Too many failed sign-in attempts. Please wait a few minutes and try again.' }
+    return { error: 'Too many failed sign-in attempts. Please wait a few minutes and try again.', values }
   }
 
   const supabase = await createClient()
@@ -58,7 +66,7 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
   if (error) {
     recordFailure(acctKey)
     recordFailure(ipKey)
-    return { error: 'Invalid email or password.' }
+    return { error: 'Invalid email or password.', values }
   }
   clearFailures(acctKey)
   clearFailures(ipKey)
@@ -73,12 +81,12 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
   // No profile row → a self-signup that an admin hasn't approved yet (PRD §7.2).
   if (!profile) {
     await supabase.auth.signOut()
-    return { error: 'Your account is awaiting admin approval. You’ll be able to log in once it’s approved.' }
+    return { error: 'Your account is awaiting admin approval. You’ll be able to log in once it’s approved.', values }
   }
 
   if (profile.is_active === false) {
     await supabase.auth.signOut()
-    return { error: 'Your account is inactive. Contact your admin.' }
+    return { error: 'Your account is inactive. Contact your admin.', values }
   }
 
   await supabase.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', data.user.id)
@@ -96,8 +104,10 @@ export async function signOut(): Promise<void> {
 
 // ─── Forgot password — send reset email ──────────────────────────────────────
 export async function requestPasswordReset(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const values = formValues(formData)
+
   const parsed = emailSchema.safeParse({ email: formData.get('email') })
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const ip = clientIp(await headers())
   const email = parsed.data.email.toLowerCase()
@@ -107,7 +117,7 @@ export async function requestPasswordReset(_prev: ActionState, formData: FormDat
   const emailVerdict = rateLimit(`reset-email:${email}`, 3, 15 * 60 * 1000)
 
   if (!ipVerdict.allowed || !emailVerdict.allowed) {
-    return { error: 'Too many password reset requests. Please wait a few minutes and try again.' }
+    return { error: 'Too many password reset requests. Please wait a few minutes and try again.', values }
   }
 
   // Graceful degradation when Supabase is not configured (PRD §15 / README)
@@ -121,7 +131,7 @@ export async function requestPasswordReset(_prev: ActionState, formData: FormDat
     if (mockUsers.includes(email)) {
       return { ok: true, message: 'If that email exists, a reset link is on its way.' }
     }
-    return { error: "This email isn't registered. Please create an account first." }
+    return { error: "This email isn't registered. Please create an account first.", values }
   }
 
   const admin = createAdminClient()
@@ -132,11 +142,11 @@ export async function requestPasswordReset(_prev: ActionState, formData: FormDat
     .maybeSingle()
 
   if (checkError) {
-    return { error: 'Something went wrong. Please try again.' }
+    return { error: 'Something went wrong. Please try again.', values }
   }
 
   if (!userExists) {
-    return { error: "This email isn't registered. Please create an account first." }
+    return { error: "This email isn't registered. Please create an account first.", values }
   }
 
   const supabase = await createClient()
@@ -181,6 +191,17 @@ async function callerIp(): Promise<string> {
 export async function requestSignup(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const admin = createAdminClient()
 
+  // Echoed back on error so the form can repopulate — deliberately built by hand
+  // (not formValues) so password/confirm never enter the returned state.
+  const values = {
+    full_name: String(formData.get('full_name') ?? ''),
+    niat_id: String(formData.get('niat_id') ?? ''),
+    phone: String(formData.get('phone') ?? ''),
+    campus_id: String(formData.get('campus_id') ?? ''),
+    requested_role: String(formData.get('requested_role') ?? ''),
+    email: String(formData.get('email') ?? ''),
+  }
+
   // Rate limit BEFORE validation (issue #9): the attempt is recorded up-front so
   // that even submissions which fail validation count toward the per-IP daily
   // cap — otherwise the limit could be bypassed by intentionally failing first.
@@ -192,7 +213,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     .eq('ip_address', ip)
     .gte('created_at', since)
   if ((count ?? 0) >= SIGNUP_MAX_PER_DAY) {
-    return { error: 'Too many signup attempts from this device. Please try again tomorrow.' }
+    return { error: 'Too many signup attempts from this device. Please try again tomorrow.', values }
   }
   await admin.from('signup_attempts').insert({ ip_address: ip })
 
@@ -206,7 +227,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     password: formData.get('password'),
     confirm: formData.get('confirm'),
   })
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   const { full_name, niat_id, phone, campus_id, requested_role, email, password } = parsed.data
 
   // Block obvious repeats early (a live request or an existing account).
@@ -217,7 +238,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     .ilike('email', email)
     .maybeSingle()
   if (pending) {
-    return { error: 'A request with this email is already awaiting admin approval.' }
+    return { error: 'A request with this email is already awaiting admin approval.', values }
   }
 
   // Create the credential up-front (so the applicant sets their own password),
@@ -230,9 +251,9 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
   })
   if (createErr || !created?.user) {
     if (/already|registered|exists/i.test(createErr?.message ?? '')) {
-      return { error: 'An account with this email already exists. Try logging in instead.' }
+      return { error: 'An account with this email already exists. Try logging in instead.', values }
     }
-    return { error: 'Could not submit your request. Please try again.' }
+    return { error: 'Could not submit your request. Please try again.', values }
   }
 
   const { error: reqErr } = await admin.from('signup_requests').insert({
@@ -248,7 +269,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
   if (reqErr) {
     // Roll back the inert auth user so a retry isn't blocked by a dangling credential.
     await admin.auth.admin.deleteUser(created.user.id)
-    return { error: 'Could not submit your request. Please try again.' }
+    return { error: 'Could not submit your request. Please try again.', values }
   }
 
   // Notify every active admin — in-app feed + email.
@@ -289,8 +310,9 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
 
 // ─── Admin: invite a new team member (US-AUTH-01) ────────────────────────────
 export async function inviteUser(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const values = formValues(formData)
   const me = await getSessionUser()
-  if (!me || !isAdmin(me.role)) return { error: 'Not authorized.' }
+  if (!me || !isAdmin(me.role)) return { error: 'Not authorized.', values }
 
   const parsed = inviteSchema.safeParse({
     email: formData.get('email'),
@@ -298,7 +320,7 @@ export async function inviteUser(_prev: ActionState, formData: FormData): Promis
     role: formData.get('role'),
     campus_id: formData.get('campus_id') ?? '',
   })
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const admin = createAdminClient()
   const { error } = await admin.auth.admin.inviteUserByEmail(parsed.data.email, {
@@ -310,7 +332,7 @@ export async function inviteUser(_prev: ActionState, formData: FormData): Promis
     },
     redirectTo: `${siteUrl()}/auth/callback?next=/accept-invite`,
   })
-  if (error) return { error: error.message }
+  if (error) return { error: error.message, values }
 
   await sendEmail({
     to: parsed.data.email,

@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { reviewBudgetIncreaseRequest, type BudgetRequestActionState } from '@/actions/budget-requests'
+import { fieldValue } from '@/lib/actions/form-values'
 import { formatCurrency } from '@/lib/format'
 import type { BudgetRequestLite } from '@/lib/data/dashboard'
 import { Button } from '@/components/ui/button'
@@ -74,7 +75,7 @@ function BudgetRequestRow({ request, canReview }: { request: BudgetRequestLite; 
           </div>
 
           {decision === 'rejected' && (
-            <Textarea name="note" rows={2} required placeholder="Reason for rejecting (required)" />
+            <Textarea name="note" rows={2} required defaultValue={fieldValue(state, 'note', '')} placeholder="Reason for rejecting (required)" />
           )}
 
           <Button type="submit" size="sm" disabled={pending || !decision}>

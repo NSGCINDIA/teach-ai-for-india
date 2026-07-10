@@ -4,6 +4,7 @@ import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { createSession, updateSession, type SessionActionState } from '@/actions/sessions'
+import { fieldValue } from '@/lib/actions/form-values'
 import { SESSION_TYPE_META, SESSION_TYPE_FIELD } from '@/lib/constants/sessions'
 import type { SessionRow, SessionType } from '@/types/database'
 import { Button } from '@/components/ui/button'
@@ -49,7 +50,7 @@ export function SessionForm({ mode, session, schools, cancelHref }: SessionFormP
 
       <Section title="Plan">
         <Field label="School" required className="sm:col-span-2">
-          <select name="school_id" required className={SELECT_CLASS} defaultValue={session?.school_id ?? ''}>
+          <select name="school_id" required className={SELECT_CLASS} defaultValue={fieldValue(state, 'school_id', session?.school_id ?? '')}>
             <option value="">— Select school —</option>
             {schools.map((s) => <option key={s.id} value={s.id}>{s.name} · {s.district}</option>)}
           </select>
@@ -61,42 +62,42 @@ export function SessionForm({ mode, session, schools, cancelHref }: SessionFormP
           <p className="mt-1 text-xs text-muted-foreground">{SESSION_TYPE_META[type].blurb}</p>
         </Field>
         <Field label="Date" required>
-          <Input type="date" name="date" required defaultValue={session?.date ?? ''} />
+          <Input type="date" name="date" required defaultValue={fieldValue(state, 'date', session?.date ?? '')} />
         </Field>
         <Field label="Start time">
-          <Input type="time" name="start_time" defaultValue={session?.start_time?.slice(0, 5) ?? ''} />
+          <Input type="time" name="start_time" defaultValue={fieldValue(state, 'start_time', session?.start_time?.slice(0, 5) ?? '')} />
         </Field>
         <Field label="End time">
-          <Input type="time" name="end_time" defaultValue={session?.end_time?.slice(0, 5) ?? ''} />
+          <Input type="time" name="end_time" defaultValue={fieldValue(state, 'end_time', session?.end_time?.slice(0, 5) ?? '')} />
         </Field>
         <Field label="Topic" required className="sm:col-span-2">
-          <Input name="topic" required defaultValue={session?.topic ?? ''} placeholder="What this session covers" />
+          <Input name="topic" required defaultValue={fieldValue(state, 'topic', session?.topic ?? '')} placeholder="What this session covers" />
         </Field>
       </Section>
 
       {isEdit && (
         <Section title="Report">
           <Field label="Students present">
-            <Input type="number" name="student_count" min={0} defaultValue={session?.student_count ?? ''} />
+            <Input type="number" name="student_count" min={0} defaultValue={fieldValue(state, 'student_count', String(session?.student_count ?? ''))} />
           </Field>
           <Field label="Volunteers present">
-            <Input type="number" name="volunteer_count" min={0} defaultValue={session?.volunteer_count ?? ''} />
+            <Input type="number" name="volunteer_count" min={0} defaultValue={fieldValue(state, 'volunteer_count', String(session?.volunteer_count ?? ''))} />
             <p className="mt-1 text-xs text-muted-foreground">Auto-set from attendance when you save the roster.</p>
           </Field>
           <Field label={field.label} className="sm:col-span-2">
-            <Textarea name="type_detail" rows={2} defaultValue={existingDetail} placeholder={field.placeholder} />
+            <Textarea name="type_detail" rows={2} defaultValue={fieldValue(state, 'type_detail', existingDetail)} placeholder={field.placeholder} />
           </Field>
           <Field label="What happened" className="sm:col-span-2">
-            <Textarea name="notes" rows={3} defaultValue={session?.notes ?? ''} placeholder="Session narrative" />
+            <Textarea name="notes" rows={3} defaultValue={fieldValue(state, 'notes', session?.notes ?? '')} placeholder="Session narrative" />
           </Field>
           <Field label="Challenges">
-            <Textarea name="challenges" rows={2} defaultValue={session?.challenges ?? ''} />
+            <Textarea name="challenges" rows={2} defaultValue={fieldValue(state, 'challenges', session?.challenges ?? '')} />
           </Field>
           <Field label="Next steps">
-            <Textarea name="next_steps" rows={2} defaultValue={session?.next_steps ?? ''} />
+            <Textarea name="next_steps" rows={2} defaultValue={fieldValue(state, 'next_steps', session?.next_steps ?? '')} />
           </Field>
           <Field label="Improvement notes" className="sm:col-span-2">
-            <Textarea name="improvement_notes" rows={2} defaultValue={session?.improvement_notes ?? ''} />
+            <Textarea name="improvement_notes" rows={2} defaultValue={fieldValue(state, 'improvement_notes', session?.improvement_notes ?? '')} />
           </Field>
         </Section>
       )}

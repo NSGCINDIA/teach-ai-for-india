@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
 import { changeSessionStatus, type SessionActionState } from '@/actions/sessions'
+import { fieldValue } from '@/lib/actions/form-values'
 import { SESSION_STATUS_META, SESSION_TRANSITIONS } from '@/lib/constants/status'
 import type { SessionStatus } from '@/types/database'
 import { Button } from '@/components/ui/button'
@@ -63,7 +64,7 @@ export function SessionStatusControl({ sessionId, current, canEdit }: Props) {
           {needsNote && (
             <div className="space-y-1.5">
               <Label htmlFor="s-note">Reason <span className="text-error">*</span></Label>
-              <Textarea id="s-note" name="note" rows={2} required placeholder="Why is this session cancelled?" />
+              <Textarea id="s-note" name="note" rows={2} required defaultValue={fieldValue(state, 'note', '')} placeholder="Why is this session cancelled?" />
             </div>
           )}
 

@@ -7,6 +7,7 @@ import {
   reviewOutreachRequest,
   type OutreachRequestActionState,
 } from '@/actions/outreach-requests'
+import { fieldValue } from '@/lib/actions/form-values'
 import type { OutreachRequestAccess } from '@/lib/auth/rbac'
 import type { OutreachRequestRow, SchoolStatus } from '@/types/database'
 import { Button } from '@/components/ui/button'
@@ -133,7 +134,7 @@ function ReviewForm({ schoolId, requestId }: { schoolId: string; requestId: stri
       </div>
 
       {decision === 'rejected' && (
-        <Textarea name="note" rows={2} required placeholder="Reason for rejecting (required)" />
+        <Textarea name="note" rows={2} required defaultValue={fieldValue(state, 'note', '')} placeholder="Reason for rejecting (required)" />
       )}
 
       <Button type="submit" size="sm" disabled={pending || !decision}>
@@ -165,13 +166,13 @@ function RequestForm({ schoolId }: { schoolId: string }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="reason">Why pursue this school?</Label>
-        <Textarea id="reason" name="reason" rows={2} placeholder="Reason to pursue this lead" />
+        <Textarea id="reason" name="reason" rows={2} defaultValue={fieldValue(state, 'reason', '')} placeholder="Reason to pursue this lead" />
         <p className="text-xs text-muted-foreground">At least 10 characters.</p>
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="proposed_approach">Proposed approach (optional)</Label>
-        <Textarea id="proposed_approach" name="proposed_approach" rows={2} placeholder="First-contact strategy, timing, etc." />
+        <Textarea id="proposed_approach" name="proposed_approach" rows={2} defaultValue={fieldValue(state, 'proposed_approach', '')} placeholder="First-contact strategy, timing, etc." />
       </div>
 
       <Button type="submit" size="sm" disabled={pending}>

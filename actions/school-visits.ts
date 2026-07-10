@@ -4,8 +4,13 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/auth/user'
 import { logSchoolVisitSchema } from '@/lib/validations/school-visits'
+import { formValues } from '@/lib/actions/form-values'
 
-export type SchoolVisitActionState = { error?: string; ok?: boolean; message?: string }
+export type SchoolVisitActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 /**
  * Log an onboarding visit. The DB function enforces role + campus scope,
@@ -17,10 +22,11 @@ export async function logSchoolVisit(
   formData: FormData,
 ): Promise<SchoolVisitActionState> {
   const schoolId = String(formData.get('school_id') ?? '')
+  const values = formValues(formData)
   await requireUser(`/dashboard/schools/${schoolId}`)
 
   const parsed = logSchoolVisitSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('log_school_visit', {
@@ -29,7 +35,7 @@ export async function logSchoolVisit(
     p_notes: parsed.data.notes || undefined,
     p_team_member_ids: parsed.data.team_member_ids ?? [],
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath(`/admin/schools/${schoolId}`)

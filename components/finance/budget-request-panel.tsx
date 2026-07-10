@@ -7,6 +7,7 @@ import {
   createBudgetIncreaseRequest,
   type BudgetRequestActionState,
 } from '@/actions/budget-requests'
+import { fieldValue } from '@/lib/actions/form-values'
 import { formatCurrency, formatDate } from '@/lib/format'
 import type { CampusBudgetAccess } from '@/lib/auth/rbac'
 import type { BudgetIncreaseRequestRow } from '@/types/database'
@@ -84,11 +85,11 @@ function AllocateForm({ campusId }: { campusId: string }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="allocated_amount">Allocated amount</Label>
-        <Input id="allocated_amount" type="number" min={0} step="0.01" name="allocated_amount" />
+        <Input id="allocated_amount" type="number" min={0} step="0.01" name="allocated_amount" defaultValue={fieldValue(state, 'allocated_amount', '')} />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="note">Notes (optional)</Label>
-        <Textarea id="note" name="note" rows={2} />
+        <Textarea id="note" name="note" rows={2} defaultValue={fieldValue(state, 'note', '')} />
       </div>
 
       <Button type="submit" size="sm" disabled={pending}>Allocate budget</Button>
@@ -112,11 +113,11 @@ function RequestIncreaseForm({ campusId }: { campusId: string }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="requested_amount">Additional amount needed</Label>
-        <Input id="requested_amount" type="number" min={0} step="0.01" name="requested_amount" />
+        <Input id="requested_amount" type="number" min={0} step="0.01" name="requested_amount" defaultValue={fieldValue(state, 'requested_amount', '')} />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="reason">Reason</Label>
-        <Textarea id="reason" name="reason" rows={2} placeholder="Why is more budget needed?" />
+        <Textarea id="reason" name="reason" rows={2} defaultValue={fieldValue(state, 'reason', '')} placeholder="Why is more budget needed?" />
         <p className="text-xs text-muted-foreground">At least 10 characters.</p>
       </div>
 

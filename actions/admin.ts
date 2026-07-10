@@ -8,6 +8,7 @@ import { can, isAdmin } from '@/lib/auth/rbac'
 import { SELF_SIGNUP_ROLES } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
 import { escapeHtml } from '@/lib/security/sanitize'
+import { formValues } from '@/lib/actions/form-values'
 import {
   roleChangeSchema,
   userActiveSchema,
@@ -17,7 +18,11 @@ import {
 } from '@/lib/validations/admin'
 import type { UserRole } from '@/types/database'
 
-export type AdminActionState = { error?: string; ok?: boolean; message?: string }
+export type AdminActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 function nullify<T extends Record<string, unknown>>(obj: T): T {
   const out = { ...obj }
@@ -221,13 +226,14 @@ export async function reviewVolunteerApplication(_prev: AdminActionState, formDa
 // ─── Campus management (PRD §7.9 — campus config) ────────────────────────────
 export async function saveCampus(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const me = await requireUser('/admin/campuses')
-  if (!isAdmin(me.role)) return { error: 'Not authorized to manage campuses.' }
+  const values = formValues(formData)
+  if (!isAdmin(me.role)) return { error: 'Not authorized to manage campuses.', values }
 
   const parsed = campusSchema.safeParse({
     ...Object.fromEntries(formData),
     is_active: formData.get('is_active') === 'on' || formData.get('is_active') === 'true',
   })
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   const { id, ...fields } = nullify(parsed.data)
 
   const supabase = await createClient()
@@ -235,7 +241,7 @@ export async function saveCampus(_prev: AdminActionState, formData: FormData): P
   const { error } = id
     ? await supabase.from('campuses').update(payload).eq('id', id)
     : await supabase.from('campuses').insert(payload)
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath('/admin/campuses')
   revalidatePath('/campuses') // public listing
@@ -279,10 +285,11 @@ export async function saveContentBlock(_prev: AdminActionState, formData: FormDa
 // ─── Finance thresholds (PRD §7.6/§7.9) ──────────────────────────────────────
 export async function saveFinanceConfig(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const me = await requireUser('/admin/settings')
-  if (!isAdmin(me.role)) return { error: 'Not authorized to change settings.' }
+  const values = formValues(formData)
+  if (!isAdmin(me.role)) return { error: 'Not authorized to change settings.', values }
 
   const parsed = financeConfigSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase
@@ -291,7 +298,7 @@ export async function saveFinanceConfig(_prev: AdminActionState, formData: FormD
       { block_key: 'finance_config', content: { claim_window_days: parsed.data.claim_window_days }, updated_by: me.id },
       { onConflict: 'block_key' },
     )
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath('/admin/settings')
   return { ok: true, message: 'Finance settings saved.' }

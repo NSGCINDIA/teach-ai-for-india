@@ -8,6 +8,7 @@ import {
   reviewOutreachVisitRequestFinance,
   type OutreachVisitRequestActionState,
 } from '@/actions/outreach-visit-requests'
+import { fieldValue } from '@/lib/actions/form-values'
 import { roleLabel } from '@/lib/auth/roles'
 import type { OutreachVisitRequestAccess } from '@/lib/auth/rbac'
 import { formatCurrency, formatDate } from '@/lib/format'
@@ -218,7 +219,7 @@ function ReviewForm({
       </div>
 
       {decision === 'rejected' && (
-        <Textarea name="note" rows={2} required placeholder="Reason for rejecting (required)" />
+        <Textarea name="note" rows={2} required defaultValue={fieldValue(state, 'note', '')} placeholder="Reason for rejecting (required)" />
       )}
 
       <Button type="submit" size="sm" disabled={pending || !decision}>
@@ -255,18 +256,18 @@ function RequestForm({ schoolId, roster }: { schoolId: string; roster: TeamMembe
 
       <div className="space-y-1.5">
         <Label htmlFor="purpose">Purpose of visit</Label>
-        <Textarea id="purpose" name="purpose" rows={2} placeholder="Why this school, why now?" />
+        <Textarea id="purpose" name="purpose" rows={2} defaultValue={fieldValue(state, 'purpose', '')} placeholder="Why this school, why now?" />
         <p className="text-xs text-muted-foreground">At least 10 characters.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="proposed_visit_date">Proposed visit date</Label>
-          <Input id="proposed_visit_date" type="date" name="proposed_visit_date" />
+          <Input id="proposed_visit_date" type="date" name="proposed_visit_date" defaultValue={fieldValue(state, 'proposed_visit_date', '')} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="estimated_travel_cost">Estimated travel cost</Label>
-          <Input id="estimated_travel_cost" type="number" min={0} step="0.01" name="estimated_travel_cost" />
+          <Input id="estimated_travel_cost" type="number" min={0} step="0.01" name="estimated_travel_cost" defaultValue={fieldValue(state, 'estimated_travel_cost', '')} />
         </div>
       </div>
 

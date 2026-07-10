@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
 import { changeSchoolStatus, type SchoolActionState } from '@/actions/schools'
+import { fieldValue } from '@/lib/actions/form-values'
 import {
   SCHOOL_STATUS_META,
   SCHOOL_TRANSITIONS,
@@ -85,6 +86,7 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo }: Status
                 name="note"
                 rows={2}
                 required={needsNote}
+                defaultValue={fieldValue(state, 'note', '')}
                 placeholder={needsNote ? 'Required for archiving and backward moves' : 'Add context for the visit log'}
               />
             </div>

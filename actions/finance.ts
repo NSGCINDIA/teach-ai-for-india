@@ -8,8 +8,13 @@ import { can, isAdmin } from '@/lib/auth/rbac'
 import {
   claimSchema, claimUpdateSchema, submitClaimSchema, reviewClaimSchema, payClaimSchema,
 } from '@/lib/validations/finance'
+import { formValues } from '@/lib/actions/form-values'
 
-export type FinanceActionState = { error?: string; ok?: boolean; message?: string }
+export type FinanceActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 function humanize(msg: string): string {
   if (/must be linked to a session/i.test(msg)) return 'Pick the session this claim is for.'
@@ -26,12 +31,13 @@ export async function createClaim(
   _prev: FinanceActionState,
   formData: FormData,
 ): Promise<FinanceActionState> {
+  const values = formValues(formData)
   const user = await requireUser('/dashboard/reimbursements')
   if (can(user.role, 'submit_reimbursement') === false) {
-    return { error: 'Your role cannot submit reimbursement claims.' }
+    return { error: 'Your role cannot submit reimbursement claims.', values }
   }
   const parsed = claimSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   const d = parsed.data
 
   const supabase = await createClient()
@@ -51,7 +57,7 @@ export async function createClaim(
     })
     .select('id')
     .single()
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath('/dashboard/reimbursements')
   redirect(`/dashboard/reimbursements/${data.id}`)
@@ -61,8 +67,9 @@ export async function updateClaim(
   _prev: FinanceActionState,
   formData: FormData,
 ): Promise<FinanceActionState> {
+  const values = formValues(formData)
   const parsed = claimUpdateSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   await requireUser('/dashboard/reimbursements')
   const d = parsed.data
 
@@ -77,7 +84,7 @@ export async function updateClaim(
       reason: d.reason || null,
     })
     .eq('id', d.id)
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath(`/dashboard/reimbursements/${d.id}`)
   revalidatePath('/dashboard/reimbursements')
@@ -113,11 +120,12 @@ export async function reviewClaim(
   _prev: FinanceActionState,
   formData: FormData,
 ): Promise<FinanceActionState> {
+  const values = formValues(formData)
   const parsed = reviewClaimSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   const user = await requireUser()
   if (!isAdmin(user.role) && user.role !== 'finance_lead') {
-    return { error: 'Only Finance Lead or management can review claims.' }
+    return { error: 'Only Finance Lead or management can review claims.', values }
   }
   const d = parsed.data
 
@@ -127,7 +135,7 @@ export async function reviewClaim(
     p_decision: d.decision,
     p_note: d.reviewer_note || undefined,
   })
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath(`/admin/finance/claims/${d.id}`)
   revalidatePath('/admin/finance')
@@ -142,11 +150,12 @@ export async function payClaim(
   _prev: FinanceActionState,
   formData: FormData,
 ): Promise<FinanceActionState> {
+  const values = formValues(formData)
   const parsed = payClaimSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   const user = await requireUser()
   if (!isAdmin(user.role) && user.role !== 'finance_lead') {
-    return { error: 'Only Finance Lead or management can mark claims paid.' }
+    return { error: 'Only Finance Lead or management can mark claims paid.', values }
   }
   const d = parsed.data
 
@@ -157,7 +166,7 @@ export async function payClaim(
     p_payment_reference: d.payment_reference || undefined,
     p_payment_method: d.payment_method || undefined,
   })
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath(`/admin/finance/claims/${d.id}`)
   revalidatePath('/admin/finance')

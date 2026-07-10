@@ -7,8 +7,13 @@ import {
   createOutreachRequestSchema,
   reviewOutreachRequestSchema,
 } from '@/lib/validations/outreach-requests'
+import { formValues } from '@/lib/actions/form-values'
 
-export type OutreachRequestActionState = { error?: string; ok?: boolean; message?: string }
+export type OutreachRequestActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 /**
  * File an outreach request for a school still at Lead Identified. The DB
@@ -21,10 +26,11 @@ export async function createOutreachRequest(
   formData: FormData,
 ): Promise<OutreachRequestActionState> {
   const schoolId = String(formData.get('school_id') ?? '')
+  const values = formValues(formData)
   await requireUser(`/dashboard/schools/${schoolId}`)
 
   const parsed = createOutreachRequestSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('create_outreach_request', {
@@ -32,7 +38,7 @@ export async function createOutreachRequest(
     p_reason: parsed.data.reason,
     p_proposed_approach: parsed.data.proposed_approach || undefined,
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath(`/admin/schools/${schoolId}`)
@@ -45,10 +51,11 @@ export async function reviewOutreachRequest(
   formData: FormData,
 ): Promise<OutreachRequestActionState> {
   const schoolId = String(formData.get('school_id') ?? '')
+  const values = formValues(formData)
   await requireUser(`/dashboard/schools/${schoolId}`)
 
   const parsed = reviewOutreachRequestSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('review_outreach_request', {
@@ -56,7 +63,7 @@ export async function reviewOutreachRequest(
     p_decision: parsed.data.decision,
     p_note: parsed.data.note || undefined,
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath(`/admin/schools/${schoolId}`)

@@ -5,8 +5,13 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/auth/user'
 import { can } from '@/lib/auth/rbac'
 import { sessionPlanSchema, approvePlanSchema } from '@/lib/validations/plans'
+import { formValues } from '@/lib/actions/form-values'
 
-export type PlanActionState = { error?: string; ok?: boolean; message?: string }
+export type PlanActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 /** Empty strings → null so the DB stores NULL, not ''. Leaves booleans/numbers. */
 function nullifyStrings<T extends Record<string, unknown>>(obj: T): T {
@@ -28,13 +33,14 @@ export async function savePlan(
   formData: FormData,
 ): Promise<PlanActionState> {
   const schoolId = String(formData.get('school_id') ?? '')
+  const values = formValues(formData)
   const user = await requireUser(`/dashboard/schools/${schoolId}`)
   if (can(user.role, 'edit_school') === false) {
-    return { error: 'You do not have permission to edit planning.' }
+    return { error: 'You do not have permission to edit planning.', values }
   }
 
   const parsed = sessionPlanSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const payload = nullifyStrings(parsed.data)
 
@@ -49,7 +55,7 @@ export async function savePlan(
   const { error } = existingDraft
     ? await supabase.from('session_plans').update(payload).eq('id', existingDraft.id)
     : await supabase.from('session_plans').insert({ ...payload, created_by: user.id })
-  if (error) return { error: error.message }
+  if (error) return { error: error.message, values }
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath(`/admin/schools/${schoolId}`)

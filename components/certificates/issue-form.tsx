@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from 'react'
 import { Award, AlertCircle, Loader2 } from 'lucide-react'
 import { issueCertificate, type CertificateActionState } from '@/actions/certificates'
+import { fieldValue } from '@/lib/actions/form-values'
 import { CERTIFICATE_KIND_META } from '@/lib/constants/workspace'
 import type { CertificateKind } from '@/types/database'
 import type { TeamMember } from '@/lib/data/sessions'
@@ -43,7 +44,7 @@ export function IssueCertificateForm({ volunteers }: { volunteers: TeamMember[] 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="volunteer_id">Volunteer</Label>
-          <select id="volunteer_id" name="volunteer_id" required className={SELECT_CLASS} defaultValue="">
+          <select id="volunteer_id" name="volunteer_id" required className={SELECT_CLASS} defaultValue={fieldValue(state, 'volunteer_id', '')}>
             <option value="" disabled>— Select —</option>
             {volunteers.map((v) => (
               <option key={v.id} value={v.id}>{v.full_name}</option>
@@ -52,7 +53,7 @@ export function IssueCertificateForm({ volunteers }: { volunteers: TeamMember[] 
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="kind">Kind</Label>
-          <select id="kind" name="kind" className={SELECT_CLASS} defaultValue="participation">
+          <select id="kind" name="kind" className={SELECT_CLASS} defaultValue={fieldValue(state, 'kind', 'participation')}>
             {KINDS.map(([value, meta]) => (
               <option key={value} value={value}>{meta.label}</option>
             ))}
@@ -61,16 +62,16 @@ export function IssueCertificateForm({ volunteers }: { volunteers: TeamMember[] 
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="title">Title</Label>
-        <Input id="title" name="title" required placeholder="e.g. Outstanding Volunteer — Term 1" />
+        <Input id="title" name="title" required placeholder="e.g. Outstanding Volunteer — Term 1" defaultValue={fieldValue(state, 'title', '')} />
       </div>
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
         <div className="space-y-1.5">
           <Label htmlFor="description">Description (optional)</Label>
-          <Textarea id="description" name="description" rows={2} placeholder="What this recognises…" />
+          <Textarea id="description" name="description" rows={2} placeholder="What this recognises…" defaultValue={fieldValue(state, 'description', '')} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="sessions_count">Sessions</Label>
-          <Input id="sessions_count" type="number" min={0} name="sessions_count" className="w-24" />
+          <Input id="sessions_count" type="number" min={0} name="sessions_count" className="w-24" defaultValue={fieldValue(state, 'sessions_count', '')} />
         </div>
       </div>
       <Button type="submit" size="sm" disabled={pending || volunteers.length === 0}>

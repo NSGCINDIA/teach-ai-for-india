@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { AlertCircle, Loader2, Plus } from 'lucide-react'
 import { setAvailability, clearAvailability, type AvailabilityActionState } from '@/actions/availability'
+import { fieldValue } from '@/lib/actions/form-values'
 import type { AvailabilityRow } from '@/types/database'
 import { formatDate } from '@/lib/format'
 import { Button } from '@/components/ui/button'
@@ -22,11 +23,11 @@ export function AvailabilityEditor({ entries }: { entries: AvailabilityRow[] }) 
       <form action={action} className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <div className="space-y-1.5">
           <Label htmlFor="date">Date</Label>
-          <Input id="date" type="date" name="date" required />
+          <Input id="date" type="date" name="date" required defaultValue={fieldValue(state, 'date', '')} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="status">Availability</Label>
-          <select id="status" name="status" className={SELECT_CLASS} defaultValue="available">
+          <select id="status" name="status" className={SELECT_CLASS} defaultValue={fieldValue(state, 'status', 'available')}>
             <option value="available">Available</option>
             <option value="tentative">Tentative</option>
             <option value="unavailable">Unavailable</option>

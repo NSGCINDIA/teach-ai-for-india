@@ -8,6 +8,7 @@ import {
   reviewExecutionPlanFinance,
   type ExecutionPlanActionState,
 } from '@/actions/execution-plans'
+import { fieldValue } from '@/lib/actions/form-values'
 import type { ExecutionPlanAccess } from '@/lib/auth/rbac'
 import { formatCurrency } from '@/lib/format'
 import type { ExecutionPlanRow, CampusBudgetRow, ApprovalStatus } from '@/types/database'
@@ -201,7 +202,7 @@ function ReviewForm({
       </div>
 
       {decision === 'rejected' && (
-        <Textarea name="note" rows={2} required placeholder="Reason for rejecting (required)" />
+        <Textarea name="note" rows={2} required defaultValue={fieldValue(state, 'note', '')} placeholder="Reason for rejecting (required)" />
       )}
 
       <Button type="submit" size="sm" disabled={pending || !decision}>
@@ -231,7 +232,7 @@ function PlanForm({ sessionId }: { sessionId: string }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="logistics_notes">Logistics</Label>
-        <Textarea id="logistics_notes" name="logistics_notes" rows={2} placeholder="Departure, route, on-site coordination…" />
+        <Textarea id="logistics_notes" name="logistics_notes" rows={2} defaultValue={fieldValue(state, 'logistics_notes', '')} placeholder="Departure, route, on-site coordination…" />
       </div>
 
       <fieldset className="space-y-2">
@@ -241,17 +242,17 @@ function PlanForm({ sessionId }: { sessionId: string }) {
             <Check key={item.name} name={item.name} label={item.label} />
           ))}
         </div>
-        <Input name="other_equipment" placeholder="Other equipment (optional)" />
+        <Input name="other_equipment" defaultValue={fieldValue(state, 'other_equipment', '')} placeholder="Other equipment (optional)" />
       </fieldset>
 
       <div className="space-y-1.5">
         <Label htmlFor="teaching_resources">Teaching resources</Label>
-        <Textarea id="teaching_resources" name="teaching_resources" rows={2} placeholder="Slides, worksheets, activity kits…" />
+        <Textarea id="teaching_resources" name="teaching_resources" rows={2} defaultValue={fieldValue(state, 'teaching_resources', '')} placeholder="Slides, worksheets, activity kits…" />
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="estimated_transport_cost">Estimated transport cost</Label>
-        <Input id="estimated_transport_cost" type="number" min={0} step="0.01" name="estimated_transport_cost" defaultValue={0} />
+        <Input id="estimated_transport_cost" type="number" min={0} step="0.01" name="estimated_transport_cost" defaultValue={fieldValue(state, 'estimated_transport_cost', '0')} />
       </div>
 
       <label className="flex items-center gap-2 text-sm">

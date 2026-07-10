@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { AlertCircle, Loader2, Send } from 'lucide-react'
 import { logSchoolVisit, type SchoolVisitActionState } from '@/actions/school-visits'
+import { fieldValue } from '@/lib/actions/form-values'
 import { roleLabel } from '@/lib/auth/roles'
 import { formatDateTime } from '@/lib/format'
 import type { SchoolVisitRow, SchoolStatus } from '@/types/database'
@@ -83,7 +84,7 @@ function VisitForm({ schoolId, roster }: { schoolId: string; roster: TeamMember[
 
       <div className="space-y-1.5">
         <Label htmlFor="visited_at">Visit date &amp; time</Label>
-        <Input id="visited_at" type="datetime-local" name="visited_at" />
+        <Input id="visited_at" type="datetime-local" name="visited_at" defaultValue={fieldValue(state, 'visited_at', '')} />
       </div>
 
       {roster.length > 0 && (
@@ -108,7 +109,7 @@ function VisitForm({ schoolId, roster }: { schoolId: string; roster: TeamMember[
 
       <div className="space-y-1.5">
         <Label htmlFor="notes">Notes</Label>
-        <Textarea id="notes" name="notes" rows={3} placeholder="What happened, blockers, next steps…" />
+        <Textarea id="notes" name="notes" rows={3} defaultValue={fieldValue(state, 'notes', '')} placeholder="What happened, blockers, next steps…" />
       </div>
 
       <Button type="submit" size="sm" disabled={pending}>

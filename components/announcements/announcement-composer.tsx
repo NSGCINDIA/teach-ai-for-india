@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { AlertCircle, Loader2, Send } from 'lucide-react'
 import { postAnnouncement, type AnnouncementActionState } from '@/actions/announcements'
+import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,15 +26,15 @@ export function AnnouncementComposer({ orgWide }: { orgWide: boolean }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="title">Title</Label>
-        <Input id="title" name="title" required placeholder="What's happening?" />
+        <Input id="title" name="title" required placeholder="What's happening?" defaultValue={fieldValue(state, 'title', '')} />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="body">Message</Label>
-        <Textarea id="body" name="body" rows={3} required placeholder="Share the details with your team…" />
+        <Textarea id="body" name="body" rows={3} required placeholder="Share the details with your team…" defaultValue={fieldValue(state, 'body', '')} />
       </div>
       <div className="flex items-center justify-between gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name="pinned" className="size-4 rounded border-input accent-brand" /> Pin to top
+          <input type="checkbox" name="pinned" defaultChecked={fieldChecked(state, 'pinned', undefined)} className="size-4 rounded border-input accent-brand" /> Pin to top
         </label>
         <span className="text-xs text-muted-foreground">
           {orgWide ? 'Posts organisation-wide' : 'Posts to your campus'}

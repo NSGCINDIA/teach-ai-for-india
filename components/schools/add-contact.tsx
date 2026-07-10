@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { AlertCircle, Loader2, Plus } from 'lucide-react'
 import { addSchoolContact, type SchoolActionState } from '@/actions/schools'
+import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -32,26 +33,26 @@ export function AddContact({ schoolId }: { schoolId: string }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="c-name">Name *</Label>
-          <Input id="c-name" name="name" required placeholder="Principal name" />
+          <Input id="c-name" name="name" required defaultValue={fieldValue(state, 'name', '')} placeholder="Principal name" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="c-desig">Designation *</Label>
-          <Input id="c-desig" name="designation" required placeholder="Principal" />
+          <Input id="c-desig" name="designation" required defaultValue={fieldValue(state, 'designation', '')} placeholder="Principal" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="c-phone">Phone</Label>
-          <Input id="c-phone" name="phone" inputMode="tel" />
+          <Input id="c-phone" name="phone" inputMode="tel" defaultValue={fieldValue(state, 'phone', '')} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="c-email">Email</Label>
-          <Input id="c-email" name="email" type="email" />
+          <Input id="c-email" name="email" type="email" defaultValue={fieldValue(state, 'email', '')} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="c-whatsapp">WhatsApp</Label>
-          <Input id="c-whatsapp" name="whatsapp" inputMode="tel" />
+          <Input id="c-whatsapp" name="whatsapp" inputMode="tel" defaultValue={fieldValue(state, 'whatsapp', '')} />
         </div>
         <label className="flex items-center gap-2 self-end pb-2 text-sm">
-          <input type="checkbox" name="is_primary" value="true" className="size-4 rounded border-input" />
+          <input type="checkbox" name="is_primary" value="true" defaultChecked={fieldChecked(state, 'is_primary', false)} className="size-4 rounded border-input" />
           Primary contact
         </label>
       </div>

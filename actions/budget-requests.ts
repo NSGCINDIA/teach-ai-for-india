@@ -8,8 +8,13 @@ import {
   createBudgetIncreaseRequestSchema,
   reviewBudgetIncreaseRequestSchema,
 } from '@/lib/validations/budget-requests'
+import { formValues } from '@/lib/actions/form-values'
 
-export type BudgetRequestActionState = { error?: string; ok?: boolean; message?: string }
+export type BudgetRequestActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 /** Finance Lead sets the initial budget for their campus's current period. */
 export async function allocateCampusBudget(
@@ -17,9 +22,10 @@ export async function allocateCampusBudget(
   formData: FormData,
 ): Promise<BudgetRequestActionState> {
   await requireUser('/dashboard/finance')
+  const values = formValues(formData)
 
   const parsed = allocateCampusBudgetSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('finance_allocate_campus_budget', {
@@ -27,7 +33,7 @@ export async function allocateCampusBudget(
     p_allocated_amount: parsed.data.allocated_amount,
     p_note: parsed.data.note || undefined,
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath('/dashboard/finance')
   return { ok: true, message: 'Budget allocated.' }
@@ -39,9 +45,10 @@ export async function createBudgetIncreaseRequest(
   formData: FormData,
 ): Promise<BudgetRequestActionState> {
   await requireUser('/dashboard/finance')
+  const values = formValues(formData)
 
   const parsed = createBudgetIncreaseRequestSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('create_budget_increase_request', {
@@ -49,7 +56,7 @@ export async function createBudgetIncreaseRequest(
     p_requested_amount: parsed.data.requested_amount,
     p_reason: parsed.data.reason,
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath('/dashboard/finance')
   revalidatePath('/dashboard')
@@ -62,9 +69,10 @@ export async function reviewBudgetIncreaseRequest(
   formData: FormData,
 ): Promise<BudgetRequestActionState> {
   await requireUser('/dashboard')
+  const values = formValues(formData)
 
   const parsed = reviewBudgetIncreaseRequestSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('review_budget_increase_request', {
@@ -72,7 +80,7 @@ export async function reviewBudgetIncreaseRequest(
     p_decision: parsed.data.decision,
     p_note: parsed.data.note || undefined,
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/finance')

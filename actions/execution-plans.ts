@@ -7,8 +7,13 @@ import {
   createExecutionPlanSchema,
   reviewExecutionPlanSchema,
 } from '@/lib/validations/execution-plans'
+import { formValues } from '@/lib/actions/form-values'
 
-export type ExecutionPlanActionState = { error?: string; ok?: boolean; message?: string }
+export type ExecutionPlanActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 /**
  * Execution Lead submits an execution plan. The DB function enforces role +
@@ -19,11 +24,12 @@ export async function createExecutionPlan(
   _prev: ExecutionPlanActionState,
   formData: FormData,
 ): Promise<ExecutionPlanActionState> {
+  const values = formValues(formData)
   const sessionId = String(formData.get('session_id') ?? '')
   await requireUser(`/dashboard/sessions/${sessionId}`)
 
   const parsed = createExecutionPlanSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('create_execution_plan', {
@@ -40,7 +46,7 @@ export async function createExecutionPlan(
     p_estimated_transport_cost: parsed.data.estimated_transport_cost,
     p_session_ready: parsed.data.session_ready,
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/sessions/${sessionId}`)
   revalidatePath(`/admin/sessions/${sessionId}`)
@@ -52,11 +58,12 @@ export async function reviewExecutionPlanCampus(
   _prev: ExecutionPlanActionState,
   formData: FormData,
 ): Promise<ExecutionPlanActionState> {
+  const values = formValues(formData)
   const sessionId = String(formData.get('session_id') ?? '')
   await requireUser(`/dashboard/sessions/${sessionId}`)
 
   const parsed = reviewExecutionPlanSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('review_execution_plan_campus', {
@@ -64,7 +71,7 @@ export async function reviewExecutionPlanCampus(
     p_decision: parsed.data.decision,
     p_note: parsed.data.note || undefined,
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/sessions/${sessionId}`)
   revalidatePath(`/admin/sessions/${sessionId}`)
@@ -76,11 +83,12 @@ export async function reviewExecutionPlanFinance(
   _prev: ExecutionPlanActionState,
   formData: FormData,
 ): Promise<ExecutionPlanActionState> {
+  const values = formValues(formData)
   const sessionId = String(formData.get('session_id') ?? '')
   await requireUser(`/dashboard/sessions/${sessionId}`)
 
   const parsed = reviewExecutionPlanSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('review_execution_plan_finance', {
@@ -88,7 +96,7 @@ export async function reviewExecutionPlanFinance(
     p_decision: parsed.data.decision,
     p_note: parsed.data.note || undefined,
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/sessions/${sessionId}`)
   revalidatePath(`/admin/sessions/${sessionId}`)

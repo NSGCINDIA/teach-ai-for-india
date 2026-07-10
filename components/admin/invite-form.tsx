@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { AlertCircle, CheckCircle2, Loader2, UserPlus } from 'lucide-react'
 import { inviteUser, type ActionState } from '@/actions/auth'
+import { fieldValue } from '@/lib/actions/form-values'
 import type { UserRole, CampusRow } from '@/types/database'
 import { ROLE_LABELS, ROLE_DESCRIPTIONS, INVITABLE_ROLES } from '@/lib/auth/roles'
 import { Button } from '@/components/ui/button'
@@ -45,11 +46,11 @@ export function InviteForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
           )}
           <div className="space-y-1.5">
             <Label htmlFor="full_name">Full name</Label>
-            <Input id="full_name" name="full_name" required placeholder="Priya Sharma" />
+            <Input id="full_name" name="full_name" required defaultValue={fieldValue(state, 'full_name', '')} placeholder="Priya Sharma" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required placeholder="priya@university.edu" />
+            <Input id="email" name="email" type="email" required defaultValue={fieldValue(state, 'email', '')} placeholder="priya@university.edu" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="role">Role</Label>
@@ -60,7 +61,7 @@ export function InviteForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="campus_id">Campus</Label>
-            <select id="campus_id" name="campus_id" className={SELECT_CLASS} required defaultValue="">
+            <select id="campus_id" name="campus_id" className={SELECT_CLASS} required defaultValue={fieldValue(state, 'campus_id', '')}>
               <option value="">Select a campus…</option>
               {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
