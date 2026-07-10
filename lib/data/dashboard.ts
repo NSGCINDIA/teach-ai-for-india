@@ -93,10 +93,9 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
     supabase.from('schools').select('total_students').eq('campus_id', campusId),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).eq('date', t).order('start_time'),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).gt('date', t).in('status', OPEN_SESSION).order('date').limit(5),
-    // Actual pending review, not just schools.status='outreach_requested' — that
-    // status also covers a school waiting to be RE-filed after a rejection, which
-    // is not something awaiting the Campus Lead's action.
-    supabase.from('outreach_requests').select('school_id, schools(id, name, district, status, next_action_date)').eq('campus_id', campusId).eq('status', 'pending').order('created_at').limit(5),
+    // Awaiting this Campus Lead's own review specifically — not just any open
+    // visit request (which could be sitting on the Finance Lead's desk instead).
+    supabase.from('outreach_visit_requests').select('school_id, schools(id, name, district, status, next_action_date)').eq('campus_id', campusId).eq('campus_lead_review', 'pending').order('created_at').limit(5),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).lte('date', t).in('status', OPEN_SESSION).order('date').limit(5),
     supabase.from('reimbursements').select('id, reference_number, amount, status, claimant:users!reimbursements_claimant_id_fkey(full_name)').eq('campus_id', campusId).in('status', ['submitted', 'under_review']).order('created_at').limit(5),
     supabase.from('budget_increase_requests').select('id, requested_amount, reason, period, created_at, requester:users!budget_increase_requests_created_by_fkey(full_name)').eq('campus_id', campusId).eq('status', 'pending').order('created_at').limit(5),
@@ -125,12 +124,12 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
   }
 }
 
-type OutreachRequestJoinRaw = {
+type VisitRequestJoinRaw = {
   school_id: string
   schools: SchoolLite | SchoolLite[] | null
 }
 function toSchoolLiteFromRequest(rows: unknown): SchoolLite[] {
-  return ((rows as OutreachRequestJoinRaw[] | null) ?? [])
+  return ((rows as VisitRequestJoinRaw[] | null) ?? [])
     .map((r) => (Array.isArray(r.schools) ? r.schools[0] : r.schools))
     .filter((s): s is SchoolLite => s != null)
 }
@@ -177,9 +176,9 @@ export async function getOutreachData(campusId: string): Promise<OutreachData> {
       .order('created_at', { ascending: false })
       .limit(1000),
     listSchoolProgress(),
-    // Actual pending review, not just schools.status='outreach_requested' — that
-    // status also covers a school waiting to be RE-filed after a rejection.
-    supabase.from('outreach_requests').select('school_id').eq('campus_id', campusId).eq('status', 'pending'),
+    // Actual open visit request, not just schools.status='outreach_requested' —
+    // that status also covers a school waiting to be RE-filed after a rejection.
+    supabase.from('outreach_visit_requests').select('school_id').eq('campus_id', campusId).eq('status', 'pending'),
   ])
 
   const rows = (data as (SchoolLite & { created_at: string })[] | null) ?? []

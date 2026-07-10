@@ -1,12 +1,10 @@
 import { notFound } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
 import {
-  canForEntity, schoolStatusAccess, outreachVisitRequestAccess,
-  outreachRequestAccess, canLogSchoolVisit,
+  canForEntity, schoolStatusAccess, outreachVisitRequestAccess, canLogSchoolVisit,
 } from '@/lib/auth/rbac'
 import { getSchool } from '@/lib/data/schools'
 import { listOutreachVisitRequestsForSchool } from '@/lib/data/outreach-visit-requests'
-import { listOutreachRequestsForSchool } from '@/lib/data/outreach-requests'
 import { listSchoolVisitsForSchool } from '@/lib/data/school-visits'
 import { listTeamMembers } from '@/lib/data/sessions'
 import { getCampusBudget } from '@/lib/data/budgets'
@@ -27,12 +25,10 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
   const canEdit = canForEntity(user.role, 'edit_school', user.campus_id, school.campus_id)
   const statusAccess = schoolStatusAccess(user.role, user.campus_id, school.campus_id)
   const visitAccess = outreachVisitRequestAccess(user.role, user.campus_id, school.campus_id)
-  const outreachAccess = outreachRequestAccess(user.role, user.campus_id, school.campus_id)
   const visitLogAccess = canLogSchoolVisit(user.role, user.campus_id, school.campus_id)
-  const [visitRequests, roster, outreachRequests, schoolVisits] = await Promise.all([
+  const [visitRequests, roster, schoolVisits] = await Promise.all([
     listOutreachVisitRequestsForSchool(school.id),
     listTeamMembers(school.campus_id),
-    listOutreachRequestsForSchool(school.id),
     listSchoolVisitsForSchool(school.id),
   ])
   const budget = school.campus_id && school.campus?.quarter
@@ -49,8 +45,6 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
       roster={roster}
       budget={budget}
       visitAccess={visitAccess}
-      outreachRequests={outreachRequests}
-      outreachAccess={outreachAccess}
       schoolVisits={schoolVisits}
       visitLogAccess={visitLogAccess}
     />

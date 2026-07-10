@@ -224,15 +224,6 @@ export type BudgetIncreaseRequestRow = Timestamps & {
   created_by: string | null
 }
 
-// Outreach requests (0037_outreach_requests_and_school_visits.sql)
-export type OutreachRequestRow = Timestamps & {
-  id: string; school_id: string; campus_id: string | null
-  reason: string; proposed_approach: string | null
-  status: ApprovalStatus
-  reviewed_by: string | null; reviewed_at: string | null; review_note: string | null
-  created_by: string | null
-}
-
 // School visits (0037_outreach_requests_and_school_visits.sql)
 export type SchoolVisitRow = {
   id: string; school_id: string; campus_id: string | null
@@ -345,7 +336,6 @@ export interface Database {
       outreach_visit_requests: TableDef<OutreachVisitRequestRow>
       execution_plans: TableDef<ExecutionPlanRow>
       budget_increase_requests: TableDef<BudgetIncreaseRequestRow>
-      outreach_requests: TableDef<OutreachRequestRow>
       school_visits: TableDef<SchoolVisitRow>
     }
     Views: {
@@ -417,14 +407,6 @@ export interface Database {
         Returns: undefined
       }
       review_outreach_visit_request_finance: {
-        Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
-        Returns: undefined
-      }
-      create_outreach_request: {
-        Args: { p_school_id: string; p_reason: string; p_proposed_approach?: string }
-        Returns: string
-      }
-      review_outreach_request: {
         Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
         Returns: undefined
       }
