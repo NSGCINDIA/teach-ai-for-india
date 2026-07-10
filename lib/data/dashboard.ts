@@ -93,7 +93,10 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
     supabase.from('schools').select('total_students').eq('campus_id', campusId),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).eq('date', t).order('start_time'),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).gt('date', t).in('status', OPEN_SESSION).order('date').limit(5),
-    supabase.from('schools').select('id, name, district, status, next_action_date').eq('campus_id', campusId).eq('status', 'outreach_requested').order('next_action_date').limit(5),
+    // Actual pending review, not just schools.status='outreach_requested' — that
+    // status also covers a school waiting to be RE-filed after a rejection, which
+    // is not something awaiting the Campus Lead's action.
+    supabase.from('outreach_requests').select('school_id, schools(id, name, district, status, next_action_date)').eq('campus_id', campusId).eq('status', 'pending').order('created_at').limit(5),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).lte('date', t).in('status', OPEN_SESSION).order('date').limit(5),
     supabase.from('reimbursements').select('id, reference_number, amount, status, claimant:users!reimbursements_claimant_id_fkey(full_name)').eq('campus_id', campusId).in('status', ['submitted', 'under_review']).order('created_at').limit(5),
     supabase.from('budget_increase_requests').select('id, requested_amount, reason, period, created_at, requester:users!budget_increase_requests_created_by_fkey(full_name)').eq('campus_id', campusId).eq('status', 'pending').order('created_at').limit(5),
@@ -115,11 +118,21 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
     },
     todaySessions: toSessionLite(todaySessions.data as SessionRowRaw[] | null),
     upcomingSessions: toSessionLite(upcomingSessions.data as SessionRowRaw[] | null),
-    pendingApprovals: (pendingApprovals.data as SchoolLite[] | null) ?? [],
+    pendingApprovals: toSchoolLiteFromRequest(pendingApprovals.data),
     pendingReports: toSessionLite(pendingReports.data as SessionRowRaw[] | null),
     pendingReimbursements: toReimbLite(pendingReimb.data),
     pendingBudgetRequests: toBudgetRequestLite(pendingBudgetReq.data),
   }
+}
+
+type OutreachRequestJoinRaw = {
+  school_id: string
+  schools: SchoolLite | SchoolLite[] | null
+}
+function toSchoolLiteFromRequest(rows: unknown): SchoolLite[] {
+  return ((rows as OutreachRequestJoinRaw[] | null) ?? [])
+    .map((r) => (Array.isArray(r.schools) ? r.schools[0] : r.schools))
+    .filter((s): s is SchoolLite => s != null)
 }
 
 type ReimbRaw = {
@@ -156,7 +169,7 @@ export interface OutreachData {
 export async function getOutreachData(campusId: string): Promise<OutreachData> {
   const supabase = await createClient()
   const t = today()
-  const [{ data }, progress] = await Promise.all([
+  const [{ data }, progress, { data: pendingRequests }] = await Promise.all([
     supabase
       .from('schools')
       .select('id, name, district, status, next_action_date, created_at')
@@ -164,12 +177,16 @@ export async function getOutreachData(campusId: string): Promise<OutreachData> {
       .order('created_at', { ascending: false })
       .limit(1000),
     listSchoolProgress(),
+    // Actual pending review, not just schools.status='outreach_requested' — that
+    // status also covers a school waiting to be RE-filed after a rejection.
+    supabase.from('outreach_requests').select('school_id').eq('campus_id', campusId).eq('status', 'pending'),
   ])
 
   const rows = (data as (SchoolLite & { created_at: string })[] | null) ?? []
   for (const r of rows) Object.assign(r, progress.get(r.id))
   const counts = new Map<SchoolStatus, number>()
   for (const r of rows) counts.set(r.status, (counts.get(r.status) ?? 0) + 1)
+  const pendingSchoolIds = new Set((pendingRequests ?? []).map((r) => r.school_id))
 
   return {
     kpis: {
@@ -180,7 +197,7 @@ export async function getOutreachData(campusId: string): Promise<OutreachData> {
     },
     pipeline: SCHOOL_PIPELINE.map((status) => ({ status, count: counts.get(status) ?? 0 })),
     awaitingFollowup: rows
-      .filter((r) => r.status === 'outreach_requested')
+      .filter((r) => pendingSchoolIds.has(r.id))
       .slice(0, 6),
     upcomingVisits: rows
       .filter((r) => r.next_action_date && r.next_action_date >= t && r.status !== 'archived' && r.status !== 'completed')
