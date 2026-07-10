@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState, useTransition } from 'react'
+import Image from 'next/image'
 import {
   Check, Download, FileText, Film, Globe, Image as ImageIcon, Receipt, ScrollText,
   Search, Trash2, X,
@@ -116,8 +117,13 @@ export function EvidenceBrowser({ items, options, canModerate, showCampusFilter 
               <div key={m.id} className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
                 <div className="relative aspect-[4/3] bg-muted">
                   {isImageFileType(m.file_type) && m.signed_url && !m.external_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={m.signed_url} alt={m.caption ?? m.file_name} className="size-full object-cover" loading="lazy" />
+                    <Image
+                      src={m.signed_url}
+                      alt={m.caption ?? m.file_name}
+                      fill
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                      className="object-cover"
+                    />
                   ) : (
                     <span className="grid size-full place-items-center text-muted-foreground"><Icon className="size-8" /></span>
                   )}

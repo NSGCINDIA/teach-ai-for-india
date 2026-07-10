@@ -66,6 +66,8 @@ const nextConfig = {
   experimental: {
     // Server Actions are used for auth + mutations.
     serverActions: { bodySizeLimit: '10mb' },
+    // Speeds up dev/build compilation for this large icon library.
+    optimizePackageImports: ['lucide-react'],
   },
   // Apply the security headers to every route (issue #10).
   async headers() {

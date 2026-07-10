@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft, CalendarDays, ClipboardList, Clock, ClipboardCheck, Images, MapPin, Pencil, UserCheck, Users } from 'lucide-react'
 import type { SessionDetail, TeamMember } from '@/lib/data/sessions'
 import type { AssignmentWithVolunteer } from '@/lib/data/assignments'
@@ -155,8 +156,13 @@ export function SessionDetailView({
                       title={`${m.file_name} · ${MEDIA_TYPE_META[m.file_type].label}`}
                     >
                       {isImageFileType(m.file_type) && m.signed_url && !m.external_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={m.signed_url} alt={m.caption ?? m.file_name} className="size-full object-cover" loading="lazy" />
+                        <Image
+                          src={m.signed_url}
+                          alt={m.caption ?? m.file_name}
+                          fill
+                          sizes="(min-width: 640px) 25vw, 33vw"
+                          className="object-cover"
+                        />
                       ) : (
                         <span className="grid size-full place-items-center px-1 text-center text-[10px] text-muted-foreground">
                           {MEDIA_TYPE_META[m.file_type].label}
