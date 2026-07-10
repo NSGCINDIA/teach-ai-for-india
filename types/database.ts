@@ -417,6 +417,13 @@ export interface Database {
         }
         Returns: string
       }
+      update_school_visit: {
+        Args: {
+          p_visit_id: string; p_visited_at: string
+          p_notes?: string; p_team_member_ids?: string[]
+        }
+        Returns: undefined
+      }
       create_execution_plan: {
         Args: {
           p_session_id: string; p_logistics_notes: string
