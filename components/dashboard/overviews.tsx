@@ -66,7 +66,7 @@ function SchoolRows({ schools, empty }: { schools: SchoolLite[]; empty: string }
             </div>
             {s.latest_session_number ? (
               <span className="shrink-0 text-xs text-muted-foreground">
-                Session {s.latest_session_number} of 4 — {curriculumStageLabel(s.latest_session_number)}
+                Session {s.latest_session_number} — {curriculumStageLabel(s.latest_session_number)}
               </span>
             ) : (
               <StatusBadge kind="school" status={s.status} />
@@ -191,8 +191,8 @@ export function OutreachOverview({ name, data }: { name: string; data: OutreachD
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi label="Total Schools" value={formatNumber(k.totalSchools)} icon={School} />
         <Kpi label="Active Leads" value={formatNumber(k.leads)} icon={TrendingUp} />
-        <Kpi label="Approved" value={formatNumber(k.approved)} icon={CheckCircle2} />
-        <Kpi label="Sessions Scheduled" value={formatNumber(k.sessionsScheduled)} icon={CalendarClock} />
+        <Kpi label="Registered" value={formatNumber(k.approved)} icon={CheckCircle2} />
+        <Kpi label="Sessions Active" value={formatNumber(k.sessionsScheduled)} icon={CalendarClock} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -209,7 +209,7 @@ export function OutreachOverview({ name, data }: { name: string; data: OutreachD
             ))}
           </ul>
         </Widget>
-        <Widget title="Schools Awaiting Follow-up" href="/dashboard/schools">
+        <Widget title="Awaiting Outreach Approval" href="/dashboard/schools">
           <SchoolRows schools={data.awaitingFollowup} empty="Nothing waiting on you. 🎉" />
         </Widget>
         <Widget title="Upcoming Visits" href="/dashboard/schools">

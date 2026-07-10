@@ -1,8 +1,13 @@
 import { notFound } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
-import { canForEntity, schoolStatusAccess, outreachVisitRequestAccess } from '@/lib/auth/rbac'
+import {
+  canForEntity, schoolStatusAccess, outreachVisitRequestAccess,
+  outreachRequestAccess, canLogSchoolVisit,
+} from '@/lib/auth/rbac'
 import { getSchool } from '@/lib/data/schools'
 import { listOutreachVisitRequestsForSchool } from '@/lib/data/outreach-visit-requests'
+import { listOutreachRequestsForSchool } from '@/lib/data/outreach-requests'
+import { listSchoolVisitsForSchool } from '@/lib/data/school-visits'
 import { listTeamMembers } from '@/lib/data/sessions'
 import { getCampusBudget } from '@/lib/data/budgets'
 import { SchoolDetailView } from '@/components/schools/school-detail'
@@ -22,9 +27,13 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
   const canEdit = canForEntity(user.role, 'edit_school', user.campus_id, school.campus_id)
   const statusAccess = schoolStatusAccess(user.role, user.campus_id, school.campus_id)
   const visitAccess = outreachVisitRequestAccess(user.role, user.campus_id, school.campus_id)
-  const [visitRequests, roster] = await Promise.all([
+  const outreachAccess = outreachRequestAccess(user.role, user.campus_id, school.campus_id)
+  const visitLogAccess = canLogSchoolVisit(user.role, user.campus_id, school.campus_id)
+  const [visitRequests, roster, outreachRequests, schoolVisits] = await Promise.all([
     listOutreachVisitRequestsForSchool(school.id),
     listTeamMembers(school.campus_id),
+    listOutreachRequestsForSchool(school.id),
+    listSchoolVisitsForSchool(school.id),
   ])
   const budget = school.campus_id && school.campus?.quarter
     ? await getCampusBudget(school.campus_id, school.campus.quarter)
@@ -40,6 +49,10 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
       roster={roster}
       budget={budget}
       visitAccess={visitAccess}
+      outreachRequests={outreachRequests}
+      outreachAccess={outreachAccess}
+      schoolVisits={schoolVisits}
+      visitLogAccess={visitLogAccess}
     />
   )
 }

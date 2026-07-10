@@ -1,8 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
-import Link from 'next/link'
-import { AlertCircle, ArrowRight, CalendarClock, CheckCircle2, Loader2 } from 'lucide-react'
+import { AlertCircle, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react'
 import { savePlan, approvePlan, type PlanActionState } from '@/actions/plans'
 import { SESSION_TYPE_META } from '@/lib/constants/sessions'
 import type { SessionPlanRow, SessionType, SchoolStatus } from '@/types/database'
@@ -19,45 +18,36 @@ const SESSION_TYPES = Object.entries(SESSION_TYPE_META) as [SessionType, { label
 interface PlanningPanelProps {
   schoolId: string
   schoolStatus: SchoolStatus
+  /** The current OPEN (draft) plan, if one is in progress — null between sessions. */
   plan: SessionPlanRow | null
+  /** Whether this school has already run at least one session — labels the
+   *  empty-state form as "Plan next session" instead of "Start planning". */
+  hasPriorSession: boolean
   /** Campus-scoped edit right (campus_lead / outreach_lead / admin). */
   canEdit: boolean
-  /** Where the created session lives, for the read-only "approved" view. */
-  basePath: string
 }
 
-export function PlanningPanel({ schoolId, schoolStatus, plan, canEdit, basePath }: PlanningPanelProps) {
-  // Approved plans are locked — show the handoff summary + link to the session.
-  if (plan?.status === 'approved') {
-    return (
-      <div className="space-y-3">
-        <p className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
-          <CheckCircle2 className="size-4 shrink-0" /> Planning approved — the session has been created and the team notified.
-        </p>
-        {plan.session_id && (
-          <Button asChild variant="outline" size="sm">
-            <Link href={`${basePath.replace('/schools', '/sessions')}/${plan.session_id}`}>
-              <CalendarClock className="size-4" /> View scheduled session
-            </Link>
-          </Button>
-        )}
-      </div>
-    )
-  }
-
+export function PlanningPanel({ schoolId, schoolStatus, plan, hasPriorSession, canEdit }: PlanningPanelProps) {
   if (!canEdit) {
     return <p className="text-sm text-muted-foreground">You have read-only access to this school’s planning.</p>
   }
 
   return (
     <div className="space-y-5">
-      <PlanForm schoolId={schoolId} plan={plan} />
+      {!plan && hasPriorSession && (
+        <p className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
+          <CheckCircle2 className="size-4 shrink-0" /> Last session's planning was approved. Plan the next session below.
+        </p>
+      )}
+      <PlanForm schoolId={schoolId} plan={plan} hasPriorSession={hasPriorSession} />
       {plan && <ApproveForm schoolId={schoolId} planId={plan.id} schoolStatus={schoolStatus} />}
     </div>
   )
 }
 
-function PlanForm({ schoolId, plan }: { schoolId: string; plan: SessionPlanRow | null }) {
+function PlanForm({
+  schoolId, plan, hasPriorSession,
+}: { schoolId: string; plan: SessionPlanRow | null; hasPriorSession: boolean }) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(savePlan, {})
 
   return (
@@ -144,7 +134,7 @@ function PlanForm({ schoolId, plan }: { schoolId: string; plan: SessionPlanRow |
 
       <Button type="submit" size="sm" variant="outline" disabled={pending}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
-        {plan ? 'Save planning' : 'Start planning'}
+        {plan ? 'Save planning' : hasPriorSession ? 'Plan next session' : 'Start planning'}
       </Button>
     </form>
   )
@@ -152,7 +142,7 @@ function PlanForm({ schoolId, plan }: { schoolId: string; plan: SessionPlanRow |
 
 function ApproveForm({ schoolId, planId, schoolStatus }: { schoolId: string; planId: string; schoolStatus: SchoolStatus }) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(approvePlan, {})
-  const ready = schoolStatus === 'approval_received'
+  const ready = schoolStatus === 'registered' || schoolStatus === 'sessions_active'
 
   return (
     <form action={action} className="space-y-2 border-t border-border pt-4">
@@ -166,7 +156,7 @@ function ApproveForm({ schoolId, planId, schoolStatus }: { schoolId: string; pla
       )}
       {!ready && (
         <p className="text-xs text-muted-foreground">
-          Approving planning creates the session and notifies the Execution &amp; Volunteer Leads. Available once the school reaches <strong>Approval Received</strong>.
+          Approving planning creates the session and notifies the Execution &amp; Volunteer Leads. Available once the school reaches <strong>Registered</strong>.
         </p>
       )}
       <Button type="submit" size="sm" disabled={pending || !ready}>

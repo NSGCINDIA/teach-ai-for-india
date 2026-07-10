@@ -2,9 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import type { SessionPlanRow } from '@/types/database'
 
 /**
- * The planning record for a school, if one exists (unique per school — the
- * next-session handoff). RLS scopes visibility to the campus. Returns null when
- * no plan has been started yet.
+ * The current OPEN (draft) planning record for a school, if one exists — the
+ * next-session handoff. A school accumulates one approved session_plans row
+ * per session it's run (school lifecycle v2, 0036/0037); this fetches only
+ * the still-in-progress one. RLS scopes visibility to the campus. Returns
+ * null when no plan is currently open (e.g. between sessions).
  */
 export async function getPlanForSchool(schoolId: string): Promise<SessionPlanRow | null> {
   const supabase = await createClient()
@@ -12,6 +14,7 @@ export async function getPlanForSchool(schoolId: string): Promise<SessionPlanRow
     .from('session_plans')
     .select('*')
     .eq('school_id', schoolId)
+    .eq('status', 'draft')
     .maybeSingle()
   return (data as SessionPlanRow | null) ?? null
 }

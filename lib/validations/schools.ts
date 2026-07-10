@@ -3,8 +3,8 @@ import { z } from 'zod'
 const SCHOOL_TYPES = ['government', 'government_aided', 'private'] as const
 const BOARDS = ['state', 'cbse', 'icse', 'other'] as const
 const STATUSES = [
-  'lead_identified', 'contacted', 'followup_pending', 'approval_requested',
-  'approval_received', 'session_scheduled', 'session_in_progress', 'completed', 'archived',
+  'lead_identified', 'outreach_requested', 'outreach_approved', 'visit_completed',
+  'registered', 'sessions_active', 'completed', 'archived',
 ] as const
 
 const optionalText = z.string().trim().max(500).optional().or(z.literal(''))

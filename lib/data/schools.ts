@@ -22,7 +22,7 @@ export type SchoolDetail = SchoolRow & {
   campus: Pick<CampusRow, 'id' | 'name' | 'quarter'> | null
   contacts: SchoolContactRow[]
   history: SchoolStatusHistoryRow[]
-  /** The outreach→execution planning record, if one has been started. */
+  /** The current OPEN (draft) planning record, if one is in progress — null between sessions. */
   plan: SessionPlanRow | null
   /** Curriculum position — the highest-numbered non-cancelled session (spec §5). */
   progress: SchoolProgress | null
@@ -113,12 +113,14 @@ export async function getSchool(id: string): Promise<SchoolDetail | null> {
   detail.contacts = (detail.contacts ?? []).sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary),
   )
-  // The planning record is a to-one relation; fetch it separately so the type
-  // stays a single object (RLS scopes visibility to the campus).
+  // The current open (draft) planning record, if any — a school accumulates
+  // one approved session_plans row per session it's run, so this is fetched
+  // separately (filtered to 'draft') to keep the type a single object.
   const { data: plan } = await supabase
     .from('session_plans')
     .select('*')
     .eq('school_id', id)
+    .eq('status', 'draft')
     .maybeSingle()
   detail.plan = (plan as SessionPlanRow | null) ?? null
 

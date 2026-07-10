@@ -16,8 +16,12 @@ function nullifyStrings<T extends Record<string, unknown>>(obj: T): T {
 }
 
 /**
- * Create or update a school's planning record (the outreach→execution handoff,
- * Team Dashboard PRD Phase 2). One record per school; upsert on school_id.
+ * Create or update a school's CURRENT OPEN (draft) planning record — the
+ * outreach→execution handoff for its next session. A school accumulates one
+ * approved session_plans row per session it's run (school lifecycle v2,
+ * 0036/0037: session_plans allows only one 'draft' row per school at a time,
+ * unlimited approved history), so this finds the existing draft and updates
+ * it, or starts a fresh draft — "Plan next session" — when none is open.
  */
 export async function savePlan(
   _prev: PlanActionState,
@@ -32,12 +36,19 @@ export async function savePlan(
   const parsed = sessionPlanSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
-  const payload = nullifyStrings({ ...parsed.data, created_by: user.id })
+  const payload = nullifyStrings(parsed.data)
 
   const supabase = await createClient()
-  const { error } = await supabase
+  const { data: existingDraft } = await supabase
     .from('session_plans')
-    .upsert(payload, { onConflict: 'school_id' })
+    .select('id')
+    .eq('school_id', schoolId)
+    .eq('status', 'draft')
+    .maybeSingle()
+
+  const { error } = existingDraft
+    ? await supabase.from('session_plans').update(payload).eq('id', existingDraft.id)
+    : await supabase.from('session_plans').insert({ ...payload, created_by: user.id })
   if (error) return { error: error.message }
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
@@ -47,8 +58,9 @@ export async function savePlan(
 
 /**
  * Approve a planning record → create the session, advance the school to
- * session_scheduled, and notify the campus Execution + Volunteer Leads.
- * The DB function enforces role + pipeline state; this just drives it.
+ * sessions_active (a no-op if it's already there for a later session), and
+ * notify the campus Execution + Volunteer Leads. The DB function enforces
+ * role + pipeline state; this just drives it.
  */
 export async function approvePlan(
   _prev: PlanActionState,
@@ -75,7 +87,7 @@ export async function approvePlan(
 
 function humanizeDbError(msg: string): string {
   if (/already approved/i.test(msg)) return 'This planning record has already been approved.'
-  if (/Approval Received/i.test(msg)) return 'Move the school to Approval Received before approving planning.'
+  if (/must be Registered/i.test(msg)) return 'Move the school to Registered before approving planning.'
   if (/permission/i.test(msg)) return 'You do not have permission to approve this planning record.'
   return msg
 }

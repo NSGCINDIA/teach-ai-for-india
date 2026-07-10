@@ -109,7 +109,7 @@ export function SchoolsView({ schools, campuses, basePath, showCampusFilter = tr
                   <td className="px-4 py-3">
                     <StatusBadge kind="school" status={s.status} />
                     {s.latest_session_number && (
-                      <p className="mt-1 text-[11px] text-muted-foreground">Session {s.latest_session_number} of 4</p>
+                      <p className="mt-1 text-[11px] text-muted-foreground">Session {s.latest_session_number}</p>
                     )}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{formatDate(s.next_action_date)}</td>

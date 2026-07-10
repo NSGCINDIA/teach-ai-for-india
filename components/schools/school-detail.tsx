@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users } from 'lucide-react'
+import { ArrowLeft, BookOpen, CalendarCheck, ClipboardList, History, Mail, MapPin, MapPinned, Megaphone, Pencil, Phone, Star, Users } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
-import type { SchoolStatusAccess, OutreachVisitRequestAccess } from '@/lib/auth/rbac'
-import type { OutreachVisitRequestRow, CampusBudgetRow } from '@/types/database'
+import type { SchoolStatusAccess, OutreachVisitRequestAccess, OutreachRequestAccess } from '@/lib/auth/rbac'
+import type { OutreachVisitRequestRow, CampusBudgetRow, OutreachRequestRow, SchoolVisitRow } from '@/types/database'
 import type { TeamMember } from '@/lib/data/sessions'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
@@ -13,16 +13,29 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { StatusControl } from '@/components/schools/status-control'
 import { PlanningPanel } from '@/components/schools/planning-panel'
 import { VisitRequestPanel } from '@/components/schools/visit-request-panel'
+import { OutreachRequestPanel } from '@/components/schools/outreach-request-panel'
+import { SchoolVisitPanel } from '@/components/schools/school-visit-panel'
 import { AddContact } from '@/components/schools/add-contact'
 
-/** Planning becomes relevant once approval is received (or already started). */
+/** Planning becomes relevant once a school is registered (or already running sessions). */
 const PLANNING_STATUSES = new Set<SchoolDetail['status']>([
-  'approval_received', 'session_scheduled', 'session_in_progress', 'completed',
+  'registered', 'sessions_active', 'completed',
 ])
 
-/** A visit request is relevant while a school is still early in the pipeline. */
+/** An outreach request is relevant while a school is still a fresh lead. */
+const OUTREACH_REQUEST_STATUSES = new Set<SchoolDetail['status']>([
+  'lead_identified', 'outreach_requested',
+])
+
+/** A School Visit becomes loggable once outreach is approved, through registration. */
+const SCHOOL_VISIT_STATUSES = new Set<SchoolDetail['status']>([
+  'outreach_approved', 'visit_completed', 'registered',
+])
+
+/** The pre-existing outreach_visit_requests feature (visits to schools already in
+ *  the CRM) — kept at the same early-pipeline relative position, unchanged behavior. */
 const VISIT_REQUEST_STATUSES = new Set<SchoolDetail['status']>([
-  'lead_identified', 'contacted', 'followup_pending', 'approval_requested',
+  'lead_identified', 'outreach_requested',
 ])
 
 interface SchoolDetailProps {
@@ -36,6 +49,10 @@ interface SchoolDetailProps {
   roster: TeamMember[]
   budget: CampusBudgetRow | null
   visitAccess: OutreachVisitRequestAccess
+  outreachRequests: OutreachRequestRow[]
+  outreachAccess: OutreachRequestAccess
+  schoolVisits: SchoolVisitRow[]
+  visitLogAccess: boolean
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -44,6 +61,7 @@ const TYPE_LABEL: Record<string, string> = {
 
 export function SchoolDetailView({
   school, basePath, canEdit, statusAccess, visitRequests, roster, budget, visitAccess,
+  outreachRequests, outreachAccess, schoolVisits, visitLogAccess,
 }: SchoolDetailProps) {
   return (
     <div className="space-y-6">
@@ -67,7 +85,7 @@ export function SchoolDetailView({
           {school.progress && (
             <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
               <BookOpen className="size-3.5" />
-              Session {school.progress.latest_session_number} of 4 — {curriculumStageLabel(school.progress.latest_session_number)}
+              Session {school.progress.latest_session_number} — {curriculumStageLabel(school.progress.latest_session_number)}
             </p>
           )}
         </div>
@@ -92,6 +110,32 @@ export function SchoolDetailView({
               {school.notes && <Detail label="Notes" value={school.notes} className="col-span-2 sm:col-span-3" />}
             </CardContent>
           </Card>
+
+          {(OUTREACH_REQUEST_STATUSES.has(school.status) || outreachRequests.length > 0) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Megaphone className="size-4" /> Outreach request
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <OutreachRequestPanel schoolId={school.id} requests={outreachRequests} access={outreachAccess} />
+              </CardContent>
+            </Card>
+          )}
+
+          {(SCHOOL_VISIT_STATUSES.has(school.status) || schoolVisits.length > 0) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <CalendarCheck className="size-4" /> School visit
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SchoolVisitPanel schoolId={school.id} visits={schoolVisits} roster={roster} canLog={visitLogAccess} />
+              </CardContent>
+            </Card>
+          )}
 
           {(VISIT_REQUEST_STATUSES.has(school.status) || visitRequests.length > 0) && (
             <Card>
@@ -125,8 +169,8 @@ export function SchoolDetailView({
                   schoolId={school.id}
                   schoolStatus={school.status}
                   plan={school.plan}
+                  hasPriorSession={!!school.progress}
                   canEdit={canEdit}
-                  basePath={basePath}
                 />
               </CardContent>
             </Card>

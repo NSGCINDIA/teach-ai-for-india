@@ -155,6 +155,45 @@ export function outreachVisitRequestAccess(
   }
 }
 
+export interface OutreachRequestAccess {
+  canCreate: boolean
+  canReview: boolean
+}
+
+/**
+ * Access to an Outreach Request — file (Campus Lead/Outreach Lead, own
+ * campus) vs. review (Campus Lead only, own campus — the user's explicit
+ * single-approver requirement, unlike outreachVisitRequestAccess's dual
+ * review). Mirrors outreachVisitRequestAccess's precedent of a bespoke access
+ * shape outside the generic Permission/Scope matrix.
+ */
+export function outreachRequestAccess(
+  role: UserRole,
+  userCampusId: string | null,
+  entityCampusId: string | null,
+): OutreachRequestAccess {
+  const admin = isAdmin(role)
+  const ownCampus = !!userCampusId && userCampusId === entityCampusId
+  return {
+    canCreate: admin || ((role === 'campus_lead' || role === 'outreach_lead') && ownCampus),
+    canReview: admin || (role === 'campus_lead' && ownCampus),
+  }
+}
+
+/**
+ * Whether a user may log a School Visit — same requester bucket as
+ * outreachRequestAccess.canCreate (Campus Lead/Outreach Lead, own campus).
+ */
+export function canLogSchoolVisit(
+  role: UserRole,
+  userCampusId: string | null,
+  entityCampusId: string | null,
+): boolean {
+  const admin = isAdmin(role)
+  const ownCampus = !!userCampusId && userCampusId === entityCampusId
+  return admin || ((role === 'campus_lead' || role === 'outreach_lead') && ownCampus)
+}
+
 export interface ExecutionPlanAccess {
   canSubmit: boolean
   canReviewCampus: boolean

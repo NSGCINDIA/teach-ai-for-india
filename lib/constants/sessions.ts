@@ -27,12 +27,14 @@ export const SESSION_TYPE_FIELD: Record<SessionType, { key: string; label: strin
 export interface CurriculumStage { title: string }
 
 /**
- * Spec §5's 4-session curriculum, keyed by sessions.session_number. A
- * school's position is read off its highest session_number (see
+ * Suggested titles for a school's first 4 sessions, keyed by
+ * sessions.session_number — advisory, not a contract: a school's total
+ * session count is unbounded (school lifecycle v2, 0036/0037), so any
+ * session_number is legal and numbers beyond 4 fall back to a generic label.
+ * A school's position is read off its highest session_number (see
  * school_session_progress, 0030_mandatory_evidence.sql) — session_type
  * itself is untouched (locked-in decision, high blast radius across forms/
- * SESSION_TYPE_FIELD/session_plans/the public timeline). Numbers beyond 4
- * (e.g. a school with a 'followup' session) fall back to a generic label.
+ * SESSION_TYPE_FIELD/session_plans/the public timeline).
  */
 export const CURRICULUM_META: Record<number, CurriculumStage> = {
   1: { title: 'AI Awareness' },

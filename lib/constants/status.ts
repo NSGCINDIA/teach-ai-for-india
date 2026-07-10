@@ -25,39 +25,37 @@ export const TONE_CLASS: Record<StatusTone, string> = {
 }
 
 export const SCHOOL_STATUS_META: Record<SchoolStatus, { label: string; tone: StatusTone }> = {
-  lead_identified:    { label: 'Lead Identified',    tone: 'neutral' },
-  contacted:          { label: 'Contacted',          tone: 'info' },
-  followup_pending:   { label: 'Follow-up Pending',  tone: 'pending' },
-  approval_requested: { label: 'Approval Requested', tone: 'pending' },
-  approval_received:  { label: 'Approval Received',  tone: 'success' },
-  session_scheduled:  { label: 'Session Scheduled',  tone: 'progress' },
-  session_in_progress:{ label: 'Session In Progress',tone: 'progress' },
-  completed:          { label: 'Completed',          tone: 'success' },
-  archived:           { label: 'Archived',           tone: 'muted' },
+  lead_identified:    { label: 'Lead Identified',      tone: 'neutral' },
+  outreach_requested: { label: 'Outreach Requested',   tone: 'pending' },
+  outreach_approved:  { label: 'Outreach Approved',    tone: 'info' },
+  visit_completed:    { label: 'Visit Completed',      tone: 'info' },
+  registered:         { label: 'Registered',           tone: 'success' },
+  sessions_active:    { label: 'Sessions Active',      tone: 'progress' },
+  completed:          { label: 'Completed',            tone: 'success' },
+  archived:           { label: 'Archived',             tone: 'muted' },
 }
 
 /** Ordered pipeline for the CRM board (excludes the terminal 'archived'). */
 export const SCHOOL_PIPELINE: SchoolStatus[] = [
-  'lead_identified', 'contacted', 'followup_pending', 'approval_requested',
-  'approval_received', 'session_scheduled', 'session_in_progress', 'completed',
+  'lead_identified', 'outreach_requested', 'outreach_approved', 'visit_completed',
+  'registered', 'sessions_active', 'completed',
 ]
 
 /**
  * Legal status transitions — MUST mirror school_transition_allowed() in
- * 0011_school_state_machine.sql. The UI uses this to offer only valid next
+ * 0036_school_lifecycle_v2.sql. The UI uses this to offer only valid next
  * states; the DB is the real enforcement (PRD §13.3). 'archived' → reopen is
  * admin-only and surfaced separately.
  */
 export const SCHOOL_TRANSITIONS: Record<SchoolStatus, SchoolStatus[]> = {
-  lead_identified:     ['contacted', 'archived'],
-  contacted:           ['followup_pending', 'approval_requested', 'lead_identified', 'archived'],
-  followup_pending:    ['contacted', 'approval_requested', 'archived'],
-  approval_requested:  ['approval_received', 'followup_pending', 'archived'],
-  approval_received:   ['session_scheduled', 'approval_requested', 'archived'],
-  session_scheduled:   ['session_in_progress', 'approval_received', 'archived'],
-  session_in_progress: ['completed', 'session_scheduled', 'archived'],
-  completed:           ['archived'],
-  archived:            ['lead_identified'],
+  lead_identified:    ['outreach_requested', 'archived'],
+  outreach_requested: ['outreach_approved', 'lead_identified', 'archived'],
+  outreach_approved:  ['visit_completed', 'outreach_requested', 'archived'],
+  visit_completed:    ['registered', 'outreach_approved', 'archived'],
+  registered:         ['sessions_active', 'visit_completed', 'archived'],
+  sessions_active:    ['completed', 'registered', 'archived'],
+  completed:          ['sessions_active', 'archived'],
+  archived:           ['lead_identified'],
 }
 
 /** Transitions that always require a reason note (archive + every backward step). */
@@ -68,12 +66,12 @@ export function schoolTransitionNeedsNote(from: SchoolStatus, to: SchoolStatus):
 
 /**
  * Execution-stage statuses exec_lead may move a school between (own campus
- * only) — session delivery once a school is approved, not the earlier
- * outreach/approval stages. MUST mirror change_school_status() in
- * 0024_exec_lead_school_status.sql.
+ * only) — session delivery once a school is registered, not the earlier
+ * outreach/approval/visit stages. MUST mirror the exec_stages array in
+ * change_school_status() in 0036_school_lifecycle_v2.sql.
  */
 export const EXEC_LEAD_SCHOOL_STATUSES: SchoolStatus[] = [
-  'approval_received', 'session_scheduled', 'session_in_progress', 'completed',
+  'registered', 'sessions_active', 'completed',
 ]
 
 export const SESSION_STATUS_META: Record<SessionStatus, { label: string; tone: StatusTone }> = {

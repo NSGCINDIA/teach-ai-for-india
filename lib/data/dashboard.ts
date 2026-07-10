@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { PRESENT_STATUSES } from '@/lib/constants/sessions'
+import { SCHOOL_PIPELINE } from '@/lib/constants/status'
 import { listSchoolProgress } from '@/lib/data/schools'
 import type { SchoolStatus, SessionStatus } from '@/types/database'
 
@@ -92,7 +93,7 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
     supabase.from('schools').select('total_students').eq('campus_id', campusId),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).eq('date', t).order('start_time'),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).gt('date', t).in('status', OPEN_SESSION).order('date').limit(5),
-    supabase.from('schools').select('id, name, district, status, next_action_date').eq('campus_id', campusId).eq('status', 'approval_requested').order('next_action_date').limit(5),
+    supabase.from('schools').select('id, name, district, status, next_action_date').eq('campus_id', campusId).eq('status', 'outreach_requested').order('next_action_date').limit(5),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).lte('date', t).in('status', OPEN_SESSION).order('date').limit(5),
     supabase.from('reimbursements').select('id, reference_number, amount, status, claimant:users!reimbursements_claimant_id_fkey(full_name)').eq('campus_id', campusId).in('status', ['submitted', 'under_review']).order('created_at').limit(5),
     supabase.from('budget_increase_requests').select('id, requested_amount, reason, period, created_at, requester:users!budget_increase_requests_created_by_fkey(full_name)').eq('campus_id', campusId).eq('status', 'pending').order('created_at').limit(5),
@@ -170,21 +171,16 @@ export async function getOutreachData(campusId: string): Promise<OutreachData> {
   const counts = new Map<SchoolStatus, number>()
   for (const r of rows) counts.set(r.status, (counts.get(r.status) ?? 0) + 1)
 
-  const pipelineOrder: SchoolStatus[] = [
-    'lead_identified', 'contacted', 'followup_pending', 'approval_requested',
-    'approval_received', 'session_scheduled', 'session_in_progress', 'completed',
-  ]
-
   return {
     kpis: {
       totalSchools: rows.filter((r) => r.status !== 'archived').length,
-      approved: counts.get('approval_received') ?? 0,
-      sessionsScheduled: counts.get('session_scheduled') ?? 0,
-      leads: (counts.get('lead_identified') ?? 0) + (counts.get('contacted') ?? 0),
+      approved: counts.get('registered') ?? 0,
+      sessionsScheduled: counts.get('sessions_active') ?? 0,
+      leads: (counts.get('lead_identified') ?? 0) + (counts.get('outreach_requested') ?? 0),
     },
-    pipeline: pipelineOrder.map((status) => ({ status, count: counts.get(status) ?? 0 })),
+    pipeline: SCHOOL_PIPELINE.map((status) => ({ status, count: counts.get(status) ?? 0 })),
     awaitingFollowup: rows
-      .filter((r) => r.status === 'followup_pending' || r.status === 'approval_requested')
+      .filter((r) => r.status === 'outreach_requested')
       .slice(0, 6),
     upcomingVisits: rows
       .filter((r) => r.next_action_date && r.next_action_date >= t && r.status !== 'archived' && r.status !== 'completed')

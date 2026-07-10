@@ -19,9 +19,8 @@ export type UserRole =
 export type SchoolTypeEnum = 'government' | 'government_aided' | 'private'
 export type BoardType = 'state' | 'cbse' | 'icse' | 'other'
 export type SchoolStatus =
-  | 'lead_identified' | 'contacted' | 'followup_pending' | 'approval_requested'
-  | 'approval_received' | 'session_scheduled' | 'session_in_progress'
-  | 'completed' | 'archived'
+  | 'lead_identified' | 'outreach_requested' | 'outreach_approved' | 'visit_completed'
+  | 'registered' | 'sessions_active' | 'completed' | 'archived'
 export type SessionType =
   | 'awareness' | 'hands_on' | 'prompt_writing' | 'ethics_safety'
   | 'application_project' | 'followup'
@@ -35,7 +34,7 @@ export type MediaFileType =
   | 'photo' | 'video' | 'document' | 'receipt' | 'letter' | 'presentation' | 'other'
   | 'team_photo' | 'principal_photo' | 'student_group_photo' | 'student_testimonial' | 'teacher_testimonial'
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected'
-export type MediaEntityType = 'session' | 'school' | 'campus' | 'reimbursement'
+export type MediaEntityType = 'session' | 'school' | 'campus' | 'reimbursement' | 'school_visit'
 export type ApplicationStatus = 'new' | 'reviewing' | 'invited' | 'rejected'
 
 type Timestamps = { created_at: string; updated_at: string }
@@ -225,6 +224,23 @@ export type BudgetIncreaseRequestRow = Timestamps & {
   created_by: string | null
 }
 
+// Outreach requests (0037_outreach_requests_and_school_visits.sql)
+export type OutreachRequestRow = Timestamps & {
+  id: string; school_id: string; campus_id: string | null
+  reason: string; proposed_approach: string | null
+  status: ApprovalStatus
+  reviewed_by: string | null; reviewed_at: string | null; review_note: string | null
+  created_by: string | null
+}
+
+// School visits (0037_outreach_requests_and_school_visits.sql)
+export type SchoolVisitRow = {
+  id: string; school_id: string; campus_id: string | null
+  visited_by: string | null; team_member_ids: string[]
+  visited_at: string; notes: string | null
+  created_by: string | null; created_at: string
+}
+
 // Execution plans (0029_execution_plans.sql)
 export type ExecutionPlanRow = Timestamps & {
   id: string; session_id: string; campus_id: string | null
@@ -329,6 +345,8 @@ export interface Database {
       outreach_visit_requests: TableDef<OutreachVisitRequestRow>
       execution_plans: TableDef<ExecutionPlanRow>
       budget_increase_requests: TableDef<BudgetIncreaseRequestRow>
+      outreach_requests: TableDef<OutreachRequestRow>
+      school_visits: TableDef<SchoolVisitRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -401,6 +419,21 @@ export interface Database {
       review_outreach_visit_request_finance: {
         Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
         Returns: undefined
+      }
+      create_outreach_request: {
+        Args: { p_school_id: string; p_reason: string; p_proposed_approach?: string }
+        Returns: string
+      }
+      review_outreach_request: {
+        Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      log_school_visit: {
+        Args: {
+          p_school_id: string; p_visited_at: string
+          p_notes?: string; p_team_member_ids?: string[]
+        }
+        Returns: string
       }
       create_execution_plan: {
         Args: {
