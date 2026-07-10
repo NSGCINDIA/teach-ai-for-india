@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type { CampusRow, UserRow, UserRole, SignupRequestRow, VolunteerApplicationRow } from '@/types/database'
 import type { StatusTone } from '@/lib/constants/status'
@@ -71,7 +72,9 @@ export async function listAdminUsers(filters: UserFilters = {}): Promise<AdminUs
   return (data as unknown as AdminUser[]) ?? []
 }
 
-export async function getAdminUser(id: string): Promise<AdminUser | null> {
+// Wrapped in React cache() so a page and its generateMetadata (which both
+// call this for the same id) share one round trip instead of two.
+export const getAdminUser = cache(async (id: string): Promise<AdminUser | null> => {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('users')
@@ -80,7 +83,7 @@ export async function getAdminUser(id: string): Promise<AdminUser | null> {
     .maybeSingle()
   if (error) throw new Error(`getAdminUser failed: ${error.message}`)
   return (data as unknown as AdminUser) ?? null
-}
+})
 
 // ─── Self-signup requests (PRD §7.2) ─────────────────────────────────────────
 export type PendingSignup = SignupRequestRow & { campus: { id: string; name: string } | null }

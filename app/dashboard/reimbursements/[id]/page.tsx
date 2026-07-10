@@ -12,8 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function DashboardClaimPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const user = await requireAccess('/dashboard/reimbursements')
-  const claim = await getReimbursement(id)
+  const [user, claim] = await Promise.all([requireAccess('/dashboard/reimbursements'), getReimbursement(id)])
   if (!claim) notFound()
 
   const { canReview } = reimbursementReviewAccess(user.role, user.campus_id, claim.campus_id)

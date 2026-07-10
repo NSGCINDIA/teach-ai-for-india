@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type {
   SchoolRow,
@@ -92,7 +93,9 @@ export async function listSchoolProgress(): Promise<Map<string, SchoolProgress>>
   return map
 }
 
-export async function getSchool(id: string): Promise<SchoolDetail | null> {
+// Wrapped in React cache() so a page and its generateMetadata (which both
+// call this for the same id) share one round trip instead of two.
+export const getSchool = cache(async (id: string): Promise<SchoolDetail | null> => {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('schools')
@@ -132,7 +135,7 @@ export async function getSchool(id: string): Promise<SchoolDetail | null> {
   detail.progress = (progress as SchoolProgress | null) ?? null
 
   return detail
-}
+})
 
 /**
  * Fuzzy duplicate search (PRD §7.3 — Levenshtein ≤ 3, same district). Backed by

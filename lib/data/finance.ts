@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type { ReimbursementRow, ReimbursementStatus, CampusFinanceSummary } from '@/types/database'
 
@@ -35,12 +36,14 @@ export async function listReimbursements(filters: ClaimFilters = {}): Promise<Re
   return data as unknown as ReimbursementListItem[]
 }
 
-export async function getReimbursement(id: string): Promise<ReimbursementListItem | null> {
+// Wrapped in React cache() so a page and its generateMetadata (which both
+// call this for the same id) share one round trip instead of two.
+export const getReimbursement = cache(async (id: string): Promise<ReimbursementListItem | null> => {
   const supabase = await createClient()
   const { data, error } = await supabase.from('reimbursements').select(SELECT).eq('id', id).single()
   if (error || !data) return null
   return data as unknown as ReimbursementListItem
-}
+})
 
 export type ClaimableSession = { id: string; topic: string; session_number: number; date: string }
 

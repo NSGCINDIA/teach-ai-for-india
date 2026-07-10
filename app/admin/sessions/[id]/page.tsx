@@ -16,23 +16,22 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function AdminSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const user = await requireAccess('/admin/sessions')
-  const session = await getSession(id)
+  const [user, session] = await Promise.all([requireAccess('/admin/sessions'), getSession(id)])
   if (!session) notFound()
 
   const canEdit = canEditSession(user.role, user.id, user.campus_id, session)
   const canUploadEvidence = canEdit && can(user.role, 'upload_evidence') !== false
   const canAssign = canForEntity(user.role, 'assign_volunteers', user.campus_id, session.campus_id)
   const execPlanAccess = executionPlanAccess(user.role, user.campus_id, session.campus_id)
-  const [teamMembers, assignments, evidence, executionPlans] = await Promise.all([
+  const [teamMembers, assignments, evidence, executionPlans, budget] = await Promise.all([
     listTeamMembers(session.campus_id),
     getSessionAssignments(session.id),
     listSessionEvidence(session.id),
     listExecutionPlansForSession(session.id),
+    session.campus_id && session.campus?.quarter
+      ? getCampusBudget(session.campus_id, session.campus.quarter)
+      : Promise.resolve(null),
   ])
-  const budget = session.campus_id && session.campus?.quarter
-    ? await getCampusBudget(session.campus_id, session.campus.quarter)
-    : null
   // Attendance/assignment rosters are volunteer-only — leads track their own
   // attendance elsewhere and shouldn't clutter this list.
   const members = teamMembers.filter((m) => m.role === 'volunteer')

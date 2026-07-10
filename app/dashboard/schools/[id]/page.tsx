@@ -18,22 +18,21 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function DashboardSchoolPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const user = await requireAccess('/dashboard/schools')
-  const school = await getSchool(id)
+  const [user, school] = await Promise.all([requireAccess('/dashboard/schools'), getSchool(id)])
   if (!school) notFound()
 
   const canEdit = canForEntity(user.role, 'edit_school', user.campus_id, school.campus_id)
   const statusAccess = schoolStatusAccess(user.role, user.campus_id, school.campus_id)
   const visitAccess = outreachVisitRequestAccess(user.role, user.campus_id, school.campus_id)
   const visitLogAccess = canLogSchoolVisit(user.role, user.campus_id, school.campus_id)
-  const [visitRequests, roster, schoolVisits] = await Promise.all([
+  const [visitRequests, roster, schoolVisits, budget] = await Promise.all([
     listOutreachVisitRequestsForSchool(school.id),
     listTeamMembers(school.campus_id),
     listSchoolVisitsForSchool(school.id),
+    school.campus_id && school.campus?.quarter
+      ? getCampusBudget(school.campus_id, school.campus.quarter)
+      : Promise.resolve(null),
   ])
-  const budget = school.campus_id && school.campus?.quarter
-    ? await getCampusBudget(school.campus_id, school.campus.quarter)
-    : null
 
   return (
     <SchoolDetailView

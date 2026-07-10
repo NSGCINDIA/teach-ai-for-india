@@ -17,12 +17,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function VolunteerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const user = await requireAccess('/dashboard/volunteers')
+  const [user, volunteer] = await Promise.all([requireAccess('/dashboard/volunteers'), getAdminUser(id)])
   // Full volunteer detail (attendance/assignment/reimbursement history) is
   // admin-only; other roles with list access (campus_lead, exec_lead,
   // volunteer_lead) only get the roster, not the drill-down.
   if (!isAdmin(user.role)) redirect('/403')
-  const volunteer = await getAdminUser(id)
   if (!volunteer) notFound()
 
   const [attendance, assignments, certificates, reimbursements, summary] = await Promise.all([

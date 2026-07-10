@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type {
   SessionRow,
@@ -46,7 +47,9 @@ export async function listSessions(filters: SessionFilters = {}): Promise<Sessio
   return data as unknown as SessionListItem[]
 }
 
-export async function getSession(id: string): Promise<SessionDetail | null> {
+// Wrapped in React cache() so a page and its generateMetadata (which both
+// call this for the same id) share one round trip instead of two.
+export const getSession = cache(async (id: string): Promise<SessionDetail | null> => {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('sessions')
@@ -63,7 +66,7 @@ export async function getSession(id: string): Promise<SessionDetail | null> {
     (a.user?.full_name ?? '').localeCompare(b.user?.full_name ?? ''),
   )
   return detail
-}
+})
 
 /** Schools for the create-session picker (optionally scoped to a campus). */
 export async function listSchoolOptions(
