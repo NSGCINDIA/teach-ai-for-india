@@ -67,7 +67,7 @@ function humanizeDbError(msg: string): string {
   if (/already been reviewed/i.test(msg)) return 'This request has already been reviewed.'
   if (/permission/i.test(msg)) return 'You do not have permission for that action.'
   if (/reason is required/i.test(msg)) return 'A reason is required when rejecting.'
-  if (/still at Lead Identified/i.test(msg)) return msg
+  if (/must be at Lead Identified/i.test(msg)) return msg
   if (/outreach_requests_one_pending_per_school/i.test(msg)) return 'This school already has an open outreach request.'
   if (/not found/i.test(msg)) return 'That outreach request could not be found.'
   return msg
