@@ -5,7 +5,7 @@ import { AlertCircle, Loader2, Send } from 'lucide-react'
 import { logSchoolVisit, type SchoolVisitActionState } from '@/actions/school-visits'
 import { roleLabel } from '@/lib/auth/roles'
 import { formatDateTime } from '@/lib/format'
-import type { SchoolVisitRow } from '@/types/database'
+import type { SchoolVisitRow, SchoolStatus } from '@/types/database'
 import type { TeamMember } from '@/lib/data/sessions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,20 +14,29 @@ import { Textarea } from '@/components/ui/textarea'
 
 interface SchoolVisitPanelProps {
   schoolId: string
+  schoolStatus: SchoolStatus
   visits: SchoolVisitRow[]
   roster: TeamMember[]
   canLog: boolean
 }
 
-export function SchoolVisitPanel({ schoolId, visits, roster, canLog }: SchoolVisitPanelProps) {
+export function SchoolVisitPanel({ schoolId, schoolStatus, visits, roster, canLog }: SchoolVisitPanelProps) {
   const rosterById = new Map(roster.map((m) => [m.id, m]))
+  // Mirrors log_school_visit()'s own gate — logging is only legal while the
+  // school hasn't moved past visit_completed, so the form must stop
+  // reappearing once Registration (and beyond) has happened.
+  const canLogNow = canLog && (schoolStatus === 'outreach_approved' || schoolStatus === 'visit_completed')
 
   return (
     <div className="space-y-5">
-      {canLog ? (
+      {canLogNow ? (
         <VisitForm schoolId={schoolId} roster={roster} />
       ) : visits.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No visit logged for this school yet.</p>
+        <p className="text-sm text-muted-foreground">
+          {schoolStatus === 'lead_identified' || schoolStatus === 'outreach_requested'
+            ? 'A visit can be logged once outreach is approved.'
+            : 'No visit logged for this school.'}
+        </p>
       ) : null}
 
       {visits.length > 0 && (

@@ -119,7 +119,7 @@ export function SchoolDetailView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <OutreachRequestPanel schoolId={school.id} requests={outreachRequests} access={outreachAccess} />
+                <OutreachRequestPanel schoolId={school.id} schoolStatus={school.status} requests={outreachRequests} access={outreachAccess} />
               </CardContent>
             </Card>
           )}
@@ -132,7 +132,7 @@ export function SchoolDetailView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SchoolVisitPanel schoolId={school.id} visits={schoolVisits} roster={roster} canLog={visitLogAccess} />
+                <SchoolVisitPanel schoolId={school.id} schoolStatus={school.status} visits={schoolVisits} roster={roster} canLog={visitLogAccess} />
               </CardContent>
             </Card>
           )}

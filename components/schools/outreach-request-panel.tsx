@@ -8,7 +8,7 @@ import {
   type OutreachRequestActionState,
 } from '@/actions/outreach-requests'
 import type { OutreachRequestAccess } from '@/lib/auth/rbac'
-import type { OutreachRequestRow } from '@/types/database'
+import type { OutreachRequestRow, SchoolStatus } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -16,20 +16,35 @@ import { StatusBadge } from '@/components/shared/status-badge'
 
 interface OutreachRequestPanelProps {
   schoolId: string
+  schoolStatus: SchoolStatus
   requests: OutreachRequestRow[]
   access: OutreachRequestAccess
 }
 
-export function OutreachRequestPanel({ schoolId, requests, access }: OutreachRequestPanelProps) {
+export function OutreachRequestPanel({ schoolId, schoolStatus, requests, access }: OutreachRequestPanelProps) {
   const active = requests.find((r) => r.status === 'pending')
+  const mostRecent = requests[0]
   const history = requests.filter((r) => r.id !== active?.id)
+  // Mirrors create_outreach_request()'s own gate (0038) — filing a NEW request
+  // is only legal while the school hasn't moved past outreach_requested, so a
+  // previously approved request must not keep re-offering this form once the
+  // school has advanced to outreach_approved/visit_completed/registered/etc.
+  const canFileNew = access.canCreate && (schoolStatus === 'lead_identified' || schoolStatus === 'outreach_requested')
 
   return (
     <div className="space-y-5">
       {active ? (
         <ActiveRequest schoolId={schoolId} request={active} access={access} />
-      ) : access.canCreate ? (
+      ) : canFileNew ? (
         <RequestForm schoolId={schoolId} />
+      ) : mostRecent?.status === 'approved' ? (
+        <p className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
+          <CheckCircle2 className="size-4 shrink-0" /> Outreach approved — proceed to School Visit below.
+        </p>
+      ) : mostRecent?.status === 'rejected' ? (
+        <p className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
+          <AlertCircle className="size-4 shrink-0" /> This outreach request was rejected.
+        </p>
       ) : (
         <p className="text-sm text-muted-foreground">No open outreach request for this school.</p>
       )}
@@ -51,6 +66,7 @@ export function OutreachRequestPanel({ schoolId, requests, access }: OutreachReq
   )
 }
 
+/** `request` is always the 'pending' one — the caller only renders this while a review is outstanding. */
 function ActiveRequest({
   schoolId,
   request,
@@ -72,22 +88,8 @@ function ActiveRequest({
           <span className="text-sm font-medium">Campus Lead review</span>
           <StatusBadge kind="approval" status={request.status} />
         </div>
-        {request.review_note && <p className="text-xs text-muted-foreground">“{request.review_note}”</p>}
-        {access.canReview && request.status === 'pending' && (
-          <ReviewForm schoolId={schoolId} requestId={request.id} />
-        )}
+        {access.canReview && <ReviewForm schoolId={schoolId} requestId={request.id} />}
       </div>
-
-      {request.status === 'approved' && (
-        <p className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
-          <CheckCircle2 className="size-4 shrink-0" /> Outreach approved — ready for a School Visit.
-        </p>
-      )}
-      {request.status === 'rejected' && (
-        <p className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
-          <AlertCircle className="size-4 shrink-0" /> This outreach request was rejected.
-        </p>
-      )}
     </div>
   )
 }
