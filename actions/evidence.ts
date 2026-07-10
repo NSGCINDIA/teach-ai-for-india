@@ -74,6 +74,9 @@ export async function approveEvidence(
   const parsed = approveEvidenceSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'Invalid request.' }
   const user = await requireUser('/admin/evidence')
+  if (!isAdmin(user.role) && user.role !== 'campus_lead') {
+    return { error: 'Only admins or campus leads can review evidence.' }
+  }
   const { id, make_public } = parsed.data
 
   const supabase = await createClient()
@@ -86,9 +89,6 @@ export async function approveEvidence(
 
   let isPublic = false
   if (make_public) {
-    if (!isAdmin(user.role) && user.role !== 'campus_lead') {
-      return { error: 'Only admins or campus leads can publish to the public gallery.' }
-    }
     if (!isPubliclyPromotable(asset.file_type, !!asset.storage_path)) {
       return { error: 'Only uploaded photos can be published to the public gallery (linked evidence cannot be published).' }
     }
@@ -123,7 +123,10 @@ export async function rejectEvidence(
 ): Promise<EvidenceActionState> {
   const parsed = evidenceIdSchema.safeParse({ id: formData.get('id') })
   if (!parsed.success) return { error: 'Invalid file.' }
-  await requireUser('/admin/evidence')
+  const user = await requireUser('/admin/evidence')
+  if (!isAdmin(user.role) && user.role !== 'campus_lead') {
+    return { error: 'Only admins or campus leads can review evidence.' }
+  }
 
   const supabase = await createClient()
   const { error } = await supabase
