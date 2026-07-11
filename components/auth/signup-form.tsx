@@ -89,7 +89,7 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
       </Field>
 
       <Field label="Email" htmlFor="email" icon={<Mail className="size-4" />}>
-        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" className="h-10 pl-9" onChange={(e) => setEmail(e.target.value)} />
+        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@teachaiforindia.org" className="h-10 pl-9" onChange={(e) => setEmail(e.target.value)} />
       </Field>
 
       <Field label="Password" htmlFor="password" icon={<Lock className="size-4" />}>

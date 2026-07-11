@@ -46,7 +46,7 @@ export function ForgotPasswordForm({ notice }: { notice?: string }) {
       )}
       <div className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@campus.edu" />
+        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@teachaiforindia.org" />
       </div>
       <Button type="submit" className="w-full" disabled={pending}>
         {pending && <Loader2 className="size-4 animate-spin" />} Send reset link

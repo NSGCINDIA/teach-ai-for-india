@@ -47,7 +47,7 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
           type="email"
           autoComplete="email"
           required
-          placeholder="you@campus.edu"
+          placeholder="you@teachaiforindia.org"
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={handleEmailKeyDown}
         />

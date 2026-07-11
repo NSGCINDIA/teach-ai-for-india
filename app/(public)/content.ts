@@ -137,21 +137,21 @@ export const TESTIMONIALS_FALLBACK: TestimonialsContent = {
   items: [
     {
       quote:
-        'The students were spellbound. For many of them it was the first time a computer felt like something they could shape, not just watch.',
-      name: 'Anitha R.',
-      role: 'Government High School Teacher, Warangal',
+        'The students showed strong interest and picked things up quickly. With proper teaching, they have clear potential to grow and perform well.',
+      name: 'Balaji',
+      role: 'Principal, ZPH High School Sontyam',
     },
     {
       quote:
-        'Volunteering here changed how I see my own degree. I am not just learning AI — I am handing it forward.',
-      name: 'Karthik M.',
-      role: 'Campus Volunteer, Hyderabad',
+        'All the volunteers did a solid job delivering the sessions clearly and effectively. The students were fully engaged and genuinely enjoyed the learning experience.',
+      name: 'Srinivas',
+      role: 'Principal, ZPH High School Pendurthi',
     },
     {
       quote:
-        'A program that treats our children as creators of technology, not just consumers. That is exactly what they deserve.',
-      name: 'Suresh Kumar',
-      role: 'School Principal, Vijayawada',
+        'The sessions were very interactive and our students were eager to participate in all the hands-on AI exercises.',
+      name: 'Pushpa Latha',
+      role: 'Principal, ZPHS Agiripalli',
     },
   ],
 }
@@ -170,27 +170,37 @@ export const FAQ_FALLBACK: FaqContent = {
     {
       question: 'What is Teach AI for India?',
       answer:
-        'We are a student-led non-profit movement bringing applied AI literacy to government school students, beginning in Telangana and Andhra Pradesh.',
+        'We are a student-led movement bringing applied AI literacy to government school students across Telangana and Andhra Pradesh, empowering the next generation of responsible digital creators.',
     },
     {
-      question: 'Who runs the sessions?',
+      question: 'Who can volunteer?',
       answer:
-        'Trained university volunteers organised into campus teams. Each campus has a lead who coordinates outreach, scheduling, and reporting.',
+        'Any university student at one of our participating partner campuses can volunteer. We recruit and train volunteers to facilitate interactive AI workshops in local schools.',
     },
     {
-      question: 'Does it cost schools anything?',
+      question: 'How do campuses join?',
       answer:
-        'No. Every session is delivered free of charge to partner government schools.',
+        'Higher education institutions can join the movement by establishing an official campus chapter. Student leads or college administrators can contact us to start onboarding.',
     },
     {
-      question: 'How can I volunteer?',
+      question: 'How are schools selected?',
       answer:
-        'Head to the Join page and submit an application. Tell us your preferred campus and why you want to be part of the movement — we will be in touch.',
+        'We focus where the digital divide is widest, partnering with government schools, state residential schools, and Gurukulams in collaboration with local education offices.',
     },
     {
-      question: 'Can my school partner with you?',
+      question: 'Is there any fee?',
       answer:
-        'Absolutely. Reach out through the Contact page and our outreach team will start the conversation.',
+        'No. Every session, curriculum material, and workshop delivered by Teach AI for India is completely free of charge to partner schools and students.',
+    },
+    {
+      question: 'Who conducts sessions?',
+      answer:
+        'Sessions are conducted on the ground by trained university volunteers organized into campus teams, led by an execution lead for each session.',
+    },
+    {
+      question: 'How can organizations partner?',
+      answer:
+        'We partner with educational institutions, NGOs, corporate sponsors, and government offices. Contact us or email partners@teachaiforindia.org to explore collaboration.',
     },
   ],
 }

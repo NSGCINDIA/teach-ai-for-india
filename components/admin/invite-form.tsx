@@ -51,7 +51,7 @@ export function InviteForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required placeholder="priya@university.edu" />
+            <Input id="email" name="email" type="email" required placeholder="priya.sharma@teachaiforindia.org" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="role">Role</Label>
