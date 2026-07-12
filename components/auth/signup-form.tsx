@@ -3,9 +3,10 @@
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import {
-  AlertCircle, ArrowRight, CheckCircle2, Hash, Loader2, Lock, Mail, MapPin, User, UserCog,
+  AlertCircle, ArrowRight, CheckCircle2, Hash, Loader2, Lock, Mail, MapPin, Phone, User, UserCog,
 } from 'lucide-react'
 import { requestSignup, type ActionState } from '@/actions/auth'
+import { fieldValue } from '@/lib/actions/form-values'
 import { SELF_SIGNUP_ROLES, roleLabel } from '@/lib/auth/roles'
 import { useDebouncedValue } from '@/hooks/use-debounce'
 import type { CampusRow } from '@/types/database'
@@ -33,12 +34,14 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
   // autofill too. `requested_role` is omitted: it defaults to a valid value.
   const [fullName, setFullName] = useState('')
   const [niatId, setNiatId] = useState('')
+  const [phone, setPhone] = useState('')
   const [campusId, setCampusId] = useState('')
   const [email, setEmail] = useState('')
 
   const canSubmit =
     fullName.trim().length > 0 &&
     niatId.trim().length > 0 &&
+    phone.trim().length > 0 &&
     campusId.length > 0 &&
     email.trim().length > 0 &&
     pw.length > 0 &&
@@ -68,28 +71,32 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
       )}
 
       <Field label="Full Name" htmlFor="full_name" icon={<User className="size-4" />}>
-        <Input id="full_name" name="full_name" required placeholder="Your full name" className="h-10 pl-9" onChange={(e) => setFullName(e.target.value)} />
+        <Input id="full_name" name="full_name" required placeholder="Your full name" className="h-10 pl-9" defaultValue={fieldValue(state, 'full_name', '')} onChange={(e) => setFullName(e.target.value)} />
       </Field>
 
       <Field label="NIAT ID" htmlFor="niat_id" icon={<Hash className="size-4" />}>
-        <Input id="niat_id" name="niat_id" required placeholder="Your NIAT student ID" className="h-10 pl-9" onChange={(e) => setNiatId(e.target.value)} />
+        <Input id="niat_id" name="niat_id" required placeholder="Your NIAT student ID" className="h-10 pl-9" defaultValue={fieldValue(state, 'niat_id', '')} onChange={(e) => setNiatId(e.target.value)} />
+      </Field>
+
+      <Field label="Phone" htmlFor="phone" icon={<Phone className="size-4" />}>
+        <Input id="phone" name="phone" type="tel" autoComplete="tel" required placeholder="+91 98765 43210" className="h-10 pl-9" defaultValue={fieldValue(state, 'phone', '')} onChange={(e) => setPhone(e.target.value)} />
       </Field>
 
       <Field label="Campus" htmlFor="campus_id" icon={<MapPin className="size-4" />}>
-        <select id="campus_id" name="campus_id" required defaultValue="" className={SELECT_CLASS} onChange={(e) => setCampusId(e.target.value)}>
+        <select id="campus_id" name="campus_id" required defaultValue={fieldValue(state, 'campus_id', '')} className={SELECT_CLASS} onChange={(e) => setCampusId(e.target.value)}>
           <option value="" disabled>Select your campus</option>
           {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </Field>
 
       <Field label="Role" htmlFor="requested_role" icon={<UserCog className="size-4" />}>
-        <select id="requested_role" name="requested_role" required defaultValue="volunteer" className={SELECT_CLASS}>
+        <select id="requested_role" name="requested_role" required defaultValue={fieldValue(state, 'requested_role', 'volunteer')} className={SELECT_CLASS}>
           {SELF_SIGNUP_ROLES.map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}
         </select>
       </Field>
 
       <Field label="Email" htmlFor="email" icon={<Mail className="size-4" />}>
-        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@teachaiforindia.org" className="h-10 pl-9" onChange={(e) => setEmail(e.target.value)} />
+        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" className="h-10 pl-9" defaultValue={fieldValue(state, 'email', '')} onChange={(e) => setEmail(e.target.value)} />
       </Field>
 
       <Field label="Password" htmlFor="password" icon={<Lock className="size-4" />}>

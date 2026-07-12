@@ -5,7 +5,7 @@ export type EvidenceListItem = MediaAssetRow & {
   campus: { id: string; name: string } | null
   school: { id: string; name: string } | null
   session: { id: string; topic: string; session_number: number } | null
-  /** Signed URL for previewing/downloading (evidence bucket is private). */
+  /** URL to open/preview: the external link if set, else a signed URL (evidence bucket is private). */
   signed_url: string | null
 }
 
@@ -56,8 +56,11 @@ export async function listEvidence(filters: EvidenceFilters = {}): Promise<Evide
   const { data, error } = await query
   if (error || !data) return []
   const rows = data as unknown as EvidenceListItem[]
-  const signed = await signPaths(rows.map((r) => r.storage_path))
-  for (const r of rows) r.signed_url = signed.get(r.storage_path) ?? null
+  const paths = rows.map((r) => r.storage_path).filter((p): p is string => !!p)
+  const signed = await signPaths(paths)
+  for (const r of rows) {
+    r.signed_url = r.external_url ?? (r.storage_path ? signed.get(r.storage_path) ?? null : null)
+  }
   return rows
 }
 

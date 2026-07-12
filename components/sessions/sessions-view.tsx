@@ -17,6 +17,11 @@ const SELECT_CLASS =
 
 const STATUSES = Object.keys(SESSION_STATUS_META) as SessionStatus[]
 
+function timing(start: string | null, end: string | null): string {
+  const parts = [start, end].filter(Boolean).map((t) => t!.slice(0, 5))
+  return parts.length ? parts.join(' – ') : '—'
+}
+
 interface Props {
   sessions: SessionListItem[]
   campuses: Pick<CampusRow, 'id' | 'name'>[]
@@ -71,9 +76,11 @@ export function SessionsView({ sessions, campuses, basePath, showCampusFilter = 
             <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="px-4 py-2.5 font-medium">Date</th>
+                <th className="px-4 py-2.5 font-medium">Timing</th>
                 <th className="px-4 py-2.5 font-medium">School</th>
                 <th className="px-4 py-2.5 font-medium">Type</th>
                 <th className="px-4 py-2.5 font-medium">Topic</th>
+                <th className="px-4 py-2.5 font-medium">Attended</th>
                 <th className="px-4 py-2.5 font-medium">Status</th>
               </tr>
             </thead>
@@ -81,6 +88,7 @@ export function SessionsView({ sessions, campuses, basePath, showCampusFilter = 
               {filtered.map((s) => (
                 <tr key={s.id} className="transition-colors hover:bg-muted/40">
                   <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">{formatDate(s.date)}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">{timing(s.start_time, s.end_time)}</td>
                   <td className="px-4 py-3">
                     <Link href={`${basePath}/${s.id}`} className="font-medium text-foreground hover:text-brand hover:underline">
                       {s.school?.name ?? 'Session'}
@@ -89,6 +97,7 @@ export function SessionsView({ sessions, campuses, basePath, showCampusFilter = 
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{SESSION_TYPE_META[s.session_type].label}</td>
                   <td className="max-w-xs truncate px-4 py-3 text-muted-foreground">{s.topic}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{s.volunteer_count ?? '—'}</td>
                   <td className="px-4 py-3"><StatusBadge kind="session" status={s.status} /></td>
                 </tr>
               ))}

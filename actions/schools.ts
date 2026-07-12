@@ -12,6 +12,7 @@ import {
   schoolContactSchema,
   changeStatusSchema,
 } from '@/lib/validations/schools'
+import { formValues } from '@/lib/actions/form-values'
 
 export type SchoolActionState = {
   error?: string
@@ -19,6 +20,8 @@ export type SchoolActionState = {
   message?: string
   /** Near-duplicate matches that block creation until acknowledged (PRD §7.3). */
   duplicates?: SimilarSchool[]
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
 }
 
 /** Map empty-string optionals to null so the DB stores NULL, not ''. */
@@ -32,13 +35,14 @@ export async function createSchool(
   _prev: SchoolActionState,
   formData: FormData,
 ): Promise<SchoolActionState> {
+  const values = formValues(formData)
   const user = await requireUser('/dashboard/schools')
   if (can(user.role, 'edit_school') === false) {
-    return { error: 'You do not have permission to add schools.' }
+    return { error: 'You do not have permission to add schools.', values }
   }
 
   const parsed = createSchoolSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   const { acknowledge_duplicate, ...input } = parsed.data
 
   // Blocking dedup warning unless the user explicitly acknowledged it.
@@ -48,6 +52,7 @@ export async function createSchool(
       return {
         error: `${dupes.length} similar school${dupes.length > 1 ? 's' : ''} already exist in ${input.district}. Review before continuing.`,
         duplicates: dupes,
+        values,
       }
     }
   }
@@ -61,7 +66,7 @@ export async function createSchool(
 
   const supabase = await createClient()
   const { data, error } = await supabase.from('schools').insert(payload).select('id').single()
-  if (error) return { error: error.message }
+  if (error) return { error: error.message, values }
 
   revalidatePath('/dashboard/schools')
   revalidatePath('/admin/schools')
@@ -73,18 +78,19 @@ export async function updateSchool(
   formData: FormData,
 ): Promise<SchoolActionState> {
   const id = String(formData.get('id') ?? '')
-  if (!id) return { error: 'Missing school id.' }
+  const values = formValues(formData)
+  if (!id) return { error: 'Missing school id.', values }
   const user = await requireUser(`/dashboard/schools/${id}`)
   if (can(user.role, 'edit_school') === false) {
-    return { error: 'You do not have permission to edit schools.' }
+    return { error: 'You do not have permission to edit schools.', values }
   }
 
   const parsed = schoolSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase.from('schools').update(nullify(parsed.data)).eq('id', id)
-  if (error) return { error: error.message }
+  if (error) return { error: error.message, values }
 
   revalidatePath(`/dashboard/schools/${id}`)
   revalidatePath('/dashboard/schools')
@@ -96,8 +102,9 @@ export async function changeSchoolStatus(
   _prev: SchoolActionState,
   formData: FormData,
 ): Promise<SchoolActionState> {
+  const values = formValues(formData)
   const parsed = changeStatusSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   await requireUser(`/dashboard/schools/${parsed.data.school_id}`)
 
   const supabase = await createClient()
@@ -106,7 +113,7 @@ export async function changeSchoolStatus(
     p_new_status: parsed.data.new_status,
     p_note: parsed.data.note || undefined,
   })
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/schools/${parsed.data.school_id}`)
   revalidatePath('/dashboard/schools')
@@ -118,13 +125,14 @@ export async function addSchoolContact(
   _prev: SchoolActionState,
   formData: FormData,
 ): Promise<SchoolActionState> {
+  const values = formValues(formData)
   const parsed = schoolContactSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   await requireUser(`/dashboard/schools/${parsed.data.school_id}`)
 
   const supabase = await createClient()
   const { error } = await supabase.from('school_contacts').insert(nullify(parsed.data))
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/schools/${parsed.data.school_id}`)
   return { ok: true, message: 'Contact added.' }

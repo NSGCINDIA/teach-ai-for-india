@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { updateProfile, type ProfileActionState } from '@/actions/profile'
+import { fieldValue } from '@/lib/actions/form-values'
 import type { UserRow } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,12 +25,12 @@ export function ProfileForm({ user }: { user: UserRow }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="full_name">Full name</Label>
-        <Input id="full_name" name="full_name" defaultValue={user.full_name} required />
+        <Input id="full_name" name="full_name" defaultValue={fieldValue(state, 'full_name', user.full_name)} required />
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="phone">Phone</Label>
-        <Input id="phone" name="phone" defaultValue={user.phone ?? ''} placeholder="+91…" />
+        <Input id="phone" name="phone" defaultValue={fieldValue(state, 'phone', user.phone ?? '')} placeholder="+91…" />
       </div>
 
       <Button type="submit" disabled={pending}>

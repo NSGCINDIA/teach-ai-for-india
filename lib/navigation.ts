@@ -45,7 +45,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     NOTIFICATIONS,
     { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
   ],
-  outreach_head: [
+  outreach_lead: [
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: 'Outreach Forms', href: '/dashboard/schools/new', icon: 'outreach' },
@@ -91,9 +91,20 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   // Roles that don't primarily live in the team dashboard fall back to the
   // campus-lead layout when they visit it.
   super_admin: [],
-  mgmt_admin: [],
-  school_poc: [OVERVIEW, NOTIFICATIONS],
-  viewer: [OVERVIEW],
+  // Campus-scoped monitoring roles (Operational Workflow Spec v2.0). Finance
+  // Lead and Campus Management Admin's real screens landed in Phase 5.
+  campus_mgmt_admin: [
+    OVERVIEW,
+    { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
+    { label: 'Finance', href: '/dashboard/finance', icon: 'finance' },
+    NOTIFICATIONS,
+  ],
+  finance_lead: [
+    OVERVIEW,
+    { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },
+    { label: 'Campus Finance', href: '/dashboard/finance', icon: 'finance' },
+    NOTIFICATIONS,
+  ],
 }
 
 /** Admin panel nav (PRD §7.9 / §8). */

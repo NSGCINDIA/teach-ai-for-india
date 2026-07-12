@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type {
   SessionRow,
@@ -16,7 +17,8 @@ export type AttendanceWithUser = AttendanceRow & {
   user: { id: string; full_name: string; role: UserRole } | null
 }
 
-export type SessionDetail = SessionListItem & {
+export type SessionDetail = Omit<SessionListItem, 'campus'> & {
+  campus: Pick<CampusRow, 'id' | 'name' | 'quarter'> | null
   attendance: AttendanceWithUser[]
 }
 
@@ -45,13 +47,15 @@ export async function listSessions(filters: SessionFilters = {}): Promise<Sessio
   return data as unknown as SessionListItem[]
 }
 
-export async function getSession(id: string): Promise<SessionDetail | null> {
+// Wrapped in React cache() so a page and its generateMetadata (which both
+// call this for the same id) share one round trip instead of two.
+export const getSession = cache(async (id: string): Promise<SessionDetail | null> => {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('sessions')
     .select(
-      `*, school:schools(id, name, district), campus:campuses(id, name),
-       attendance:attendance_records(*, user:users(id, full_name, role))`,
+      `*, school:schools(id, name, district), campus:campuses(id, name, quarter),
+       attendance:attendance_records(*, user:users!attendance_records_user_id_fkey(id, full_name, role))`,
     )
     .eq('id', id)
     .single()
@@ -62,7 +66,7 @@ export async function getSession(id: string): Promise<SessionDetail | null> {
     (a.user?.full_name ?? '').localeCompare(b.user?.full_name ?? ''),
   )
   return detail
-}
+})
 
 /** Schools for the create-session picker (optionally scoped to a campus). */
 export async function listSchoolOptions(
@@ -71,21 +75,22 @@ export async function listSchoolOptions(
   const supabase = await createClient()
   let query = supabase.from('schools').select('id, name, district').order('name').limit(1000)
   if (campusId) query = query.eq('campus_id', campusId)
-  const { data } = await query
+  const { data, error } = await query
+  if (error) throw new Error(`listSchoolOptions failed: ${error.message}`)
   return (data as { id: string; name: string; district: string }[]) ?? []
 }
 
-/** Campus team members eligible for a session roster (active, non-POC). */
+/** Campus team members eligible for a session roster (active). */
 export async function listTeamMembers(campusId: string | null): Promise<TeamMember[]> {
   const supabase = await createClient()
   let query = supabase
     .from('users')
     .select('id, full_name, role')
     .eq('is_active', true)
-    .neq('role', 'school_poc')
     .order('full_name')
     .limit(500)
   if (campusId) query = query.eq('campus_id', campusId)
-  const { data } = await query
+  const { data, error } = await query
+  if (error) throw new Error(`listTeamMembers failed: ${error.message}`)
   return (data as TeamMember[]) ?? []
 }

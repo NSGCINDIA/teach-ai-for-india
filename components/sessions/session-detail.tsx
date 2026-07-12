@@ -1,8 +1,11 @@
 import Link from 'next/link'
-import { ArrowLeft, CalendarDays, Clock, ClipboardCheck, Images, MapPin, Pencil, UserCheck, Users } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowLeft, CalendarDays, ClipboardList, Clock, ClipboardCheck, Images, MapPin, Pencil, UserCheck, Users } from 'lucide-react'
 import type { SessionDetail, TeamMember } from '@/lib/data/sessions'
 import type { AssignmentWithVolunteer } from '@/lib/data/assignments'
 import type { EvidenceListItem } from '@/lib/data/evidence'
+import type { ExecutionPlanAccess } from '@/lib/auth/rbac'
+import type { ExecutionPlanRow, CampusBudgetRow } from '@/types/database'
 import { SESSION_TYPE_META, SESSION_TYPE_FIELD } from '@/lib/constants/sessions'
 import { MEDIA_TYPE_META } from '@/lib/constants/evidence'
 import { formatDate } from '@/lib/format'
@@ -12,7 +15,10 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { SessionStatusControl } from '@/components/sessions/session-status-control'
 import { AttendanceEditor } from '@/components/sessions/attendance-editor'
 import { AssignmentPanel } from '@/components/sessions/assignment-panel'
+import { ExecutionPlanPanel } from '@/components/sessions/execution-plan-panel'
 import { EvidenceUploader } from '@/components/evidence/evidence-uploader'
+import { MandatoryEvidenceChecklist } from '@/components/evidence/mandatory-evidence-checklist'
+import { isImageFileType } from '@/lib/constants/evidence'
 
 interface Props {
   session: SessionDetail
@@ -24,11 +30,16 @@ interface Props {
   basePath: string
   schoolBasePath: string
   canEdit: boolean
+  canUploadEvidence: boolean
+  executionPlans: ExecutionPlanRow[]
+  executionPlanAccess: ExecutionPlanAccess
+  budget: CampusBudgetRow | null
 }
 
 export function SessionDetailView({
   session, members, assignments, assignCandidates, canAssign,
-  evidence, basePath, schoolBasePath, canEdit,
+  evidence, basePath, schoolBasePath, canEdit, canUploadEvidence,
+  executionPlans, executionPlanAccess, budget,
 }: Props) {
   const field = SESSION_TYPE_FIELD[session.session_type]
   const detail = session.type_details?.[field.key] as string | undefined
@@ -70,6 +81,25 @@ export function SessionDetailView({
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
+          {(session.status === 'planned' || executionPlans.length > 0) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <ClipboardList className="size-4" /> Execution plan
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ExecutionPlanPanel
+                  sessionId={session.id}
+                  plans={executionPlans}
+                  budget={budget}
+                  quarter={session.campus?.quarter ?? null}
+                  access={executionPlanAccess}
+                />
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardHeader><CardTitle className="text-base">Report</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
@@ -102,9 +132,10 @@ export function SessionDetailView({
             <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Images className="size-4" /> Evidence</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <p className="text-xs text-muted-foreground">
-                Reporting needs at least 1 photo and 1 attendance document. {evidence.length} file{evidence.length === 1 ? '' : 's'} attached.
+                Reporting needs all 5 categories below. {evidence.length} file{evidence.length === 1 ? '' : 's'} attached.
               </p>
-              {canEdit && (
+              <MandatoryEvidenceChecklist evidence={evidence} />
+              {canUploadEvidence && (
                 <EvidenceUploader
                   entityType="session"
                   entityId={session.id}
@@ -124,9 +155,14 @@ export function SessionDetailView({
                       className="group relative block aspect-square overflow-hidden rounded-lg border border-border bg-muted"
                       title={`${m.file_name} · ${MEDIA_TYPE_META[m.file_type].label}`}
                     >
-                      {m.file_type === 'photo' && m.signed_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={m.signed_url} alt={m.caption ?? m.file_name} className="size-full object-cover" loading="lazy" />
+                      {isImageFileType(m.file_type) && m.signed_url && !m.external_url ? (
+                        <Image
+                          src={m.signed_url}
+                          alt={m.caption ?? m.file_name}
+                          fill
+                          sizes="(min-width: 640px) 25vw, 33vw"
+                          className="object-cover"
+                        />
                       ) : (
                         <span className="grid size-full place-items-center px-1 text-center text-[10px] text-muted-foreground">
                           {MEDIA_TYPE_META[m.file_type].label}

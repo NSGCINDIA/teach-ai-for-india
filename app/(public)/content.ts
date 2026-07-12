@@ -46,6 +46,7 @@ export interface PartnersContent {
 export interface FaqItem {
   question: string
   answer: string
+  category?: string
 }
 export interface FaqContent {
   items: FaqItem[]
@@ -170,37 +171,56 @@ export const FAQ_FALLBACK: FaqContent = {
     {
       question: 'What is Teach AI for India?',
       answer:
-        'We are a student-led movement bringing applied AI literacy to government school students across Telangana and Andhra Pradesh, empowering the next generation of responsible digital creators.',
+        'We are a student-led non-profit movement bringing applied AI literacy to government school students, beginning in Telangana and Andhra Pradesh.',
+      category: 'General',
     },
     {
       question: 'Who can volunteer?',
       answer:
-        'Any university student at one of our participating partner campuses can volunteer. We recruit and train volunteers to facilitate interactive AI workshops in local schools.',
+        'Trained university volunteers organised into campus teams. Each campus has a lead who coordinates outreach, scheduling, and reporting.',
+      category: 'General',
     },
     {
-      question: 'How do campuses join?',
+      question: 'What topics are covered in the curriculum?',
       answer:
-        'Higher education institutions can join the movement by establishing an official campus chapter. Student leads or college administrators can contact us to start onboarding.',
+        'Our curriculum focuses on applied AI literacy: prompt engineering, creative AI tools, generative safe-use guidelines, and introduction to Python coding basics.',
+      category: 'General',
     },
     {
       question: 'How are schools selected?',
       answer:
-        'We focus where the digital divide is widest, partnering with government schools, state residential schools, and Gurukulams in collaboration with local education offices.',
+        'Head to the Join page and submit an application. Tell us your preferred campus and why you want to be part of the movement — we will be in touch.',
+      category: 'Volunteering',
+    },
+    {
+      question: 'What is the time commitment required?',
+      answer:
+        'Typically 3-4 hours per week, which includes local travel to schools, classroom session delivery, and short reporting tasks.',
+      category: 'Volunteering',
+    },
+    {
+      question: 'Do I need prior coding or teaching experience?',
+      answer:
+        'No. We provide comprehensive training, sandbox environments, and curriculum materials to prepare all volunteers for classroom teaching.',
+      category: 'Volunteering',
+    },
+    {
+      question: 'Does it cost schools anything?',
+      answer:
+        'No. Every session and learning material is delivered entirely free of charge to partner government schools.',
+      category: 'Partnering',
     },
     {
       question: 'Is there any fee?',
       answer:
-        'No. Every session, curriculum material, and workshop delivered by Teach AI for India is completely free of charge to partner schools and students.',
+        'Absolutely. Reach out through the Contact page and our outreach team will start the coordination process.',
+      category: 'Partnering',
     },
     {
-      question: 'Who conducts sessions?',
+      question: 'What infrastructure does the school need?',
       answer:
-        'Sessions are conducted on the ground by trained university volunteers organized into campus teams, led by an execution lead for each session.',
-    },
-    {
-      question: 'How can organizations partner?',
-      answer:
-        'We partner with educational institutions, NGOs, corporate sponsors, and government offices. Contact us or email partners@teachaiforindia.org to explore collaboration.',
+        'A computer lab with internet connectivity is ideal. If labs are offline or lack equipment, we coordinate with campuses to arrange offline visual setups.',
+      category: 'Partnering',
     },
   ],
 }

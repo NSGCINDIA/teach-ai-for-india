@@ -4,6 +4,7 @@ import { useActionState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { createSchool, updateSchool, type SchoolActionState } from '@/actions/schools'
+import { fieldValue } from '@/lib/actions/form-values'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import type { SchoolRow, CampusRow } from '@/types/database'
 import { Button } from '@/components/ui/button'
@@ -81,38 +82,38 @@ export function SchoolForm({ school, campuses, lockedCampusId, cancelHref }: Sch
 
       <Section title="Identity">
         <Field label="School name" required className="sm:col-span-2">
-          <Input name="name" required defaultValue={school?.name} placeholder="Zilla Parishad High School" />
+          <Input name="name" required defaultValue={fieldValue(state, 'name', school?.name ?? '')} placeholder="Zilla Parishad High School" />
         </Field>
         <Field label="School type" required>
-          <select name="school_type" className={SELECT_CLASS} defaultValue={school?.school_type ?? 'government'}>
+          <select name="school_type" className={SELECT_CLASS} defaultValue={fieldValue(state, 'school_type', school?.school_type ?? 'government')}>
             {SCHOOL_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </Field>
         <Field label="Board" required>
-          <select name="board" className={SELECT_CLASS} defaultValue={school?.board ?? 'state'}>
+          <select name="board" className={SELECT_CLASS} defaultValue={fieldValue(state, 'board', school?.board ?? 'state')}>
             {BOARDS.map((b) => <option key={b.value} value={b.value}>{b.label}</option>)}
           </select>
         </Field>
         <Field label="DISE code">
-          <Input name="dise_code" inputMode="numeric" defaultValue={school?.dise_code ?? ''} placeholder="11-digit code" />
+          <Input name="dise_code" inputMode="numeric" defaultValue={fieldValue(state, 'dise_code', school?.dise_code ?? '')} placeholder="11-digit code" />
         </Field>
       </Section>
 
       <Section title="Location">
         <Field label="State" required>
-          <Input name="state" required defaultValue={school?.state} placeholder="Telangana" />
+          <Input name="state" required defaultValue={fieldValue(state, 'state', school?.state ?? '')} placeholder="Telangana" />
         </Field>
         <Field label="District" required>
-          <Input name="district" required defaultValue={school?.district} placeholder="Rangareddy" />
+          <Input name="district" required defaultValue={fieldValue(state, 'district', school?.district ?? '')} placeholder="Rangareddy" />
         </Field>
         <Field label="Mandal">
-          <Input name="mandal" defaultValue={school?.mandal ?? ''} />
+          <Input name="mandal" defaultValue={fieldValue(state, 'mandal', school?.mandal ?? '')} />
         </Field>
         <Field label="Cluster">
-          <Input name="cluster" defaultValue={school?.cluster ?? ''} />
+          <Input name="cluster" defaultValue={fieldValue(state, 'cluster', school?.cluster ?? '')} />
         </Field>
         <Field label="Address" className="sm:col-span-2">
-          <Input name="address" defaultValue={school?.address ?? ''} />
+          <Input name="address" defaultValue={fieldValue(state, 'address', school?.address ?? '')} />
         </Field>
       </Section>
 
@@ -124,17 +125,17 @@ export function SchoolForm({ school, campuses, lockedCampusId, cancelHref }: Sch
               <Input value={campuses.find((c) => c.id === lockedCampusId)?.name ?? 'Your campus'} disabled />
             </>
           ) : (
-            <select name="campus_id" className={SELECT_CLASS} defaultValue={school?.campus_id ?? ''}>
+            <select name="campus_id" className={SELECT_CLASS} defaultValue={fieldValue(state, 'campus_id', school?.campus_id ?? '')}>
               <option value="">— Select campus —</option>
               {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           )}
         </Field>
         <Field label="Next action date">
-          <Input type="date" name="next_action_date" defaultValue={school?.next_action_date ?? ''} />
+          <Input type="date" name="next_action_date" defaultValue={fieldValue(state, 'next_action_date', school?.next_action_date ?? '')} />
         </Field>
         <Field label="Notes" className="sm:col-span-2">
-          <Textarea name="notes" rows={3} defaultValue={school?.notes ?? ''} placeholder="Context, history, anything the next person needs." />
+          <Textarea name="notes" rows={3} defaultValue={fieldValue(state, 'notes', school?.notes ?? '')} placeholder="Context, history, anything the next person needs." />
         </Field>
       </Section>
 

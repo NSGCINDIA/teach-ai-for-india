@@ -4,6 +4,7 @@ import { useActionState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, CheckCircle2, Info, Loader2 } from 'lucide-react'
 import { requestPasswordReset, type ActionState } from '@/actions/auth'
+import { fieldValue } from '@/lib/actions/form-values'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -46,7 +47,7 @@ export function ForgotPasswordForm({ notice }: { notice?: string }) {
       )}
       <div className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@teachaiforindia.org" />
+        <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@campus.edu" defaultValue={fieldValue(state, 'email', '')} />
       </div>
       <Button type="submit" className="w-full" disabled={pending}>
         {pending && <Loader2 className="size-4 animate-spin" />} Send reset link

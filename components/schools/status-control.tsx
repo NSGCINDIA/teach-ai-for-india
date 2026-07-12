@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
 import { changeSchoolStatus, type SchoolActionState } from '@/actions/schools'
+import { fieldValue } from '@/lib/actions/form-values'
 import {
   SCHOOL_STATUS_META,
   SCHOOL_TRANSITIONS,
@@ -22,11 +23,13 @@ interface StatusControlProps {
   current: SchoolStatus
   /** Whether the signed-in user may move this school (campus-scoped). */
   canEdit: boolean
+  /** Restrict which target stages this user may pick (e.g. exec_lead's execution-only scope). Omit for unrestricted. */
+  restrictTo?: SchoolStatus[]
 }
 
-export function StatusControl({ schoolId, current, canEdit }: StatusControlProps) {
+export function StatusControl({ schoolId, current, canEdit, restrictTo }: StatusControlProps) {
   const [state, action, pending] = useActionState<SchoolActionState, FormData>(changeSchoolStatus, {})
-  const options = SCHOOL_TRANSITIONS[current] ?? []
+  const options = (SCHOOL_TRANSITIONS[current] ?? []).filter((s) => !restrictTo || restrictTo.includes(s))
   const [target, setTarget] = useState<SchoolStatus | ''>('')
   const needsNote = target ? schoolTransitionNeedsNote(current, target) : false
 
@@ -40,7 +43,9 @@ export function StatusControl({ schoolId, current, canEdit }: StatusControlProps
       {!canEdit ? (
         <p className="text-sm text-muted-foreground">You have read-only access to this school’s pipeline.</p>
       ) : options.length === 0 ? (
-        <p className="text-sm text-muted-foreground">This school is in a terminal stage.</p>
+        <p className="text-sm text-muted-foreground">
+          {restrictTo ? 'No pipeline moves are available to you for this stage.' : 'This school is in a terminal stage.'}
+        </p>
       ) : (
         <form action={action} className="space-y-3">
           <input type="hidden" name="school_id" value={schoolId} />
@@ -81,6 +86,7 @@ export function StatusControl({ schoolId, current, canEdit }: StatusControlProps
                 name="note"
                 rows={2}
                 required={needsNote}
+                defaultValue={fieldValue(state, 'note', '')}
                 placeholder={needsNote ? 'Required for archiving and backward moves' : 'Add context for the visit log'}
               />
             </div>

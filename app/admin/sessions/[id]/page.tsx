@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
-import { canEditSession, canForEntity } from '@/lib/auth/rbac'
+import { canEditSession, canForEntity, can, executionPlanAccess } from '@/lib/auth/rbac'
 import { getSession, listTeamMembers } from '@/lib/data/sessions'
 import { getSessionAssignments } from '@/lib/data/assignments'
 import { listSessionEvidence } from '@/lib/data/evidence'
+import { listExecutionPlansForSession } from '@/lib/data/execution-plans'
+import { getCampusBudget } from '@/lib/data/budgets'
 import { SessionDetailView } from '@/components/sessions/session-detail'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -14,19 +16,27 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function AdminSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const user = await requireAccess('/admin/sessions')
-  const session = await getSession(id)
+  const [user, session] = await Promise.all([requireAccess('/admin/sessions'), getSession(id)])
   if (!session) notFound()
 
   const canEdit = canEditSession(user.role, user.id, user.campus_id, session)
+  const canUploadEvidence = canEdit && can(user.role, 'upload_evidence') !== false
   const canAssign = canForEntity(user.role, 'assign_volunteers', user.campus_id, session.campus_id)
-  const [members, assignments, evidence] = await Promise.all([
+  const execPlanAccess = executionPlanAccess(user.role, user.campus_id, session.campus_id)
+  const [teamMembers, assignments, evidence, executionPlans, budget] = await Promise.all([
     listTeamMembers(session.campus_id),
     getSessionAssignments(session.id),
     listSessionEvidence(session.id),
+    listExecutionPlansForSession(session.id),
+    session.campus_id && session.campus?.quarter
+      ? getCampusBudget(session.campus_id, session.campus.quarter)
+      : Promise.resolve(null),
   ])
+  // Attendance/assignment rosters are volunteer-only — leads track their own
+  // attendance elsewhere and shouldn't clutter this list.
+  const members = teamMembers.filter((m) => m.role === 'volunteer')
   const assignedIds = new Set(assignments.map((a) => a.volunteer_id))
-  const assignCandidates = members.filter((m) => m.role === 'volunteer' && !assignedIds.has(m.id))
+  const assignCandidates = members.filter((m) => !assignedIds.has(m.id))
 
   return (
     <SessionDetailView
@@ -39,6 +49,10 @@ export default async function AdminSessionPage({ params }: { params: Promise<{ i
       basePath="/admin/sessions"
       schoolBasePath="/admin/schools"
       canEdit={canEdit}
+      canUploadEvidence={canUploadEvidence}
+      executionPlans={executionPlans}
+      executionPlanAccess={execPlanAccess}
+      budget={budget}
     />
   )
 }

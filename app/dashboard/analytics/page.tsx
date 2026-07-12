@@ -7,7 +7,7 @@ import {
 } from '@/lib/data/campus-analytics'
 import { getFinanceSummary, getMonthlyTrend } from '@/lib/data/finance'
 import { formatCurrency, formatNumber } from '@/lib/format'
-import { SESSION_STATUS_META, SCHOOL_STATUS_META } from '@/lib/constants/status'
+import { SESSION_STATUS_META, SCHOOL_STATUS_META, SCHOOL_PIPELINE } from '@/lib/constants/status'
 import type { SessionStatus, SchoolStatus, StatusCount } from '@/types/database'
 import { MetricCard } from '@/components/shared/metric-card'
 import { StatusBreakdown, type BreakdownItem } from '@/components/analytics/status-breakdown'
@@ -19,10 +19,7 @@ export const metadata = { title: 'Analytics' }
 const SESSION_ORDER: SessionStatus[] = [
   'planned', 'in_progress', 'reported', 'campus_approved', 'verified', 'cancelled',
 ]
-const SCHOOL_ORDER: SchoolStatus[] = [
-  'lead_identified', 'contacted', 'followup_pending', 'approval_requested',
-  'approval_received', 'session_scheduled', 'session_in_progress', 'completed', 'archived',
-]
+const SCHOOL_ORDER: SchoolStatus[] = [...SCHOOL_PIPELINE, 'archived']
 
 function orderedItems<S extends string>(
   rows: StatusCount[],

@@ -6,27 +6,34 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/auth/user'
 import { can } from '@/lib/auth/rbac'
 import { SESSION_TYPE_FIELD, PRESENT_STATUSES } from '@/lib/constants/sessions'
+import { MEDIA_TYPE_META } from '@/lib/constants/evidence'
 import {
   sessionSchema,
   sessionUpdateSchema,
   changeSessionStatusSchema,
   attendanceSchema,
 } from '@/lib/validations/sessions'
-import type { SessionType, AttendanceStatus, SessionRow } from '@/types/database'
+import { formValues } from '@/lib/actions/form-values'
+import type { SessionType, AttendanceStatus, SessionRow, MediaFileType } from '@/types/database'
 
-export type SessionActionState = { error?: string; ok?: boolean; message?: string }
+export type SessionActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 export async function createSession(
   _prev: SessionActionState,
   formData: FormData,
 ): Promise<SessionActionState> {
+  const values = formValues(formData)
   const user = await requireUser('/dashboard/sessions')
   if (can(user.role, 'create_session') === false) {
-    return { error: 'You do not have permission to plan sessions.' }
+    return { error: 'You do not have permission to plan sessions.', values }
   }
 
   const parsed = sessionSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -42,7 +49,7 @@ export async function createSession(
     })
     .select('id')
     .single()
-  if (error) return { error: error.message }
+  if (error) return { error: error.message, values }
 
   revalidatePath('/dashboard/sessions')
   revalidatePath('/admin/sessions')
@@ -53,12 +60,13 @@ export async function updateSession(
   _prev: SessionActionState,
   formData: FormData,
 ): Promise<SessionActionState> {
+  const values = formValues(formData)
   const id = String(formData.get('id') ?? '')
-  if (!id) return { error: 'Missing session id.' }
+  if (!id) return { error: 'Missing session id.', values }
   await requireUser(`/dashboard/sessions/${id}`)
 
   const parsed = sessionUpdateSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   const d = parsed.data
 
   // Merge the one type-specific field into type_details (jsonb).
@@ -84,7 +92,7 @@ export async function updateSession(
       type_details,
     })
     .eq('id', id)
-  if (error) return { error: error.message }
+  if (error) return { error: error.message, values }
 
   revalidatePath(`/dashboard/sessions/${id}`)
   revalidatePath('/dashboard/sessions')
@@ -96,8 +104,9 @@ export async function changeSessionStatus(
   _prev: SessionActionState,
   formData: FormData,
 ): Promise<SessionActionState> {
+  const values = formValues(formData)
   const parsed = changeSessionStatusSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   await requireUser(`/dashboard/sessions/${parsed.data.session_id}`)
   const { session_id, new_status, note } = parsed.data
 
@@ -105,12 +114,12 @@ export async function changeSessionStatus(
   // Cancellation needs a reason in notes (the DB trigger enforces this too).
   const payload: Partial<SessionRow> = { status: new_status }
   if (new_status === 'cancelled') {
-    if (!note) return { error: 'A reason is required to cancel a session.' }
+    if (!note) return { error: 'A reason is required to cancel a session.', values }
     payload.notes = note
   }
 
   const { error } = await supabase.from('sessions').update(payload).eq('id', session_id)
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: humanizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/sessions/${session_id}`)
   revalidatePath('/dashboard/sessions')
@@ -159,9 +168,14 @@ export async function markAttendance(
 }
 
 function humanizeDbError(msg: string): string {
+  if (/execution plan must be approved/i.test(msg))
+    return 'This session needs an approved execution plan before it can start.'
   if (/Illegal session transition/.test(msg)) return 'That status change is not allowed from the current stage.'
-  if (/at least 1 photo and 1 attendance document/.test(msg))
-    return 'To report, upload at least 1 photo and 1 attendance document first (Evidence).'
+  const missing = msg.match(/missing required evidence — (.+)$/)
+  if (missing) {
+    const labels = missing[1].split(', ').map((t) => MEDIA_TYPE_META[t as MediaFileType]?.label ?? t)
+    return `To report, add evidence for: ${labels.join(', ')}. See the Evidence checklist below.`
+  }
   if (/student count, volunteer count and topic/.test(msg))
     return 'Fill in student count, volunteer count and topic before reporting.'
   if (/Only Campus Lead or above may cancel/.test(msg)) return 'Only a Campus Lead or above may cancel a session.'

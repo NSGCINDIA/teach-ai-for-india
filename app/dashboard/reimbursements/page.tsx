@@ -10,7 +10,10 @@ export const metadata = { title: 'Reimbursements' }
 
 export default async function DashboardReimbursementsPage() {
   const user = await requireAccess('/dashboard/reimbursements')
-  const claims = await listReimbursements({ claimant_id: user.id })
+  const isFinanceQueue = user.role === 'finance_lead' && !!user.campus_id
+  const claims = await listReimbursements(
+    isFinanceQueue ? { campus_id: user.campus_id! } : { claimant_id: user.id },
+  )
   const canCreate = can(user.role, 'submit_reimbursement') !== false
 
   return (
@@ -18,14 +21,18 @@ export default async function DashboardReimbursementsPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight">Reimbursements</h1>
-          <p className="mt-1 text-muted-foreground">Claim travel for sessions you attended and track payment.</p>
+          <p className="mt-1 text-muted-foreground">
+            {isFinanceQueue
+              ? 'Review and process reimbursement claims for your campus.'
+              : 'Claim travel for sessions you attended and track payment.'}
+          </p>
         </div>
         {canCreate && (
           <Button asChild><Link href="/dashboard/reimbursements/new"><Plus className="size-4" /> New claim</Link></Button>
         )}
       </header>
 
-      <ClaimsTable claims={claims} basePath="/dashboard/reimbursements" />
+      <ClaimsTable claims={claims} basePath="/dashboard/reimbursements" showClaimant={isFinanceQueue} />
     </div>
   )
 }

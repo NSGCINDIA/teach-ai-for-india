@@ -8,14 +8,21 @@ import { can, isAdmin } from '@/lib/auth/rbac'
 import {
   claimSchema, claimUpdateSchema, submitClaimSchema, reviewClaimSchema, payClaimSchema,
 } from '@/lib/validations/finance'
+import { formValues } from '@/lib/actions/form-values'
 
-export type FinanceActionState = { error?: string; ok?: boolean; message?: string }
+export type FinanceActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 function humanize(msg: string): string {
   if (/must be linked to a session/i.test(msg)) return 'Pick the session this claim is for.'
   if (/Claim window of .* days has passed/i.test(msg)) return 'The claim window for this session has passed.'
   if (/Illegal reimbursement transition/i.test(msg)) return 'That status change is not allowed.'
   if (/Paid claims can only be modified/i.test(msg)) return 'Paid claims can only be changed by a Super Admin.'
+  if (/Only approved claims can be marked as paid/i.test(msg)) return msg
+  if (/reason is required when rejecting/i.test(msg)) return 'A reason is required when rejecting.'
   if (/row-level security|permission/i.test(msg)) return 'You do not have permission for that change.'
   return msg
 }
@@ -24,12 +31,13 @@ export async function createClaim(
   _prev: FinanceActionState,
   formData: FormData,
 ): Promise<FinanceActionState> {
+  const values = formValues(formData)
   const user = await requireUser('/dashboard/reimbursements')
   if (can(user.role, 'submit_reimbursement') === false) {
-    return { error: 'Your role cannot submit reimbursement claims.' }
+    return { error: 'Your role cannot submit reimbursement claims.', values }
   }
   const parsed = claimSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   const d = parsed.data
 
   const supabase = await createClient()
@@ -49,7 +57,7 @@ export async function createClaim(
     })
     .select('id')
     .single()
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath('/dashboard/reimbursements')
   redirect(`/dashboard/reimbursements/${data.id}`)
@@ -59,8 +67,9 @@ export async function updateClaim(
   _prev: FinanceActionState,
   formData: FormData,
 ): Promise<FinanceActionState> {
+  const values = formValues(formData)
   const parsed = claimUpdateSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   await requireUser('/dashboard/reimbursements')
   const d = parsed.data
 
@@ -75,7 +84,7 @@ export async function updateClaim(
       reason: d.reason || null,
     })
     .eq('id', d.id)
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath(`/dashboard/reimbursements/${d.id}`)
   revalidatePath('/dashboard/reimbursements')
@@ -101,51 +110,68 @@ export async function submitClaim(
   return { ok: true, message: 'Claim submitted.' }
 }
 
+/**
+ * Review a claim (approve/reject/hold). Goes through review_reimbursement_finance()
+ * — the same RPC serves admins and finance_lead (campus-scoped), matching the
+ * Phase 2/3 pattern rather than a parallel finance-lead-only path; this also
+ * gives admin reviews an audit_log trail they didn't have before.
+ */
 export async function reviewClaim(
   _prev: FinanceActionState,
   formData: FormData,
 ): Promise<FinanceActionState> {
+  const values = formValues(formData)
   const parsed = reviewClaimSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
-  const user = await requireUser('/admin/finance')
-  if (!isAdmin(user.role)) return { error: 'Only management can review claims.' }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+  const user = await requireUser()
+  if (!isAdmin(user.role) && user.role !== 'finance_lead') {
+    return { error: 'Only Finance Lead or management can review claims.', values }
+  }
   const d = parsed.data
 
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('reimbursements')
-    .update({ status: d.decision, reviewer_note: d.reviewer_note || null })
-    .eq('id', d.id)
-  if (error) return { error: humanize(error.message) }
+  const { error } = await supabase.rpc('review_reimbursement_finance', {
+    p_reimbursement_id: d.id,
+    p_decision: d.decision,
+    p_note: d.reviewer_note || undefined,
+  })
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath(`/admin/finance/claims/${d.id}`)
   revalidatePath('/admin/finance')
+  revalidatePath(`/dashboard/reimbursements/${d.id}`)
+  revalidatePath('/dashboard/reimbursements')
+  revalidatePath('/dashboard/finance')
   return { ok: true, message: 'Decision recorded.' }
 }
 
+/** Mark an approved claim as paid, via pay_reimbursement_finance() — same admin/finance_lead RPC pattern as reviewClaim. */
 export async function payClaim(
   _prev: FinanceActionState,
   formData: FormData,
 ): Promise<FinanceActionState> {
+  const values = formValues(formData)
   const parsed = payClaimSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
-  const user = await requireUser('/admin/finance')
-  if (!isAdmin(user.role)) return { error: 'Only management can mark claims paid.' }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+  const user = await requireUser()
+  if (!isAdmin(user.role) && user.role !== 'finance_lead') {
+    return { error: 'Only Finance Lead or management can mark claims paid.', values }
+  }
   const d = parsed.data
 
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('reimbursements')
-    .update({
-      status: 'paid',
-      payment_date: d.payment_date || null,
-      payment_method: d.payment_method || null,
-      payment_reference: d.payment_reference || null,
-    })
-    .eq('id', d.id)
-  if (error) return { error: humanize(error.message) }
+  const { error } = await supabase.rpc('pay_reimbursement_finance', {
+    p_reimbursement_id: d.id,
+    p_payment_date: d.payment_date || undefined,
+    p_payment_reference: d.payment_reference || undefined,
+    p_payment_method: d.payment_method || undefined,
+  })
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath(`/admin/finance/claims/${d.id}`)
   revalidatePath('/admin/finance')
+  revalidatePath(`/dashboard/reimbursements/${d.id}`)
+  revalidatePath('/dashboard/reimbursements')
+  revalidatePath('/dashboard/finance')
   return { ok: true, message: 'Marked as paid.' }
 }

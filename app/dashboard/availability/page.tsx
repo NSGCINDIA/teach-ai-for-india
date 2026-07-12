@@ -19,7 +19,7 @@ function today(): string {
 export default async function AvailabilityPage() {
   const user = await requireAccess('/dashboard/availability')
   const isCoordinator = can(user.role, 'assign_volunteers') !== false
-  return isCoordinator ? <CampusBoard campusId={user.campus_id} /> : <MyEditor />
+  return isCoordinator ? <CampusBoard campusId={user.campus_id} /> : <MyEditor userId={user.id} />
 }
 
 /** Volunteer Lead / Campus Lead view of campus availability, grouped by date. */
@@ -65,8 +65,8 @@ async function CampusBoard({ campusId }: { campusId: string | null }) {
 }
 
 /** A volunteer sets their own availability. */
-async function MyEditor() {
-  const entries = await listMyAvailability(today())
+async function MyEditor({ userId }: { userId: string }) {
+  const entries = await listMyAvailability(userId, today())
   return (
     <div className="space-y-6">
       <header>

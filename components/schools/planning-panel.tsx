@@ -1,9 +1,9 @@
 'use client'
 
 import { useActionState } from 'react'
-import Link from 'next/link'
-import { AlertCircle, ArrowRight, CalendarClock, CheckCircle2, Loader2 } from 'lucide-react'
+import { AlertCircle, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react'
 import { savePlan, approvePlan, type PlanActionState } from '@/actions/plans'
+import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { SESSION_TYPE_META } from '@/lib/constants/sessions'
 import type { SessionPlanRow, SessionType, SchoolStatus } from '@/types/database'
 import { Button } from '@/components/ui/button'
@@ -19,45 +19,36 @@ const SESSION_TYPES = Object.entries(SESSION_TYPE_META) as [SessionType, { label
 interface PlanningPanelProps {
   schoolId: string
   schoolStatus: SchoolStatus
+  /** The current OPEN (draft) plan, if one is in progress — null between sessions. */
   plan: SessionPlanRow | null
-  /** Campus-scoped edit right (campus_lead / outreach_head / admin). */
+  /** Whether this school has already run at least one session — labels the
+   *  empty-state form as "Plan next session" instead of "Start planning". */
+  hasPriorSession: boolean
+  /** Campus-scoped edit right (campus_lead / outreach_lead / admin). */
   canEdit: boolean
-  /** Where the created session lives, for the read-only "approved" view. */
-  basePath: string
 }
 
-export function PlanningPanel({ schoolId, schoolStatus, plan, canEdit, basePath }: PlanningPanelProps) {
-  // Approved plans are locked — show the handoff summary + link to the session.
-  if (plan?.status === 'approved') {
-    return (
-      <div className="space-y-3">
-        <p className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
-          <CheckCircle2 className="size-4 shrink-0" /> Planning approved — the session has been created and the team notified.
-        </p>
-        {plan.session_id && (
-          <Button asChild variant="outline" size="sm">
-            <Link href={`${basePath.replace('/schools', '/sessions')}/${plan.session_id}`}>
-              <CalendarClock className="size-4" /> View scheduled session
-            </Link>
-          </Button>
-        )}
-      </div>
-    )
-  }
-
+export function PlanningPanel({ schoolId, schoolStatus, plan, hasPriorSession, canEdit }: PlanningPanelProps) {
   if (!canEdit) {
     return <p className="text-sm text-muted-foreground">You have read-only access to this school’s planning.</p>
   }
 
   return (
     <div className="space-y-5">
-      <PlanForm schoolId={schoolId} plan={plan} />
+      {!plan && hasPriorSession && (
+        <p className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
+          <CheckCircle2 className="size-4 shrink-0" /> Last session's planning was approved. Plan the next session below.
+        </p>
+      )}
+      <PlanForm schoolId={schoolId} plan={plan} hasPriorSession={hasPriorSession} />
       {plan && <ApproveForm schoolId={schoolId} planId={plan.id} schoolStatus={schoolStatus} />}
     </div>
   )
 }
 
-function PlanForm({ schoolId, plan }: { schoolId: string; plan: SessionPlanRow | null }) {
+function PlanForm({
+  schoolId, plan, hasPriorSession,
+}: { schoolId: string; plan: SessionPlanRow | null; hasPriorSession: boolean }) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(savePlan, {})
 
   return (
@@ -75,76 +66,76 @@ function PlanForm({ schoolId, plan }: { schoolId: string; plan: SessionPlanRow |
 
       <Section title="School coordinator">
         <Field label="Name">
-          <Input name="coordinator_name" defaultValue={plan?.coordinator_name ?? ''} placeholder="Point of contact" />
+          <Input name="coordinator_name" defaultValue={fieldValue(state, 'coordinator_name', plan?.coordinator_name ?? '')} placeholder="Point of contact" />
         </Field>
         <Field label="Phone">
-          <Input name="coordinator_phone" defaultValue={plan?.coordinator_phone ?? ''} placeholder="+91…" />
+          <Input name="coordinator_phone" defaultValue={fieldValue(state, 'coordinator_phone', plan?.coordinator_phone ?? '')} placeholder="+91…" />
         </Field>
         <Field label="Designation">
-          <Input name="coordinator_designation" defaultValue={plan?.coordinator_designation ?? ''} placeholder="e.g. Head Teacher" />
+          <Input name="coordinator_designation" defaultValue={fieldValue(state, 'coordinator_designation', plan?.coordinator_designation ?? '')} placeholder="e.g. Head Teacher" />
         </Field>
       </Section>
 
       <Section title="Scale">
         <Field label="Student strength">
-          <Input type="number" min={0} name="student_strength" defaultValue={numVal(plan?.student_strength)} />
+          <Input type="number" min={0} name="student_strength" defaultValue={fieldValue(state, 'student_strength', numVal(plan?.student_strength))} />
         </Field>
         <Field label="Classes">
-          <Input type="number" min={0} name="num_classes" defaultValue={numVal(plan?.num_classes)} />
+          <Input type="number" min={0} name="num_classes" defaultValue={fieldValue(state, 'num_classes', numVal(plan?.num_classes))} />
         </Field>
         <Field label="Sections">
-          <Input type="number" min={0} name="num_sections" defaultValue={numVal(plan?.num_sections)} />
+          <Input type="number" min={0} name="num_sections" defaultValue={fieldValue(state, 'num_sections', numVal(plan?.num_sections))} />
         </Field>
         <Field label="Classrooms">
-          <Input type="number" min={0} name="num_classrooms" defaultValue={numVal(plan?.num_classrooms)} />
+          <Input type="number" min={0} name="num_classrooms" defaultValue={fieldValue(state, 'num_classrooms', numVal(plan?.num_classrooms))} />
         </Field>
       </Section>
 
       <Section title="On-site infrastructure">
-        <Check name="has_lab" label="Computer lab" defaultChecked={plan?.has_lab} />
-        <Check name="has_projector" label="Projector" defaultChecked={plan?.has_projector} />
-        <Check name="has_internet" label="Internet" defaultChecked={plan?.has_internet} />
+        <Check name="has_lab" label="Computer lab" defaultChecked={fieldChecked(state, 'has_lab', plan?.has_lab)} />
+        <Check name="has_projector" label="Projector" defaultChecked={fieldChecked(state, 'has_projector', plan?.has_projector)} />
+        <Check name="has_internet" label="Internet" defaultChecked={fieldChecked(state, 'has_internet', plan?.has_internet)} />
       </Section>
 
       <Section title="Scheduling">
         <Field label="Session type">
-          <select name="session_type" defaultValue={plan?.session_type ?? 'awareness'} className={SELECT_CLASS}>
+          <select name="session_type" defaultValue={fieldValue(state, 'session_type', plan?.session_type ?? 'awareness')} className={SELECT_CLASS}>
             {SESSION_TYPES.map(([value, meta]) => (
               <option key={value} value={value}>{meta.label}</option>
             ))}
           </select>
         </Field>
         <Field label="Topic">
-          <Input name="topic" defaultValue={plan?.topic ?? ''} placeholder="Session focus" />
+          <Input name="topic" defaultValue={fieldValue(state, 'topic', plan?.topic ?? '')} placeholder="Session focus" />
         </Field>
         <Field label="Planned date">
-          <Input type="date" name="planned_date" defaultValue={plan?.planned_date ?? ''} />
+          <Input type="date" name="planned_date" defaultValue={fieldValue(state, 'planned_date', plan?.planned_date ?? '')} />
         </Field>
         <Field label="Backup date">
-          <Input type="date" name="backup_date" defaultValue={plan?.backup_date ?? ''} />
+          <Input type="date" name="backup_date" defaultValue={fieldValue(state, 'backup_date', plan?.backup_date ?? '')} />
         </Field>
         <Field label="Start time">
-          <Input type="time" name="start_time" defaultValue={plan?.start_time?.slice(0, 5) ?? ''} />
+          <Input type="time" name="start_time" defaultValue={fieldValue(state, 'start_time', plan?.start_time?.slice(0, 5) ?? '')} />
         </Field>
         <Field label="End time">
-          <Input type="time" name="end_time" defaultValue={plan?.end_time?.slice(0, 5) ?? ''} />
+          <Input type="time" name="end_time" defaultValue={fieldValue(state, 'end_time', plan?.end_time?.slice(0, 5) ?? '')} />
         </Field>
       </Section>
 
       <Section title="Documents">
         <Field label="Approval letter (storage path)" full>
-          <Input name="approval_letter_path" defaultValue={plan?.approval_letter_path ?? ''} placeholder="Paste the uploaded letter path (optional)" />
+          <Input name="approval_letter_path" defaultValue={fieldValue(state, 'approval_letter_path', plan?.approval_letter_path ?? '')} placeholder="Paste the uploaded letter path (optional)" />
         </Field>
       </Section>
 
       <div className="space-y-1.5">
         <Label htmlFor="logistics_notes">Logistics notes</Label>
-        <Textarea id="logistics_notes" name="logistics_notes" rows={3} defaultValue={plan?.logistics_notes ?? ''} placeholder="Directions, permissions, equipment to carry…" />
+        <Textarea id="logistics_notes" name="logistics_notes" rows={3} defaultValue={fieldValue(state, 'logistics_notes', plan?.logistics_notes ?? '')} placeholder="Directions, permissions, equipment to carry…" />
       </div>
 
       <Button type="submit" size="sm" variant="outline" disabled={pending}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
-        {plan ? 'Save planning' : 'Start planning'}
+        {plan ? 'Save planning' : hasPriorSession ? 'Plan next session' : 'Start planning'}
       </Button>
     </form>
   )
@@ -152,7 +143,7 @@ function PlanForm({ schoolId, plan }: { schoolId: string; plan: SessionPlanRow |
 
 function ApproveForm({ schoolId, planId, schoolStatus }: { schoolId: string; planId: string; schoolStatus: SchoolStatus }) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(approvePlan, {})
-  const ready = schoolStatus === 'approval_received'
+  const ready = schoolStatus === 'registered' || schoolStatus === 'sessions_active'
 
   return (
     <form action={action} className="space-y-2 border-t border-border pt-4">
@@ -166,7 +157,7 @@ function ApproveForm({ schoolId, planId, schoolStatus }: { schoolId: string; pla
       )}
       {!ready && (
         <p className="text-xs text-muted-foreground">
-          Approving planning creates the session and notifies the Execution &amp; Volunteer Leads. Available once the school reaches <strong>Approval Received</strong>.
+          Approving planning creates the session and notifies the Execution &amp; Volunteer Leads. Available once the school reaches <strong>Registered</strong>.
         </p>
       )}
       <Button type="submit" size="sm" disabled={pending || !ready}>

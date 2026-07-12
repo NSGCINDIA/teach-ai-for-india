@@ -11,7 +11,7 @@ import { AnnouncementComposer } from '@/components/announcements/announcement-co
 
 export const metadata = { title: 'Announcements' }
 
-const CAN_POST = new Set(['campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead'])
+const CAN_POST = new Set(['campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead'])
 
 export default async function AnnouncementsPage() {
   const user = await requireAccess('/dashboard/announcements')

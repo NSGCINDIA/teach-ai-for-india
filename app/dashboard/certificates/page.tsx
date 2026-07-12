@@ -20,7 +20,7 @@ export default async function CertificatesPage() {
   const canIssue = can(user.role, 'assign_volunteers') !== false
 
   if (!canIssue) {
-    const mine = await listMyCertificates()
+    const mine = await listMyCertificates(user.id)
     return <Layout title="My certificates" subtitle="Recognition you’ve earned. Open one to print or save as PDF.">
       <CertificateList items={mine} canManage={false} showVolunteer={false} />
     </Layout>
@@ -70,7 +70,11 @@ function CertificateList({
               <CardTitle className="text-base">{c.title}</CardTitle>
               <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <StatusBadge label={CERTIFICATE_KIND_META[c.kind].label} tone="info" />
-                {showVolunteer && <span>{c.volunteer?.full_name}</span>}
+                {showVolunteer && c.volunteer && (
+                  <Link href={`/dashboard/volunteers/${c.volunteer.id}`} className="text-brand hover:underline">
+                    {c.volunteer.full_name}
+                  </Link>
+                )}
                 <span>· {formatDate(c.issued_at)}</span>
               </p>
             </div>

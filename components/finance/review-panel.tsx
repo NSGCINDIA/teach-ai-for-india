@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { AlertCircle, BadgeCheck, Loader2, X } from 'lucide-react'
 import { reviewClaim, payClaim, type FinanceActionState } from '@/actions/finance'
+import { fieldValue } from '@/lib/actions/form-values'
 import type { ReimbursementStatus } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,15 +34,15 @@ export function ReviewPanel({ id, status }: { id: string; status: ReimbursementS
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="payment_date">Payment date</Label>
-            <Input id="payment_date" type="date" name="payment_date" />
+            <Input id="payment_date" type="date" name="payment_date" defaultValue={fieldValue(payState, 'payment_date', '')} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="payment_method">Method</Label>
-            <Input id="payment_method" name="payment_method" placeholder="UPI / bank transfer" />
+            <Input id="payment_method" name="payment_method" defaultValue={fieldValue(payState, 'payment_method', '')} placeholder="UPI / bank transfer" />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="payment_reference">Reference</Label>
-            <Input id="payment_reference" name="payment_reference" placeholder="Transaction reference" />
+            <Input id="payment_reference" name="payment_reference" defaultValue={fieldValue(payState, 'payment_reference', '')} placeholder="Transaction reference" />
           </div>
         </div>
         <Button type="submit" disabled={paying}>
@@ -61,7 +62,7 @@ export function ReviewPanel({ id, status }: { id: string; status: ReimbursementS
       )}
       <div className="space-y-1.5">
         <Label htmlFor="reviewer_note">Reviewer note</Label>
-        <Textarea id="reviewer_note" name="reviewer_note" rows={2} placeholder="Reason for the decision (shown to the claimant on rejection)" />
+        <Textarea id="reviewer_note" name="reviewer_note" rows={2} defaultValue={fieldValue(reviewState, 'reviewer_note', '')} placeholder="Reason for the decision (shown to the claimant on rejection)" />
       </div>
       <div className="flex flex-wrap gap-2">
         <Button type="submit" name="decision" value="approved" disabled={reviewing}>

@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
 import { saveFinanceConfig, type AdminActionState } from '@/actions/admin'
+import { fieldValue } from '@/lib/actions/form-values'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -27,7 +28,7 @@ export function FinanceConfigForm({ claimWindowDays }: { claimWindowDays: number
         <Label htmlFor="claim_window_days">Reimbursement claim window (days)</Label>
         <div className="flex items-center gap-2">
           <Input id="claim_window_days" name="claim_window_days" type="number" min={1} max={365}
-            defaultValue={claimWindowDays} className="max-w-28" />
+            defaultValue={fieldValue(state, 'claim_window_days', String(claimWindowDays))} className="max-w-28" />
           <Button type="submit" disabled={pending}>
             {pending ? <Loader2 className="size-4 animate-spin" /> : null} Save
           </Button>

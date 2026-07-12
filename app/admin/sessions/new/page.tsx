@@ -1,11 +1,14 @@
+import { redirect } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
+import { can } from '@/lib/auth/rbac'
 import { listSchoolOptions } from '@/lib/data/sessions'
 import { SessionForm } from '@/components/sessions/session-form'
 
 export const metadata = { title: 'Plan Session · Admin' }
 
 export default async function AdminNewSessionPage() {
-  await requireAccess('/admin/sessions')
+  const user = await requireAccess('/admin/sessions')
+  if (can(user.role, 'create_session') === false) redirect('/admin/sessions')
   const schools = await listSchoolOptions()
 
   return (

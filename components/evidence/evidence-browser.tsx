@@ -1,13 +1,14 @@
 'use client'
 
 import { useMemo, useState, useTransition } from 'react'
+import Image from 'next/image'
 import {
   Check, Download, FileText, Film, Globe, Image as ImageIcon, Receipt, ScrollText,
   Search, Trash2, X,
 } from 'lucide-react'
 import { approveEvidence, rejectEvidence, softDeleteEvidence, type EvidenceActionState } from '@/actions/evidence'
 import type { EvidenceListItem } from '@/lib/data/evidence'
-import { MEDIA_TYPE_META, MEDIA_TYPES, isPubliclyPromotable } from '@/lib/constants/evidence'
+import { MEDIA_TYPE_META, MEDIA_TYPES, isPubliclyPromotable, isImageFileType } from '@/lib/constants/evidence'
 import type { MediaFileType, ApprovalStatus } from '@/types/database'
 import { formatDate } from '@/lib/format'
 import { Input } from '@/components/ui/input'
@@ -19,7 +20,9 @@ const SELECT_CLASS =
   'border-input h-9 rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 const ICON: Partial<Record<MediaFileType, typeof FileText>> = {
-  video: Film, document: FileText, presentation: FileText, receipt: Receipt, letter: ScrollText,
+  photo: ImageIcon, video: Film, document: FileText, presentation: FileText, receipt: Receipt, letter: ScrollText,
+  team_photo: ImageIcon, principal_photo: ImageIcon, student_group_photo: ImageIcon,
+  student_testimonial: Film, teacher_testimonial: Film,
 }
 
 interface FilterOptions {
@@ -113,9 +116,14 @@ export function EvidenceBrowser({ items, options, canModerate, showCampusFilter 
             return (
               <div key={m.id} className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
                 <div className="relative aspect-[4/3] bg-muted">
-                  {m.file_type === 'photo' && m.signed_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={m.signed_url} alt={m.caption ?? m.file_name} className="size-full object-cover" loading="lazy" />
+                  {isImageFileType(m.file_type) && m.signed_url && !m.external_url ? (
+                    <Image
+                      src={m.signed_url}
+                      alt={m.caption ?? m.file_name}
+                      fill
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                      className="object-cover"
+                    />
                   ) : (
                     <span className="grid size-full place-items-center text-muted-foreground"><Icon className="size-8" /></span>
                   )}
@@ -143,7 +151,7 @@ export function EvidenceBrowser({ items, options, canModerate, showCampusFilter 
                         <Check className="size-3.5" /> Approve
                       </Button>
                     )}
-                    {canModerate && isPubliclyPromotable(m.file_type) && !m.is_public && (
+                    {canModerate && isPubliclyPromotable(m.file_type, !!m.storage_path) && !m.is_public && (
                       <Button size="sm" variant="outline" className="h-7 px-2 text-xs" disabled={pending} onClick={() => run(approveEvidence, m.id, true)}>
                         <Globe className="size-3.5" /> Publish
                       </Button>

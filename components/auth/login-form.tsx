@@ -4,6 +4,7 @@ import { useActionState, useState, type KeyboardEvent } from 'react'
 import Link from 'next/link'
 import { AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react'
 import { signIn, type ActionState } from '@/actions/auth'
+import { fieldValue } from '@/lib/actions/form-values'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -47,7 +48,8 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
           type="email"
           autoComplete="email"
           required
-          placeholder="you@teachaiforindia.org"
+          placeholder="you@campus.edu"
+          defaultValue={fieldValue(state, 'email', '')}
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={handleEmailKeyDown}
         />

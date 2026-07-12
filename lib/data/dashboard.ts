@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { PRESENT_STATUSES } from '@/lib/constants/sessions'
+import { SCHOOL_PIPELINE } from '@/lib/constants/status'
+import { listSchoolProgress } from '@/lib/data/schools'
 import type { SchoolStatus, SessionStatus } from '@/types/database'
 
 /**
@@ -25,6 +27,8 @@ export interface SchoolLite {
   district: string
   status: SchoolStatus
   next_action_date: string | null
+  latest_session_number?: number
+  latest_session_status?: SessionStatus
 }
 export interface ReimbLite {
   id: string
@@ -32,6 +36,14 @@ export interface ReimbLite {
   amount: number
   status: string
   claimant_name: string
+}
+export interface BudgetRequestLite {
+  id: string
+  requested_amount: number
+  reason: string
+  period: string
+  created_at: string
+  requester_name: string
 }
 
 const SESSION_COLS = 'id, topic, date, start_time, status, school:schools(name)'
@@ -58,6 +70,7 @@ export interface CampusLeadData {
   pendingApprovals: SchoolLite[]
   pendingReports: SessionLite[]
   pendingReimbursements: ReimbLite[]
+  pendingBudgetRequests: BudgetRequestLite[]
 }
 
 export async function getCampusLeadData(campusId: string): Promise<CampusLeadData> {
@@ -68,7 +81,7 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
   const [
     schoolsActive, sessionsCompleted, upcomingCount, volunteers, pendingReportsCount,
     pendingPayments, evidence, students,
-    todaySessions, upcomingSessions, pendingApprovals, pendingReports, pendingReimb,
+    todaySessions, upcomingSessions, pendingApprovals, pendingReports, pendingReimb, pendingBudgetReq,
   ] = await Promise.all([
     supabase.from('schools').select('id', head).eq('campus_id', campusId).neq('status', 'archived'),
     supabase.from('sessions').select('id', head).eq('campus_id', campusId).eq('status', 'verified'),
@@ -80,9 +93,12 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
     supabase.from('schools').select('total_students').eq('campus_id', campusId),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).eq('date', t).order('start_time'),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).gt('date', t).in('status', OPEN_SESSION).order('date').limit(5),
-    supabase.from('schools').select('id, name, district, status, next_action_date').eq('campus_id', campusId).eq('status', 'approval_requested').order('next_action_date').limit(5),
+    // Awaiting this Campus Lead's own review specifically — not just any open
+    // visit request (which could be sitting on the Finance Lead's desk instead).
+    supabase.from('outreach_visit_requests').select('school_id, schools(id, name, district, status, next_action_date)').eq('campus_id', campusId).eq('campus_lead_review', 'pending').order('created_at').limit(5),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).lte('date', t).in('status', OPEN_SESSION).order('date').limit(5),
     supabase.from('reimbursements').select('id, reference_number, amount, status, claimant:users!reimbursements_claimant_id_fkey(full_name)').eq('campus_id', campusId).in('status', ['submitted', 'under_review']).order('created_at').limit(5),
+    supabase.from('budget_increase_requests').select('id, requested_amount, reason, period, created_at, requester:users!budget_increase_requests_created_by_fkey(full_name)').eq('campus_id', campusId).eq('status', 'pending').order('created_at').limit(5),
   ])
 
   const studentsImpacted = ((students.data as { total_students: number }[] | null) ?? [])
@@ -101,10 +117,21 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
     },
     todaySessions: toSessionLite(todaySessions.data as SessionRowRaw[] | null),
     upcomingSessions: toSessionLite(upcomingSessions.data as SessionRowRaw[] | null),
-    pendingApprovals: (pendingApprovals.data as SchoolLite[] | null) ?? [],
+    pendingApprovals: toSchoolLiteFromRequest(pendingApprovals.data),
     pendingReports: toSessionLite(pendingReports.data as SessionRowRaw[] | null),
     pendingReimbursements: toReimbLite(pendingReimb.data),
+    pendingBudgetRequests: toBudgetRequestLite(pendingBudgetReq.data),
   }
+}
+
+type VisitRequestJoinRaw = {
+  school_id: string
+  schools: SchoolLite | SchoolLite[] | null
+}
+function toSchoolLiteFromRequest(rows: unknown): SchoolLite[] {
+  return ((rows as VisitRequestJoinRaw[] | null) ?? [])
+    .map((r) => (Array.isArray(r.schools) ? r.schools[0] : r.schools))
+    .filter((s): s is SchoolLite => s != null)
 }
 
 type ReimbRaw = {
@@ -115,6 +142,17 @@ function toReimbLite(rows: unknown): ReimbLite[] {
   return ((rows as ReimbRaw[] | null) ?? []).map((r) => ({
     id: r.id, reference_number: r.reference_number, amount: r.amount, status: r.status,
     claimant_name: Array.isArray(r.claimant) ? (r.claimant[0]?.full_name ?? '—') : (r.claimant?.full_name ?? '—'),
+  }))
+}
+
+type BudgetRequestRaw = {
+  id: string; requested_amount: number; reason: string; period: string; created_at: string
+  requester: { full_name: string } | { full_name: string }[] | null
+}
+function toBudgetRequestLite(rows: unknown): BudgetRequestLite[] {
+  return ((rows as BudgetRequestRaw[] | null) ?? []).map((r) => ({
+    id: r.id, requested_amount: r.requested_amount, reason: r.reason, period: r.period, created_at: r.created_at,
+    requester_name: Array.isArray(r.requester) ? (r.requester[0]?.full_name ?? '—') : (r.requester?.full_name ?? '—'),
   }))
 }
 
@@ -130,32 +168,35 @@ export interface OutreachData {
 export async function getOutreachData(campusId: string): Promise<OutreachData> {
   const supabase = await createClient()
   const t = today()
-  const { data } = await supabase
-    .from('schools')
-    .select('id, name, district, status, next_action_date, created_at')
-    .eq('campus_id', campusId)
-    .order('created_at', { ascending: false })
-    .limit(1000)
+  const [{ data }, progress, { data: pendingRequests }] = await Promise.all([
+    supabase
+      .from('schools')
+      .select('id, name, district, status, next_action_date, created_at')
+      .eq('campus_id', campusId)
+      .order('created_at', { ascending: false })
+      .limit(1000),
+    listSchoolProgress(),
+    // Actual open visit request, not just schools.status='outreach_requested' —
+    // that status also covers a school waiting to be RE-filed after a rejection.
+    supabase.from('outreach_visit_requests').select('school_id').eq('campus_id', campusId).eq('status', 'pending'),
+  ])
 
   const rows = (data as (SchoolLite & { created_at: string })[] | null) ?? []
+  for (const r of rows) Object.assign(r, progress.get(r.id))
   const counts = new Map<SchoolStatus, number>()
   for (const r of rows) counts.set(r.status, (counts.get(r.status) ?? 0) + 1)
-
-  const pipelineOrder: SchoolStatus[] = [
-    'lead_identified', 'contacted', 'followup_pending', 'approval_requested',
-    'approval_received', 'session_scheduled', 'session_in_progress', 'completed',
-  ]
+  const pendingSchoolIds = new Set((pendingRequests ?? []).map((r) => r.school_id))
 
   return {
     kpis: {
       totalSchools: rows.filter((r) => r.status !== 'archived').length,
-      approved: counts.get('approval_received') ?? 0,
-      sessionsScheduled: counts.get('session_scheduled') ?? 0,
-      leads: (counts.get('lead_identified') ?? 0) + (counts.get('contacted') ?? 0),
+      approved: counts.get('registered') ?? 0,
+      sessionsScheduled: counts.get('sessions_active') ?? 0,
+      leads: (counts.get('lead_identified') ?? 0) + (counts.get('outreach_requested') ?? 0),
     },
-    pipeline: pipelineOrder.map((status) => ({ status, count: counts.get(status) ?? 0 })),
+    pipeline: SCHOOL_PIPELINE.map((status) => ({ status, count: counts.get(status) ?? 0 })),
     awaitingFollowup: rows
-      .filter((r) => r.status === 'followup_pending' || r.status === 'approval_requested')
+      .filter((r) => pendingSchoolIds.has(r.id))
       .slice(0, 6),
     upcomingVisits: rows
       .filter((r) => r.next_action_date && r.next_action_date >= t && r.status !== 'archived' && r.status !== 'completed')

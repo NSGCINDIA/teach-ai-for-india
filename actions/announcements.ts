@@ -5,28 +5,34 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/auth/user'
 import { isAdmin } from '@/lib/auth/rbac'
 import { announcementSchema, deleteAnnouncementSchema } from '@/lib/validations/workspace'
+import { formValues } from '@/lib/actions/form-values'
 
-export type AnnouncementActionState = { error?: string; ok?: boolean; message?: string }
+export type AnnouncementActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
-const CAN_POST = new Set(['campus_lead', 'outreach_head', 'exec_lead', 'volunteer_lead'])
+const CAN_POST = new Set(['campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead'])
 
 /** Post an announcement. Leads → their campus; admins → org-wide (campus_id NULL). */
 export async function postAnnouncement(
   _prev: AnnouncementActionState,
   formData: FormData,
 ): Promise<AnnouncementActionState> {
+  const values = formValues(formData)
   const user = await requireUser('/dashboard/announcements')
   if (!isAdmin(user.role) && !CAN_POST.has(user.role)) {
-    return { error: 'You do not have permission to post announcements.' }
+    return { error: 'You do not have permission to post announcements.', values }
   }
 
   const parsed = announcementSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   // Non-admins are pinned to their own campus; admins broadcast org-wide.
   const campus_id = isAdmin(user.role) ? null : user.campus_id
   if (!isAdmin(user.role) && !campus_id) {
-    return { error: 'You need a campus to post an announcement.' }
+    return { error: 'You need a campus to post an announcement.', values }
   }
 
   const supabase = await createClient()
@@ -37,7 +43,7 @@ export async function postAnnouncement(
     campus_id,
     posted_by: user.id,
   })
-  if (error) return { error: error.message }
+  if (error) return { error: error.message, values }
 
   revalidatePath('/dashboard/announcements')
   return { ok: true, message: 'Announcement posted.' }

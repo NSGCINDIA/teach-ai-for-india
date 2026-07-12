@@ -29,7 +29,7 @@ const checkbox = z
 
 /**
  * Session planning form (Team Dashboard PRD Phase 2). The expanded ~20-field
- * outreach→execution handoff captured once a school reaches approval_received.
+ * outreach→execution handoff captured once a school reaches Registered.
  */
 export const sessionPlanSchema = z.object({
   school_id: z.string().uuid(),

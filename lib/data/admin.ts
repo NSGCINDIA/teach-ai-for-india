@@ -1,5 +1,6 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import type { CampusRow, UserRow, UserRole, SignupRequestRow } from '@/types/database'
+import type { CampusRow, UserRow, UserRole, SignupRequestRow, VolunteerApplicationRow } from '@/types/database'
 import type { StatusTone } from '@/lib/constants/status'
 
 // ─── Alert feed (PRD §7.9 — 6 always-on alert types) ─────────────────────────
@@ -28,6 +29,9 @@ export async function getAdminAlerts(): Promise<AdminAlert[]> {
     supabase.from('contact_messages').select('id', head).eq('is_handled', false),
     supabase.from('signup_requests').select('id', head).eq('status', 'pending'),
   ])
+  const failed = [claims, verify, anomalyRows, followups, applications, messages, signups].find((r) => r.error)
+  if (failed?.error) throw new Error(`getAdminAlerts failed: ${failed.error.message}`)
+
   const anomalyCount = ((anomalyRows.data as { anomaly_flags: string[] | null }[] | null) ?? [])
     .filter((r) => (r.anomaly_flags?.length ?? 0) > 0).length
 
@@ -68,17 +72,43 @@ export async function listAdminUsers(filters: UserFilters = {}): Promise<AdminUs
   return (data as unknown as AdminUser[]) ?? []
 }
 
+// Wrapped in React cache() so a page and its generateMetadata (which both
+// call this for the same id) share one round trip instead of two.
+export const getAdminUser = cache(async (id: string): Promise<AdminUser | null> => {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('users')
+    .select('*, campus:campuses!users_campus_id_fkey(id, name)')
+    .eq('id', id)
+    .maybeSingle()
+  if (error) throw new Error(`getAdminUser failed: ${error.message}`)
+  return (data as unknown as AdminUser) ?? null
+})
+
 // ─── Self-signup requests (PRD §7.2) ─────────────────────────────────────────
 export type PendingSignup = SignupRequestRow & { campus: { id: string; name: string } | null }
 
 export async function listPendingSignups(): Promise<PendingSignup[]> {
   const supabase = await createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('signup_requests')
     .select('*, campus:campuses(id, name)')
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
+  if (error) throw new Error(`listPendingSignups failed: ${error.message}`)
   return (data as unknown as PendingSignup[]) ?? []
+}
+
+// ─── Volunteer applications (PRD §7.1/§11 — public "Join" form triage) ───────
+export async function listVolunteerApplications(): Promise<VolunteerApplicationRow[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('volunteer_applications')
+    .select('*')
+    .in('status', ['new', 'reviewing'])
+    .order('created_at', { ascending: true })
+  if (error) throw new Error(`listVolunteerApplications failed: ${error.message}`)
+  return (data as VolunteerApplicationRow[]) ?? []
 }
 
 // ─── Campus management (PRD §7.9 — campus config) ────────────────────────────

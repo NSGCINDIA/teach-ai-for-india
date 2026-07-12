@@ -4,6 +4,7 @@ import { useActionState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { createClaim, updateClaim, type FinanceActionState } from '@/actions/finance'
+import { fieldValue } from '@/lib/actions/form-values'
 import { TRAVEL_MODES, TRAVEL_MODE_META } from '@/lib/constants/finance'
 import type { ReimbursementRow } from '@/types/database'
 import type { ClaimableSession } from '@/lib/data/finance'
@@ -63,7 +64,7 @@ export function ClaimForm({ claim, sessions, cancelHref }: Props) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Session" required className="sm:col-span-2">
-          <select name="session_id" required className={SELECT_CLASS} defaultValue={claim?.session_id ?? ''}>
+          <select name="session_id" required className={SELECT_CLASS} defaultValue={fieldValue(state, 'session_id', claim?.session_id ?? '')}>
             <option value="">— Select session —</option>
             {options.map((s) => (
               <option key={s.id} value={s.id}>
@@ -73,18 +74,18 @@ export function ClaimForm({ claim, sessions, cancelHref }: Props) {
           </select>
         </Field>
         <Field label="Amount (₹)" required>
-          <Input type="number" name="amount" min={1} step="0.01" required defaultValue={claim?.amount ?? ''} placeholder="e.g. 120" />
+          <Input type="number" name="amount" min={1} step="0.01" required defaultValue={fieldValue(state, 'amount', String(claim?.amount ?? ''))} placeholder="e.g. 120" />
         </Field>
         <Field label="Travel mode" required>
-          <select name="travel_mode" required className={SELECT_CLASS} defaultValue={claim?.travel_mode ?? 'auto'}>
+          <select name="travel_mode" required className={SELECT_CLASS} defaultValue={fieldValue(state, 'travel_mode', claim?.travel_mode ?? 'auto')}>
             {TRAVEL_MODES.map((m) => <option key={m} value={m}>{TRAVEL_MODE_META[m].label}</option>)}
           </select>
         </Field>
         <Field label="Date of travel" required>
-          <Input type="date" name="claim_date" required defaultValue={claim?.claim_date ?? ''} />
+          <Input type="date" name="claim_date" required defaultValue={fieldValue(state, 'claim_date', claim?.claim_date ?? '')} />
         </Field>
         <Field label="Reason / notes" className="sm:col-span-2">
-          <Textarea name="reason" rows={2} defaultValue={claim?.reason ?? ''} placeholder="Anything finance should know" />
+          <Textarea name="reason" rows={2} defaultValue={fieldValue(state, 'reason', claim?.reason ?? '')} placeholder="Anything finance should know" />
         </Field>
       </div>
 

@@ -12,15 +12,15 @@
 
 // ─── Enums (mirror 0001_schema.sql) ──────────────────────────────────────────
 export type UserRole =
-  | 'super_admin' | 'mgmt_admin' | 'campus_lead' | 'outreach_head'
-  | 'exec_lead' | 'volunteer_lead' | 'volunteer' | 'school_poc' | 'viewer'
+  | 'super_admin' | 'campus_lead' | 'outreach_lead'
+  | 'exec_lead' | 'volunteer_lead' | 'volunteer'
+  | 'campus_mgmt_admin' | 'finance_lead'
 
 export type SchoolTypeEnum = 'government' | 'government_aided' | 'private'
 export type BoardType = 'state' | 'cbse' | 'icse' | 'other'
 export type SchoolStatus =
-  | 'lead_identified' | 'contacted' | 'followup_pending' | 'approval_requested'
-  | 'approval_received' | 'session_scheduled' | 'session_in_progress'
-  | 'completed' | 'archived'
+  | 'lead_identified' | 'outreach_requested' | 'outreach_approved' | 'visit_completed'
+  | 'registered' | 'sessions_active' | 'completed' | 'archived'
 export type SessionType =
   | 'awareness' | 'hands_on' | 'prompt_writing' | 'ethics_safety'
   | 'application_project' | 'followup'
@@ -32,8 +32,9 @@ export type ReimbursementStatus =
 export type TravelMode = 'auto' | 'bus' | 'cab' | 'train' | 'own_vehicle' | 'other'
 export type MediaFileType =
   | 'photo' | 'video' | 'document' | 'receipt' | 'letter' | 'presentation' | 'other'
+  | 'team_photo' | 'principal_photo' | 'student_group_photo' | 'student_testimonial' | 'teacher_testimonial'
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected'
-export type MediaEntityType = 'session' | 'school' | 'campus' | 'reimbursement'
+export type MediaEntityType = 'session' | 'school' | 'campus' | 'reimbursement' | 'school_visit'
 export type ApplicationStatus = 'new' | 'reviewing' | 'invited' | 'rejected'
 
 type Timestamps = { created_at: string; updated_at: string }
@@ -55,7 +56,7 @@ export type UserRow = Timestamps & {
 
 export type SignupRequestStatus = 'pending' | 'approved' | 'rejected'
 export type SignupRequestRow = {
-  id: string; auth_user_id: string | null; full_name: string; niat_id: string
+  id: string; auth_user_id: string | null; full_name: string; niat_id: string; phone: string | null
   email: string; campus_id: string | null; requested_role: UserRole; status: SignupRequestStatus
   reviewed_by: string | null; reviewed_at: string | null; created_at: string
 }
@@ -157,7 +158,8 @@ export type ReimbursementRow = Timestamps & {
 }
 
 export type MediaAssetRow = {
-  id: string; storage_path: string; file_name: string; file_type: MediaFileType
+  id: string; storage_path: string | null; external_url: string | null
+  file_name: string; file_type: MediaFileType
   mime_type: string | null; file_size_bytes: number | null
   entity_type: MediaEntityType; entity_id: string; campus_id: string | null
   school_id: string | null; session_id: string | null; is_featured: boolean
@@ -193,6 +195,60 @@ export type ContactMessageRow = {
   message: string; is_handled: boolean; created_at: string
 }
 
+// Campus budgets (0027_campus_budgets.sql)
+export type CampusBudgetRow = Timestamps & {
+  id: string; campus_id: string; period: string
+  allocated_amount: number; reserved_amount: number; notes: string | null
+  created_by: string | null
+}
+
+// Outreach visit requests (0028_outreach_visit_requests.sql)
+export type OutreachVisitRequestRow = Timestamps & {
+  id: string; school_id: string; campus_id: string | null
+  purpose: string; proposed_visit_date: string; estimated_travel_cost: number
+  team_member_ids: string[]
+  status: ApprovalStatus
+  campus_lead_review: ApprovalStatus; campus_lead_reviewed_by: string | null
+  campus_lead_reviewed_at: string | null; campus_lead_note: string | null
+  finance_lead_review: ApprovalStatus; finance_lead_reviewed_by: string | null
+  finance_lead_reviewed_at: string | null; finance_lead_note: string | null
+  created_by: string | null
+}
+
+// Budget increase requests (0032_budget_increase_requests.sql)
+export type BudgetIncreaseRequestRow = Timestamps & {
+  id: string; campus_id: string; period: string; budget_id: string | null
+  requested_amount: number; reason: string
+  status: ApprovalStatus
+  reviewed_by: string | null; reviewed_at: string | null; review_note: string | null
+  created_by: string | null
+}
+
+// School visits (0037_outreach_requests_and_school_visits.sql)
+export type SchoolVisitRow = {
+  id: string; school_id: string; campus_id: string | null
+  visited_by: string | null; team_member_ids: string[]
+  visited_at: string; notes: string | null
+  created_by: string | null; created_at: string
+}
+
+// Execution plans (0029_execution_plans.sql)
+export type ExecutionPlanRow = Timestamps & {
+  id: string; session_id: string; campus_id: string | null
+  logistics_notes: string
+  has_laptop: boolean; has_projector: boolean; has_hdmi_cable: boolean
+  has_extension_board: boolean; has_speaker: boolean; has_internet_device: boolean
+  other_equipment: string | null
+  teaching_resources: string | null
+  estimated_transport_cost: number; session_ready: boolean
+  status: ApprovalStatus
+  campus_lead_review: ApprovalStatus; campus_lead_reviewed_by: string | null
+  campus_lead_reviewed_at: string | null; campus_lead_note: string | null
+  finance_lead_review: ApprovalStatus; finance_lead_reviewed_by: string | null
+  finance_lead_reviewed_at: string | null; finance_lead_note: string | null
+  created_by: string | null
+}
+
 // View rows
 export type PublicImpactStats = {
   schools_reached: number; students_impacted: number; sessions_completed: number
@@ -209,6 +265,18 @@ export type CampusRollup = {
   target_schools: number; target_students: number; target_sessions: number; quarter: string | null
   schools_total: number; schools_reached: number; sessions_completed: number
   students_impacted: number; volunteers: number; last_session_date: string | null
+}
+// Curriculum progress (0030_mandatory_evidence.sql)
+export type SchoolSessionProgressRow = {
+  school_id: string; latest_session_id: string
+  latest_session_number: number; latest_session_status: SessionStatus
+}
+// Campus Finance Dashboard (0031_finance_lead_reimbursements.sql)
+export type CampusFinanceSummary = {
+  campus_id: string; campus_name: string; period: string | null
+  budget_id: string | null; allocated_amount: number | null; reserved_amount: number | null
+  approved_expenses: number; paid_total: number; unpaid_liabilities: number; pending_count: number
+  remaining_amount: number | null
 }
 // Analytics (0012_analytics_views.sql)
 export type ProgramSummary = {
@@ -264,6 +332,11 @@ export interface Database {
       announcements: TableDef<AnnouncementRow>
       volunteer_availability: TableDef<AvailabilityRow>
       certificates: TableDef<CertificateRow>
+      campus_budgets: TableDef<CampusBudgetRow>
+      outreach_visit_requests: TableDef<OutreachVisitRequestRow>
+      execution_plans: TableDef<ExecutionPlanRow>
+      budget_increase_requests: TableDef<BudgetIncreaseRequestRow>
+      school_visits: TableDef<SchoolVisitRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -278,6 +351,8 @@ export interface Database {
       monthly_activity: { Row: MonthlyActivity; Relationships: [] }
       public_campus_sessions: { Row: PublicCampusSession; Relationships: [] }
       public_campus_team: { Row: PublicCampusTeamMember; Relationships: [] }
+      school_session_progress: { Row: SchoolSessionProgressRow; Relationships: [] }
+      campus_finance_summary: { Row: CampusFinanceSummary; Relationships: [] }
     }
     Functions: {
       change_school_status: {
@@ -302,6 +377,80 @@ export interface Database {
       }
       respond_to_assignment: {
         Args: { p_assignment_id: string; p_status: AssignmentStatus; p_note?: string }
+        Returns: undefined
+      }
+      set_campus_budget: {
+        Args: { p_campus_id: string; p_period: string; p_allocated_amount: number; p_note?: string }
+        Returns: string
+      }
+      finance_allocate_campus_budget: {
+        Args: { p_campus_id: string; p_allocated_amount: number; p_note?: string }
+        Returns: string
+      }
+      create_budget_increase_request: {
+        Args: { p_campus_id: string; p_requested_amount: number; p_reason: string }
+        Returns: string
+      }
+      review_budget_increase_request: {
+        Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      create_outreach_visit_request: {
+        Args: {
+          p_school_id: string; p_purpose: string; p_proposed_visit_date: string
+          p_estimated_travel_cost: number; p_team_member_ids: string[]
+        }
+        Returns: string
+      }
+      review_outreach_visit_request_campus: {
+        Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      review_outreach_visit_request_finance: {
+        Args: { p_request_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      log_school_visit: {
+        Args: {
+          p_school_id: string; p_visited_at: string
+          p_notes?: string; p_team_member_ids?: string[]
+        }
+        Returns: string
+      }
+      update_school_visit: {
+        Args: {
+          p_visit_id: string; p_visited_at: string
+          p_notes?: string; p_team_member_ids?: string[]
+        }
+        Returns: undefined
+      }
+      create_execution_plan: {
+        Args: {
+          p_session_id: string; p_logistics_notes: string
+          p_has_laptop: boolean; p_has_projector: boolean; p_has_hdmi_cable: boolean
+          p_has_extension_board: boolean; p_has_speaker: boolean; p_has_internet_device: boolean
+          p_other_equipment?: string; p_teaching_resources?: string
+          p_estimated_transport_cost?: number; p_session_ready?: boolean
+        }
+        Returns: string
+      }
+      review_execution_plan_campus: {
+        Args: { p_plan_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      review_execution_plan_finance: {
+        Args: { p_plan_id: string; p_decision: ApprovalStatus; p_note?: string }
+        Returns: undefined
+      }
+      review_reimbursement_finance: {
+        Args: { p_reimbursement_id: string; p_decision: ReimbursementStatus; p_note?: string }
+        Returns: undefined
+      }
+      pay_reimbursement_finance: {
+        Args: {
+          p_reimbursement_id: string; p_payment_date?: string
+          p_payment_reference?: string; p_payment_method?: string
+        }
         Returns: undefined
       }
     }

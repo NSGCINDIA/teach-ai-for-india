@@ -8,6 +8,7 @@ import { can, isAdmin } from '@/lib/auth/rbac'
 import { SELF_SIGNUP_ROLES } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
 import { escapeHtml } from '@/lib/security/sanitize'
+import { formValues } from '@/lib/actions/form-values'
 import {
   roleChangeSchema,
   userActiveSchema,
@@ -17,7 +18,11 @@ import {
 } from '@/lib/validations/admin'
 import type { UserRole } from '@/types/database'
 
-export type AdminActionState = { error?: string; ok?: boolean; message?: string }
+export type AdminActionState = {
+  error?: string; ok?: boolean; message?: string
+  /** Submitted field values, echoed back so the form can repopulate itself after an error. */
+  values?: Record<string, string>
+}
 
 function nullify<T extends Record<string, unknown>>(obj: T): T {
   const out = { ...obj }
@@ -92,6 +97,7 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
     id: req.auth_user_id,
     email: req.email,
     full_name: req.full_name,
+    phone: req.phone,
     role: grantedRole,
     campus_id: req.campus_id,
     niat_id: req.niat_id,
@@ -104,7 +110,7 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
   // Confirm the email and clear the pending flag so they can log in.
   await admin.auth.admin.updateUserById(req.auth_user_id, {
     email_confirm: true,
-    user_metadata: { full_name: req.full_name, campus_id: req.campus_id, niat_id: req.niat_id, pending_approval: null },
+    user_metadata: { full_name: req.full_name, campus_id: req.campus_id, niat_id: req.niat_id, phone: req.phone, pending_approval: null },
   })
 
   await admin
@@ -175,16 +181,59 @@ export async function rejectSignup(_prev: AdminActionState, formData: FormData):
   return { ok: true, message: `${req.full_name}’s request was rejected.` }
 }
 
+// ─── Volunteer applications — accept / reject (PRD §7.1/§11) ─────────────────
+export async function reviewVolunteerApplication(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const me = await requireUser('/admin/volunteers')
+  if (!isAdmin(me.role)) return { error: 'Not authorized to review applications.' }
+
+  const id = String(formData.get('id') ?? '')
+  const decision = String(formData.get('decision') ?? '')
+  if (!id) return { error: 'Missing application id.' }
+  if (decision !== 'invited' && decision !== 'rejected') return { error: 'Invalid decision.' }
+
+  const supabase = await createClient()
+  const { data: application } = await supabase
+    .from('volunteer_applications')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+  if (!application) return { error: 'Application not found.' }
+  if (application.status !== 'new' && application.status !== 'reviewing') {
+    return { error: 'This application has already been reviewed.' }
+  }
+
+  const { error } = await supabase
+    .from('volunteer_applications')
+    .update({ status: decision, reviewed_by: me.id })
+    .eq('id', id)
+  if (error) return { error: humanize(error.message) }
+
+  await supabase.from('audit_log').insert({
+    actor_id: me.id,
+    action: decision === 'invited' ? 'invite' : 'reject',
+    entity_type: 'volunteer_application',
+    entity_id: id,
+    detail: { email: application.email },
+  })
+
+  revalidatePath('/admin/volunteers')
+  return {
+    ok: true,
+    message: decision === 'invited' ? `${application.full_name} marked as invited.` : `${application.full_name}’s application was rejected.`,
+  }
+}
+
 // ─── Campus management (PRD §7.9 — campus config) ────────────────────────────
 export async function saveCampus(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const me = await requireUser('/admin/campuses')
-  if (!isAdmin(me.role)) return { error: 'Not authorized to manage campuses.' }
+  const values = formValues(formData)
+  if (!isAdmin(me.role)) return { error: 'Not authorized to manage campuses.', values }
 
   const parsed = campusSchema.safeParse({
     ...Object.fromEntries(formData),
     is_active: formData.get('is_active') === 'on' || formData.get('is_active') === 'true',
   })
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
   const { id, ...fields } = nullify(parsed.data)
 
   const supabase = await createClient()
@@ -192,7 +241,7 @@ export async function saveCampus(_prev: AdminActionState, formData: FormData): P
   const { error } = id
     ? await supabase.from('campuses').update(payload).eq('id', id)
     : await supabase.from('campuses').insert(payload)
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath('/admin/campuses')
   revalidatePath('/campuses') // public listing
@@ -236,10 +285,11 @@ export async function saveContentBlock(_prev: AdminActionState, formData: FormDa
 // ─── Finance thresholds (PRD §7.6/§7.9) ──────────────────────────────────────
 export async function saveFinanceConfig(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const me = await requireUser('/admin/settings')
-  if (!isAdmin(me.role)) return { error: 'Not authorized to change settings.' }
+  const values = formValues(formData)
+  if (!isAdmin(me.role)) return { error: 'Not authorized to change settings.', values }
 
   const parsed = financeConfigSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
 
   const supabase = await createClient()
   const { error } = await supabase
@@ -248,7 +298,7 @@ export async function saveFinanceConfig(_prev: AdminActionState, formData: FormD
       { block_key: 'finance_config', content: { claim_window_days: parsed.data.claim_window_days }, updated_by: me.id },
       { onConflict: 'block_key' },
     )
-  if (error) return { error: humanize(error.message) }
+  if (error) return { error: humanize(error.message), values }
 
   revalidatePath('/admin/settings')
   return { ok: true, message: 'Finance settings saved.' }

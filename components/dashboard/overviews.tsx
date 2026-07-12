@@ -8,8 +8,10 @@ import { MetricCard } from '@/components/shared/metric-card'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { EmptyState } from '@/components/shared/states'
 import { Card } from '@/components/ui/card'
+import { BudgetRequestReviewList } from '@/components/dashboard/budget-request-review-list'
 import { formatDate, formatCurrency, formatNumber } from '@/lib/format'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
+import { curriculumStageLabel } from '@/lib/constants/sessions'
 import type {
   CampusLeadData, OutreachData, VolunteerLeadData, ExecData, VolunteerData,
   SessionLite, SchoolLite,
@@ -62,7 +64,13 @@ function SchoolRows({ schools, empty }: { schools: SchoolLite[]; empty: string }
                 {s.district}{s.next_action_date ? ` · next: ${formatDate(s.next_action_date)}` : ''}
               </p>
             </div>
-            <StatusBadge kind="school" status={s.status} />
+            {s.latest_session_number ? (
+              <span className="shrink-0 text-xs text-muted-foreground">
+                Session {s.latest_session_number} — {curriculumStageLabel(s.latest_session_number)}
+              </span>
+            ) : (
+              <StatusBadge kind="school" status={s.status} />
+            )}
           </Link>
         </li>
       ))}
@@ -84,7 +92,15 @@ function Kpi({ label, value, icon }: { label: string; value: string | number; ic
 }
 
 // ─── Campus Lead ────────────────────────────────────────────────────────────
-export function CampusLeadOverview({ name, data }: { name: string; data: CampusLeadData }) {
+export function CampusLeadOverview({
+  name,
+  data,
+  canReviewBudgetRequests,
+}: {
+  name: string
+  data: CampusLeadData
+  canReviewBudgetRequests: boolean
+}) {
   const k = data.kpis
   return (
     <div className="space-y-6">
@@ -133,6 +149,9 @@ export function CampusLeadOverview({ name, data }: { name: string; data: CampusL
             </ul>
           )}
         </Widget>
+        <Widget title="Pending Budget Requests">
+          <BudgetRequestReviewList requests={data.pendingBudgetRequests} canReview={canReviewBudgetRequests} />
+        </Widget>
       </div>
     </div>
   )
@@ -172,8 +191,8 @@ export function OutreachOverview({ name, data }: { name: string; data: OutreachD
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi label="Total Schools" value={formatNumber(k.totalSchools)} icon={School} />
         <Kpi label="Active Leads" value={formatNumber(k.leads)} icon={TrendingUp} />
-        <Kpi label="Approved" value={formatNumber(k.approved)} icon={CheckCircle2} />
-        <Kpi label="Sessions Scheduled" value={formatNumber(k.sessionsScheduled)} icon={CalendarClock} />
+        <Kpi label="Registered" value={formatNumber(k.approved)} icon={CheckCircle2} />
+        <Kpi label="Sessions Active" value={formatNumber(k.sessionsScheduled)} icon={CalendarClock} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -190,7 +209,7 @@ export function OutreachOverview({ name, data }: { name: string; data: OutreachD
             ))}
           </ul>
         </Widget>
-        <Widget title="Schools Awaiting Follow-up" href="/dashboard/schools">
+        <Widget title="Awaiting Outreach Approval" href="/dashboard/schools">
           <SchoolRows schools={data.awaitingFollowup} empty="Nothing waiting on you. 🎉" />
         </Widget>
         <Widget title="Upcoming Visits" href="/dashboard/schools">

@@ -27,30 +27,28 @@ export type AssignmentBoardRow = AssignmentWithSession & {
 /** Assignments for one session, with the volunteer's name (RLS scopes rows). */
 export async function getSessionAssignments(sessionId: string): Promise<AssignmentWithVolunteer[]> {
   const supabase = await createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('session_assignments')
     .select('*, volunteer:users!session_assignments_volunteer_id_fkey(id, full_name, role)')
     .eq('session_id', sessionId)
     .order('assigned_at', { ascending: true })
+  if (error) throw new Error(`getSessionAssignments failed: ${error.message}`)
   return (data as unknown as AssignmentWithVolunteer[] | null) ?? []
 }
 
-/** The signed-in volunteer's own assignments, upcoming first. */
-export async function listMyAssignments(): Promise<MyAssignment[]> {
+/** A volunteer's own assignments, upcoming first (RLS: self, or a lead/admin of their campus). */
+export async function listMyAssignments(userId: string): Promise<MyAssignment[]> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return []
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('session_assignments')
     .select(
       `*, session:sessions(id, date, topic, status, start_time, end_time,
          school:schools(id, name, district), campus:campuses(id, name))`,
     )
-    .eq('volunteer_id', user.id)
+    .eq('volunteer_id', userId)
     .order('assigned_at', { ascending: false })
     .limit(200)
+  if (error) throw new Error(`listMyAssignments failed: ${error.message}`)
   return (data as unknown as MyAssignment[] | null) ?? []
 }
 
@@ -67,6 +65,7 @@ export async function listCampusAssignments(campusId: string | null): Promise<As
     .order('assigned_at', { ascending: false })
     .limit(500)
   if (campusId) query = query.eq('campus_id', campusId)
-  const { data } = await query
+  const { data, error } = await query
+  if (error) throw new Error(`listCampusAssignments failed: ${error.message}`)
   return (data as unknown as AssignmentBoardRow[] | null) ?? []
 }

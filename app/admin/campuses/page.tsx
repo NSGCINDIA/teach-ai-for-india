@@ -14,9 +14,8 @@ export default async function AdminCampusesPage() {
     listCampusesFull(),
     listAdminUsers({ active: true }),
   ])
-  // Anyone who can lead a campus (active team member, not a school POC / viewer).
+  // Anyone who can lead a campus (active team member).
   const leads = users
-    .filter((u) => u.role !== 'school_poc' && u.role !== 'viewer')
     .map((u) => ({ id: u.id, full_name: u.full_name }))
 
   return (

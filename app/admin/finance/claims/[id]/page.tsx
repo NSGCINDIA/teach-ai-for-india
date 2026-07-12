@@ -11,14 +11,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function AdminClaimPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  await requireAccess('/admin/finance')
-  const claim = await getReimbursement(id)
+  const [, claim] = await Promise.all([requireAccess('/admin/finance'), getReimbursement(id)])
   if (!claim) notFound()
 
   return (
     <ClaimDetailView
       claim={claim}
-      mode="admin"
+      mode="reviewer"
       basePath="/admin/finance"
       sessionHref="/admin/sessions"
     />

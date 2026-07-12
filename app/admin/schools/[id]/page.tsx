@@ -1,7 +1,13 @@
 import { notFound } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
-import { canForEntity } from '@/lib/auth/rbac'
+import {
+  canForEntity, schoolStatusAccess, outreachVisitRequestAccess, canLogSchoolVisit,
+} from '@/lib/auth/rbac'
 import { getSchool } from '@/lib/data/schools'
+import { listOutreachVisitRequestsForSchool } from '@/lib/data/outreach-visit-requests'
+import { listSchoolVisitsForSchool } from '@/lib/data/school-visits'
+import { listTeamMembers } from '@/lib/data/sessions'
+import { getCampusBudget } from '@/lib/data/budgets'
 import { SchoolDetailView } from '@/components/schools/school-detail'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -12,10 +18,34 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function AdminSchoolPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const user = await requireAccess('/admin/schools')
-  const school = await getSchool(id)
+  const [user, school] = await Promise.all([requireAccess('/admin/schools'), getSchool(id)])
   if (!school) notFound()
 
   const canEdit = canForEntity(user.role, 'edit_school', user.campus_id, school.campus_id)
-  return <SchoolDetailView school={school} basePath="/admin/schools" canEdit={canEdit} />
+  const statusAccess = schoolStatusAccess(user.role, user.campus_id, school.campus_id)
+  const visitAccess = outreachVisitRequestAccess(user.role, user.campus_id, school.campus_id)
+  const visitLogAccess = canLogSchoolVisit(user.role, user.campus_id, school.campus_id)
+  const [visitRequests, roster, schoolVisits, budget] = await Promise.all([
+    listOutreachVisitRequestsForSchool(school.id),
+    listTeamMembers(school.campus_id),
+    listSchoolVisitsForSchool(school.id),
+    school.campus_id && school.campus?.quarter
+      ? getCampusBudget(school.campus_id, school.campus.quarter)
+      : Promise.resolve(null),
+  ])
+
+  return (
+    <SchoolDetailView
+      school={school}
+      basePath="/admin/schools"
+      canEdit={canEdit}
+      statusAccess={statusAccess}
+      visitRequests={visitRequests}
+      roster={roster}
+      budget={budget}
+      visitAccess={visitAccess}
+      schoolVisits={schoolVisits}
+      visitLogAccess={visitLogAccess}
+    />
+  )
 }

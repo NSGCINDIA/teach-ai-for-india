@@ -63,7 +63,7 @@ export default async function DashboardVolunteersPage() {
           }
         />
       ) : (
-        <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} />
+        <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} canViewDetails={isAdmin(user.role)} />
       )}
     </div>
   )
