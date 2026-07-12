@@ -14,9 +14,9 @@ import { CONTACT_INFO_FALLBACK, type ContactInfo } from '@/app/(public)/content'
  */
 
 export const FALLBACK_IMPACT: PublicImpactStats = {
-  schools_reached: 41,
-  students_impacted: 1820,
-  sessions_completed: 96,
+  schools_reached: 18,
+  students_impacted: 1842,
+  sessions_completed: 19,
   active_campuses: 9,
   states_count: 2,
 }

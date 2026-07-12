@@ -1,0 +1,578 @@
+﻿[
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\README.md",
+        "Line":  14,
+        "Keyword":  "Example",
+        "Content":  "cp .env.example .env.local   # fill in Supabase + Resend keys"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\actions\\auth.ts",
+        "Line":  120,
+        "Keyword":  "Mock",
+        "Content":  "const mockUsers = [\u0027admin@teachaiforindia.org\u0027, \u0027hello@teachaiforindia.org\u0027];"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\actions\\auth.ts",
+        "Line":  121,
+        "Keyword":  "Mock",
+        "Content":  "if (mockUsers.includes(email)) {"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\globals.css",
+        "Line":  38,
+        "Keyword":  "Placeholder",
+        "Content":  "--placeholder: #9ca3af;"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\globals.css",
+        "Line":  81,
+        "Keyword":  "Placeholder",
+        "Content":  "--placeholder: #6b7280;"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\globals.css",
+        "Line":  157,
+        "Keyword":  "Placeholder",
+        "Content":  "::placeholder {"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\globals.css",
+        "Line":  158,
+        "Keyword":  "Placeholder",
+        "Content":  "color: var(--placeholder);"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\(public)\\content.ts",
+        "Line":  188,
+        "Keyword":  "Campus A",
+        "Content":  "\u0027Head to the Join page and submit an application. Tell us your preferred campus and why you want to be part of the movement â€” we will be in touch.\u0027,"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\(public)\\impact\\page.tsx",
+        "Line":  17,
+        "Keyword":  "Campus B",
+        "Content":  "\u0027Live impact dashboard for Teach AI for India â€” schools reached, students impacted, sessions delivered, and per-campus breakdowns.\u0027,"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\(public)\\impact\\page.tsx",
+        "Line":  43,
+        "Keyword":  "Campus B",
+        "Content":  "{/* Per-campus breakdown */}"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\dashboard\\analytics\\page.tsx",
+        "Line":  42,
+        "Keyword":  "Campus A",
+        "Content":  "return \u003cEmptyState title=\"No campus assigned\" description=\"Analytics need a campus to scope to.\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\dashboard\\announcements\\page.tsx",
+        "Line":  26,
+        "Keyword":  "Campus A",
+        "Content":  "\u003cp className=\"mt-1 text-muted-foreground\"\u003eUpdates from your campus and the wider movement.\u003c/p\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\dashboard\\approval-letters\\page.tsx",
+        "Line":  22,
+        "Keyword":  "Campus A",
+        "Content":  "return \u003cEmptyState title=\"No campus assigned\" description=\"Approval letters need a campus to scope to.\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\dashboard\\availability\\page.tsx",
+        "Line":  25,
+        "Keyword":  "Campus A",
+        "Content":  "/** Volunteer Lead / Campus Lead view of campus availability, grouped by date. */"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\dashboard\\reports\\page.tsx",
+        "Line":  25,
+        "Keyword":  "Campus A",
+        "Content":  "return \u003cEmptyState title=\"No campus assigned\" description=\"Reports need a campus to scope to.\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\dashboard\\settings\\page.tsx",
+        "Line":  12,
+        "Keyword":  "Campus A",
+        "Content":  "return \u003cEmptyState title=\"No campus assigned\" description=\"Campus settings need a campus to edit.\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\app\\dashboard\\volunteers\\page.tsx",
+        "Line":  25,
+        "Keyword":  "Campus A",
+        "Content":  "title=\"No campus assigned\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\program-structure.tsx",
+        "Line":  13,
+        "Keyword":  "Demo",
+        "Content":  "description: \"Students discover what AI is, how it works, and where it shows up in daily life â€” through engaging stories and live demonstrations.\","
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\what-we-do.tsx",
+        "Line":  10,
+        "Keyword":  "Demo",
+        "Content":  "{ icon: Cpu,           title: \"Hands-on Learning\",      description: \"Students interact with real AI tools through guided demos and activities that build practical intuition.\",   color: \"#138808\" },"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\admin\\campus-form.tsx",
+        "Line":  61,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"name\" name=\"name\" required defaultValue={campus?.name} placeholder=\"NIAT Hyderabad\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\admin\\campus-form.tsx",
+        "Line":  65,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"slug\" name=\"slug\" required defaultValue={campus?.slug} placeholder=\"niat-hyderabad\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\admin\\campus-form.tsx",
+        "Line":  73,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"quarter\" name=\"quarter\" defaultValue={campus?.quarter ?? \u0027\u0027} placeholder=\"Q3 FY26\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\admin\\campus-form.tsx",
+        "Line":  111,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea id=\"description\" name=\"description\" rows={2} defaultValue={campus?.description ?? \u0027\u0027} placeholder=\"Short public-facing blurb for the campus page.\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\admin\\invite-form.tsx",
+        "Line":  50,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"full_name\" name=\"full_name\" required placeholder=\"Priya Sharma\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\admin\\invite-form.tsx",
+        "Line":  54,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"email\" name=\"email\" type=\"email\" required placeholder=\"priya@university.edu\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\admin\\users-table.tsx",
+        "Line":  45,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput value={q} onChange={(e) =\u003e setQ(e.target.value)} placeholder=\"Search name or emailâ€¦\" className=\"pl-9\" aria-label=\"Search users\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\announcements\\announcement-composer.tsx",
+        "Line":  28,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"title\" name=\"title\" required placeholder=\"What\u0027s happening?\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\announcements\\announcement-composer.tsx",
+        "Line":  32,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea id=\"body\" name=\"body\" rows={3} required placeholder=\"Share the details with your teamâ€¦\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\assignments\\assignment-response.tsx",
+        "Line":  52,
+        "Keyword":  "Placeholder",
+        "Content":  "placeholder={mode === \u0027declined\u0027 ? \u0027Why canâ€™t you make it?\u0027 : \u0027Why do you need a replacement?\u0027}"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\auth\\forgot-password-form.tsx",
+        "Line":  49,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"email\" name=\"email\" type=\"email\" autoComplete=\"email\" required placeholder=\"you@campus.edu\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\auth\\login-form.tsx",
+        "Line":  50,
+        "Keyword":  "Placeholder",
+        "Content":  "placeholder=\"you@campus.edu\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\auth\\signup-form.tsx",
+        "Line":  71,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"full_name\" name=\"full_name\" required placeholder=\"Your full name\" className=\"h-10 pl-9\" onChange={(e) =\u003e setFullName(e.target.value)} /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\auth\\signup-form.tsx",
+        "Line":  75,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"niat_id\" name=\"niat_id\" required placeholder=\"Your NIAT student ID\" className=\"h-10 pl-9\" onChange={(e) =\u003e setNiatId(e.target.value)} /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\auth\\signup-form.tsx",
+        "Line":  92,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"email\" name=\"email\" type=\"email\" autoComplete=\"email\" required placeholder=\"you@example.com\" className=\"h-10 pl-9\" onChange={(e) =\u003e setEmail(e.target.value)} /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\auth\\signup-form.tsx",
+        "Line":  98,
+        "Keyword":  "Placeholder",
+        "Content":  "required placeholder=\"Min. 8 characters\" className=\"h-10 pl-9 pr-10\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\auth\\signup-form.tsx",
+        "Line":  108,
+        "Keyword":  "Placeholder",
+        "Content":  "required placeholder=\"Re-enter password\" className=\"h-10 pl-9 pr-10\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\certificates\\issue-form.tsx",
+        "Line":  54,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"title\" name=\"title\" required placeholder=\"e.g. Outstanding Volunteer â€” Term 1\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\certificates\\issue-form.tsx",
+        "Line":  59,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea id=\"description\" name=\"description\" rows={2} placeholder=\"What this recognisesâ€¦\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\dashboard\\campus-settings-form.tsx",
+        "Line":  33,
+        "Keyword":  "Placeholder",
+        "Content":  "placeholder=\"A short public-facing description of this campus\u0027s programâ€¦\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\dashboard\\campus-settings-form.tsx",
+        "Line":  42,
+        "Keyword":  "Placeholder",
+        "Content":  "placeholder=\"https://â€¦\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\dashboard\\dashboard-shell.tsx",
+        "Line":  130,
+        "Keyword":  "Coming Soon",
+        "Content":  "title=\"Coming soon\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\dashboard\\overviews.tsx",
+        "Line":  348,
+        "Keyword":  "Campus A",
+        "Content":  "title=\"No campus assigned\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\dashboard\\page-skeleton.tsx",
+        "Line":  4,
+        "Keyword":  "Placeholder",
+        "Content":  "* Generic loading placeholder for dashboard/admin pages. Rendered instantly by"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\dashboard\\profile-form.tsx",
+        "Line":  32,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"phone\" name=\"phone\" defaultValue={user.phone ?? \u0027\u0027} placeholder=\"+91â€¦\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\evidence\\evidence-browser.tsx",
+        "Line":  80,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput value={q} onChange={(e) =\u003e setQ(e.target.value)} placeholder=\"Search filename, captionâ€¦\" className=\"pl-9\" aria-label=\"Search evidence\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\evidence\\evidence-uploader.tsx",
+        "Line":  113,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"ev-caption\" value={caption} onChange={(e) =\u003e setCaption(e.target.value)} placeholder=\"Short description\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\finance\\claim-form.tsx",
+        "Line":  76,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput type=\"number\" name=\"amount\" min={1} step=\"0.01\" required defaultValue={claim?.amount ?? \u0027\u0027} placeholder=\"e.g. 120\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\finance\\claim-form.tsx",
+        "Line":  87,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea name=\"reason\" rows={2} defaultValue={claim?.reason ?? \u0027\u0027} placeholder=\"Anything finance should know\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\finance\\claims-table.tsx",
+        "Line":  50,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput value={q} onChange={(e) =\u003e setQ(e.target.value)} placeholder=\"Search ref, claimant, sessionâ€¦\" className=\"pl-9\" aria-label=\"Search claims\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\finance\\review-panel.tsx",
+        "Line":  40,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"payment_method\" name=\"payment_method\" placeholder=\"UPI / bank transfer\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\finance\\review-panel.tsx",
+        "Line":  44,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"payment_reference\" name=\"payment_reference\" placeholder=\"Transaction reference\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\finance\\review-panel.tsx",
+        "Line":  64,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea id=\"reviewer_note\" name=\"reviewer_note\" rows={2} placeholder=\"Reason for the decision (shown to the claimant on rejection)\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\marketing\\volunteer-form.tsx",
+        "Line":  147,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cSelectValue placeholder={campuses.length ? \u0027Select a campus\u0027 : \u0027No campuses yet\u0027} /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\marketing\\volunteer-form.tsx",
+        "Line":  167,
+        "Keyword":  "Placeholder",
+        "Content":  "placeholder=\"Tell us what draws you to the mission and what you\u0027d bring to a campus team.\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\add-contact.tsx",
+        "Line":  35,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"c-name\" name=\"name\" required placeholder=\"Principal name\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\add-contact.tsx",
+        "Line":  39,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput id=\"c-desig\" name=\"designation\" required placeholder=\"Principal\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\planning-panel.tsx",
+        "Line":  78,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"coordinator_name\" defaultValue={plan?.coordinator_name ?? \u0027\u0027} placeholder=\"Point of contact\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\planning-panel.tsx",
+        "Line":  81,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"coordinator_phone\" defaultValue={plan?.coordinator_phone ?? \u0027\u0027} placeholder=\"+91â€¦\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\planning-panel.tsx",
+        "Line":  84,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"coordinator_designation\" defaultValue={plan?.coordinator_designation ?? \u0027\u0027} placeholder=\"e.g. Head Teacher\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\planning-panel.tsx",
+        "Line":  118,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"topic\" defaultValue={plan?.topic ?? \u0027\u0027} placeholder=\"Session focus\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\planning-panel.tsx",
+        "Line":  136,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"approval_letter_path\" defaultValue={plan?.approval_letter_path ?? \u0027\u0027} placeholder=\"Paste the uploaded letter path (optional)\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\planning-panel.tsx",
+        "Line":  142,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea id=\"logistics_notes\" name=\"logistics_notes\" rows={3} defaultValue={plan?.logistics_notes ?? \u0027\u0027} placeholder=\"Directions, permissions, equipment to carryâ€¦\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\school-form.tsx",
+        "Line":  84,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"name\" required defaultValue={school?.name} placeholder=\"Zilla Parishad High School\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\school-form.tsx",
+        "Line":  97,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"dise_code\" inputMode=\"numeric\" defaultValue={school?.dise_code ?? \u0027\u0027} placeholder=\"11-digit code\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\school-form.tsx",
+        "Line":  103,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"state\" required defaultValue={school?.state} placeholder=\"Telangana\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\school-form.tsx",
+        "Line":  106,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"district\" required defaultValue={school?.district} placeholder=\"Rangareddy\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\school-form.tsx",
+        "Line":  137,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea name=\"notes\" rows={3} defaultValue={school?.notes ?? \u0027\u0027} placeholder=\"Context, history, anything the next person needs.\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\schools-view.tsx",
+        "Line":  53,
+        "Keyword":  "Placeholder",
+        "Content":  "placeholder=\"Search name, district, DISE codeâ€¦\""
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\schools\\status-control.tsx",
+        "Line":  84,
+        "Keyword":  "Placeholder",
+        "Content":  "placeholder={needsNote ? \u0027Required for archiving and backward moves\u0027 : \u0027Add context for the visit log\u0027}"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\sessions\\session-form.tsx",
+        "Line":  73,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput name=\"topic\" required defaultValue={session?.topic ?? \u0027\u0027} placeholder=\"What this session covers\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\sessions\\session-form.tsx",
+        "Line":  87,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea name=\"type_detail\" rows={2} defaultValue={existingDetail} placeholder={field.placeholder} /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\sessions\\session-form.tsx",
+        "Line":  90,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea name=\"notes\" rows={3} defaultValue={session?.notes ?? \u0027\u0027} placeholder=\"Session narrative\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\sessions\\session-status-control.tsx",
+        "Line":  66,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cTextarea id=\"s-note\" name=\"note\" rows={2} required placeholder=\"Why is this session cancelled?\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\sessions\\sessions-view.tsx",
+        "Line":  50,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cInput value={q} onChange={(e) =\u003e setQ(e.target.value)} placeholder=\"Search school, topic, typeâ€¦\" className=\"pl-9\" aria-label=\"Search sessions\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\shared\\evidence-grid.tsx",
+        "Line":  27,
+        "Keyword":  "Placeholder",
+        "Content":  "* Images lazy-load via next/image; non-images render a typed placeholder tile."
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\shared\\gallery-filters.tsx",
+        "Line":  36,
+        "Keyword":  "Campus A",
+        "Content":  "* filterable by campus and date). Filtering is in-memory over the already"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\shared\\gallery-filters.tsx",
+        "Line":  75,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cSelectValue placeholder=\"All campuses\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\shared\\gallery-filters.tsx",
+        "Line":  89,
+        "Keyword":  "Placeholder",
+        "Content":  "\u003cSelectValue placeholder=\"All dates\" /\u003e"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\ui\\command.tsx",
+        "Line":  76,
+        "Keyword":  "Placeholder",
+        "Content":  "\u0027placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50\u0027,"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\ui\\input-otp.tsx",
+        "Line":  47,
+        "Keyword":  "Fake",
+        "Content":  "const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {}"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\ui\\input-otp.tsx",
+        "Line":  60,
+        "Keyword":  "Fake",
+        "Content":  "{hasFakeCaret \u0026\u0026 ("
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\ui\\input.tsx",
+        "Line":  11,
+        "Keyword":  "Placeholder",
+        "Content":  "\u0027file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm\u0027,"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\ui\\select.tsx",
+        "Line":  40,
+        "Keyword":  "Placeholder",
+        "Content":  "\"border-input data-[placeholder]:text-muted-foreground [\u0026_svg:not([class*=\u0027text-\u0027])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [\u0026_svg]:pointer-events-none [\u0026_svg]:shrink-0 [\u0026_svg:not([class*=\u0027size-\u0027])]:size-4\","
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\components\\ui\\textarea.tsx",
+        "Line":  10,
+        "Keyword":  "Placeholder",
+        "Content":  "\u0027border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm\u0027,"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\lib\\constants\\sessions.ts",
+        "Line":  18,
+        "Keyword":  "Placeholder",
+        "Content":  "export const SESSION_TYPE_FIELD: Record\u003cSessionType, { key: string; label: string; placeholder: string }\u003e = {"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\lib\\constants\\sessions.ts",
+        "Line":  19,
+        "Keyword":  "Placeholder",
+        "Content":  "awareness:           { key: \u0027reach_summary\u0027,      label: \u0027Reach summary\u0027,        placeholder: \u0027Classes / grades covered, key messages landed\u0027 },"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\lib\\constants\\sessions.ts",
+        "Line":  20,
+        "Keyword":  "Placeholder",
+        "Content":  "hands_on:            { key: \u0027tools_used\u0027,         label: \u0027Tools used\u0027,           placeholder: \u0027e.g. ChatGPT, Claude, Teachable Machine\u0027 },"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\lib\\constants\\sessions.ts",
+        "Line":  21,
+        "Keyword":  "Placeholder",
+        "Content":  "prompt_writing:      { key: \u0027sample_prompts\u0027,     label: \u0027Sample prompts\u0027,       placeholder: \u0027Notable prompts students wrote\u0027 },"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\lib\\constants\\sessions.ts",
+        "Line":  22,
+        "Keyword":  "Placeholder",
+        "Content":  "ethics_safety:       { key: \u0027topics_covered\u0027,     label: \u0027Topics covered\u0027,       placeholder: \u0027Bias, privacy, deepfakes, safe useâ€¦\u0027 },"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\lib\\constants\\sessions.ts",
+        "Line":  23,
+        "Keyword":  "Placeholder",
+        "Content":  "application_project: { key: \u0027project_description\u0027, label: \u0027Project description\u0027,  placeholder: \u0027What the students built\u0027 },"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\lib\\constants\\sessions.ts",
+        "Line":  24,
+        "Keyword":  "Placeholder",
+        "Content":  "followup:            { key: \u0027followup_summary\u0027,   label: \u0027Follow-up summary\u0027,    placeholder: \u0027What was revisited and assessed\u0027 },"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\lib\\constants\\status.ts",
+        "Line":  73,
+        "Keyword":  "Campus A",
+        "Content":  "campus_approved:{ label: \u0027Campus Approved\u0027,  tone: \u0027progress\u0027 },"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\lib\\data\\assignments.ts",
+        "Line":  22,
+        "Keyword":  "Campus B",
+        "Content":  "/** Campus board row â€” carries both the volunteer and the session context. */"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\supabase\\README.md",
+        "Line":  31,
+        "Keyword":  "Example",
+        "Content":  "1. **Set env vars** â€” copy `.env.example` â†’ `.env.local` and fill in"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\supabase\\migrations\\0001_schema.sql",
+        "Line":  171,
+        "Keyword":  "Sample",
+        "Content":  "-- type-specific payload (tools used, sample prompts, project desc, etc. â€” PRD Â§7.4)"
+    },
+    {
+        "File":  "C:\\Projects\\Teach AI For India\\teach-ai-for-india\\supabase\\migrations\\0007_seed_admin.sql",
+        "Line":  8,
+        "Keyword":  "Placeholder",
+        "Content":  "--   placeholder. Prefer creating the first admin via the Supabase Dashboard"
+    }
+]

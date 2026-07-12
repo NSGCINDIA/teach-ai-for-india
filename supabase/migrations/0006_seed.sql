@@ -7,15 +7,15 @@
 insert into campuses (name, university_name, city, state, slug, quarter,
                       target_schools, target_students, target_sessions, description, is_active)
 values
-  ('GRIET',    'Gokaraju Rangaraju Institute of Engineering and Technology', 'Hyderabad',     'Telangana',      'griet',    'Q3-2026', 10, 500, 20, 'Founding campus driving AI literacy across Hyderabad government schools.', true),
-  ('CBIT',     'Chaitanya Bharathi Institute of Technology',                 'Hyderabad',     'Telangana',      'cbit',     'Q3-2026', 10, 500, 20, 'Strong outreach team reaching schools across the city outskirts.', true),
-  ('VNR VJIET','VNR Vignana Jyothi Institute of Engineering & Technology',   'Hyderabad',     'Telangana',      'vnr-vjiet','Q3-2026',  8, 400, 16, 'Hands-on sessions with a focus on prompt-writing workshops.', true),
-  ('MGIT',     'Mahatma Gandhi Institute of Technology',                     'Hyderabad',     'Telangana',      'mgit',     'Q3-2026',  8, 400, 16, 'Ethics-and-safety led curriculum for first-time AI learners.', true),
-  ('CVR',      'CVR College of Engineering',                                 'Hyderabad',     'Telangana',      'cvr',      'Q3-2026',  6, 300, 12, 'Rapidly growing volunteer base across Ibrahimpatnam cluster.', true),
-  ('Vasavi',   'Vasavi College of Engineering',                             'Hyderabad',     'Telangana',      'vasavi',   'Q3-2026',  6, 300, 12, 'Application-and-project sessions building real student portfolios.', true),
-  ('SNIST',    'Sreenidhi Institute of Science and Technology',             'Hyderabad',     'Telangana',      'snist',    'Q3-2026',  6, 300, 12, 'Consistent weekly cadence across Ghatkesar schools.', true),
-  ('MVSR',     'Maturi Venkata Subba Rao Engineering College',              'Hyderabad',     'Telangana',      'mvsr',     'Q3-2026',  5, 250, 10, 'Newest Telangana campus with high momentum.', true),
-  ('AUCE',     'Andhra University College of Engineering',                  'Visakhapatnam', 'Andhra Pradesh', 'auce',     'Q3-2026',  6, 300, 12, 'Anchor campus expanding the movement into Andhra Pradesh.', true)
+  ('NIAT × KKH',                                                        'KKH Campus',                                            'Hyderabad',     'Telangana',      'niat-kkh',          'Q3-2026',  8, 1000,  8, 'Driving AI literacy across regional government schools with 1,000+ students addressed.', true),
+  ('NIAT × Chaitanya (Deemed to be University) (CDU)',                 'Chaitanya (Deemed to be University)',                    'Hyderabad',     'Telangana',      'niat-cdu',          'Q3-2026',  1,   30,  1, 'Active campus bringing foundational AI education to government schools.', true),
+  ('NIAT × Chevella',                                                   'Chevella Campus',                                       'Chevella',      'Telangana',      'niat-chevella',     'Q3-2026',  1,   70,  1, 'Reaching classrooms in the Chevella region with AI awareness sessions.', true),
+  ('NIAT × Aurora Deemed University',                                   'Aurora Deemed University',                              'Hyderabad',     'Telangana',      'niat-aurora',       'Q3-2026',  1,  200,  1, 'Empowering students through hands-on AI prompt and project sessions.', true),
+  ('NIAT × Malla Reddy Vishwavidyapeeth (MRV)',                         'Malla Reddy Vishwavidyapeeth',                          'Hyderabad',     'Telangana',      'niat-mrv',          'Q3-2026',  2,    0,  0, 'Spreading digital awareness and outreaching local government schools.', true),
+  ('NIAT × Chalapathi Institute of Technology (CIET)',                 'Chalapathi Institute of Technology',                     'Guntur',        'Andhra Pradesh', 'niat-ciet',         'Q3-2026',  2,  140,  2, 'Educating students on practical AI tools and safe utilization.', true),
+  ('NIAT × NSRIT (Nadimpalli Satyanarayana Raju Institute of Tech)',   'Nadimpalli Satyanarayana Raju Institute of Technology', 'Visakhapatnam', 'Andhra Pradesh', 'niat-nsrit',        'Q3-2026',  4,  234,  4, 'Promoting applied AI literacy across Visakhapatnam government schools.', true),
+  ('NIAT × NRI University',                                             'NRI University',                                        'Vijayawada',    'Andhra Pradesh', 'niat-nri',          'Q3-2026',  1,   80,  1, 'Empowering classrooms in the Vijayawada area with foundational AI literacy.', true),
+  ('NIAT × Annamacharya University',                                     'Annamacharya University',                               'Kadapa',        'Andhra Pradesh', 'niat-annamacharya', 'Q3-2026',  1,   88,  2, 'Providing hands-on AI workshops for first-time digital learners.', true)
 on conflict (slug) do nothing;
 
 -- ─── CMS content blocks (PRD §7.10) — one JSONB blob per block_key ────────────
@@ -50,15 +50,20 @@ insert into content_blocks (block_key, content) values
 
   ('testimonials', jsonb_build_object(
       'items', jsonb_build_array(
-        jsonb_build_object('quote','My students had never used an AI tool before. Now they ask me when the team is coming back.','name','Headmistress','role','Government High School','photoUrl',null),
-        jsonb_build_object('quote','Teaching here changed how I see my own degree. This is the most meaningful thing I do.','name','Volunteer','role','GRIET','photoUrl',null)
+        jsonb_build_object('quote','The students showed strong interest and picked things up quickly. With proper teaching, they have clear potential to grow and perform well.','name','Balaji','role','Principal, ZPH High School Sontyam','photoUrl',null),
+        jsonb_build_object('quote','All the volunteers did a solid job delivering the sessions clearly and effectively. The students were fully engaged and genuinely enjoyed the learning experience.','name','Srinivas','role','Principal, ZPH High School Pendurthi','photoUrl',null),
+        jsonb_build_object('quote','The sessions were very interactive and our students were eager to participate in all the hands-on AI exercises.','name','Pushpa Latha','role','Principal, ZPHS Agiripalli','photoUrl',null)
       ))),
 
   ('faq', jsonb_build_object(
       'items', jsonb_build_array(
-        jsonb_build_object('question','Who can volunteer?','answer','Any student at a participating campus. Apply through the Join page and your campus lead will onboard you.','visible',true),
-        jsonb_build_object('question','Do students need prior AI knowledge?','answer','No. Sessions are designed for first-time learners in government schools.','visible',true),
-        jsonb_build_object('question','How are sessions funded?','answer','Volunteer travel is reimbursed and every rupee is tracked transparently on this platform.','visible',true)
+        jsonb_build_object('question','What is Teach AI for India?','answer','We are a student-led movement bringing applied AI literacy to government school students across Telangana and Andhra Pradesh, empowering the next generation of responsible digital creators.','visible',true),
+        jsonb_build_object('question','Who can volunteer?','answer','Any university student at one of our participating partner campuses can volunteer. We recruit and train volunteers to facilitate interactive AI workshops in local schools.','visible',true),
+        jsonb_build_object('question','How do campuses join?','answer','Higher education institutions can join the movement by establishing an official campus chapter. Student leads or college administrators can contact us to start onboarding.','visible',true),
+        jsonb_build_object('question','How are schools selected?','answer','We focus where the digital divide is widest, partnering with government schools, state residential schools, and Gurukulams in collaboration with local education offices.','visible',true),
+        jsonb_build_object('question','Is there any fee?','answer','No. Every session, curriculum material, and workshop delivered by Teach AI for India is completely free of charge to partner schools and students.','visible',true),
+        jsonb_build_object('question','Who conducts sessions?','answer','Sessions are conducted on the ground by trained university volunteers organized into campus teams, led by an execution lead for each session.','visible',true),
+        jsonb_build_object('question','How can organizations partner?','answer','We partner with educational institutions, NGOs, corporate sponsors, and government offices. Contact us or email partners@teachaiforindia.org to explore collaboration.','visible',true)
       ))),
 
   ('announcements', jsonb_build_object('items', jsonb_build_array())),

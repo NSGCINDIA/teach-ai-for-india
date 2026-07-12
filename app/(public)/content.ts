@@ -138,21 +138,21 @@ export const TESTIMONIALS_FALLBACK: TestimonialsContent = {
   items: [
     {
       quote:
-        'The students were spellbound. For many of them it was the first time a computer felt like something they could shape, not just watch.',
-      name: 'Anitha R.',
-      role: 'Government High School Teacher, Warangal',
+        'The students showed strong interest and picked things up quickly. With proper teaching, they have clear potential to grow and perform well.',
+      name: 'Balaji',
+      role: 'Principal, ZPH High School Sontyam',
     },
     {
       quote:
-        'Volunteering here changed how I see my own degree. I am not just learning AI — I am handing it forward.',
-      name: 'Karthik M.',
-      role: 'Campus Volunteer, Hyderabad',
+        'All the volunteers did a solid job delivering the sessions clearly and effectively. The students were fully engaged and genuinely enjoyed the learning experience.',
+      name: 'Srinivas',
+      role: 'Principal, ZPH High School Pendurthi',
     },
     {
       quote:
-        'A program that treats our children as creators of technology, not just consumers. That is exactly what they deserve.',
-      name: 'Suresh Kumar',
-      role: 'School Principal, Vijayawada',
+        'The sessions were very interactive and our students were eager to participate in all the hands-on AI exercises.',
+      name: 'Pushpa Latha',
+      role: 'Principal, ZPHS Agiripalli',
     },
   ],
 }
@@ -175,7 +175,7 @@ export const FAQ_FALLBACK: FaqContent = {
       category: 'General',
     },
     {
-      question: 'Who runs the sessions?',
+      question: 'Who can volunteer?',
       answer:
         'Trained university volunteers organised into campus teams. Each campus has a lead who coordinates outreach, scheduling, and reporting.',
       category: 'General',
@@ -187,7 +187,7 @@ export const FAQ_FALLBACK: FaqContent = {
       category: 'General',
     },
     {
-      question: 'How can I volunteer?',
+      question: 'How are schools selected?',
       answer:
         'Head to the Join page and submit an application. Tell us your preferred campus and why you want to be part of the movement — we will be in touch.',
       category: 'Volunteering',
@@ -211,7 +211,7 @@ export const FAQ_FALLBACK: FaqContent = {
       category: 'Partnering',
     },
     {
-      question: 'Can my school partner with you?',
+      question: 'Is there any fee?',
       answer:
         'Absolutely. Reach out through the Contact page and our outreach team will start the coordination process.',
       category: 'Partnering',
