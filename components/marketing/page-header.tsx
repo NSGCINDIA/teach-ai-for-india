@@ -3,7 +3,7 @@ import { Reveal } from '@/components/marketing/reveal'
 
 interface PageHeaderProps {
   eyebrow?: string
-  title: string
+  title: ReactNode
   description?: string
   children?: ReactNode
 }

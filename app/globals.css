@@ -16,7 +16,7 @@
   --brand-teal: #00c9a7;     /* Growth, education */
 
   /* shadcn semantic (light) */
-  --background: #ffffff;
+  --background: #f8fafc;
   --foreground: #111827;
   --card: #ffffff;
   --card-foreground: #111827;
@@ -59,9 +59,9 @@
 }
 
 .dark {
-  --background: #0b0e14;
+  --background: #080b11;
   --foreground: #f8f9fc;
-  --card: #11151d;
+  --card: #0f131c;
   --card-foreground: #f8f9fc;
   --popover: #11151d;
   --popover-foreground: #f8f9fc;
@@ -219,6 +219,43 @@
     transform: translateX(-100%);
     background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--foreground) 6%, transparent), transparent);
     animation: shimmer 1.8s infinite;
+  }
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(3deg); }
+  }
+  @keyframes float-medium {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(-3deg); }
+  }
+  @keyframes spin-slow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .animate-float-slow {
+    animation: float-slow 8s ease-in-out infinite;
+  }
+  .animate-float {
+    animation: float-medium 6s ease-in-out infinite;
+  }
+  .animate-spin-slow {
+    animation: spin-slow 22s linear infinite;
+  }
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 25s linear infinite;
   }
 }
 

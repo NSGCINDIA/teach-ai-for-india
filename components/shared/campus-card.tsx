@@ -27,15 +27,13 @@ export function CampusCard({ campus, className }: { campus: PublicCampusCard; cl
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-brand/15 via-brand-teal/10 to-brand-orange/10">
-            <div aria-hidden className="absolute inset-0 dot-grid opacity-50" />
-            <span
-              aria-hidden
-              className="relative font-display text-5xl font-extrabold text-brand/25 transition-transform duration-500 group-hover:scale-110"
-            >
-              {campus.name.charAt(0).toUpperCase()}
-            </span>
-          </div>
+          <Image
+            src="/hero_classroom_learning.png"
+            alt={`${campus.name} campus`}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
         )}
         <div className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-card/80 text-foreground opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
           <ArrowUpRight className="size-4" aria-hidden />

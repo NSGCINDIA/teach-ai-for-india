@@ -230,8 +230,8 @@ export const CONTACT_INFO_FALLBACK: ContactInfo = {
   phone: '+91 90000 00000',
   address: 'Hyderabad, Telangana, India',
   social: [
-    { label: 'Instagram', href: '#' },
-    { label: 'LinkedIn', href: '#' },
+    { label: 'Instagram', href: 'https://www.instagram.com/teachai_for.india?igsh=Mnh2OGg2Mjd2ajdh' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/company/teach-ai-for-india-tai/' },
     { label: 'Twitter', href: '#' },
   ],
 }
