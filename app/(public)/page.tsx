@@ -16,9 +16,9 @@ import {
   type PartnersContent,
 } from '@/app/(public)/content'
 import { Hero } from '@/components/marketing/hero'
-import { ImpactBar } from '@/components/marketing/impact-bar'
-import { Mission } from '@/components/marketing/mission'
+import { ImpactAndMission } from '@/components/marketing/impact-and-mission'
 import { HowItWorks } from '@/components/marketing/how-it-works'
+import { KidsLearningLab } from '@/components/marketing/kids-learning-lab'
 import { Testimonials } from '@/components/marketing/testimonials'
 import { Partners } from '@/components/marketing/partners'
 import { CtaBand } from '@/components/marketing/cta-band'
@@ -48,18 +48,11 @@ export default async function HomePage() {
     <>
       <Hero content={hero} />
 
-      {/* Impact bar */}
-      <section className="section-padding-sm">
-        <div className="container-wide">
-          <Reveal>
-            <ImpactBar stats={stats} />
-          </Reveal>
-        </div>
-      </section>
-
-      <Mission content={mission} />
+      <ImpactAndMission stats={stats} mission={mission} />
 
       <HowItWorks content={howItWorks} />
+
+      <KidsLearningLab />
 
       {/* Campuses */}
       <section className="section-padding">

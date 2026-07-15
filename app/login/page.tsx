@@ -1,6 +1,5 @@
-import Link from 'next/link'
-import { AuthShell } from '@/components/auth/auth-shell'
 import { LoginForm } from '@/components/auth/login-form'
+import { Background3D } from '@/components/marketing/bg-3d'
 
 export const metadata = { title: 'Log in' }
 
@@ -18,19 +17,11 @@ export default async function LoginPage({
         : undefined
 
   return (
-    <AuthShell
-      title="Welcome back"
-      subtitle="Sign in to your campus dashboard."
-      footer={
-        <>
-          Want to volunteer?{' '}
-          <Link href="/join" className="font-medium text-brand hover:underline">
-            Apply to join
-          </Link>
-        </>
-      }
-    >
-      <LoginForm next={sp.next} initialError={initialError} />
-    </AuthShell>
+    <div className="min-h-dvh flex items-center justify-center bg-background relative overflow-hidden px-4 py-12">
+      <Background3D />
+      <div className="w-full flex justify-center z-10 relative">
+        <LoginForm next={sp.next || '/'} initialError={initialError} />
+      </div>
+    </div>
   )
 }

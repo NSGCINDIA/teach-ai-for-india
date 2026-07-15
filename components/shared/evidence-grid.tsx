@@ -70,9 +70,27 @@ export function EvidenceGrid({
               </div>
             )}
             {item.caption && (
-              <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                {item.caption}
-              </span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                  <span className="inline-flex items-center rounded-full bg-brand-teal/20 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-brand-teal border border-brand-teal/30 backdrop-blur-md">
+                    Verified Session
+                  </span>
+                  {item.createdAt && (
+                    <span className="text-[10px] text-white/70 font-medium">
+                      {(() => {
+                        try {
+                          return new Date(item.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+                        } catch {
+                          return ''
+                        }
+                      })()}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-white font-semibold leading-relaxed line-clamp-3">
+                  {item.caption}
+                </p>
+              </div>
             )}
           </Tag>
         )

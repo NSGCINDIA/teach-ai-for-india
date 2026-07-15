@@ -75,7 +75,7 @@ insert into content_blocks (block_key, content) values
       'phone','+91 90000 00000',
       'address','Hyderabad, Telangana, India',
       'social', jsonb_build_array(
-        jsonb_build_object('label','Instagram','href','#'),
-        jsonb_build_object('label','LinkedIn','href','#'),
+        jsonb_build_object('label','Instagram','href','https://www.instagram.com/teachai_for.india?igsh=Mnh2OGg2Mjd2ajdh'),
+        jsonb_build_object('label','LinkedIn','href','https://www.linkedin.com/company/teach-ai-for-india-tai/'),
         jsonb_build_object('label','Twitter','href','#'))))
 on conflict (block_key) do nothing;
