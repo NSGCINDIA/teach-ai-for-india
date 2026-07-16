@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { BookOpen, Brain, Infinity as InfinityIcon, Settings2, ShieldCheck, Sparkles } from 'lucide-react'
 import { getContentBlock } from '@/lib/data/public'
 import { MISSION_FALLBACK, type MissionContent } from '@/app/(public)/content'
@@ -103,6 +104,17 @@ export default async function AboutPage() {
                     Expanding across Telangana & AP
                   </span>
                 </div>
+              </div>
+            </Reveal>
+            <Reveal delay={0.2}>
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-border shadow-soft">
+                <Image
+                  src="https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177876/DJI_20260711124202_0244_D_zgvqzo.jpg"
+                  alt="Teach AI for India volunteers posing with government school students after an AI coding session"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 450px"
+                  className="object-cover transition-transform duration-500 hover:scale-105"
+                />
               </div>
             </Reveal>
           </div>

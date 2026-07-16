@@ -11,15 +11,15 @@ interface CampusesDashboardProps {
 }
 
 const MAP_COORDS: Record<string, { x: number; y: number }> = {
-  'griet': { x: 218, y: 185 },
-  'cbit': { x: 212, y: 192 },
-  'vnr-vjiet': { x: 224, y: 182 },
-  'mgit': { x: 228, y: 188 },
-  'cvr': { x: 226, y: 196 },
-  'vasavi': { x: 220, y: 194 },
-  'snist': { x: 216, y: 178 },
-  'mvsr': { x: 210, y: 184 },
-  'auce': { x: 258, y: 172 }
+  'niat-kkh': { x: 218, y: 185 },
+  'niat-cdu': { x: 212, y: 192 },
+  'niat-aurora': { x: 224, y: 182 },
+  'niat-mrv': { x: 228, y: 188 },
+  'niat-chevella': { x: 226, y: 196 },
+  'niat-nsrit': { x: 258, y: 172 },
+  'niat-ciet': { x: 250, y: 200 },
+  'niat-nri': { x: 246, y: 190 },
+  'niat-annamacharya': { x: 236, y: 215 }
 }
 
 export function CampusesDashboard({ campuses }: CampusesDashboardProps) {
@@ -266,7 +266,7 @@ export function CampusesDashboard({ campuses }: CampusesDashboardProps) {
                         cy={coord.y}
                         r={isHovered || isFocused ? 14 : 7}
                         className={`transition-all duration-300 ${
-                          c.slug === 'auce' ? 'fill-brand-teal/20' : 'fill-brand-orange/20'
+                          c.slug === 'niat-nsrit' ? 'fill-brand-teal/20' : 'fill-brand-orange/20'
                         } ${!isHovered && !isFocused && 'animate-pulse'}`}
                       />
                       
@@ -276,7 +276,7 @@ export function CampusesDashboard({ campuses }: CampusesDashboardProps) {
                         cy={coord.y}
                         r={isHovered || isFocused ? 5.5 : 3.5}
                         className={`transition-all duration-300 ${
-                          c.slug === 'auce' ? 'fill-brand-teal' : 'fill-brand-orange'
+                          c.slug === 'niat-nsrit' ? 'fill-brand-teal' : 'fill-brand-orange'
                         }`}
                       />
                     </g>

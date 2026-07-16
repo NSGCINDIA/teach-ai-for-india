@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BookOpen, Calendar, Clock, ArrowRight, X, User, Quote, Landmark, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -27,42 +28,42 @@ export interface RichStory {
 const RICH_STORIES: RichStory[] = [
   {
     title: 'The First Prompt in Warangal',
-    excerpt: 'How 45 government school children created their first digital drawings using text instructions, led by GRIET student volunteers.',
-    campus: 'GRIET Hyderabad',
+    excerpt: 'How 45 government school children created their first digital drawings using text instructions, led by NIAT × KKH student volunteers.',
+    campus: 'NIAT × KKH, Hyderabad',
     date: '2026-06-15',
     category: 'Classroom Joy',
     readTime: '3 min read',
-    image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=800',
+    image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg',
     author: {
       name: 'Sneha Reddy',
       avatar: 'SR',
-      role: 'Chapter Lead, GRIET'
+      role: 'Chapter Lead, NIAT × KKH'
     },
     quote: 'The room fell completely silent when the AI interpreter generated their first custom Telugu prompt into a drawing. It was magic.',
     fullContent: [
       'We set out at 7:00 AM from our campus, loading four spare monitors and keyboards into the auto-rickshaw. The target was a small government high school on the outskirts of Warangal. The computer lab there had been dormant for two years due to system configuration issues.',
       'By noon, our volunteer team had resolved the configuration blocks, boot-loaded the machines, and connected the lab to a mobile hotspot. When the first class of ninth graders walked in, many had never typed on a keyboard.',
       'We started not with theory, but with prompts. We asked them to describe a dream rocket. One student suggested "A rocket flying through a rainbow sky powered by bubble gum." We translated it into Telugu script, ran it, and when the vibrant, neon rocket appeared on the screen, the entire room erupted in cheers.',
-      'This single session laid the foundation. Today, this Warangal school has a recurring weekly AI club managed entirely by our GRIET junior volunteer team.'
+      'This single session laid the foundation. Today, this Warangal school has a recurring weekly AI club managed entirely by our NIAT × KKH junior volunteer team.'
     ]
   },
   {
     title: 'Breaking the English Barrier near Vijayawada',
     excerpt: 'How local translation models helped kids in a remote school write code and launch prompts in Telugu.',
-    campus: 'AUCE Visakhapatnam',
+    campus: 'NIAT × NSRIT, Visakhapatnam',
     date: '2026-06-28',
     category: 'Innovations',
     readTime: '4 min read',
-    image: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&q=80&w=800',
+    image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177877/DJI_20260711131020_0287_D_rvh8gg.jpg',
     author: {
       name: 'Ravi Teja',
       avatar: 'RT',
-      role: 'Outreach Coordinator, AUCE'
+      role: 'Outreach Coordinator, NIAT × NSRIT'
     },
     quote: 'AI shouldn’t require English fluency. By localizing the tools, we saw children program complex loops in minutes.',
     fullContent: [
       'A common challenge in rural classrooms is the English literacy barrier. Most coding blocks and AI user interfaces are built entirely in English, which instantly alienates government school students who study in local mediums.',
-      'To solve this, our AUCE engineering volunteers built a lightweight Telugu translation layer wrapper. It maps simple Telugu words like "తయారుచేయి" (Create), "రంగు" (Color), and "పెంచు" (Increase) onto visual parameters.',
+      'To solve this, our NIAT × NSRIT engineering volunteers built a lightweight Telugu translation layer wrapper. It maps simple Telugu words like "తయారుచేయి" (Create), "రంగు" (Color), and "పెంచు" (Increase) onto visual parameters.',
       'In our session near Vijayawada, kids used these Telugu parameters to construct prompts and shape simple web layouts. The excitement of seeing their own language dictate computer behavior was a profound shift.',
       'It proved that technology literacy is not about English acquisition — it is about logical thinking, and language should never be the barrier.'
     ]
@@ -70,15 +71,15 @@ const RICH_STORIES: RichStory[] = [
   {
     title: "From Volunteer to Mentor: Karthik's Reflections",
     excerpt: 'Karthik shares his experience of travelling 30km every weekend to setup temporary labs in rural classrooms.',
-    campus: 'CBIT Hyderabad',
+    campus: 'NIAT × CDU, Hyderabad',
     date: '2026-07-02',
     category: 'Volunteer Journey',
     readTime: '3 min read',
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800',
+    image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/WhatsApp_Image_2026-04-18_at_15.25.48_2_qd8mq3.jpg',
     author: {
       name: 'Karthik M.',
       avatar: 'KM',
-      role: 'Senior Volunteer, CBIT'
+      role: 'Senior Volunteer, NIAT × CDU'
     },
     quote: 'Teaching these kids teaches you. You learn to strip away the jargon and speak the language of absolute curiosity.',
     fullContent: [
@@ -89,13 +90,13 @@ const RICH_STORIES: RichStory[] = [
     ]
   },
   {
-    title: 'The Weekend Hackathon at VNR VJIET',
+    title: 'The Weekend Hackathon at NIAT × Aurora',
     excerpt: 'Volunteers host a weekend workshop where school children design village solution prototypes using AI helpers.',
-    campus: 'VNR VJIET',
+    campus: 'NIAT × Aurora, Hyderabad',
     date: '2026-07-04',
     category: 'Classroom Joy',
     readTime: '5 min read',
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=800',
+    image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177911/DJI_20260711132101_0313_D_a48glv.jpg',
     author: {
       name: 'Ananya S.',
       avatar: 'AS',
@@ -152,10 +153,12 @@ export function StoriesDashboard() {
             
             <div className="grid gap-6 md:grid-cols-12 items-stretch">
               <div className="relative md:col-span-5 aspect-[4/3] md:aspect-auto overflow-hidden">
-                <img 
+                <Image 
                   src={featuredStory.image} 
-                  alt={featuredStory.title} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103"
+                  alt={`Teach AI for India — ${featuredStory.title}: ${featuredStory.excerpt}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 40vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-103"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-card/5" />
                 <span className="absolute top-4 left-4 inline-flex items-center gap-1 rounded-full bg-brand-orange px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
@@ -217,10 +220,12 @@ export function StoriesDashboard() {
               >
                 <div>
                   <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-muted">
-                    <img 
+                    <Image 
                       src={story.image} 
-                      alt={story.title} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103"
+                      alt={`Teach AI for India story — ${story.title}`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-103"
                     />
                     <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider text-white ${
                       story.category === 'Classroom Joy' ? 'bg-brand' :
@@ -293,7 +298,7 @@ export function StoriesDashboard() {
               
               {/* Header Image block */}
               <div className="relative aspect-[21/9] w-full shrink-0">
-                <img src={activeStory.image} alt={activeStory.title} className="w-full h-full object-cover" />
+                <Image src={activeStory.image} alt={`Teach AI for India — ${activeStory.title}`} fill sizes="(max-width: 768px) 100vw, 640px" className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-black/30 to-transparent" />
                 
                 {/* Close Button */}
@@ -424,10 +429,12 @@ export function StoriesDashboard() {
                 <div className="absolute top-2 left-1/2 -translate-x-1/2 size-3 rounded-full bg-brand-orange/60 shadow-inner z-20 pointer-events-none" />
                 
                 <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
-                  <img 
+                  <Image 
                     src={photo.src} 
                     alt={photo.caption} 
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-103"
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="object-cover transition-all duration-500 group-hover:scale-103"
                   />
                 </div>
                 <div className="mt-4">
@@ -457,23 +464,23 @@ const PROMPTS = [
 
 const SCRAPBOOK_PHOTOS = [
   {
-    src: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=400',
-    campus: 'CBIT Hyderabad',
-    caption: 'Setting up our very first temporary AI learning laboratory'
+    src: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_400/v1784178443/motion_photo_8450246088682134754_gtddpq.jpg',
+    campus: 'NIAT × CDU, Hyderabad',
+    caption: 'Teach AI for India volunteers setting up an AI learning session with government school students'
   },
   {
-    src: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=400',
-    campus: 'GRIET Hyderabad',
-    caption: 'Explaining prompt-engineering variables on the blackboard'
+    src: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_400/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg',
+    campus: 'NIAT × KKH, Hyderabad',
+    caption: 'Volunteers teaching AI concepts and prompt engineering in a hands-on classroom workshop'
   },
   {
-    src: 'https://images.unsplash.com/photo-1510531704581-5b2870972060?auto=format&fit=crop&q=80&w=400',
-    campus: 'AUCE Visakhapatnam',
-    caption: 'Government school kids collaborating on their first prompt task'
+    src: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_400/v1784177867/IMG_20260324_121056961_prkzll.jpg',
+    campus: 'NIAT × NSRIT, Visakhapatnam',
+    caption: 'Government school students collaborating during an AI literacy workshop led by university volunteers'
   },
   {
-    src: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=400',
-    campus: 'VNR VJIET',
-    caption: 'Celebrating logic flows and prototype creations'
+    src: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_400/v1784178443/IMG-20260410-WA0007_txyvjq.jpg',
+    campus: 'NIAT × Aurora, Hyderabad',
+    caption: 'Teach AI for India team with school principal celebrating a successful session partnership'
   }
 ]

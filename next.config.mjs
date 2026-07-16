@@ -61,8 +61,8 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.supabase.co', pathname: '/storage/v1/object/**' },
       // Brand logo lockup (Vercel Blob) used on the auth/signup pages and hero.
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com', pathname: '/**' },
-      // Unsplash remote pattern for mock gallery images
-      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
+      // Cloudinary CDN — authentic Teach AI for India session media
+      { protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' },
     ],
   },
   experimental: {

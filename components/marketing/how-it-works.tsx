@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { SectionHeading } from '@/components/shared/section-heading'
 import { Reveal } from '@/components/marketing/reveal'
 import type { HowItWorksContent } from '@/app/(public)/content'
@@ -17,6 +18,14 @@ const ICON_BGS = [
   'bg-brand-teal/10 text-brand-teal group-hover:bg-brand-teal group-hover:text-white',
   'bg-brand/10 text-brand group-hover:bg-brand group-hover:text-white',
   'bg-brand-orange/10 text-brand-orange group-hover:bg-brand-orange group-hover:text-white',
+]
+
+const STEP_IMAGES = [
+  null,
+  null,
+  'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_400/v1784178443/IMG-20260325-WA0000_njzohh.jpg', // Approve (Approval letter)
+  'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_400/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg', // Deliver (Teaching session)
+  null,
 ]
 
 /** "How it works" — a numbered 5-step timeline (identify → report). */
@@ -73,9 +82,20 @@ export function HowItWorks({ content }: { content: HowItWorksContent }) {
                   <h3 className="relative z-10 mt-5 font-display text-base font-extrabold text-foreground group-hover:text-brand transition-colors">
                     {step.title}
                   </h3>
-                  <p className="relative z-10 mt-2 text-sm text-muted-foreground leading-relaxed">
+                   <p className="relative z-10 mt-2 text-sm text-muted-foreground leading-relaxed">
                     {step.description}
                   </p>
+                  {STEP_IMAGES[i] && (
+                    <div className="relative mt-4 aspect-[4/3] w-full overflow-hidden rounded-xl border border-border/60 z-10">
+                      <Image
+                        src={STEP_IMAGES[i]!}
+                        alt={i === 2 ? "Official government school approval letter for Teach AI for India session" : "Teach AI for India volunteer delivering an AI workshop in a classroom"}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 200px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                  )}
                 </li>
               </Reveal>
             )
