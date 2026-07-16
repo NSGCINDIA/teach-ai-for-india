@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark-mode-disabled-permanent *));
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Design tokens — PRD §12.2. shadcn semantic vars are mapped onto the brand
@@ -56,31 +56,6 @@
   --chart-3: #00c9a7;
   --chart-4: #6366f1;
   --chart-5: #fbbf24;
-}
-
-.dark {
-  --background: #080b11;
-  --foreground: #f8f9fc;
-  --card: #0f131c;
-  --card-foreground: #f8f9fc;
-  --popover: #11151d;
-  --popover-foreground: #f8f9fc;
-  --primary: #5c82ff;
-  --primary-foreground: #0b0e14;
-  --secondary: #1a2030;
-  --secondary-foreground: #f8f9fc;
-  --muted: #161b26;
-  --muted-foreground: #9ca3af;
-  --accent: #1a2233;
-  --accent-foreground: #5c82ff;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #232a38;
-  --input: #232a38;
-  --ring: #5c82ff;
-  --placeholder: #6b7280;
-
-  --status-archived: #2a3140;
 }
 
 @theme inline {

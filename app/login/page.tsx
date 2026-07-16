@@ -20,7 +20,7 @@ export default async function LoginPage({
     <div className="min-h-dvh flex items-center justify-center bg-background relative overflow-hidden px-4 py-12">
       <Background3D />
       <div className="w-full flex justify-center z-10 relative">
-        <LoginForm next={sp.next || '/'} initialError={initialError} />
+        <LoginForm next={sp.next || '/dashboard'} initialError={initialError} />
       </div>
     </div>
   )

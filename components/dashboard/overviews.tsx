@@ -370,3 +370,93 @@ export function NoCampusOverview({ name, role }: { name: string; role: string })
     </div>
   )
 }
+
+// ─── Super Admin ────────────────────────────────────────────────────────────
+export function SuperAdminOverview({
+  name,
+  data,
+  canReviewBudgetRequests,
+}: {
+  name: string
+  data: CampusLeadData
+  canReviewBudgetRequests: boolean
+}) {
+  const k = data.kpis
+  return (
+    <div className="space-y-6">
+      <OverviewHeader name={name} role="Super Admin" />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Kpi label="Schools Active" value={formatNumber(k.schoolsActive)} icon={School} />
+        <Kpi label="Students Impacted" value={formatNumber(k.studentsImpacted)} icon={GraduationCap} />
+        <Kpi label="Sessions Completed" value={formatNumber(k.sessionsCompleted)} icon={CheckCircle2} />
+        <Kpi label="Upcoming Sessions" value={formatNumber(k.upcomingSessions)} icon={CalendarClock} />
+        <Kpi label="Volunteers Active" value={formatNumber(k.volunteersActive)} icon={Users} />
+        <Kpi label="Pending Reports" value={formatNumber(k.pendingReports)} icon={FileClock} />
+        <Kpi label="Pending Payments" value={formatNumber(k.pendingPayments)} icon={Wallet} />
+        <Kpi label="Evidence Uploaded" value={formatNumber(k.evidenceUploaded)} icon={Images} />
+      </div>
+
+      <SuperAdminQuickActions />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Widget title="Today's Sessions (All Campuses)" href="/dashboard/sessions">
+          <SessionRows sessions={data.todaySessions} empty="No sessions scheduled today." />
+        </Widget>
+        <Widget title="Upcoming Sessions (All Campuses)" href="/dashboard/sessions">
+          <SessionRows sessions={data.upcomingSessions} empty="Nothing upcoming yet." />
+        </Widget>
+        <Widget title="Pending School Approvals (All Campuses)" href="/dashboard/schools">
+          <SchoolRows schools={data.pendingApprovals} empty="No schools awaiting approval." />
+        </Widget>
+        <Widget title="Pending Reports (All Campuses)" href="/dashboard/sessions">
+          <SessionRows sessions={data.pendingReports} empty="All reports are in. 🎉" />
+        </Widget>
+        <Widget title="Pending Reimbursements (All Campuses)" href="/dashboard/reimbursements">
+          {data.pendingReimbursements.length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">No claims awaiting review.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {data.pendingReimbursements.map((r) => (
+                <li key={r.id} className="flex items-center gap-3 py-2.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{r.claimant_name}</p>
+                    <p className="truncate text-xs text-muted-foreground">{r.reference_number}</p>
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums">{formatCurrency(r.amount)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Widget>
+        <Widget title="Pending Budget Requests (All Campuses)">
+          <BudgetRequestReviewList requests={data.pendingBudgetRequests} canReview={canReviewBudgetRequests} />
+        </Widget>
+      </div>
+    </div>
+  )
+}
+
+function SuperAdminQuickActions() {
+  const actions = [
+    { label: 'Admin Panel Overview', href: '/admin', icon: ClipboardList },
+    { label: 'Manage Campuses', href: '/admin/campuses', icon: MapPin },
+    { label: 'Manage Schools', href: '/admin/schools', icon: School },
+    { label: 'Manage Volunteers', href: '/admin/volunteers', icon: Users },
+  ]
+  return (
+    <Card className="p-5">
+      <h2 className="mb-3 font-display text-sm font-semibold">Quick Actions</h2>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {actions.map((a) => (
+          <Link key={a.href} href={a.href}
+            className="flex items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2.5 text-sm font-medium transition-colors hover:border-brand hover:bg-accent">
+            <span className="grid size-8 place-items-center rounded-md bg-brand/10 text-brand"><a.icon className="size-4" /></span>
+            {a.label}
+          </Link>
+        ))}
+      </div>
+    </Card>
+  )
+}
+
