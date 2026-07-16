@@ -88,9 +88,22 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
     { label: 'Profile', href: '/dashboard/profile', icon: 'profile' },
   ],
-  // Roles that don't primarily live in the team dashboard fall back to the
-  // campus-lead layout when they visit it.
-  super_admin: [],
+  super_admin: [
+    OVERVIEW,
+    { label: 'Admin Panel', href: '/admin', icon: 'settings' },
+    { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
+    { label: 'Sessions', href: '/dashboard/sessions', icon: 'sessions' },
+    { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments' },
+    { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers' },
+    { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
+    { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
+    { label: 'Finance', href: '/dashboard/reimbursements', icon: 'finance' },
+    { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
+    { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
+    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
+    NOTIFICATIONS,
+    { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
+  ],
   // Campus-scoped monitoring roles (Operational Workflow Spec v2.0). Finance
   // Lead and Campus Management Admin's real screens landed in Phase 5.
   campus_mgmt_admin: [
@@ -109,6 +122,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
 
 /** Admin panel nav (PRD §7.9 / §8). */
 const ADMIN_NAV: NavItem[] = [
+  { label: 'Dashboard', href: '/dashboard', icon: 'overview' },
   { label: 'Overview', href: '/admin', icon: 'overview' },
   { label: 'Campuses', href: '/admin/campuses', icon: 'campuses' },
   { label: 'Schools', href: '/admin/schools', icon: 'schools' },

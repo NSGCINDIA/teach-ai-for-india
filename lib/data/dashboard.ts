@@ -314,3 +314,54 @@ export async function getVolunteerData(userId: string): Promise<VolunteerData> {
     upcomingSessions,
   }
 }
+
+// ─── Super Admin ────────────────────────────────────────────────────────────
+export async function getSuperAdminDashboardData(): Promise<CampusLeadData> {
+  const supabase = await createClient()
+  const t = today()
+  const head = { count: 'exact' as const, head: true }
+
+  const [
+    schoolsActive, sessionsCompleted, upcomingCount, volunteers, pendingReportsCount,
+    pendingPayments, evidence, students,
+    todaySessions, upcomingSessions, pendingApprovals, pendingReports, pendingReimb, pendingBudgetReq,
+  ] = await Promise.all([
+    supabase.from('schools').select('id', head).neq('status', 'archived'),
+    supabase.from('sessions').select('id', head).eq('status', 'verified'),
+    supabase.from('sessions').select('id', head).gte('date', t).in('status', OPEN_SESSION),
+    supabase.from('users').select('id', head).eq('is_active', true).eq('role', 'volunteer'),
+    supabase.from('sessions').select('id', head).lte('date', t).in('status', OPEN_SESSION),
+    supabase.from('reimbursements').select('id', head).eq('status', 'approved'),
+    supabase.from('media_assets').select('id', head).is('deleted_at', null),
+    supabase.from('schools').select('total_students'),
+    supabase.from('sessions').select(SESSION_COLS).eq('date', t).order('start_time'),
+    supabase.from('sessions').select(SESSION_COLS).gt('date', t).in('status', OPEN_SESSION).order('date').limit(5),
+    supabase.from('outreach_visit_requests').select('school_id, schools(id, name, district, status, next_action_date)').eq('campus_lead_review', 'pending').order('created_at').limit(5),
+    supabase.from('sessions').select(SESSION_COLS).lte('date', t).in('status', OPEN_SESSION).order('date').limit(5),
+    supabase.from('reimbursements').select('id, reference_number, amount, status, claimant:users!reimbursements_claimant_id_fkey(full_name)').in('status', ['submitted', 'under_review']).order('created_at').limit(5),
+    supabase.from('budget_increase_requests').select('id, requested_amount, reason, period, created_at, requester:users!budget_increase_requests_created_by_fkey(full_name)').eq('status', 'pending').order('created_at').limit(5),
+  ])
+
+  const studentsImpacted = ((students.data as { total_students: number }[] | null) ?? [])
+    .reduce((sum, s) => sum + (s.total_students ?? 0), 0)
+
+  return {
+    kpis: {
+      schoolsActive: schoolsActive.count ?? 0,
+      studentsImpacted,
+      sessionsCompleted: sessionsCompleted.count ?? 0,
+      upcomingSessions: upcomingCount.count ?? 0,
+      volunteersActive: volunteers.count ?? 0,
+      pendingReports: pendingReportsCount.count ?? 0,
+      pendingPayments: pendingPayments.count ?? 0,
+      evidenceUploaded: evidence.count ?? 0,
+    },
+    todaySessions: toSessionLite(todaySessions.data as SessionRowRaw[] | null),
+    upcomingSessions: toSessionLite(upcomingSessions.data as SessionRowRaw[] | null),
+    pendingApprovals: toSchoolLiteFromRequest(pendingApprovals.data),
+    pendingReports: toSessionLite(pendingReports.data as SessionRowRaw[] | null),
+    pendingReimbursements: toReimbLite(pendingReimb.data),
+    pendingBudgetRequests: toBudgetRequestLite(pendingBudgetReq.data),
+  }
+}
+

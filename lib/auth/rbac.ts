@@ -262,9 +262,8 @@ export function canEditSession(
   return false
 }
 
-/** Where a role lands after login. Admins → admin panel; everyone else → dashboard. */
+/** Where a role lands after login. Everyone lands on the dashboard. */
 export function roleHomePath(role: UserRole): string {
-  if (isAdmin(role)) return '/admin'
   return '/dashboard'
 }
 

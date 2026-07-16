@@ -3,10 +3,11 @@ import { roleLabel } from '@/lib/auth/roles'
 import { campusBudgetAccess } from '@/lib/auth/rbac'
 import {
   getCampusLeadData, getOutreachData, getVolunteerLeadData, getExecData, getVolunteerData,
+  getSuperAdminDashboardData,
 } from '@/lib/data/dashboard'
 import {
   CampusLeadOverview, OutreachOverview, VolunteerLeadOverview, ExecOverview,
-  VolunteerOverview, NoCampusOverview,
+  VolunteerOverview, NoCampusOverview, SuperAdminOverview,
 } from '@/components/dashboard/overviews'
 
 export const metadata = { title: 'Dashboard' }
@@ -23,6 +24,17 @@ export default async function DashboardOverview() {
   // Volunteers don't need a campus for their personal view; everyone else does.
   if (user.role === 'volunteer') {
     return <VolunteerOverview name={name} data={await getVolunteerData(user.id)} />
+  }
+
+  if (user.role === 'super_admin') {
+    const canReviewBudgetRequests = campusBudgetAccess(user.role, 'review')
+    return (
+      <SuperAdminOverview
+        name={name}
+        data={await getSuperAdminDashboardData()}
+        canReviewBudgetRequests={canReviewBudgetRequests}
+      />
+    )
   }
 
   if (!campusId) {

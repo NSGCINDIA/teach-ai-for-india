@@ -8,7 +8,6 @@ import { Menu } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
 import {
   Sheet,
   SheetContent,
@@ -97,11 +96,15 @@ export function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-brand bg-white dark:border-slate-200 dark:text-slate-600 dark:hover:bg-slate-50 dark:hover:text-brand dark:bg-white" />
           {user ? (
-            <Button onClick={handleSignOut} variant="ghost" size="sm" className="text-slate-600 hover:text-brand hover:bg-slate-50 dark:text-slate-600 dark:hover:text-brand dark:hover:bg-slate-50">
-              Log out
-            </Button>
+            <>
+              <Button asChild variant="ghost" size="sm" className="text-slate-600 hover:text-brand hover:bg-slate-50 dark:text-slate-600 dark:hover:text-brand dark:hover:bg-slate-50">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <Button onClick={handleSignOut} variant="ghost" size="sm" className="text-slate-600 hover:text-brand hover:bg-slate-50 dark:text-slate-600 dark:hover:text-brand dark:hover:bg-slate-50">
+                Log out
+              </Button>
+            </>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex text-slate-600 hover:text-brand hover:bg-slate-50 dark:text-slate-600 dark:hover:text-brand dark:hover:bg-slate-50">
@@ -149,9 +152,16 @@ export function Navbar() {
               </ul>
               <div className="mt-auto flex flex-col gap-2 p-4">
                 {user ? (
-                  <Button onClick={handleSignOut} variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-brand bg-white dark:border-slate-200 dark:text-slate-700 dark:hover:bg-slate-50 dark:hover:text-brand dark:bg-white">
-                    Log out
-                  </Button>
+                  <>
+                    <SheetClose asChild>
+                      <Button asChild variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-brand bg-white dark:border-slate-200 dark:text-slate-700 dark:hover:bg-slate-50 dark:hover:text-brand dark:bg-white">
+                        <Link href="/dashboard">Dashboard</Link>
+                      </Button>
+                    </SheetClose>
+                    <Button onClick={handleSignOut} variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-brand bg-white dark:border-slate-200 dark:text-slate-700 dark:hover:bg-slate-50 dark:hover:text-brand dark:bg-white">
+                      Log out
+                    </Button>
+                  </>
                 ) : (
                   <>
                     <SheetClose asChild>
@@ -232,11 +242,15 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-3 pl-6 pr-4">
-            <ThemeToggle className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-brand bg-white dark:border-slate-200 dark:text-slate-600 dark:hover:bg-slate-50 dark:hover:text-brand dark:bg-white" />
             {user ? (
-              <Button onClick={handleSignOut} variant="ghost" size="sm" className="text-slate-600 hover:text-brand hover:bg-slate-50 dark:text-slate-600 dark:hover:text-brand dark:hover:bg-slate-50">
-                Log out
-              </Button>
+              <>
+                <Button asChild variant="ghost" size="sm" className="text-slate-600 hover:text-brand hover:bg-slate-50 dark:text-slate-600 dark:hover:text-brand dark:hover:bg-slate-50">
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <Button onClick={handleSignOut} variant="ghost" size="sm" className="text-slate-600 hover:text-brand hover:bg-slate-50 dark:text-slate-600 dark:hover:text-brand dark:hover:bg-slate-50">
+                  Log out
+                </Button>
+              </>
             ) : (
               <>
                 <Button asChild variant="ghost" size="sm" className="text-slate-600 hover:text-brand hover:bg-slate-50 dark:text-slate-600 dark:hover:text-brand dark:hover:bg-slate-50">

@@ -19,7 +19,6 @@ import type { UserRole } from '@/types/database'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { SignOutButton } from '@/components/dashboard/sign-out-button'
 
 /** Resolves serializable nav icon keys (from the server) to Lucide components. */
@@ -87,7 +86,6 @@ export function DashboardShell({ items, user, panelLabel, children }: DashboardS
         <Link href="/" className="inline-flex items-center gap-2 font-display font-bold">
           <Sparkles className="size-5 text-brand" /> Teach AI for India
         </Link>
-        <ThemeToggle className="ml-auto" />
       </header>
 
       <main className="lg:pl-64">
@@ -163,7 +161,6 @@ function SidebarContent({
             <p className="truncate text-sm font-medium">{user.full_name}</p>
             <p className="truncate text-xs text-muted-foreground">{roleLabel(user.role)}</p>
           </div>
-          <ThemeToggle />
         </div>
         <div className="mt-1">
           <SignOutButton />
