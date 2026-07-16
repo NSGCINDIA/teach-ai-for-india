@@ -22,11 +22,11 @@ interface CampusHotspot {
 }
 
 const CAMPUSES: CampusHotspot[] = [
-  { id: 'griet', name: 'GRIET', fullName: 'Gokaraju Rangaraju Institute of Eng. & Tech.', city: 'Hyderabad', state: 'Telangana', volunteers: 95, schools: 10, x: 238, y: 185 },
-  { id: 'cbit', name: 'CBIT', fullName: 'Chaitanya Bharathi Institute of Technology', city: 'Hyderabad', state: 'Telangana', volunteers: 88, schools: 10, x: 232, y: 192 },
-  { id: 'vnr', name: 'VNR VJIET', fullName: 'VNR Vignana Jyothi Institute of Eng. & Tech.', city: 'Hyderabad', state: 'Telangana', volunteers: 74, schools: 8, x: 244, y: 182 },
-  { id: 'cvr', name: 'CVR', fullName: 'CVR College of Engineering', city: 'Hyderabad', state: 'Telangana', volunteers: 52, schools: 6, x: 246, y: 196 },
-  { id: 'auce', name: 'AUCE', fullName: 'Andhra University College of Engineering', city: 'Visakhapatnam', state: 'Andhra Pradesh', volunteers: 60, schools: 6, x: 270, y: 172 },
+  { id: 'niat-kkh', name: 'NIAT × KKH', fullName: 'NIAT × KKH Campus', city: 'Hyderabad', state: 'Telangana', volunteers: 95, schools: 10, x: 238, y: 185 },
+  { id: 'niat-cdu', name: 'NIAT × CDU', fullName: 'NIAT × Chaitanya (CDU)', city: 'Hyderabad', state: 'Telangana', volunteers: 88, schools: 10, x: 232, y: 192 },
+  { id: 'niat-aurora', name: 'NIAT × Aurora', fullName: 'NIAT × Aurora Deemed University', city: 'Hyderabad', state: 'Telangana', volunteers: 74, schools: 8, x: 244, y: 182 },
+  { id: 'niat-chevella', name: 'NIAT × Chevella', fullName: 'NIAT × Chevella Campus', city: 'Chevella', state: 'Telangana', volunteers: 52, schools: 6, x: 246, y: 196 },
+  { id: 'niat-nsrit', name: 'NIAT × NSRIT', fullName: 'Nadimpalli Satyanarayana Raju Institute of Tech', city: 'Visakhapatnam', state: 'Andhra Pradesh', volunteers: 60, schools: 6, x: 270, y: 172 },
 ]
 
 export function ImpactAndMission({
@@ -171,7 +171,7 @@ export function ImpactAndMission({
                             cx={c.x}
                             cy={c.y}
                             r={isActive ? 14 : 7}
-                            className={`fill-brand/20 dark:fill-brand/35 transition-all duration-300 ${c.id === 'auce' ? 'fill-brand-teal/25' : 'fill-brand-orange/25'
+                            className={`fill-brand/20 dark:fill-brand/35 transition-all duration-300 ${c.id === 'niat-nsrit' ? 'fill-brand-teal/25' : 'fill-brand-orange/25'
                               } ${!isActive && 'animate-ping'}`}
                           />
                           {/* Inner glowing core */}
@@ -179,7 +179,7 @@ export function ImpactAndMission({
                             cx={c.x}
                             cy={c.y}
                             r={isActive ? 5 : 3.5}
-                            className={`transition-all duration-300 ${c.id === 'auce' ? 'fill-brand-teal' : 'fill-brand-orange'
+                            className={`transition-all duration-300 ${c.id === 'niat-nsrit' ? 'fill-brand-teal' : 'fill-brand-orange'
                               } group-hover/node:scale-125`}
                           />
                         </g>
@@ -198,9 +198,9 @@ export function ImpactAndMission({
                       transition={{ duration: 0.2 }}
                       className="absolute bottom-4 left-4 right-4 bg-background/95 dark:bg-card/95 border border-border/80 backdrop-blur-md p-4 rounded-2xl shadow-lg z-20 flex gap-3 text-left items-start"
                     >
-                      <div className={`grid size-9 place-items-center rounded-xl shrink-0 ${activeCampus.id === 'auce' ? 'bg-brand-teal/15 text-brand-teal' : 'bg-brand-orange/15 text-brand-orange'
+                      <div className={`grid size-9 place-items-center rounded-xl shrink-0 ${activeCampus.id === 'niat-nsrit' ? 'bg-brand-teal/15 text-brand-teal' : 'bg-brand-orange/15 text-brand-orange'
                         }`}>
-                        {activeCampus.id === 'auce' ? <Landmark size={18} /> : <Building2 size={18} />}
+                        {activeCampus.id === 'niat-nsrit' ? <Landmark size={18} /> : <Building2 size={18} />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h5 className="font-display font-extrabold text-[14px] text-foreground truncate">{activeCampus.fullName}</h5>

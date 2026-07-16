@@ -29,26 +29,26 @@ export default async function ImpactPage() {
   const displayGallery = galleryItems.length > 0 ? galleryItems : [
     {
       id: 'mock-1',
-      url: '/hero_classroom_learning.png',
+      url: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg',
       fileType: 'photo' as const,
-      fileName: 'classroom_learning_1.png',
-      caption: 'VNR VJIET campus session: Interactive Prompt Sandbox at Bowrampet High School.',
+      fileName: 'teaching_session_1.jpg',
+      caption: 'Teach AI for India volunteers conducting a hands-on AI workshop at a government school classroom.',
       createdAt: '2026-06-15T10:00:00Z'
     },
     {
       id: 'mock-2',
-      url: '/hero_classroom_learning.png',
+      url: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177911/DJI_20260711132101_0313_D_a48glv.jpg',
       fileType: 'photo' as const,
-      fileName: 'classroom_learning_2.png',
-      caption: 'GRIET campus session: Students running python code templates.',
+      fileName: 'group_photo_students.jpg',
+      caption: 'Government school students and Teach AI for India volunteers after a successful AI literacy session.',
       createdAt: '2026-06-12T11:00:00Z'
     },
     {
       id: 'mock-3',
-      url: '/hero_classroom_learning.png',
+      url: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784178443/IMG-20260410-WA0007_txyvjq.jpg',
       fileType: 'photo' as const,
-      fileName: 'classroom_learning_3.png',
-      caption: 'CBIT chapter: Mentors working with primary kids on logic boards.',
+      fileName: 'team_with_school_staff.jpg',
+      caption: 'Teach AI for India team with school principal and staff after securing session approval.',
       createdAt: '2026-06-08T09:30:00Z'
     }
   ]

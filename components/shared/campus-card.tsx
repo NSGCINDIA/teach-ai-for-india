@@ -4,6 +4,32 @@ import { ArrowUpRight, GraduationCap, MapPin, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { PublicCampusCard } from '@/types/database'
 
+const FALLBACK_IMAGES = [
+  'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_600/v1784177876/DJI_20260711124202_0244_D_zgvqzo.jpg', // Team with students outdoor
+  'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_600/v1784177877/DJI_20260711131020_0287_D_rvh8gg.jpg', // Team selfie with students classroom
+  'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_600/v1784177864/WhatsApp_Image_2026-04-18_at_15.25.48_2_qd8mq3.jpg', // Classroom interaction
+  'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_600/v1784178443/motion_photo_8450246088682134754_gtddpq.jpg', // Classroom work setup
+  'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_600/v1784177911/DJI_20260711132101_0313_D_a48glv.jpg', // Group photo students playground
+  'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_600/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg', // Group photo students certified
+  'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_600/v1784177867/IMG_20260324_121056961_prkzll.jpg', // Group photo students classroom
+]
+
+function getFallbackImage(slug: string): string {
+  const map: Record<string, number> = {
+    'niat-kkh': 0,
+    'niat-cdu': 1,
+    'niat-chevella': 2,
+    'niat-aurora': 3,
+    'niat-mrv': 4,
+    'niat-ciet': 5,
+    'niat-nsrit': 6,
+    'niat-nri': 2,
+    'niat-annamacharya': 4,
+  }
+  const index = map[slug] !== undefined ? map[slug] : 0
+  return FALLBACK_IMAGES[index]
+}
+
 /**
  * CampusCard (PRD §12.3) — used on the public /campuses grid and admin overview.
  * Shows campus name, university, live reach metrics, and the lead.
@@ -28,8 +54,8 @@ export function CampusCard({ campus, className }: { campus: PublicCampusCard; cl
           />
         ) : (
           <Image
-            src="/hero_classroom_learning.png"
-            alt={`${campus.name} campus`}
+            src={getFallbackImage(campus.slug)}
+            alt={`Teach AI for India volunteers and students at ${campus.name}`}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"

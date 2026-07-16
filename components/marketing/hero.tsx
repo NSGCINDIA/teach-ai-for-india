@@ -267,9 +267,10 @@ export function Hero({ content }: { content: HeroContent }) {
               {/* Classroom Photo Canvas */}
               <div className="relative w-full h-[calc(100%-2.5rem)] overflow-hidden bg-[#fafafa] z-0">
                 <Image
-                  src="/hero_classroom_learning.png"
-                  alt="Students learning AI in school classroom"
+                  src="https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg"
+                  alt="Teach AI for India volunteers conducting a hands-on AI workshop in a government school classroom"
                   fill
+                  sizes="(max-width: 768px) 100vw, 40vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   priority
                 />
