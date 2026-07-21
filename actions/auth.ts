@@ -272,17 +272,43 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
     return { error: 'Could not submit your request. Please try again.', values }
   }
 
-  // Notify every active admin — in-app feed + email.
+  // Notify every active super admin + the campus lead for the selected campus.
+  const notificationRecipients: Array<{ id: string; email: string }> = []
+
+  // 1. Get all active super admins
   const { data: admins } = await admin
     .from('users')
     .select('id, email')
     .eq('role', 'super_admin')
     .eq('is_active', true)
+  if (admins?.length) notificationRecipients.push(...admins)
 
-  if (admins?.length) {
+  // 2. Get the campus lead for the selected campus (if any)
+  if (campus_id) {
+    const { data: campus } = await admin
+      .from('campuses')
+      .select('lead_user_id')
+      .eq('id', campus_id)
+      .maybeSingle()
+    
+    if (campus?.lead_user_id) {
+      const { data: campusLead } = await admin
+        .from('users')
+        .select('id, email')
+        .eq('id', campus.lead_user_id)
+        .eq('is_active', true)
+        .maybeSingle()
+      
+      if (campusLead && !notificationRecipients.find(r => r.id === campusLead.id)) {
+        notificationRecipients.push(campusLead)
+      }
+    }
+  }
+
+  if (notificationRecipients.length) {
     await admin.from('notifications').insert(
-      admins.map((a) => ({
-        recipient_id: a.id,
+      notificationRecipients.map((recipient) => ({
+        recipient_id: recipient.id,
         type: 'signup_request',
         title: 'New account signup',
         body: `${full_name} (${email}) requested an account.`,
@@ -290,7 +316,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
         entity_type: 'signup_request',
       })),
     )
-    const to = admins.map((a) => a.email).filter(Boolean)
+    const to = notificationRecipients.map((r) => r.email).filter(Boolean)
     if (to.length) {
       await sendEmail({
         to,
