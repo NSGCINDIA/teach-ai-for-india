@@ -177,7 +177,7 @@ export async function updatePassword(_prev: ActionState, formData: FormData): Pr
 }
 
 // ─── Public self-signup — request an account (admin-approval gated, PRD §7.2) ─
-const SIGNUP_MAX_PER_DAY = 5
+const SIGNUP_MAX_PER_DAY = 10
 const SIGNUP_WINDOW_MS = 24 * 60 * 60 * 1000
 
 /** Best-effort client IP from the deployment proxy headers (issue #9). */
