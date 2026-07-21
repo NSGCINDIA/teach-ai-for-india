@@ -1,8 +1,9 @@
 import { requireAccess } from '@/lib/auth/user'
 import { can, isAdmin } from '@/lib/auth/rbac'
-import { listAdminUsers } from '@/lib/data/admin'
+import { listAdminUsers, listPendingSignups } from '@/lib/data/admin'
 import { listCampusOptions } from '@/lib/data/schools'
 import { UsersTable } from '@/components/admin/users-table'
+import { SignupRequests } from '@/components/admin/signup-requests'
 import { EmptyState } from '@/components/shared/states'
 
 export const metadata = { title: 'Volunteers' }
@@ -31,9 +32,10 @@ export default async function DashboardVolunteersPage() {
 
   // Admins see every registered user across all campuses; campus leads stay
   // scoped to their own campus. Admins also get the campus filter dropdown.
-  const [users, campuses] = await Promise.all([
+  const [users, campuses, signups] = await Promise.all([
     listAdminUsers(scoped ? { campus_id: user.campus_id ?? undefined } : {}),
     scoped ? Promise.resolve([]) : listCampusOptions(),
+    isAdmin(user.role) ? listPendingSignups() : Promise.resolve([]),
   ])
   const canManage = can(user.role, 'manage_user_roles') !== false
 
@@ -46,6 +48,10 @@ export default async function DashboardVolunteersPage() {
           {scoped ? 'on your campus team.' : 'across every campus.'}
         </p>
       </header>
+
+      {isAdmin(user.role) && signups.length > 0 && (
+        <SignupRequests requests={signups} />
+      )}
 
       {!canManage && (
         <p className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
