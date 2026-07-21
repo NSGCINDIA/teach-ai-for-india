@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Search, HelpCircle, MessageSquare, ArrowRight, Sparkles } from 'lucide-react'
 import {
@@ -14,25 +14,95 @@ import { Button } from '@/components/ui/button'
 import type { FaqItem } from '@/app/(public)/content'
 
 interface FaqListProps {
-  items: FaqItem[]
+  items?: FaqItem[]
 }
 
-const CATEGORIES = ['all', 'General', 'Volunteering', 'Partnering'] as const
-type CategoryType = typeof CATEGORIES[number]
+const DEFAULT_CATEGORIES = ['General', 'Volunteering', 'Partnering']
 
-export function FAQList({ items }: FaqListProps) {
+function getItemCategory(item?: FaqItem): string {
+  if (!item) return 'General'
+  if (item.category && typeof item.category === 'string' && item.category.trim()) {
+    return item.category.trim()
+  }
+
+  // Fallback category detection based on question/answer text
+  const text = `${item.question || ''} ${item.answer || ''}`.toLowerCase()
+  if (
+    text.includes('volunteer') ||
+    text.includes('conduct') ||
+    text.includes('facilitate') ||
+    text.includes('apply') ||
+    text.includes('training') ||
+    text.includes('commitment') ||
+    text.includes('experience')
+  ) {
+    return 'Volunteering'
+  }
+  if (
+    text.includes('partner') ||
+    text.includes('school') ||
+    text.includes('campus') ||
+    text.includes('campuses') ||
+    text.includes('organization') ||
+    text.includes('infrastructure')
+  ) {
+    return 'Partnering'
+  }
+  return 'General'
+}
+
+export function FAQList({ items = [] }: FaqListProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeCategory, setActiveCategory] = useState<CategoryType>('all')
+  const [activeCategory, setActiveCategory] = useState<string>('all')
+
+  const safeItems = useMemo(() => {
+    if (!Array.isArray(items)) return []
+    return items
+  }, [items])
+
+  // Extract unique categories dynamically from items + defaults
+  const categories = useMemo(() => {
+    const categorySet = new Set<string>()
+
+    // Ensure default categories exist first
+    DEFAULT_CATEGORIES.forEach((cat) => categorySet.add(cat))
+
+    // Add categories present in actual items (or inferred)
+    safeItems.forEach((item) => {
+      const cat = getItemCategory(item)
+      if (cat) {
+        const existing = Array.from(categorySet).find(
+          (c) => c.toLowerCase() === cat.toLowerCase()
+        )
+        if (!existing) {
+          categorySet.add(cat)
+        }
+      }
+    })
+
+    return ['all', ...Array.from(categorySet)]
+  }, [safeItems])
 
   // Filter logic
-  const filteredItems = items.filter((item) => {
-    const categoryMatches =
-      activeCategory === 'all' || (item.category && item.category.toLowerCase() === activeCategory.toLowerCase())
-    const searchMatches =
-      item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.answer.toLowerCase().includes(searchQuery.toLowerCase())
-    return categoryMatches && searchMatches
-  })
+  const filteredItems = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    const categoryFilter = activeCategory.trim().toLowerCase()
+
+    return safeItems.filter((item) => {
+      if (!item) return false
+      if ((item as FaqItem & { visible?: boolean }).visible === false) return false
+
+      const itemCategory = getItemCategory(item).toLowerCase()
+      const categoryMatches =
+        categoryFilter === 'all' || itemCategory === categoryFilter
+
+      const question = (item.question || '').toLowerCase()
+      const answer = (item.answer || '').toLowerCase()
+      const searchMatches = !query || question.includes(query) || answer.includes(query)
+
+      return categoryMatches && searchMatches
+    })
+  }, [safeItems, activeCategory, searchQuery])
 
   return (
     <div className="space-y-10">
@@ -52,19 +122,25 @@ export function FAQList({ items }: FaqListProps) {
 
         {/* Category Filter Tabs */}
         <div className="flex flex-wrap gap-2 overflow-x-auto no-scrollbar scroll-smooth">
-          {CATEGORIES.map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`rounded-xl px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all whitespace-nowrap shadow-soft hover:-translate-y-0.5 border ${
-                activeCategory === category
-                  ? 'bg-brand text-white border-brand hover:bg-brand/90'
-                  : 'bg-card text-muted-foreground border-border hover:bg-card/85 hover:text-foreground'
-              }`}
-            >
-              {category === 'all' ? 'All Questions' : category}
-            </button>
-          ))}
+          {categories.map((category) => {
+            const isAll = category.toLowerCase() === 'all'
+            const isActive = activeCategory.toLowerCase() === category.toLowerCase()
+
+            return (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setActiveCategory(category)}
+                className={`rounded-xl px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all whitespace-nowrap shadow-soft hover:-translate-y-0.5 border ${
+                  isActive
+                    ? 'bg-brand text-white border-brand hover:bg-brand/90'
+                    : 'bg-card text-muted-foreground border-border hover:bg-card/85 hover:text-foreground'
+                }`}
+              >
+                {isAll ? 'All Questions' : category}
+              </button>
+            )
+          })}
         </div>
       </div>
 
@@ -74,8 +150,8 @@ export function FAQList({ items }: FaqListProps) {
           <Accordion type="single" collapsible className="w-full space-y-4">
             {filteredItems.map((item, i) => (
               <AccordionItem
-                key={i}
-                value={`item-${i}`}
+                key={`${item.question || i}-${i}`}
+                value={`faq-item-${i}-${(item.question || '').slice(0, 15)}`}
                 className="border border-border bg-card/40 rounded-2xl px-6 hover:bg-card hover:border-brand/25 transition-all shadow-soft duration-300"
               >
                 <AccordionTrigger className="text-left text-base font-bold py-5 hover:no-underline [&[data-state=open]]:text-brand">
@@ -95,7 +171,9 @@ export function FAQList({ items }: FaqListProps) {
             <HelpCircle className="mx-auto size-12 text-muted-foreground/50 animate-pulse" />
             <h3 className="mt-4 font-display text-lg font-bold">No results found</h3>
             <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
-              We couldn't find any questions matching "{searchQuery}". Try refining your search or switching categories.
+              {searchQuery
+                ? `We couldn't find any questions matching "${searchQuery}". Try refining your search or switching categories.`
+                : 'No questions available in this category.'}
             </p>
             <Button
               variant="outline"

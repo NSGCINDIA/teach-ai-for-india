@@ -178,7 +178,7 @@ export const FAQ_FALLBACK: FaqContent = {
       question: 'Who can volunteer?',
       answer:
         'Trained university volunteers organised into campus teams. Each campus has a lead who coordinates outreach, scheduling, and reporting.',
-      category: 'General',
+      category: 'Volunteering',
     },
     {
       question: 'What topics are covered in the curriculum?',
@@ -187,7 +187,7 @@ export const FAQ_FALLBACK: FaqContent = {
       category: 'General',
     },
     {
-      question: 'How are schools selected?',
+      question: 'How do I apply as a volunteer?',
       answer:
         'Head to the Join page and submit an application. Tell us your preferred campus and why you want to be part of the movement — we will be in touch.',
       category: 'Volunteering',
@@ -211,9 +211,9 @@ export const FAQ_FALLBACK: FaqContent = {
       category: 'Partnering',
     },
     {
-      question: 'Is there any fee?',
+      question: 'How can our school partner with you?',
       answer:
-        'Absolutely. Reach out through the Contact page and our outreach team will start the coordination process.',
+        'Reach out through the Contact page and our outreach team will start the coordination process.',
       category: 'Partnering',
     },
     {

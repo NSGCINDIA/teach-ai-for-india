@@ -57,13 +57,13 @@ insert into content_blocks (block_key, content) values
 
   ('faq', jsonb_build_object(
       'items', jsonb_build_array(
-        jsonb_build_object('question','What is Teach AI for India?','answer','We are a student-led movement bringing applied AI literacy to government school students across Telangana and Andhra Pradesh, empowering the next generation of responsible digital creators.','visible',true),
-        jsonb_build_object('question','Who can volunteer?','answer','Any university student at one of our participating partner campuses can volunteer. We recruit and train volunteers to facilitate interactive AI workshops in local schools.','visible',true),
-        jsonb_build_object('question','How do campuses join?','answer','Higher education institutions can join the movement by establishing an official campus chapter. Student leads or college administrators can contact us to start onboarding.','visible',true),
-        jsonb_build_object('question','How are schools selected?','answer','We focus where the digital divide is widest, partnering with government schools, state residential schools, and Gurukulams in collaboration with local education offices.','visible',true),
-        jsonb_build_object('question','Is there any fee?','answer','No. Every session, curriculum material, and workshop delivered by Teach AI for India is completely free of charge to partner schools and students.','visible',true),
-        jsonb_build_object('question','Who conducts sessions?','answer','Sessions are conducted on the ground by trained university volunteers organized into campus teams, led by an execution lead for each session.','visible',true),
-        jsonb_build_object('question','How can organizations partner?','answer','We partner with educational institutions, NGOs, corporate sponsors, and government offices. Contact us or email partners@teachaiforindia.org to explore collaboration.','visible',true)
+        jsonb_build_object('question','What is Teach AI for India?','answer','We are a student-led movement bringing applied AI literacy to government school students across Telangana and Andhra Pradesh, empowering the next generation of responsible digital creators.','category','General','visible',true),
+        jsonb_build_object('question','Who can volunteer?','answer','Any university student at one of our participating partner campuses can volunteer. We recruit and train volunteers to facilitate interactive AI workshops in local schools.','category','Volunteering','visible',true),
+        jsonb_build_object('question','How do campuses join?','answer','Higher education institutions can join the movement by establishing an official campus chapter. Student leads or college administrators can contact us to start onboarding.','category','Partnering','visible',true),
+        jsonb_build_object('question','How are schools selected?','answer','We focus where the digital divide is widest, partnering with government schools, state residential schools, and Gurukulams in collaboration with local education offices.','category','Partnering','visible',true),
+        jsonb_build_object('question','Is there any fee?','answer','No. Every session, curriculum material, and workshop delivered by Teach AI for India is completely free of charge to partner schools and students.','category','General','visible',true),
+        jsonb_build_object('question','Who conducts sessions?','answer','Sessions are conducted on the ground by trained university volunteers organized into campus teams, led by an execution lead for each session.','category','Volunteering','visible',true),
+        jsonb_build_object('question','How can organizations partner?','answer','We partner with educational institutions, NGOs, corporate sponsors, and government offices. Contact us or email partners@teachaiforindia.org to explore collaboration.','category','Partnering','visible',true)
       ))),
 
   ('announcements', jsonb_build_object('items', jsonb_build_array())),

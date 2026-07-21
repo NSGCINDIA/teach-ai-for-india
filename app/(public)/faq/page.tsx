@@ -26,7 +26,7 @@ export default async function FaqPage() {
       <section className="section-padding">
         <div className="container-wide">
           <Reveal>
-            <FAQList items={faq.items} />
+            <FAQList items={faq?.items || FAQ_FALLBACK.items} />
           </Reveal>
         </div>
       </section>
