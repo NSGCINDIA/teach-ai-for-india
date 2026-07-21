@@ -27,7 +27,7 @@ export default async function DashboardOverview() {
   }
 
   if (user.role === 'super_admin') {
-    const canReviewBudgetRequests = campusBudgetAccess(user.role, 'review')
+    const canReviewBudgetRequests = campusBudgetAccess(user.role, null, null).canReviewIncrease
     return (
       <SuperAdminOverview
         name={name}

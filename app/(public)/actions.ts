@@ -5,7 +5,9 @@ import { createClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email/resend'
 
 /** Where form notifications are sent. Best-effort — flows succeed even if unset. */
-const NOTIFY_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.EMAIL_FROM
+function getNotifyEmail(): string | null {
+  return process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.EMAIL_FROM ?? null
+}
 
 export type ActionResult = { ok: true } | { ok: false; error: string }
 
@@ -53,10 +55,11 @@ export async function submitVolunteerApplication(input: VolunteerInput): Promise
   }
 
   // Best-effort admin notification — never blocks a successful submission.
-  if (NOTIFY_EMAIL) {
+  const notifyEmail = getNotifyEmail()
+  if (notifyEmail) {
     try {
       await sendEmail({
-        to: NOTIFY_EMAIL,
+        to: notifyEmail,
         subject: `New volunteer application — ${data.full_name}`,
         html: `
           <h2>New volunteer application</h2>
@@ -110,10 +113,11 @@ export async function submitContactMessage(input: ContactInput): Promise<ActionR
     return { ok: false, error: 'Something went wrong. Please try again in a moment.' }
   }
 
-  if (NOTIFY_EMAIL) {
+  const notifyEmail = getNotifyEmail()
+  if (notifyEmail) {
     try {
       await sendEmail({
-        to: NOTIFY_EMAIL,
+        to: notifyEmail,
         subject: `New contact message${data.subject ? ` — ${data.subject}` : ''}`,
         html: `
           <h2>New contact message</h2>
@@ -127,6 +131,7 @@ export async function submitContactMessage(input: ContactInput): Promise<ActionR
       console.error('[contact] notification email failed:', err)
     }
   }
+
 
   return { ok: true }
 }
