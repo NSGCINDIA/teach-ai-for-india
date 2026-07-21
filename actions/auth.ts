@@ -306,7 +306,7 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
   }
 
   if (notificationRecipients.length) {
-    await admin.from('notifications').insert(
+    const { error: notifError } = await admin.from('notifications').insert(
       notificationRecipients.map((recipient) => ({
         recipient_id: recipient.id,
         type: 'signup_request',
@@ -316,6 +316,10 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
         entity_type: 'signup_request',
       })),
     )
+    if (notifError) {
+      console.error('Failed to create signup notifications:', notifError)
+    }
+    
     const to = notificationRecipients.map((r) => r.email).filter(Boolean)
     if (to.length) {
       await sendEmail({
@@ -326,6 +330,8 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
           <p>Review and approve it from the <a href="${siteUrl()}/admin/volunteers">Volunteers &amp; team</a> page.</p>`,
       })
     }
+  } else {
+    console.warn('No notification recipients found for signup request:', { campus_id, email })
   }
 
   return {
