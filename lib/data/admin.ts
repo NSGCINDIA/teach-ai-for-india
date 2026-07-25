@@ -47,7 +47,23 @@ export async function getAdminAlerts(): Promise<AdminAlert[]> {
 }
 
 // ─── User / volunteer management (PRD §7.9) ──────────────────────────────────
-export type AdminUser = UserRow & { campus: { id: string; name: string } | null }
+export type AdminUser = UserRow & {
+  campus: { id: string; name: string } | null
+  assignments?: {
+    id: string
+    status: string
+    session: {
+      id: string
+      date: string
+      topic: string
+      status: string
+      school: {
+        id: string
+        name: string
+      } | null
+    } | null
+  }[]
+}
 
 export interface UserFilters {
   role?: UserRole
@@ -61,7 +77,21 @@ export async function listAdminUsers(filters: UserFilters = {}): Promise<AdminUs
     .from('users')
     // Disambiguate the FK: campuses links back to users twice (campus_id and
     // lead_user_id), so an unqualified embed errors (PGRST201) and drops rows.
-    .select('*, campus:campuses!users_campus_id_fkey(id, name)')
+    .select(`
+      *,
+      campus:campuses!users_campus_id_fkey(id, name),
+      assignments:session_assignments(
+        id,
+        status,
+        session:sessions(
+          id,
+          date,
+          topic,
+          status,
+          school:schools(id, name)
+        )
+      )
+    `)
     .order('created_at', { ascending: false })
     .limit(1000)
   if (filters.role) query = query.eq('role', filters.role)
