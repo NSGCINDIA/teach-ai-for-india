@@ -7,6 +7,7 @@ import { BookOpen, Calendar, Clock, ArrowRight, X, User, Quote, Landmark, Sparkl
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/format'
 import { Reveal } from '@/components/marketing/reveal'
+import type { BlogItem } from '@/lib/data/blogs'
 
 export interface RichStory {
   title: string
@@ -112,17 +113,46 @@ const RICH_STORIES: RichStory[] = [
   }
 ]
 
-export function StoriesDashboard() {
+export function StoriesDashboard({ dbStories = [] }: { dbStories?: BlogItem[] }) {
   const [selectedCategory, setSelectedCategory] = useState<'All' | 'Classroom Joy' | 'Volunteer Journey' | 'Innovations'>('All')
   const [activeStory, setActiveStory] = useState<RichStory | null>(null)
 
+  const mappedDbStories = useMemo(() => {
+    return dbStories.map((b) => {
+      const excerpt = b.body.length > 150 ? b.body.substring(0, 150) + '...' : b.body
+      const fullContent = b.body.split(/\n\s*\n/).filter(Boolean)
+      const wordCount = b.body.split(/\s+/).length
+      const readTimeVal = Math.max(1, Math.ceil(wordCount / 200))
+      
+      return {
+        title: b.title,
+        excerpt,
+        campus: b.campus?.name || 'Teach AI for India',
+        date: b.created_at.split('T')[0],
+        category: 'Volunteer Journey' as const,
+        readTime: `${readTimeVal} min read`,
+        image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg',
+        author: {
+          name: b.poster?.full_name || 'Team member',
+          avatar: (b.poster?.full_name || 'TM').substring(0, 2).toUpperCase(),
+          role: 'Contributor'
+        },
+        fullContent
+      }
+    })
+  }, [dbStories])
+
+  const combinedStories = useMemo(() => {
+    return [...RICH_STORIES, ...mappedDbStories]
+  }, [mappedDbStories])
+
   const filteredStories = useMemo(() => {
-    if (selectedCategory === 'All') return RICH_STORIES
-    return RICH_STORIES.filter(s => s.category === selectedCategory)
-  }, [selectedCategory])
+    if (selectedCategory === 'All') return combinedStories
+    return combinedStories.filter(s => s.category === selectedCategory)
+  }, [selectedCategory, combinedStories])
 
   // Use the first story as the featured hero item
-  const featuredStory = RICH_STORIES[0]
+  const featuredStory = combinedStories[0] || RICH_STORIES[0]
 
   return (
     <div className="space-y-12">
