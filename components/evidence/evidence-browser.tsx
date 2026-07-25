@@ -138,7 +138,16 @@ export function EvidenceBrowser({ items, options, canModerate, showCampusFilter 
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium" title={m.file_name}>{m.file_name}</p>
                     <p className="text-xs text-muted-foreground">{MEDIA_TYPE_META[m.file_type].label} · {formatDate(m.created_at)}</p>
-                    {m.session && <p className="truncate text-xs text-muted-foreground">#{m.session.session_number} · {m.session.topic}</p>}
+                    {m.school && (
+                      <p className="truncate text-xs font-medium text-muted-foreground" title={m.school.name}>
+                        {m.school.name}
+                      </p>
+                    )}
+                    {m.session && (
+                      <p className="truncate text-xs text-muted-foreground" title={`#${m.session.session_number} · ${m.session.topic}`}>
+                        #{m.session.session_number} · {m.session.topic}
+                      </p>
+                    )}
                   </div>
                   <div className="mt-auto flex flex-wrap gap-1.5">
                     {m.signed_url && (
