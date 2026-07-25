@@ -244,23 +244,22 @@ export async function getVolunteerLeadData(campusId: string): Promise<VolunteerL
 
 // ─── Execution Lead ─────────────────────────────────────────────────────────
 export interface ExecData {
-  kpis: { todayCount: number; upcomingCount: number; pendingReports: number; myClaims: number }
+  kpis: { todayCount: number; upcomingCount: number; pendingReports: number }
   todaySessions: SessionLite[]
   upcomingSessions: SessionLite[]
   pendingReports: SessionLite[]
 }
 
-export async function getExecData(campusId: string, userId: string): Promise<ExecData> {
+export async function getExecData(campusId: string): Promise<ExecData> {
   const supabase = await createClient()
   const t = today()
   const head = { count: 'exact' as const, head: true }
 
-  const [todayCount, upcomingCount, pendingCount, myClaims, todaySessions, upcomingSessions, pendingReports] =
+  const [todayCount, upcomingCount, pendingCount, todaySessions, upcomingSessions, pendingReports] =
     await Promise.all([
       supabase.from('sessions').select('id', head).eq('campus_id', campusId).eq('date', t),
       supabase.from('sessions').select('id', head).eq('campus_id', campusId).gt('date', t).in('status', OPEN_SESSION),
       supabase.from('sessions').select('id', head).eq('campus_id', campusId).lte('date', t).in('status', OPEN_SESSION),
-      supabase.from('reimbursements').select('id', head).eq('claimant_id', userId).in('status', ['draft', 'submitted', 'under_review', 'rejected']),
       supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).eq('date', t).order('start_time'),
       supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).gt('date', t).in('status', OPEN_SESSION).order('date').limit(5),
       supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).lte('date', t).in('status', OPEN_SESSION).order('date').limit(6),
@@ -271,7 +270,6 @@ export async function getExecData(campusId: string, userId: string): Promise<Exe
       todayCount: todayCount.count ?? 0,
       upcomingCount: upcomingCount.count ?? 0,
       pendingReports: pendingCount.count ?? 0,
-      myClaims: myClaims.count ?? 0,
     },
     todaySessions: toSessionLite(todaySessions.data as SessionRowRaw[] | null),
     upcomingSessions: toSessionLite(upcomingSessions.data as SessionRowRaw[] | null),

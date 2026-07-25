@@ -280,11 +280,10 @@ export function ExecOverview({ name, data }: { name: string; data: ExecData }) {
     <div className="space-y-6">
       <OverviewHeader name={name} role="Execution Lead" />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Kpi label="Today's Sessions" value={formatNumber(k.todayCount)} icon={CalendarDays} />
         <Kpi label="Upcoming Sessions" value={formatNumber(k.upcomingCount)} icon={CalendarClock} />
         <Kpi label="Pending Reports" value={formatNumber(k.pendingReports)} icon={FileClock} />
-        <Kpi label="My Transport Claims" value={formatNumber(k.myClaims)} icon={Wallet} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -302,7 +301,6 @@ export function ExecOverview({ name, data }: { name: string; data: ExecData }) {
             {[
               { label: 'Attendance', href: '/dashboard/attendance', icon: ClipboardList },
               { label: 'Evidence', href: '/dashboard/evidence', icon: Images },
-              { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: Wallet },
               { label: 'All Sessions', href: '/dashboard/sessions', icon: CalendarDays },
             ].map((a) => (
               <Link key={a.href} href={a.href}
