@@ -14,7 +14,9 @@ export default async function LoginPage({
       ? 'Your account is inactive. Contact your admin.'
       : sp.error === 'auth'
         ? 'That sign-in link is invalid or has expired.'
-        : undefined
+        : sp.error === 'session_expired'
+          ? 'Your session has expired. Please sign in again.'
+          : undefined
 
   return (
     <div className="min-h-dvh flex items-center justify-center bg-background relative overflow-hidden px-4 py-12">
