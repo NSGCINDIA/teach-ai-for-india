@@ -57,7 +57,7 @@ export default async function DashboardOverview() {
     case 'volunteer_lead':
       return <VolunteerLeadOverview name={name} data={await getVolunteerLeadData(campusId)} />
     case 'exec_lead':
-      return <ExecOverview name={name} data={await getExecData(campusId, user.id)} />
+      return <ExecOverview name={name} data={await getExecData(campusId)} />
     // Admins / viewers who land here (they normally route to /admin).
     default:
       return (
