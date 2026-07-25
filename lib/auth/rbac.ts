@@ -46,7 +46,7 @@ const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
   },
   exec_lead: {
     view_all_campuses: false, edit_school: false, create_session: 'own',
-    submit_reimbursement: 'own', approve_reimbursement: false,
+    submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
@@ -291,7 +291,7 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
   // monitoring — the page has no role branching, it's already RLS-scoped).
   { prefix: '/dashboard/schools', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/finance', roles: ['super_admin', 'finance_lead', 'campus_mgmt_admin'] },
-  { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
+  { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/volunteers', roles: ['super_admin', 'campus_lead', 'exec_lead', 'volunteer_lead'] },
   { prefix: '/dashboard/analytics', roles: ['super_admin', 'campus_lead', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/settings', roles: ['super_admin', 'campus_lead'] },
