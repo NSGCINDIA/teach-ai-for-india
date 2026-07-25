@@ -2,6 +2,7 @@ import { requireAccess } from '@/lib/auth/user'
 import { can, isAdmin } from '@/lib/auth/rbac'
 import { listEvidence, listEvidenceFilterOptions } from '@/lib/data/evidence'
 import { EvidenceBrowser } from '@/components/evidence/evidence-browser'
+import { ContextualUpdates } from '@/components/shared/contextual-updates'
 
 export const metadata = { title: 'Evidence' }
 
@@ -16,12 +17,20 @@ export default async function DashboardEvidencePage() {
         <h1 className="font-display text-2xl font-bold tracking-tight">Evidence vault</h1>
         <p className="mt-1 text-muted-foreground">Photos, attendance docs, and files captured during sessions.</p>
       </header>
-      <EvidenceBrowser
-        items={items}
-        options={options}
-        canModerate={canModerate}
-        showCampusFilter={can(user.role, 'view_all_campuses') === 'all'}
-      />
+      
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <div className="lg:col-span-3">
+          <EvidenceBrowser
+            items={items}
+            options={options}
+            canModerate={canModerate}
+            showCampusFilter={can(user.role, 'view_all_campuses') === 'all'}
+          />
+        </div>
+        <div className="lg:col-span-1">
+          <ContextualUpdates module="evidence" />
+        </div>
+      </div>
     </div>
   )
 }

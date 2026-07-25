@@ -5,6 +5,7 @@ import { listCampusOptions } from '@/lib/data/schools'
 import { UsersTable } from '@/components/admin/users-table'
 import { SignupRequests } from '@/components/admin/signup-requests'
 import { EmptyState } from '@/components/shared/states'
+import { ContextualUpdates } from '@/components/shared/contextual-updates'
 
 export const metadata = { title: 'Volunteers' }
 
@@ -49,16 +50,37 @@ export default async function DashboardVolunteersPage() {
         </p>
       </header>
 
-      {isAdmin(user.role) && signups.length > 0 && (
-        <SignupRequests requests={signups} />
-      )}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <div className="lg:col-span-3 space-y-6">
+          {isAdmin(user.role) && signups.length > 0 && (
+            <SignupRequests requests={signups} />
+          )}
 
-      {!canManage && (
-        <p className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-          You have read-only access to this roster.
-        </p>
-      )}
+          {!canManage && (
+            <p className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+              You have read-only access to this roster.
+            </p>
+          )}
 
+<<<<<<< HEAD
+          {users.length === 0 ? (
+            <EmptyState
+              title="No team members yet"
+              description={
+                scoped
+                  ? 'Volunteers invited to your campus will appear here.'
+                  : 'Registered users will appear here once accounts are approved.'
+              }
+            />
+          ) : (
+            <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} canViewDetails={isAdmin(user.role)} />
+          )}
+        </div>
+        <div className="lg:col-span-1">
+          <ContextualUpdates module="volunteers" />
+        </div>
+      </div>
+=======
       {users.length === 0 ? (
         <EmptyState
           title="No volunteers yet"
@@ -71,6 +93,7 @@ export default async function DashboardVolunteersPage() {
       ) : (
         <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} canViewDetails={isAdmin(user.role)} scoped={scoped} />
       )}
+>>>>>>> upstream/main
     </div>
   )
 }

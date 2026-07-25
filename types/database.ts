@@ -168,12 +168,6 @@ export type MediaAssetRow = {
   created_at: string
 }
 
-export type NotificationRow = {
-  id: string; recipient_id: string; type: string; title: string; body: string | null
-  action_url: string | null; entity_type: string | null; entity_id: string | null
-  is_read: boolean; read_at: string | null; created_at: string
-}
-
 export type ContentBlockRow = {
   id: string; block_key: string; content: Record<string, unknown>
   updated_by: string | null; updated_at: string
@@ -320,7 +314,6 @@ export interface Database {
       attendance_records: TableDef<AttendanceRow>
       reimbursements: TableDef<ReimbursementRow>
       media_assets: TableDef<MediaAssetRow>
-      notifications: TableDef<NotificationRow>
       content_blocks: TableDef<ContentBlockRow>
       audit_log: TableDef<AuditLogRow>
       volunteer_applications: TableDef<VolunteerApplicationRow>

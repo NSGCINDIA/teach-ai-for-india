@@ -306,20 +306,6 @@ export async function requestSignup(_prev: ActionState, formData: FormData): Pro
   }
 
   if (notificationRecipients.length) {
-    const { error: notifError } = await admin.from('notifications').insert(
-      notificationRecipients.map((recipient) => ({
-        recipient_id: recipient.id,
-        type: 'signup_request',
-        title: 'New account signup',
-        body: `${full_name} (${email}) requested an account.`,
-        action_url: '/admin/volunteers',
-        entity_type: 'signup_request',
-      })),
-    )
-    if (notifError) {
-      console.error('Failed to create signup notifications:', notifError)
-    }
-    
     const to = notificationRecipients.map((r) => r.email).filter(Boolean)
     if (to.length) {
       await sendEmail({

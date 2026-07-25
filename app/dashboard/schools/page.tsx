@@ -5,6 +5,7 @@ import { can } from '@/lib/auth/rbac'
 import { listSchools, listCampusOptions } from '@/lib/data/schools'
 import { Button } from '@/components/ui/button'
 import { SchoolsView } from '@/components/schools/schools-view'
+import { ContextualUpdates } from '@/components/shared/contextual-updates'
 
 export const metadata = { title: 'My Schools' }
 
@@ -34,7 +35,14 @@ export default async function DashboardSchoolsPage() {
         )}
       </header>
 
-      <SchoolsView schools={schools} campuses={campuses} basePath="/dashboard/schools" showCampusFilter={!scopedToCampus} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <div className="lg:col-span-3">
+          <SchoolsView schools={schools} campuses={campuses} basePath="/dashboard/schools" showCampusFilter={!scopedToCampus} />
+        </div>
+        <div className="lg:col-span-1">
+          <ContextualUpdates module="schools" />
+        </div>
+      </div>
     </div>
   )
 }

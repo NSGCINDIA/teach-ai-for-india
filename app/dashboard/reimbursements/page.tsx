@@ -5,6 +5,7 @@ import { can } from '@/lib/auth/rbac'
 import { listReimbursements } from '@/lib/data/finance'
 import { Button } from '@/components/ui/button'
 import { ClaimsTable } from '@/components/finance/claims-table'
+import { ContextualUpdates } from '@/components/shared/contextual-updates'
 
 export const metadata = { title: 'Reimbursements' }
 
@@ -32,7 +33,14 @@ export default async function DashboardReimbursementsPage() {
         )}
       </header>
 
-      <ClaimsTable claims={claims} basePath="/dashboard/reimbursements" showClaimant={isFinanceQueue} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <div className="lg:col-span-3">
+          <ClaimsTable claims={claims} basePath="/dashboard/reimbursements" showClaimant={isFinanceQueue} />
+        </div>
+        <div className="lg:col-span-1">
+          <ContextualUpdates module="finance" />
+        </div>
+      </div>
     </div>
   )
 }

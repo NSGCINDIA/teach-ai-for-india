@@ -8,7 +8,7 @@ import { canAccessPath, isAdmin } from '@/lib/auth/rbac'
  */
 export type NavIconKey =
   | 'overview' | 'sessions' | 'schools' | 'attendance' | 'reimbursements'
-  | 'evidence' | 'notifications' | 'campuses' | 'volunteers' | 'finance'
+  | 'evidence' | 'campuses' | 'volunteers' | 'finance'
   | 'reports' | 'analytics' | 'content' | 'settings'
   | 'calendar' | 'assignments' | 'availability' | 'certificates' | 'outreach' | 'profile'
   | 'announcements'
@@ -22,7 +22,6 @@ export interface NavItem {
 }
 
 const OVERVIEW: NavItem = { label: 'Overview', href: '/dashboard', icon: 'overview' }
-const NOTIFICATIONS: NavItem = { label: 'Notifications', href: '/dashboard/notifications', icon: 'notifications' }
 
 /**
  * Per-role dashboard sidebars (Team Dashboard PRD). Each leadership role sees
@@ -42,7 +41,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
-    NOTIFICATIONS,
     { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
   ],
   outreach_lead: [
@@ -52,7 +50,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Approval Letters', href: '/dashboard/approval-letters', icon: 'reports' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
-    NOTIFICATIONS,
   ],
   volunteer_lead: [
     OVERVIEW,
@@ -63,7 +60,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Certificates', href: '/dashboard/certificates', icon: 'certificates' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
-    NOTIFICATIONS,
   ],
   exec_lead: [
     OVERVIEW,
@@ -74,7 +70,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
     { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
-    NOTIFICATIONS,
   ],
   volunteer: [
     OVERVIEW,
@@ -101,7 +96,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
-    NOTIFICATIONS,
     { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
   ],
   // Campus-scoped monitoring roles (Operational Workflow Spec v2.0). Finance
@@ -110,13 +104,11 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     OVERVIEW,
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
     { label: 'Finance', href: '/dashboard/finance', icon: 'finance' },
-    NOTIFICATIONS,
   ],
   finance_lead: [
     OVERVIEW,
     { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },
     { label: 'Campus Finance', href: '/dashboard/finance', icon: 'finance' },
-    NOTIFICATIONS,
   ],
 }
 
