@@ -34,7 +34,7 @@ export default async function DashboardVolunteersPage() {
   // Admins see every registered user across all campuses; campus leads stay
   // scoped to their own campus. Admins also get the campus filter dropdown.
   const [users, campuses, signups] = await Promise.all([
-    listAdminUsers(scoped ? { campus_id: user.campus_id ?? undefined } : {}),
+    listAdminUsers(scoped ? { campus_id: user.campus_id ?? undefined, role: 'volunteer' } : {}),
     scoped ? Promise.resolve([]) : listCampusOptions(),
     isAdmin(user.role) ? listPendingSignups() : Promise.resolve([]),
   ])
@@ -45,7 +45,7 @@ export default async function DashboardVolunteersPage() {
       <header>
         <h1 className="font-display text-2xl font-bold tracking-tight">Volunteers</h1>
         <p className="mt-1 text-muted-foreground">
-          {users.length} member{users.length === 1 ? '' : 's'}{' '}
+          {users.length} volunteer{users.length === 1 ? '' : 's'}{' '}
           {scoped ? 'on your campus team.' : 'across every campus.'}
         </p>
       </header>
@@ -62,6 +62,7 @@ export default async function DashboardVolunteersPage() {
             </p>
           )}
 
+<<<<<<< HEAD
           {users.length === 0 ? (
             <EmptyState
               title="No team members yet"
@@ -79,6 +80,20 @@ export default async function DashboardVolunteersPage() {
           <ContextualUpdates module="volunteers" />
         </div>
       </div>
+=======
+      {users.length === 0 ? (
+        <EmptyState
+          title="No volunteers yet"
+          description={
+            scoped
+              ? 'Volunteers invited to your campus will appear here.'
+              : 'Registered users will appear here once accounts are approved.'
+          }
+        />
+      ) : (
+        <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} canViewDetails={isAdmin(user.role)} scoped={scoped} />
+      )}
+>>>>>>> upstream/main
     </div>
   )
 }
