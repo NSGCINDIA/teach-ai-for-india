@@ -62,10 +62,9 @@ export default async function DashboardVolunteersPage() {
             </p>
           )}
 
-<<<<<<< HEAD
           {users.length === 0 ? (
             <EmptyState
-              title="No team members yet"
+              title="No volunteers yet"
               description={
                 scoped
                   ? 'Volunteers invited to your campus will appear here.'
@@ -73,27 +72,13 @@ export default async function DashboardVolunteersPage() {
               }
             />
           ) : (
-            <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} canViewDetails={isAdmin(user.role)} />
+            <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} canViewDetails={isAdmin(user.role)} scoped={scoped} />
           )}
         </div>
         <div className="lg:col-span-1">
           <ContextualUpdates module="volunteers" />
         </div>
       </div>
-=======
-      {users.length === 0 ? (
-        <EmptyState
-          title="No volunteers yet"
-          description={
-            scoped
-              ? 'Volunteers invited to your campus will appear here.'
-              : 'Registered users will appear here once accounts are approved.'
-          }
-        />
-      ) : (
-        <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} canViewDetails={isAdmin(user.role)} scoped={scoped} />
-      )}
->>>>>>> upstream/main
     </div>
   )
 }
