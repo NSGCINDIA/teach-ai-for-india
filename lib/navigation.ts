@@ -33,7 +33,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: 'Sessions', href: '/dashboard/sessions', icon: 'sessions' },
-    { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
