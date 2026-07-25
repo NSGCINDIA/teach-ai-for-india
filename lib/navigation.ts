@@ -11,7 +11,7 @@ export type NavIconKey =
   | 'evidence' | 'campuses' | 'volunteers' | 'finance'
   | 'reports' | 'analytics' | 'content' | 'settings'
   | 'calendar' | 'assignments' | 'availability' | 'certificates' | 'outreach' | 'profile'
-  | 'announcements'
+  | 'announcements' | 'blog'
 
 export interface NavItem {
   label: string
@@ -38,7 +38,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Finance Analysis', href: '/dashboard/reimbursements', icon: 'finance' },
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
-    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
+    { label: 'Blog Writing', href: '/dashboard/blog-writing', icon: 'blog' },
     { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
   ],
   outreach_lead: [
@@ -47,7 +47,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Outreach Forms', href: '/dashboard/schools/new', icon: 'outreach' },
     { label: 'Approval Letters', href: '/dashboard/approval-letters', icon: 'reports' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
-    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
+    { label: 'Blog Writing', href: '/dashboard/blog-writing', icon: 'blog' },
   ],
   volunteer_lead: [
     OVERVIEW,
@@ -57,7 +57,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Certificates', href: '/dashboard/certificates', icon: 'certificates' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
-    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
+    { label: 'Blog Writing', href: '/dashboard/blog-writing', icon: 'blog' },
   ],
   exec_lead: [
     OVERVIEW,
@@ -76,7 +76,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
     { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },
     { label: 'Certificates', href: '/dashboard/certificates', icon: 'certificates' },
-    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
+    { label: 'Blog Writing', href: '/dashboard/blog-writing', icon: 'blog' },
     { label: 'Profile', href: '/dashboard/profile', icon: 'profile' },
   ],
   super_admin: [
@@ -91,7 +91,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Finance', href: '/dashboard/reimbursements', icon: 'finance' },
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
-    { label: 'Announcements', href: '/dashboard/announcements', icon: 'announcements' },
+    { label: 'Blog Writing', href: '/dashboard/blog-writing', icon: 'blog' },
     { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
   ],
   // Campus-scoped monitoring roles (Operational Workflow Spec v2.0). Finance
