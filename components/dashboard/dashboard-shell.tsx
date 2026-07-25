@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Menu, Sparkles,
-  LayoutDashboard, CalendarDays, School, ClipboardCheck, Receipt, Images, Bell,
+  LayoutDashboard, CalendarDays, School, ClipboardCheck, Receipt, Images,
   Building2, Users, Wallet, FileBarChart, BarChart3, FileText, Settings,
   CalendarRange, UserRoundCheck, CalendarClock, Award, ClipboardList, UserCircle,
   Megaphone,
@@ -29,7 +29,6 @@ const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
   attendance: ClipboardCheck,
   reimbursements: Receipt,
   evidence: Images,
-  notifications: Bell,
   campuses: Building2,
   volunteers: Users,
   finance: Wallet,

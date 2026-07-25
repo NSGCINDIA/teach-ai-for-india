@@ -6,6 +6,7 @@ import { listSessions } from '@/lib/data/sessions'
 import { listCampusOptions } from '@/lib/data/schools'
 import { Button } from '@/components/ui/button'
 import { SessionsView } from '@/components/sessions/sessions-view'
+import { ContextualUpdates } from '@/components/shared/contextual-updates'
 
 export const metadata = { title: 'My Sessions' }
 
@@ -28,7 +29,14 @@ export default async function DashboardSessionsPage() {
         )}
       </header>
 
-      <SessionsView sessions={sessions} campuses={campuses} basePath="/dashboard/sessions" showCampusFilter={seesAll} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <div className="lg:col-span-3">
+          <SessionsView sessions={sessions} campuses={campuses} basePath="/dashboard/sessions" showCampusFilter={seesAll} />
+        </div>
+        <div className="lg:col-span-1">
+          <ContextualUpdates module="sessions" />
+        </div>
+      </div>
     </div>
   )
 }

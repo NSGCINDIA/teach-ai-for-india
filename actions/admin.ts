@@ -118,13 +118,6 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
     .update({ status: 'approved', reviewed_by: me.id, reviewed_at: new Date().toISOString() })
     .eq('id', id)
 
-  await admin.from('notifications').insert({
-    recipient_id: req.auth_user_id,
-    type: 'signup_approved',
-    title: 'Your account is approved 🎉',
-    body: 'Welcome to Teach AI for India. You can now log in.',
-    action_url: '/login',
-  })
   await admin.from('audit_log').insert({
     actor_id: me.id, action: 'approve', entity_type: 'signup_request', entity_id: id,
     detail: { email: req.email },
