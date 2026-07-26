@@ -14,7 +14,7 @@ import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
 import type {
   CampusLeadData, OutreachData, VolunteerLeadData, ExecData, VolunteerData,
-  SessionLite, SchoolLite,
+  FinanceLeadData, SessionLite, SchoolLite,
 } from '@/lib/data/dashboard'
 
 // ─── Shared pieces ────────────────────────────────────────────────────────────
@@ -106,15 +106,13 @@ export function CampusLeadOverview({
     <div className="space-y-6">
       <OverviewHeader name={name} role="Campus Lead" />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Kpi label="Schools Active" value={formatNumber(k.schoolsActive)} icon={School} />
-        <Kpi label="Students Impacted" value={formatNumber(k.studentsImpacted)} icon={GraduationCap} />
-        <Kpi label="Sessions Completed" value={formatNumber(k.sessionsCompleted)} icon={CheckCircle2} />
-        <Kpi label="Upcoming Sessions" value={formatNumber(k.upcomingSessions)} icon={CalendarClock} />
-        <Kpi label="Volunteers Active" value={formatNumber(k.volunteersActive)} icon={Users} />
-        <Kpi label="Pending Reports" value={formatNumber(k.pendingReports)} icon={FileClock} />
-        <Kpi label="Pending Payments" value={formatNumber(k.pendingPayments)} icon={Wallet} />
-        <Kpi label="Evidence Uploaded" value={formatNumber(k.evidenceUploaded)} icon={Images} />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <Kpi label="Active Schools" value={formatNumber(k.schoolsActive)} icon={School} />
+        <Kpi label="Active Volunteers" value={formatNumber(k.volunteersActive)} icon={Users} />
+        <Kpi label="Pending Evidence Reviews" value={formatNumber(k.pendingEvidenceReviews)} icon={Images} />
+        <Kpi label="Schools Awaiting Approval" value={formatNumber(k.schoolsAwaitingApproval)} icon={ClipboardList} />
+        <Kpi label="Budget Requests Pending" value={formatNumber(k.budgetRequestsPendingReview)} icon={Wallet} />
+        <Kpi label="Sessions Scheduled This Week" value={formatNumber(k.sessionsScheduledThisWeek)} icon={CalendarClock} />
       </div>
 
       <QuickActions />
@@ -160,9 +158,9 @@ export function CampusLeadOverview({
 function QuickActions() {
   const actions = [
     { label: 'View Schools', href: '/dashboard/schools', icon: School },
-    { label: 'View Planned Sessions', href: '/dashboard/sessions', icon: CalendarDays },
-    { label: 'View Evidence', href: '/dashboard/evidence', icon: Images },
-    { label: 'View Attendance', href: '/dashboard/attendance', icon: ClipboardList },
+    { label: 'View Sessions', href: '/dashboard/sessions', icon: CalendarDays },
+    { label: 'Review Evidence', href: '/dashboard/evidence', icon: Images },
+    { label: 'Finance Overview', href: '/dashboard/finance', icon: Wallet },
   ]
   return (
     <Card className="p-5">
@@ -355,6 +353,134 @@ export function VolunteerOverview({ name, data }: { name: string; data: Voluntee
   )
 }
 
+// ─── Finance Lead ───────────────────────────────────────────────────────────
+export function FinanceLeadOverview({ name, data }: { name: string; data: FinanceLeadData }) {
+  const k = data.kpis
+  return (
+    <div className="space-y-6">
+      <OverviewHeader name={name} role="Finance Lead" />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Kpi label="Allocated Budget" value={formatCurrency(k.allocatedAmount)} icon={Wallet} />
+        <Kpi label="Reserved / Spent" value={formatCurrency(k.reservedAmount)} icon={TrendingUp} />
+        <Kpi label="Pending Claims" value={formatNumber(k.pendingClaimsCount)} icon={FileClock} />
+        <Kpi label="Budget Requests Pending" value={formatNumber(k.pendingBudgetRequestsCount)} icon={ClipboardList} />
+      </div>
+
+      <FinanceQuickActions />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Widget title="Pending Reimbursement Claims" href="/dashboard/reimbursements">
+          {data.pendingReimbursements.length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">No claims awaiting review.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {data.pendingReimbursements.map((r) => (
+                <li key={r.id}>
+                  <Link href={`/dashboard/reimbursements/${r.id}`} className="flex items-center gap-3 py-2.5 hover:opacity-80">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{r.claimant_name}</p>
+                      <p className="truncate text-xs text-muted-foreground">{r.reference_number} · {r.status}</p>
+                    </div>
+                    <span className="text-sm font-semibold tabular-nums text-foreground">{formatCurrency(r.amount)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Widget>
+        <Widget title="Budget Increase Requests" href="/dashboard/finance">
+          <BudgetRequestReviewList requests={data.pendingBudgetRequests} canReview={false} />
+        </Widget>
+      </div>
+    </div>
+  )
+}
+
+function FinanceQuickActions() {
+  const actions = [
+    { label: 'View Reimbursements', href: '/dashboard/reimbursements', icon: Wallet },
+    { label: 'Campus Finance', href: '/dashboard/finance', icon: TrendingUp },
+  ]
+  return (
+    <Card className="p-5">
+      <h2 className="mb-3 font-display text-sm font-semibold">Quick Actions</h2>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {actions.map((a) => (
+          <Link key={a.href} href={a.href}
+            className="flex items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2.5 text-sm font-medium transition-colors hover:border-brand hover:bg-accent">
+            <span className="grid size-8 place-items-center rounded-md bg-brand/10 text-brand"><a.icon className="size-4" /></span>
+            {a.label}
+          </Link>
+        ))}
+      </div>
+    </Card>
+  )
+}
+
+// ─── Management Admin ───────────────────────────────────────────────────────
+export function CampusMgmtOverview({ name, data }: { name: string; data: CampusLeadData }) {
+  const k = data.kpis
+  return (
+    <div className="space-y-6">
+      <OverviewHeader name={name} role="Management Admin" />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Kpi label="Active Schools" value={formatNumber(k.schoolsActive)} icon={School} />
+        <Kpi label="Active Volunteers" value={formatNumber(k.volunteersActive)} icon={Users} />
+        <Kpi label="Pending Evidence Reviews" value={formatNumber(k.pendingEvidenceReviews)} icon={Images} />
+        <Kpi label="Sessions Scheduled This Week" value={formatNumber(k.sessionsScheduledThisWeek)} icon={CalendarClock} />
+      </div>
+
+      <CampusMgmtQuickActions />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Widget title="Pending Budget Requests">
+          <BudgetRequestReviewList requests={data.pendingBudgetRequests} canReview={false} />
+        </Widget>
+        <Widget title="Pending Reimbursements" href="/dashboard/reimbursements">
+          {data.pendingReimbursements.length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">No claims awaiting review.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {data.pendingReimbursements.map((r) => (
+                <li key={r.id} className="flex items-center gap-3 py-2.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{r.claimant_name}</p>
+                    <p className="truncate text-xs text-muted-foreground">{r.reference_number}</p>
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums">{formatCurrency(r.amount)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Widget>
+      </div>
+    </div>
+  )
+}
+
+function CampusMgmtQuickActions() {
+  const actions = [
+    { label: 'View Analytics', href: '/dashboard/analytics', icon: TrendingUp },
+    { label: 'View Finance', href: '/dashboard/finance', icon: Wallet },
+  ]
+  return (
+    <Card className="p-5">
+      <h2 className="mb-3 font-display text-sm font-semibold">Quick Actions</h2>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {actions.map((a) => (
+          <Link key={a.href} href={a.href}
+            className="flex items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2.5 text-sm font-medium transition-colors hover:border-brand hover:bg-accent">
+            <span className="grid size-8 place-items-center rounded-md bg-brand/10 text-brand"><a.icon className="size-4" /></span>
+            {a.label}
+          </Link>
+        ))}
+      </div>
+    </Card>
+  )
+}
+
 // ─── Fallback (admins / no campus) ──────────────────────────────────────────
 export function NoCampusOverview({ name, role }: { name: string; role: string }) {
   return (
@@ -384,15 +510,13 @@ export function SuperAdminOverview({
     <div className="space-y-6">
       <OverviewHeader name={name} role="Super Admin" />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Kpi label="Schools Active" value={formatNumber(k.schoolsActive)} icon={School} />
-        <Kpi label="Students Impacted" value={formatNumber(k.studentsImpacted)} icon={GraduationCap} />
-        <Kpi label="Sessions Completed" value={formatNumber(k.sessionsCompleted)} icon={CheckCircle2} />
-        <Kpi label="Upcoming Sessions" value={formatNumber(k.upcomingSessions)} icon={CalendarClock} />
-        <Kpi label="Volunteers Active" value={formatNumber(k.volunteersActive)} icon={Users} />
-        <Kpi label="Pending Reports" value={formatNumber(k.pendingReports)} icon={FileClock} />
-        <Kpi label="Pending Payments" value={formatNumber(k.pendingPayments)} icon={Wallet} />
-        <Kpi label="Evidence Uploaded" value={formatNumber(k.evidenceUploaded)} icon={Images} />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <Kpi label="Active Schools" value={formatNumber(k.schoolsActive)} icon={School} />
+        <Kpi label="Active Volunteers" value={formatNumber(k.volunteersActive)} icon={Users} />
+        <Kpi label="Pending Evidence Reviews" value={formatNumber(k.pendingEvidenceReviews)} icon={Images} />
+        <Kpi label="Schools Awaiting Approval" value={formatNumber(k.schoolsAwaitingApproval)} icon={ClipboardList} />
+        <Kpi label="Budget Requests Pending" value={formatNumber(k.budgetRequestsPendingReview)} icon={Wallet} />
+        <Kpi label="Sessions Scheduled This Week" value={formatNumber(k.sessionsScheduledThisWeek)} icon={CalendarClock} />
       </div>
 
       <SuperAdminQuickActions />
