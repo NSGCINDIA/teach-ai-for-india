@@ -42,7 +42,7 @@ const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
   certificates: Award,
   outreach: ClipboardList,
   profile: UserCircle,
-  announcements: Megaphone,
+  blogs: FileText,
   blog: BookOpen,
 }
 

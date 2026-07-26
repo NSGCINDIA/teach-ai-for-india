@@ -133,9 +133,15 @@ export type SessionAssignmentRow = Timestamps & {
 export type AvailabilityStatus = 'available' | 'unavailable' | 'tentative'
 export type CertificateKind = 'participation' | 'milestone' | 'excellence' | 'completion'
 
-export type AnnouncementRow = Timestamps & {
-  id: string; campus_id: string | null; title: string; body: string
-  pinned: boolean; posted_by: string | null
+export type BlogStatus = 'draft' | 'submitted' | 'in_review' | 'approved' | 'published' | 'rejected'
+
+export type BlogRow = Timestamps & {
+  id: string; title: string; slug: string; summary: string; content: string
+  cover_image: string | null; category: string; campus_id: string | null
+  author_id: string; tags: string[]; reading_time_minutes: number
+  featured: boolean; seo_title: string | null; meta_description: string | null
+  keywords: string[]; og_image: string | null; canonical_url: string | null
+  status: BlogStatus; rejected_reason: string | null; published_at: string | null
 }
 
 export type AvailabilityRow = Timestamps & {
@@ -322,7 +328,7 @@ export interface Database {
       signup_attempts: TableDef<SignupAttemptRow>
       session_plans: TableDef<SessionPlanRow>
       session_assignments: TableDef<SessionAssignmentRow>
-      announcements: TableDef<AnnouncementRow>
+      blogs: TableDef<BlogRow>
       volunteer_availability: TableDef<AvailabilityRow>
       certificates: TableDef<CertificateRow>
       campus_budgets: TableDef<CampusBudgetRow>

@@ -1,117 +1,131 @@
 'use client'
 
-import { useActionState, useState } from 'react'
-import { AlertCircle, Check, X, Loader2, Calendar, User, Landmark, BookOpen } from 'lucide-react'
+import { useState, useTransition } from 'react'
+import { CheckCircle2, XCircle, AlertTriangle, Loader2, Sparkles } from 'lucide-react'
 import { reviewBlog, type BlogActionState } from '@/actions/blogs'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import type { BlogItem } from '@/lib/data/blogs'
-import { formatDate } from '@/lib/format'
 
-interface BlogReviewPanelProps {
-  pendingBlogs: BlogItem[]
-}
+export function BlogReviewPanel({ blog }: { blog: BlogItem }) {
+  const [isPending, startTransition] = useTransition()
+  const [state, setState] = useState<BlogActionState>({})
+  const [status, setStatus] = useState<'approved' | 'published' | 'rejected'>('approved')
+  const [reason, setReason] = useState('')
 
-export function BlogReviewPanel({ pendingBlogs }: BlogReviewPanelProps) {
-  const [state, action, pending] = useActionState<BlogActionState, FormData>(reviewBlog, {})
-  const [expandedBlogId, setExpandedBlogId] = useState<string | null>(null)
+  async function handleReview(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setState({})
 
-  if (pendingBlogs.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-          <BookOpen className="size-10 text-muted-foreground/50 mb-3" />
-          <p className="font-semibold text-muted-foreground">Review Queue Clear</p>
-          <p className="text-xs text-muted-foreground mt-1">There are no pending blogs or stories awaiting approval today.</p>
-        </CardContent>
-      </Card>
-    )
+    const fd = new FormData()
+    fd.append('id', blog.id)
+    fd.append('status', status)
+    if (status === 'rejected') {
+      fd.append('rejected_reason', reason)
+    }
+
+    startTransition(async () => {
+      const res = await reviewBlog({}, fd)
+      if (res?.error) {
+        setState({ error: res.error })
+      } else {
+        setState({ ok: true, message: `Updated status to ${status} successfully.` })
+      }
+    })
   }
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-2xl border border-warning/30 bg-warning/5 p-5 md:p-6 text-left max-w-4xl mx-auto my-6">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="size-5 text-warning shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <h3 className="font-display font-bold text-base text-foreground">Admin Review Decision</h3>
+          <p className="text-xs text-muted-foreground">
+            This article was submitted by <span className="font-semibold">{blog.author?.full_name}</span> ({blog.campus?.name ?? 'Organisation-wide'}) for admin approval.
+          </p>
+        </div>
+      </div>
+
       {state.error && (
-        <p role="alert" className="flex items-start gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
-          <AlertCircle className="mt-0.5 size-4 shrink-0" /> {state.error}
-        </p>
+        <div className="mt-4 rounded-xl bg-error/10 p-3 text-xs text-error">
+          {state.error}
+        </div>
       )}
-      {state.ok && state.message && (
-        <p role="status" className="rounded-lg bg-success/10 px-3 py-2 text-sm text-success">{state.message}</p>
+      {state.ok && (
+        <div className="mt-4 rounded-xl bg-success/10 p-3 text-xs text-success">
+          {state.message}
+        </div>
       )}
 
-      {pendingBlogs.map((b) => {
-        const isExpanded = expandedBlogId === b.id
-        return (
-          <Card key={b.id} className="border-warning/30 hover:border-warning/60 transition-colors">
-            <CardHeader className="p-4 pb-2">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <span className="inline-flex items-center rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning mb-2">
-                    Awaiting Review
-                  </span>
-                  <CardTitle className="text-base font-semibold leading-none">{b.title}</CardTitle>
-                  <CardDescription className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <User className="size-3" /> {b.poster?.full_name || 'Author'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Landmark className="size-3" /> {b.campus?.name || 'All Campuses'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="size-3" /> {formatDate(b.created_at)}
-                    </span>
-                  </CardDescription>
-                </div>
+      <form onSubmit={handleReview} className="mt-4 space-y-4">
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => setStatus('approved')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+              status === 'approved'
+                ? 'bg-success text-white border-success'
+                : 'bg-background hover:bg-muted text-muted-foreground border-border'
+            }`}
+          >
+            <CheckCircle2 size={14} /> Approve (Set Approved)
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => setStatus('published')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+              status === 'published'
+                ? 'bg-brand text-white border-brand'
+                : 'bg-background hover:bg-muted text-muted-foreground border-border'
+            }`}
+          >
+            <Sparkles size={14} /> Approve & Publish immediately
+          </button>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setExpandedBlogId(isExpanded ? null : b.id)}
-                >
-                  {isExpanded ? 'Collapse' : 'Read Article'}
-                </Button>
-              </div>
-            </CardHeader>
+          <button
+            type="button"
+            onClick={() => setStatus('rejected')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+              status === 'rejected'
+                ? 'bg-error text-white border-error'
+                : 'bg-background hover:bg-muted text-muted-foreground border-border'
+            }`}
+          >
+            <XCircle size={14} /> Reject / Request Changes
+          </button>
+        </div>
 
-            {isExpanded && (
-              <CardContent className="px-4 pb-4 pt-2 border-t border-border mt-3 bg-muted/20">
-                <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-wrap py-3">
-                  {b.body}
-                </div>
+        {status === 'rejected' && (
+          <div className="space-y-1.5">
+            <Label htmlFor="rejected_reason">Reason for rejection / requested modifications</Label>
+            <Textarea
+              id="rejected_reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              required={status === 'rejected'}
+              placeholder="Explain what edits the author needs to make before resubmitting..."
+              className="rounded-xl min-h-20 text-xs focus-visible:border-brand"
+            />
+          </div>
+        )}
 
-                <div className="flex items-center justify-end gap-2 border-t border-border pt-4 mt-3">
-                  <form action={action} className="flex gap-2">
-                    <input type="hidden" name="blog_id" value={b.id} />
-                    
-                    <Button
-                      type="submit"
-                      name="decision"
-                      value="rejected"
-                      variant="outline"
-                      size="sm"
-                      disabled={pending}
-                      className="border-error/20 hover:bg-error/10 hover:text-error text-xs"
-                    >
-                      <X className="size-3.5 mr-1" /> Reject Draft
-                    </Button>
-                    
-                    <Button
-                      type="submit"
-                      name="decision"
-                      value="approved"
-                      size="sm"
-                      disabled={pending}
-                      className="bg-success hover:bg-success/90 text-white text-xs"
-                    >
-                      <Check className="size-3.5 mr-1" /> Approve & Publish
-                    </Button>
-                  </form>
-                </div>
-              </CardContent>
-            )}
-          </Card>
-        )
-      })}
+        <div className="flex justify-end pt-2">
+          <Button
+            type="submit"
+            disabled={isPending || (status === 'rejected' && !reason.trim())}
+            className={`font-bold rounded-xl text-xs ${
+              status === 'published' ? 'bg-brand text-white hover:bg-brand/90' :
+              status === 'approved' ? 'bg-success text-white hover:bg-success/90' :
+              'bg-error text-white hover:bg-error/90'
+            }`}
+          >
+            {isPending && <Loader2 className="size-3 animate-spin shrink-0" />}
+            Submit Decision
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }
