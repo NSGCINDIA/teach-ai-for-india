@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, Calendar, Clock, ArrowRight, X, User, Quote, Landmark, Sparkles } from 'lucide-react'
+import { Calendar, Clock, ArrowRight, X, Quote, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/format'
 import { Reveal } from '@/components/marketing/reveal'
@@ -13,7 +13,7 @@ export interface RichStory {
   excerpt: string
   campus: string
   date: string
-  category: 'Classroom Joy' | 'Volunteer Journey' | 'Innovations'
+  category: string
   readTime: string
   image: string
   author: {

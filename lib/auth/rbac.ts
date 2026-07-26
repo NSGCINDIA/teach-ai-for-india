@@ -299,6 +299,7 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
   { prefix: '/dashboard/settings', roles: ['super_admin', 'campus_lead'] },
   { prefix: '/dashboard/reports', roles: ['super_admin', 'exec_lead'] },
   { prefix: '/dashboard/approval-letters', roles: ['super_admin', 'outreach_lead'] },
+  { prefix: '/dashboard/blog-writing', roles: TEAM_ROLES },
   { prefix: '/dashboard', roles: TEAM_ROLES },
 ]
 

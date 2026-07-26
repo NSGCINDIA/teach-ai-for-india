@@ -11,7 +11,7 @@ export type NavIconKey =
   | 'evidence' | 'campuses' | 'volunteers' | 'finance'
   | 'reports' | 'analytics' | 'content' | 'settings'
   | 'calendar' | 'assignments' | 'availability' | 'certificates' | 'outreach' | 'profile'
-  | 'blogs'
+  | 'blogs' | 'blog' | 'announcements'
 
 export interface NavItem {
   label: string

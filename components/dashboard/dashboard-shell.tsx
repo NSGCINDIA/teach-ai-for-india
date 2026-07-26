@@ -8,7 +8,7 @@ import {
   LayoutDashboard, CalendarDays, School, ClipboardCheck, Receipt, Images,
   Building2, Users, Wallet, FileBarChart, BarChart3, FileText, Settings,
   CalendarRange, UserRoundCheck, CalendarClock, Award, ClipboardList, UserCircle,
-  Megaphone,
+  Megaphone, BookOpen,
   type LucideIcon,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -43,6 +43,7 @@ const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
   outreach: ClipboardList,
   profile: UserCircle,
   blogs: FileText,
+  blog: BookOpen,
 }
 
 interface ShellUser {
