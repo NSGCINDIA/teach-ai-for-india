@@ -4,6 +4,7 @@ import {
   TESTIMONIALS_FALLBACK,
   type TestimonialsContent,
 } from '@/app/(public)/content'
+import { listPublishedBlogs } from '@/lib/data/blogs'
 import { PageHeader } from '@/components/marketing/page-header'
 import { Testimonials } from '@/components/marketing/testimonials'
 import { StoriesDashboard } from '@/components/marketing/stories-dashboard'
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 
 export default async function StoriesPage() {
   const testimonials = await getContentBlock<TestimonialsContent>('testimonials', TESTIMONIALS_FALLBACK)
+  const blogs = await listPublishedBlogs()
 
   return (
     <>
@@ -29,7 +31,7 @@ export default async function StoriesPage() {
 
       <section className="section-padding relative">
         <div className="container-wide">
-          <StoriesDashboard />
+          <StoriesDashboard initialBlogs={blogs} />
         </div>
       </section>
 

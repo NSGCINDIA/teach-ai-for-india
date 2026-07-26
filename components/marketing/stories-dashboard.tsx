@@ -112,24 +112,91 @@ const RICH_STORIES: RichStory[] = [
   }
 ]
 
-export function StoriesDashboard() {
-  const [selectedCategory, setSelectedCategory] = useState<'All' | 'Classroom Joy' | 'Volunteer Journey' | 'Innovations'>('All')
+function getCategoryColor(category: string) {
+  switch (category) {
+    case 'Classroom Joy': return 'bg-brand'
+    case 'Volunteer Journey': return 'bg-brand-orange'
+    case 'Innovations': return 'bg-brand-teal'
+    case 'School Visit': return 'bg-brand'
+    case 'Volunteer Story': return 'bg-brand-orange'
+    case 'Student Story': return 'bg-brand-teal'
+    case 'AI Awareness': return 'bg-purple-600'
+    case 'Workshop': return 'bg-pink-600'
+    case 'Event': return 'bg-amber-600'
+    case 'Campus Update': return 'bg-emerald-600'
+    case 'Community Impact': return 'bg-blue-600'
+    case 'Success Story': return 'bg-violet-600'
+    default: return 'bg-indigo-600'
+  }
+}
+
+export function StoriesDashboard({ initialBlogs = [] }: { initialBlogs?: any[] }) {
+  const mappedBlogs = useMemo(() => {
+    return initialBlogs.map((b) => {
+      // Split markdown content into paragraphs by double newlines
+      const paragraphs = b.content
+        ? b.content
+            .split('\n\n')
+            .map((p: string) => p.trim())
+            .filter(Boolean)
+        : []
+
+      const authorName = b.author?.full_name ?? 'Team Member'
+      const initials = authorName
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .substring(0, 2)
+        .toUpperCase()
+
+      return {
+        title: b.title,
+        excerpt: b.summary,
+        campus: b.campus?.name ?? 'Organisation-wide',
+        date: b.published_at || b.created_at,
+        category: b.category,
+        readTime: `${b.reading_time_minutes} min read`,
+        image: b.cover_image || 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg',
+        author: {
+          name: authorName,
+          avatar: initials || 'T',
+          role: b.author?.role ? b.author.role.replace('_', ' ') : 'Volunteer'
+        },
+        quote: b.summary,
+        fullContent: paragraphs,
+      } as RichStory
+    })
+  }, [initialBlogs])
+
+  const allStories = useMemo(() => {
+    return [...mappedBlogs, ...RICH_STORIES]
+  }, [mappedBlogs])
+
+  const categories = useMemo(() => {
+    const cats = new Set<string>(['All'])
+    allStories.forEach(s => {
+      if (s.category) cats.add(s.category)
+    })
+    return Array.from(cats)
+  }, [allStories])
+
+  const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [activeStory, setActiveStory] = useState<RichStory | null>(null)
 
   const filteredStories = useMemo(() => {
-    if (selectedCategory === 'All') return RICH_STORIES
-    return RICH_STORIES.filter(s => s.category === selectedCategory)
-  }, [selectedCategory])
+    if (selectedCategory === 'All') return allStories
+    return allStories.filter(s => s.category === selectedCategory)
+  }, [allStories, selectedCategory])
 
   // Use the first story as the featured hero item
-  const featuredStory = RICH_STORIES[0]
+  const featuredStory = allStories[0] || RICH_STORIES[0]
 
   return (
     <div className="space-y-12">
       
       {/* Category Tabs */}
       <div className="flex flex-wrap items-center justify-center gap-2 border-b border-border/60 pb-6">
-        {(['All', 'Classroom Joy', 'Volunteer Journey', 'Innovations'] as const).map((cat) => (
+        {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
@@ -145,7 +212,7 @@ export function StoriesDashboard() {
       </div>
 
       {/* Featured Story Spotlights Card */}
-      {selectedCategory === 'All' && (
+      {selectedCategory === 'All' && featuredStory && (
         <Reveal>
           <div className="group relative overflow-hidden rounded-3xl border border-border/80 bg-card/65 dark:bg-card/25 shadow-soft-lg transition-all hover:shadow-soft-xl hover:border-brand/30">
             {/* Background absolute glow */}
@@ -210,7 +277,7 @@ export function StoriesDashboard() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredStories.map((story, i) => {
           // Skip the first story in 'All' view to avoid duplication with featured
-          if (selectedCategory === 'All' && story.title === featuredStory.title) return null
+          if (selectedCategory === 'All' && featuredStory && story.title === featuredStory.title) return null
           
           return (
             <Reveal key={story.title} delay={i * 0.05}>
@@ -227,10 +294,7 @@ export function StoriesDashboard() {
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-103"
                     />
-                    <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider text-white ${
-                      story.category === 'Classroom Joy' ? 'bg-brand' :
-                      story.category === 'Volunteer Journey' ? 'bg-brand-orange' : 'bg-brand-teal'
-                    }`}>
+                    <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider text-white ${getCategoryColor(story.category)}`}>
                       {story.category}
                     </span>
                   </div>

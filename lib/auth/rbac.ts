@@ -290,6 +290,7 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
   // reimbursementReviewAccess) and /dashboard/analytics (both roles' campus
   // monitoring — the page has no role branching, it's already RLS-scoped).
   { prefix: '/dashboard/schools', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
+  { prefix: '/dashboard/blogs', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/finance', roles: ['super_admin', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/assignments', roles: ['super_admin', 'volunteer_lead', 'volunteer'] },
