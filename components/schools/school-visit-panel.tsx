@@ -13,15 +13,28 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
+import { SCHOOL_STATUS_META } from '@/lib/constants/status'
+import type { SchoolVisitListItem } from '@/lib/data/school-visits'
+
 interface SchoolVisitPanelProps {
   schoolId: string
+  schoolName: string
   schoolStatus: SchoolStatus
-  visits: SchoolVisitRow[]
+  sessionNumber: number | null
+  visits: SchoolVisitListItem[]
   roster: TeamMember[]
   canLog: boolean
 }
 
-export function SchoolVisitPanel({ schoolId, schoolStatus, visits, roster, canLog }: SchoolVisitPanelProps) {
+export function SchoolVisitPanel({
+  schoolId,
+  schoolName,
+  schoolStatus,
+  sessionNumber,
+  visits,
+  roster,
+  canLog,
+}: SchoolVisitPanelProps) {
   // A school gets exactly one visit record, ever — once it exists, this
   // becomes an edit surface instead of a second log form.
   const visit = visits[0]
@@ -45,7 +58,15 @@ export function SchoolVisitPanel({ schoolId, schoolStatus, visits, roster, canLo
       {visit && (
         <div className="space-y-2 border-t border-border pt-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Visit log</p>
-          <VisitRecord schoolId={schoolId} visit={visit} roster={roster} canEdit={canLog} />
+          <VisitRecord
+            schoolId={schoolId}
+            schoolName={schoolName}
+            schoolStatus={schoolStatus}
+            sessionNumber={sessionNumber}
+            visit={visit}
+            roster={roster}
+            canEdit={canLog}
+          />
         </div>
       )}
     </div>
@@ -54,12 +75,18 @@ export function SchoolVisitPanel({ schoolId, schoolStatus, visits, roster, canLo
 
 function VisitRecord({
   schoolId,
+  schoolName,
+  schoolStatus,
+  sessionNumber,
   visit,
   roster,
   canEdit,
 }: {
   schoolId: string
-  visit: SchoolVisitRow
+  schoolName: string
+  schoolStatus: SchoolStatus
+  sessionNumber: number | null
+  visit: SchoolVisitListItem
   roster: TeamMember[]
   canEdit: boolean
 }) {
@@ -71,18 +98,65 @@ function VisitRecord({
   }
 
   const teamNames = visit.team_member_ids.map((id) => rosterById.get(id)?.full_name ?? 'Unknown').join(', ')
+  const creatorName = visit.creator?.full_name || visit.visited_by_user?.full_name || 'System'
+  const formattedStatus = SCHOOL_STATUS_META[schoolStatus]?.label ?? schoolStatus
+
   return (
-    <div className="rounded-lg border border-border px-3 py-2 text-sm">
-      <div className="flex items-start justify-between gap-2">
-        <p className="font-medium">{formatDateTime(visit.visited_at)}</p>
+    <div className="rounded-xl border border-border bg-card p-4 shadow-xs text-sm space-y-3">
+      <div className="flex items-start justify-between gap-2 border-b border-border pb-2.5">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Visit details</p>
+          <h4 className="font-semibold text-base text-foreground mt-0.5">{schoolName}</h4>
+        </div>
         {canEdit && (
-          <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(true)} className="h-auto gap-1 px-2 py-1 text-xs">
-            <Pencil className="size-3" /> Edit
+          <Button type="button" variant="outline" size="sm" onClick={() => setEditing(true)} className="h-8 gap-1.5 px-3 py-1.5 text-xs font-medium">
+            <Pencil className="size-3.5" /> Edit visit
           </Button>
         )}
       </div>
-      {teamNames && <p className="text-xs text-muted-foreground">With: {teamNames}</p>}
-      {visit.notes && <p className="mt-1 text-xs text-muted-foreground">“{visit.notes}”</p>}
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-xs">
+        <div className="space-y-0.5">
+          <span className="text-muted-foreground font-medium block">Visit Date</span>
+          <span className="font-semibold text-foreground">{formatDateTime(visit.visited_at)}</span>
+        </div>
+
+        <div className="space-y-0.5">
+          <span className="text-muted-foreground font-medium block">Visit Status</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-0.5 font-semibold text-brand">
+            {formattedStatus}
+          </span>
+        </div>
+
+        <div className="space-y-0.5">
+          <span className="text-muted-foreground font-medium block">Session Number</span>
+          <span className="font-semibold text-foreground">
+            {sessionNumber !== null ? `Session ${sessionNumber}` : 'N/A (Onboarding)'}
+          </span>
+        </div>
+
+        <div className="space-y-0.5 sm:col-span-2">
+          <span className="text-muted-foreground font-medium block">Volunteer Team</span>
+          <span className="font-semibold text-foreground">{teamNames || 'No team members logged'}</span>
+        </div>
+
+        <div className="space-y-0.5">
+          <span className="text-muted-foreground font-medium block">Created By</span>
+          <span className="font-semibold text-foreground">{creatorName}</span>
+        </div>
+
+        <div className="space-y-0.5">
+          <span className="text-muted-foreground font-medium block">Last Updated</span>
+          <span className="font-semibold text-foreground">{formatDateTime(visit.created_at)}</span>
+        </div>
+      </div>
+
+      {visit.notes && (
+        <div className="rounded-lg bg-muted/40 p-3 border-l-2 border-brand/50 mt-2">
+          <span className="text-[10px] uppercase font-bold text-muted-foreground block tracking-wider mb-1">Notes</span>
+          <p className="text-xs text-muted-foreground italic leading-relaxed">“{visit.notes}”</p>
+        </div>
+      )}
     </div>
   )
 }

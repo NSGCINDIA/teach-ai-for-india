@@ -3,11 +3,12 @@ import { roleLabel } from '@/lib/auth/roles'
 import { campusBudgetAccess } from '@/lib/auth/rbac'
 import {
   getCampusLeadData, getOutreachData, getVolunteerLeadData, getExecData, getVolunteerData,
-  getSuperAdminDashboardData,
+  getSuperAdminDashboardData, getFinanceLeadData,
 } from '@/lib/data/dashboard'
 import {
   CampusLeadOverview, OutreachOverview, VolunteerLeadOverview, ExecOverview,
-  VolunteerOverview, NoCampusOverview, SuperAdminOverview,
+  VolunteerOverview, NoCampusOverview, SuperAdminOverview, FinanceLeadOverview,
+  CampusMgmtOverview,
 } from '@/components/dashboard/overviews'
 
 export const metadata = { title: 'Dashboard' }
@@ -58,6 +59,10 @@ export default async function DashboardOverview() {
       return <VolunteerLeadOverview name={name} data={await getVolunteerLeadData(campusId)} />
     case 'exec_lead':
       return <ExecOverview name={name} data={await getExecData(campusId)} />
+    case 'finance_lead':
+      return <FinanceLeadOverview name={name} data={await getFinanceLeadData(campusId)} />
+    case 'campus_mgmt_admin':
+      return <CampusMgmtOverview name={name} data={await getCampusLeadData(campusId)} />
     // Admins / viewers who land here (they normally route to /admin).
     default:
       return (

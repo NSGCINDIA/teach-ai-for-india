@@ -14,6 +14,7 @@ import { StatusControl } from '@/components/schools/status-control'
 import { PlanningPanel } from '@/components/schools/planning-panel'
 import { VisitRequestPanel } from '@/components/schools/visit-request-panel'
 import { SchoolVisitPanel } from '@/components/schools/school-visit-panel'
+import type { SchoolVisitListItem } from '@/lib/data/school-visits'
 import { AddContact } from '@/components/schools/add-contact'
 
 /** Planning becomes relevant once a school is registered (or already running sessions). */
@@ -44,7 +45,7 @@ interface SchoolDetailProps {
   roster: TeamMember[]
   budget: CampusBudgetRow | null
   visitAccess: OutreachVisitRequestAccess
-  schoolVisits: SchoolVisitRow[]
+  schoolVisits: SchoolVisitListItem[]
   visitLogAccess: boolean
 }
 
@@ -94,13 +95,10 @@ export function SchoolDetailView({
           <Card>
             <CardHeader><CardTitle className="text-base">Details</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-              <Detail label="Campus" value={school.campus?.name} />
               <Detail label="DISE code" value={school.dise_code} />
               <Detail label="Cluster" value={school.cluster} />
               <Detail label="Sessions" value={String(school.total_sessions)} />
               <Detail label="Students reached" value={String(school.total_students)} />
-              <Detail label="Next action" value={formatDate(school.next_action_date)} />
-              {school.notes && <Detail label="Notes" value={school.notes} className="col-span-2 sm:col-span-3" />}
             </CardContent>
           </Card>
 
@@ -112,7 +110,15 @@ export function SchoolDetailView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SchoolVisitPanel schoolId={school.id} schoolStatus={school.status} visits={schoolVisits} roster={roster} canLog={visitLogAccess} />
+                <SchoolVisitPanel
+                  schoolId={school.id}
+                  schoolName={school.name}
+                  schoolStatus={school.status}
+                  sessionNumber={school.progress?.latest_session_number ?? null}
+                  visits={schoolVisits}
+                  roster={roster}
+                  canLog={visitLogAccess}
+                />
               </CardContent>
             </Card>
           )}

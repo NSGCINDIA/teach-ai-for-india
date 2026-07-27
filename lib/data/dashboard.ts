@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PRESENT_STATUSES } from '@/lib/constants/sessions'
 import { SCHOOL_PIPELINE } from '@/lib/constants/status'
 import { listSchoolProgress } from '@/lib/data/schools'
-import type { SchoolStatus, SessionStatus } from '@/types/database'
+import type { SchoolStatus, SessionStatus, CampusBudgetRow } from '@/types/database'
 
 /**
  * Per-role dashboard aggregations (Team Dashboard PRD). Every query is campus
@@ -61,9 +61,12 @@ function toSessionLite(rows: SessionRowRaw[] | null): SessionLite[] {
 // ─── Campus Lead ──────────────────────────────────────────────────────────────
 export interface CampusLeadData {
   kpis: {
-    schoolsActive: number; studentsImpacted: number; sessionsCompleted: number
-    upcomingSessions: number; volunteersActive: number; pendingReports: number
-    pendingPayments: number; evidenceUploaded: number
+    schoolsActive: number
+    volunteersActive: number
+    pendingEvidenceReviews: number
+    schoolsAwaitingApproval: number
+    budgetRequestsPendingReview: number
+    sessionsScheduledThisWeek: number
   }
   todaySessions: SessionLite[]
   upcomingSessions: SessionLite[]
@@ -78,42 +81,40 @@ export async function getCampusLeadData(campusId: string): Promise<CampusLeadDat
   const t = today()
   const head = { count: 'exact' as const, head: true }
 
+  const now = new Date()
+  const day = now.getDay()
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1)
+  const monday = new Date(now.setDate(diff))
+  const sunday = new Date(now.setDate(diff + 6))
+  const weekStart = monday.toISOString().slice(0, 10)
+  const weekEnd = sunday.toISOString().slice(0, 10)
+
   const [
-    schoolsActive, sessionsCompleted, upcomingCount, volunteers, pendingReportsCount,
-    pendingPayments, evidence, students,
+    schoolsActive, volunteers, pendingEvidence, schoolsAwaiting, budgetPending, sessionsWeek,
     todaySessions, upcomingSessions, pendingApprovals, pendingReports, pendingReimb, pendingBudgetReq,
   ] = await Promise.all([
     supabase.from('schools').select('id', head).eq('campus_id', campusId).neq('status', 'archived'),
-    supabase.from('sessions').select('id', head).eq('campus_id', campusId).eq('status', 'verified'),
-    supabase.from('sessions').select('id', head).eq('campus_id', campusId).gte('date', t).in('status', OPEN_SESSION),
     supabase.from('users').select('id', head).eq('campus_id', campusId).eq('is_active', true).eq('role', 'volunteer'),
-    supabase.from('sessions').select('id', head).eq('campus_id', campusId).lte('date', t).in('status', OPEN_SESSION),
-    supabase.from('reimbursements').select('id', head).eq('campus_id', campusId).eq('status', 'approved'),
-    supabase.from('media_assets').select('id', head).eq('campus_id', campusId).is('deleted_at', null),
-    supabase.from('schools').select('total_students').eq('campus_id', campusId),
+    supabase.from('media_assets').select('id', head).eq('campus_id', campusId).eq('approval_status', 'pending').is('deleted_at', null),
+    supabase.from('outreach_visit_requests').select('id', head).eq('campus_id', campusId).eq('campus_lead_review', 'pending'),
+    supabase.from('budget_increase_requests').select('id', head).eq('campus_id', campusId).eq('status', 'pending'),
+    supabase.from('sessions').select('id', head).eq('campus_id', campusId).gte('date', weekStart).lte('date', weekEnd).neq('status', 'cancelled'),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).eq('date', t).order('start_time'),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).gt('date', t).in('status', OPEN_SESSION).order('date').limit(5),
-    // Awaiting this Campus Lead's own review specifically — not just any open
-    // visit request (which could be sitting on the Finance Lead's desk instead).
     supabase.from('outreach_visit_requests').select('school_id, schools(id, name, district, status, next_action_date)').eq('campus_id', campusId).eq('campus_lead_review', 'pending').order('created_at').limit(5),
     supabase.from('sessions').select(SESSION_COLS).eq('campus_id', campusId).lte('date', t).in('status', OPEN_SESSION).order('date').limit(5),
     supabase.from('reimbursements').select('id, reference_number, amount, status, claimant:users!reimbursements_claimant_id_fkey(full_name)').eq('campus_id', campusId).in('status', ['submitted', 'under_review']).order('created_at').limit(5),
     supabase.from('budget_increase_requests').select('id, requested_amount, reason, period, created_at, requester:users!budget_increase_requests_created_by_fkey(full_name)').eq('campus_id', campusId).eq('status', 'pending').order('created_at').limit(5),
   ])
 
-  const studentsImpacted = ((students.data as { total_students: number }[] | null) ?? [])
-    .reduce((sum, s) => sum + (s.total_students ?? 0), 0)
-
   return {
     kpis: {
       schoolsActive: schoolsActive.count ?? 0,
-      studentsImpacted,
-      sessionsCompleted: sessionsCompleted.count ?? 0,
-      upcomingSessions: upcomingCount.count ?? 0,
       volunteersActive: volunteers.count ?? 0,
-      pendingReports: pendingReportsCount.count ?? 0,
-      pendingPayments: pendingPayments.count ?? 0,
-      evidenceUploaded: evidence.count ?? 0,
+      pendingEvidenceReviews: pendingEvidence.count ?? 0,
+      schoolsAwaitingApproval: schoolsAwaiting.count ?? 0,
+      budgetRequestsPendingReview: budgetPending.count ?? 0,
+      sessionsScheduledThisWeek: sessionsWeek.count ?? 0,
     },
     todaySessions: toSessionLite(todaySessions.data as SessionRowRaw[] | null),
     upcomingSessions: toSessionLite(upcomingSessions.data as SessionRowRaw[] | null),
@@ -313,25 +314,79 @@ export async function getVolunteerData(userId: string): Promise<VolunteerData> {
   }
 }
 
+// ─── Finance Lead ───────────────────────────────────────────────────────────
+export interface FinanceLeadData {
+  kpis: {
+    allocatedAmount: number
+    reservedAmount: number
+    pendingClaimsCount: number
+    pendingBudgetRequestsCount: number
+  }
+  pendingReimbursements: ReimbLite[]
+  pendingBudgetRequests: BudgetRequestLite[]
+  campusBudget: CampusBudgetRow | null
+}
+
+export async function getFinanceLeadData(campusId: string): Promise<FinanceLeadData> {
+  const supabase = await createClient()
+  const head = { count: 'exact' as const, head: true }
+
+  const { data: campus } = await supabase.from('campuses').select('quarter').eq('id', campusId).single()
+  const period = campus?.quarter || '2026-Q3'
+
+  const [
+    budget,
+    pendingClaimsCount,
+    pendingBudgetCount,
+    pendingReimb,
+    pendingBudgetReq,
+  ] = await Promise.all([
+    supabase.from('campus_budgets').select('*').eq('campus_id', campusId).eq('period', period).maybeSingle(),
+    supabase.from('reimbursements').select('id', head).eq('campus_id', campusId).in('status', ['submitted', 'under_review']),
+    supabase.from('budget_increase_requests').select('id', head).eq('campus_id', campusId).eq('status', 'pending'),
+    supabase.from('reimbursements').select('id, reference_number, amount, status, claimant:users!reimbursements_claimant_id_fkey(full_name)').eq('campus_id', campusId).in('status', ['submitted', 'under_review']).order('created_at', { ascending: false }).limit(10),
+    supabase.from('budget_increase_requests').select('id, requested_amount, reason, period, created_at, requester:users!budget_increase_requests_created_by_fkey(full_name)').eq('campus_id', campusId).eq('status', 'pending').order('created_at', { ascending: false }).limit(10),
+  ])
+
+  const b = budget.data as CampusBudgetRow | null
+
+  return {
+    kpis: {
+      allocatedAmount: b?.allocated_amount ?? 0,
+      reservedAmount: b?.reserved_amount ?? 0,
+      pendingClaimsCount: pendingClaimsCount.count ?? 0,
+      pendingBudgetRequestsCount: pendingBudgetCount.count ?? 0,
+    },
+    pendingReimbursements: toReimbLite(pendingReimb.data),
+    pendingBudgetRequests: toBudgetRequestLite(pendingBudgetReq.data),
+    campusBudget: b,
+  }
+}
+
 // ─── Super Admin ────────────────────────────────────────────────────────────
 export async function getSuperAdminDashboardData(): Promise<CampusLeadData> {
   const supabase = await createClient()
   const t = today()
   const head = { count: 'exact' as const, head: true }
 
+  const now = new Date()
+  const day = now.getDay()
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1)
+  const monday = new Date(now.setDate(diff))
+  const sunday = new Date(now.setDate(diff + 6))
+  const weekStart = monday.toISOString().slice(0, 10)
+  const weekEnd = sunday.toISOString().slice(0, 10)
+
   const [
-    schoolsActive, sessionsCompleted, upcomingCount, volunteers, pendingReportsCount,
-    pendingPayments, evidence, students,
+    schoolsActive, volunteers, pendingEvidence, schoolsAwaiting, budgetPending, sessionsWeek,
     todaySessions, upcomingSessions, pendingApprovals, pendingReports, pendingReimb, pendingBudgetReq,
   ] = await Promise.all([
     supabase.from('schools').select('id', head).neq('status', 'archived'),
-    supabase.from('sessions').select('id', head).eq('status', 'verified'),
-    supabase.from('sessions').select('id', head).gte('date', t).in('status', OPEN_SESSION),
     supabase.from('users').select('id', head).eq('is_active', true).eq('role', 'volunteer'),
-    supabase.from('sessions').select('id', head).lte('date', t).in('status', OPEN_SESSION),
-    supabase.from('reimbursements').select('id', head).eq('status', 'approved'),
-    supabase.from('media_assets').select('id', head).is('deleted_at', null),
-    supabase.from('schools').select('total_students'),
+    supabase.from('media_assets').select('id', head).eq('approval_status', 'pending').is('deleted_at', null),
+    supabase.from('outreach_visit_requests').select('id', head).eq('campus_lead_review', 'pending'),
+    supabase.from('budget_increase_requests').select('id', head).eq('status', 'pending'),
+    supabase.from('sessions').select('id', head).gte('date', weekStart).lte('date', weekEnd).neq('status', 'cancelled'),
     supabase.from('sessions').select(SESSION_COLS).eq('date', t).order('start_time'),
     supabase.from('sessions').select(SESSION_COLS).gt('date', t).in('status', OPEN_SESSION).order('date').limit(5),
     supabase.from('outreach_visit_requests').select('school_id, schools(id, name, district, status, next_action_date)').eq('campus_lead_review', 'pending').order('created_at').limit(5),
@@ -340,19 +395,14 @@ export async function getSuperAdminDashboardData(): Promise<CampusLeadData> {
     supabase.from('budget_increase_requests').select('id, requested_amount, reason, period, created_at, requester:users!budget_increase_requests_created_by_fkey(full_name)').eq('status', 'pending').order('created_at').limit(5),
   ])
 
-  const studentsImpacted = ((students.data as { total_students: number }[] | null) ?? [])
-    .reduce((sum, s) => sum + (s.total_students ?? 0), 0)
-
   return {
     kpis: {
       schoolsActive: schoolsActive.count ?? 0,
-      studentsImpacted,
-      sessionsCompleted: sessionsCompleted.count ?? 0,
-      upcomingSessions: upcomingCount.count ?? 0,
       volunteersActive: volunteers.count ?? 0,
-      pendingReports: pendingReportsCount.count ?? 0,
-      pendingPayments: pendingPayments.count ?? 0,
-      evidenceUploaded: evidence.count ?? 0,
+      pendingEvidenceReviews: pendingEvidence.count ?? 0,
+      schoolsAwaitingApproval: schoolsAwaiting.count ?? 0,
+      budgetRequestsPendingReview: budgetPending.count ?? 0,
+      sessionsScheduledThisWeek: sessionsWeek.count ?? 0,
     },
     todaySessions: toSessionLite(todaySessions.data as SessionRowRaw[] | null),
     upcomingSessions: toSessionLite(upcomingSessions.data as SessionRowRaw[] | null),

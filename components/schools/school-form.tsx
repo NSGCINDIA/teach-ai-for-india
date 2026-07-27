@@ -117,27 +117,7 @@ export function SchoolForm({ school, campuses, lockedCampusId, cancelHref }: Sch
         </Field>
       </Section>
 
-      <Section title="Outreach">
-        <Field label="Campus" required>
-          {lockedCampusId ? (
-            <>
-              <input type="hidden" name="campus_id" value={lockedCampusId} />
-              <Input value={campuses.find((c) => c.id === lockedCampusId)?.name ?? 'Your campus'} disabled />
-            </>
-          ) : (
-            <select name="campus_id" className={SELECT_CLASS} defaultValue={fieldValue(state, 'campus_id', school?.campus_id ?? '')}>
-              <option value="">— Select campus —</option>
-              {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          )}
-        </Field>
-        <Field label="Next action date">
-          <Input type="date" name="next_action_date" defaultValue={fieldValue(state, 'next_action_date', school?.next_action_date ?? '')} />
-        </Field>
-        <Field label="Notes" className="sm:col-span-2">
-          <Textarea name="notes" rows={3} defaultValue={fieldValue(state, 'notes', school?.notes ?? '')} placeholder="Context, history, anything the next person needs." />
-        </Field>
-      </Section>
+
 
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={pending}>
