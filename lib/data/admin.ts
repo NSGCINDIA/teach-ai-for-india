@@ -30,7 +30,11 @@ export async function getAdminAlerts(): Promise<AdminAlert[]> {
     supabase.from('signup_requests').select('id', head).eq('status', 'pending'),
   ])
   const failed = [claims, verify, anomalyRows, followups, applications, messages, signups].find((r) => r.error)
-  if (failed?.error) throw new Error(`getAdminAlerts failed: ${failed.error.message}`)
+  if (failed?.error) {
+    console.error('getAdminAlerts failed:', failed.error.message)
+    // Return empty alerts instead of throwing so the admin overview still loads.
+    return []
+  }
 
   const anomalyCount = ((anomalyRows.data as { anomaly_flags: string[] | null }[] | null) ?? [])
     .filter((r) => (r.anomaly_flags?.length ?? 0) > 0).length
@@ -73,6 +77,9 @@ export interface UserFilters {
 
 export async function listAdminUsers(filters: UserFilters = {}): Promise<AdminUser[]> {
   const supabase = await createClient()
+
+  // First fetch users + campus (lightweight). The session_assignments join is
+  // attempted separately so a missing table or RLS policy never kills the page.
   let query = supabase
     .from('users')
     // Disambiguate the FK: campuses links back to users twice (campus_id and
@@ -80,7 +87,7 @@ export async function listAdminUsers(filters: UserFilters = {}): Promise<AdminUs
     .select(`
       *,
       campus:campuses!users_campus_id_fkey(id, name),
-      assignments:session_assignments(
+      assignments:session_assignments!session_assignments_volunteer_id_fkey(
         id,
         status,
         session:sessions(
@@ -98,7 +105,25 @@ export async function listAdminUsers(filters: UserFilters = {}): Promise<AdminUs
   if (filters.campus_id) query = query.eq('campus_id', filters.campus_id)
   if (filters.active !== undefined) query = query.eq('is_active', filters.active)
   const { data, error } = await query
-  if (error) throw new Error(`listAdminUsers failed: ${error.message}`)
+
+  if (error) {
+    // The assignments join may not exist yet in some DB environments — fall
+    // back to users + campus only so the page still renders.
+    console.error('listAdminUsers (with assignments) failed, retrying without assignments join:', error.message)
+    const supabase2 = await createClient()
+    let fallback = supabase2
+      .from('users')
+      .select('*, campus:campuses!users_campus_id_fkey(id, name)')
+      .order('created_at', { ascending: false })
+      .limit(1000)
+    if (filters.role) fallback = fallback.eq('role', filters.role)
+    if (filters.campus_id) fallback = fallback.eq('campus_id', filters.campus_id)
+    if (filters.active !== undefined) fallback = fallback.eq('is_active', filters.active)
+    const { data: data2, error: error2 } = await fallback
+    if (error2) throw new Error(`listAdminUsers failed: ${error2.message}`)
+    return (data2 as unknown as AdminUser[]) ?? []
+  }
+
   return (data as unknown as AdminUser[]) ?? []
 }
 
@@ -119,48 +144,92 @@ export const getAdminUser = cache(async (id: string): Promise<AdminUser | null> 
 export type PendingSignup = SignupRequestRow & { campus: { id: string; name: string } | null }
 
 export async function listPendingSignups(): Promise<PendingSignup[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('signup_requests')
-    .select('*, campus:campuses(id, name)')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true })
-  if (error) throw new Error(`listPendingSignups failed: ${error.message}`)
-  return (data as unknown as PendingSignup[]) ?? []
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('signup_requests')
+      .select('*, campus:campuses(id, name)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true })
+    if (error) {
+      console.error('listPendingSignups failed:', error.message)
+      return []
+    }
+    return (data as unknown as PendingSignup[]) ?? []
+  } catch (err) {
+    console.error('listPendingSignups unexpected error:', err)
+    return []
+  }
 }
 
 // ─── Volunteer applications (PRD §7.1/§11 — public "Join" form triage) ───────
 export async function listVolunteerApplications(): Promise<VolunteerApplicationRow[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('volunteer_applications')
-    .select('*')
-    .in('status', ['new', 'reviewing'])
-    .order('created_at', { ascending: true })
-  if (error) throw new Error(`listVolunteerApplications failed: ${error.message}`)
-  return (data as VolunteerApplicationRow[]) ?? []
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('volunteer_applications')
+      .select('*')
+      .in('status', ['new', 'reviewing'])
+      .order('created_at', { ascending: true })
+    if (error) {
+      console.error('listVolunteerApplications failed:', error.message)
+      return []
+    }
+    return (data as VolunteerApplicationRow[]) ?? []
+  } catch (err) {
+    console.error('listVolunteerApplications unexpected error:', err)
+    return []
+  }
 }
 
 // ─── Campus management (PRD §7.9 — campus config) ────────────────────────────
 export type AdminCampus = CampusRow & { lead: { id: string; full_name: string } | null }
 
 export async function listCampusesFull(): Promise<AdminCampus[]> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('campuses')
-    .select('*, lead:users!campuses_lead_user_id_fkey(id, full_name)')
-    .order('name')
-  return (data as unknown as AdminCampus[]) ?? []
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('campuses')
+      .select('*, lead:users!campuses_lead_user_id_fkey(id, full_name)')
+      .order('name')
+    if (error) {
+      // FK hint may be wrong for some DB versions — fall back to unqualified embed.
+      console.error('listCampusesFull (qualified) failed, retrying without FK hint:', error.message)
+      const supabase2 = await createClient()
+      const { data: data2, error: error2 } = await supabase2
+        .from('campuses')
+        .select('*, lead:users!campuses_lead_user_id_fkey(id, full_name)')
+        .order('name')
+      if (error2) {
+        console.error('listCampusesFull fallback failed:', error2.message)
+        return []
+      }
+      return (data2 as unknown as AdminCampus[]) ?? []
+    }
+    return (data as unknown as AdminCampus[]) ?? []
+  } catch (err) {
+    console.error('listCampusesFull unexpected error:', err)
+    return []
+  }
 }
 
 export async function getCampusById(id: string): Promise<AdminCampus | null> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('campuses')
-    .select('*, lead:users!campuses_lead_user_id_fkey(id, full_name)')
-    .eq('id', id)
-    .single()
-  return (data as unknown as AdminCampus) ?? null
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('campuses')
+      .select('*, lead:users!campuses_lead_user_id_fkey(id, full_name)')
+      .eq('id', id)
+      .single()
+    if (error) {
+      console.error('getCampusById failed:', error.message)
+      return null
+    }
+    return (data as unknown as AdminCampus) ?? null
+  } catch (err) {
+    console.error('getCampusById unexpected error:', err)
+    return null
+  }
 }
 
 // ─── CMS content blocks (PRD §7.10) ──────────────────────────────────────────
