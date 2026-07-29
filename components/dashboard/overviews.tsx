@@ -190,7 +190,7 @@ export function OutreachOverview({ name, data }: { name: string; data: OutreachD
         <Kpi label="Total Schools" value={formatNumber(k.totalSchools)} icon={School} />
         <Kpi label="Active Leads" value={formatNumber(k.leads)} icon={TrendingUp} />
         <Kpi label="Registered" value={formatNumber(k.approved)} icon={CheckCircle2} />
-        <Kpi label="Sessions Active" value={formatNumber(k.sessionsScheduled)} icon={CalendarClock} />
+        <Kpi label="Active Schools" value={formatNumber(k.sessionsScheduled)} icon={CalendarClock} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
