@@ -38,9 +38,10 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo }: Status
 
   // Allowed transitions
   const options = useMemo(() => {
-    if (!canEdit) return []
-    return (SCHOOL_TRANSITIONS[current] ?? []).filter((s) => !restrictTo || restrictTo.includes(s))
-  }, [current, canEdit, restrictTo])
+    if (!canEdit || current === 'completed') return []
+    // Admins bypass role-specific scopes (restrictTo) but must follow standard transition steps (no skipping)
+    return (SCHOOL_TRANSITIONS[current] ?? []).filter((s) => isAdmin || !restrictTo || restrictTo.includes(s))
+  }, [current, canEdit, restrictTo, isAdmin])
 
   const currentIndex = SCHOOL_PIPELINE.indexOf(current)
 

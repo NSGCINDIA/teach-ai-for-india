@@ -47,6 +47,7 @@ interface SchoolDetailProps {
   visitAccess: OutreachVisitRequestAccess
   schoolVisits: SchoolVisitListItem[]
   visitLogAccess: boolean
+  isAdmin: boolean
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -55,7 +56,7 @@ const TYPE_LABEL: Record<string, string> = {
 
 export function SchoolDetailView({
   school, basePath, canEdit, statusAccess, visitRequests, roster, budget, visitAccess,
-  schoolVisits, visitLogAccess,
+  schoolVisits, visitLogAccess, isAdmin,
 }: SchoolDetailProps) {
   return (
     <div className="space-y-6">
@@ -89,6 +90,22 @@ export function SchoolDetailView({
           </Button>
         )}
       </header>
+
+      {/* Full-width Pipeline Stepper */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Pipeline</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <StatusControl
+            schoolId={school.id}
+            current={school.status}
+            canEdit={statusAccess.canEdit}
+            restrictTo={statusAccess.restrictTo}
+            isAdmin={isAdmin}
+          />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
@@ -193,18 +210,6 @@ export function SchoolDetailView({
         </div>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader><CardTitle className="text-base">Pipeline</CardTitle></CardHeader>
-            <CardContent>
-              <StatusControl
-                schoolId={school.id}
-                current={school.status}
-                canEdit={statusAccess.canEdit}
-                restrictTo={statusAccess.restrictTo}
-              />
-            </CardContent>
-          </Card>
-
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 text-base"><History className="size-4" /> Visit log</CardTitle></CardHeader>
             <CardContent>
