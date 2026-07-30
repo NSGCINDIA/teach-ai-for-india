@@ -22,9 +22,10 @@ interface StatusControlProps {
   canEdit: boolean
   /** Restrict which target stages this user may pick (e.g. exec_lead's execution-only scope). Omit for unrestricted. */
   restrictTo?: SchoolStatus[]
+  isAdmin?: boolean
 }
 
-export function StatusControl({ schoolId, current, canEdit, restrictTo }: StatusControlProps) {
+export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin = false }: StatusControlProps) {
   const [state, action, pending] = useActionState<SchoolActionState, FormData>(async (prev, formData) => {
     const res = await changeSchoolStatus(prev, formData)
     if (res.ok) {

@@ -3,14 +3,30 @@ import { z } from 'zod'
 const SCHOOL_TYPES = ['government', 'government_aided', 'private'] as const
 const BOARDS = ['state', 'cbse', 'icse', 'other'] as const
 const STATUSES = [
-  'lead_identified', 'outreach_requested', 'outreach_approved', 'visit_completed',
+  'lead_identified', 'outreach_requested', 'outreach_approved',
   'registered', 'sessions_active', 'completed', 'archived',
 ] as const
 
+export const LEAD_SOURCES = [
+  'google_maps',
+  'principal_referral',
+  'teacher_referral',
+  'team_member',
+  'cold_outreach',
+  'existing_school_network',
+  'field_visit',
+  'other',
+] as const
+
+export type LeadSource = (typeof LEAD_SOURCES)[number]
+
 const optionalText = z.string().trim().max(500).optional().or(z.literal(''))
 
-/** School create/edit — the §7.3 three-layer record (identity + location + pipeline). */
-export const schoolSchema = z.object({
+/**
+ * Base ZodObject — kept as a plain object so callers can use .extend().
+ * Apply the cross-field superRefine via the exported schoolSchema below.
+ */
+const schoolBaseObject = z.object({
   name: z.string().trim().min(2, 'Enter the school name').max(200),
   school_type: z.enum(SCHOOL_TYPES),
   board: z.enum(BOARDS),
@@ -19,6 +35,12 @@ export const schoolSchema = z.object({
   cluster: optionalText,
   mandal: optionalText,
   address: z.string().trim().max(500).optional().or(z.literal('')),
+  pincode: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, 'Enter a valid 6-digit PIN code')
+    .optional()
+    .or(z.literal('')),
   dise_code: z
     .string()
     .trim()
@@ -33,12 +55,31 @@ export const schoolSchema = z.object({
     .optional()
     .or(z.literal('')),
   notes: z.string().trim().max(2000).optional().or(z.literal('')),
+  lead_source: z.enum(LEAD_SOURCES, { required_error: 'Select how you identified this school' }),
+  lead_source_other: z.string().trim().max(300).optional().or(z.literal('')),
 })
 
+/** Shared refinement — requires lead_source_other when lead_source is "other". */
+function refineLeadSource<T extends { lead_source?: string; lead_source_other?: string }>(
+  data: T,
+  ctx: z.RefinementCtx,
+) {
+  if (data.lead_source === 'other' && !data.lead_source_other) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Please specify how you identified this school',
+      path: ['lead_source_other'],
+    })
+  }
+}
+
+/** School create/edit — the §7.3 three-layer record (identity + location + pipeline). */
+export const schoolSchema = schoolBaseObject.superRefine(refineLeadSource)
+
 /** Acknowledge a dedup warning when creating a near-duplicate school. */
-export const createSchoolSchema = schoolSchema.extend({
-  acknowledge_duplicate: z.coerce.boolean().optional(),
-})
+export const createSchoolSchema = schoolBaseObject
+  .extend({ acknowledge_duplicate: z.coerce.boolean().optional() })
+  .superRefine(refineLeadSource)
 
 export const schoolContactSchema = z.object({
   school_id: z.string().uuid(),

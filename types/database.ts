@@ -19,7 +19,7 @@ export type UserRole =
 export type SchoolTypeEnum = 'government' | 'government_aided' | 'private'
 export type BoardType = 'state' | 'cbse' | 'icse' | 'other'
 export type SchoolStatus =
-  | 'lead_identified' | 'outreach_requested' | 'outreach_approved' | 'visit_completed'
+  | 'lead_identified' | 'outreach_requested' | 'outreach_approved'
   | 'registered' | 'sessions_active' | 'completed' | 'archived'
 export type SessionType =
   | 'awareness' | 'hands_on' | 'prompt_writing' | 'ethics_safety'
@@ -69,10 +69,11 @@ export type SignupAttemptRow = {
 export type SchoolRow = Timestamps & {
   id: string; name: string; school_type: SchoolTypeEnum; board: BoardType
   state: string; district: string; cluster: string | null; mandal: string | null
-  address: string | null; dise_code: string | null; campus_id: string | null
+  address: string | null; pincode: string | null; dise_code: string | null; campus_id: string | null
   outreach_lead_id: string | null; status: SchoolStatus; next_action_date: string | null
   notes: string | null; total_sessions: number; total_students: number
   is_duplicate_flagged: boolean; created_by: string | null
+  lead_source: string | null; lead_source_other: string | null
 }
 
 export type SchoolContactRow = {
@@ -106,7 +107,14 @@ export type SessionPlanRow = Timestamps & {
   coordinator_designation: string | null
   student_strength: number | null; num_classes: number | null
   num_sections: number | null; num_classrooms: number | null
+  classes_covered: string[]
+  digital_classrooms: number
+  recommended_fellows: number
+  assigned_fellows: number
   has_lab: boolean; has_projector: boolean; has_internet: boolean
+  smart_tv: boolean; ups_backup: boolean
+  preferred_training_days: string[]
+  preferred_time_slot: 'Morning' | 'Afternoon' | 'Full Day' | null
   session_type: SessionType; topic: string | null
   planned_date: string | null; backup_date: string | null
   start_time: string | null; end_time: string | null
@@ -202,11 +210,17 @@ export type CampusBudgetRow = Timestamps & {
   created_by: string | null
 }
 
-// Outreach visit requests (0028_outreach_visit_requests.sql)
+export type VisitPriority = 'High' | 'Medium' | 'Low'
+export type VisitTransportation = 'Bike' | 'Car' | 'Auto'
+
+// Outreach visit requests (0028_outreach_visit_requests.sql + 0049)
 export type OutreachVisitRequestRow = Timestamps & {
   id: string; school_id: string; campus_id: string | null
-  purpose: string; proposed_visit_date: string; estimated_travel_cost: number
+  purpose: string | null; proposed_visit_date: string; estimated_travel_cost: number
   team_member_ids: string[]
+  priority: VisitPriority | null
+  expected_outcomes: string[]
+  transportation: VisitTransportation | null
   status: ApprovalStatus
   campus_lead_review: ApprovalStatus; campus_lead_reviewed_by: string | null
   campus_lead_reviewed_at: string | null; campus_lead_note: string | null
@@ -396,8 +410,9 @@ export interface Database {
       }
       create_outreach_visit_request: {
         Args: {
-          p_school_id: string; p_purpose: string; p_proposed_visit_date: string
+          p_school_id: string; p_proposed_visit_date: string
           p_estimated_travel_cost: number; p_team_member_ids: string[]
+          p_priority: string; p_expected_outcomes: string[]; p_transportation?: string
         }
         Returns: string
       }

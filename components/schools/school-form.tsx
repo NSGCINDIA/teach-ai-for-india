@@ -1,11 +1,12 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { createSchool, updateSchool, type SchoolActionState } from '@/actions/schools'
 import { fieldValue } from '@/lib/actions/form-values'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
+import { LEAD_SOURCES, type LeadSource } from '@/lib/validations/schools'
 import type { SchoolRow, CampusRow } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,6 +29,17 @@ const BOARDS = [
   { value: 'other', label: 'Other' },
 ]
 
+const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
+  google_maps: 'Google Maps',
+  principal_referral: 'Principal Referral',
+  teacher_referral: 'Teacher Referral',
+  team_member: 'Team Member',
+  cold_outreach: 'Cold Outreach',
+  existing_school_network: 'Existing School Network',
+  field_visit: 'Field Visit',
+  other: 'Other',
+}
+
 interface SchoolFormProps {
   /** When present, the form edits this school; otherwise it creates a new one. */
   school?: SchoolRow
@@ -43,6 +55,10 @@ export function SchoolForm({ school, campuses, lockedCampusId, cancelHref }: Sch
     isEdit ? updateSchool : createSchool,
     {},
   )
+
+  // Track lead_source locally so the conditional "Please specify" field renders immediately.
+  const initialLeadSource = (fieldValue(state, 'lead_source', school?.lead_source ?? '') || '') as LeadSource | ''
+  const [leadSource, setLeadSource] = useState<LeadSource | ''>(initialLeadSource)
 
   return (
     <form action={action} className="space-y-6" noValidate>
@@ -115,9 +131,42 @@ export function SchoolForm({ school, campuses, lockedCampusId, cancelHref }: Sch
         <Field label="Address" className="sm:col-span-2">
           <Input name="address" defaultValue={fieldValue(state, 'address', school?.address ?? '')} />
         </Field>
+        <Field label="Pincode">
+          <Input
+            name="pincode"
+            inputMode="numeric"
+            maxLength={6}
+            defaultValue={fieldValue(state, 'pincode', school?.pincode ?? '')}
+            placeholder="500001"
+          />
+        </Field>
       </Section>
 
-
+      <Section title="Lead Information">
+        <Field label="How did you identify this school?" required className="sm:col-span-2">
+          <select
+            name="lead_source"
+            className={SELECT_CLASS}
+            value={leadSource}
+            onChange={(e) => setLeadSource(e.target.value as LeadSource | '')}
+          >
+            <option value="">Select a source…</option>
+            {LEAD_SOURCES.map((src) => (
+              <option key={src} value={src}>{LEAD_SOURCE_LABELS[src]}</option>
+            ))}
+          </select>
+        </Field>
+        {leadSource === 'other' && (
+          <Field label="Please specify" required className="sm:col-span-2">
+            <Input
+              name="lead_source_other"
+              required
+              defaultValue={fieldValue(state, 'lead_source_other', school?.lead_source_other ?? '')}
+              placeholder="Describe how you found this school"
+            />
+          </Field>
+        )}
+      </Section>
 
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={pending}>

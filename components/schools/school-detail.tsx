@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, CalendarCheck, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users } from 'lucide-react'
+import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
 import type { SchoolStatusAccess, OutreachVisitRequestAccess } from '@/lib/auth/rbac'
-import type { OutreachVisitRequestRow, CampusBudgetRow, SchoolVisitRow } from '@/types/database'
+import type { OutreachVisitRequestRow, CampusBudgetRow } from '@/types/database'
 import type { TeamMember } from '@/lib/data/sessions'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
@@ -13,18 +13,11 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { StatusControl } from '@/components/schools/status-control'
 import { PlanningPanel } from '@/components/schools/planning-panel'
 import { VisitRequestPanel } from '@/components/schools/visit-request-panel'
-import { SchoolVisitPanel } from '@/components/schools/school-visit-panel'
-import type { SchoolVisitListItem } from '@/lib/data/school-visits'
 import { AddContact } from '@/components/schools/add-contact'
 
 /** Planning becomes relevant once a school is registered (or already running sessions). */
 const PLANNING_STATUSES = new Set<SchoolDetail['status']>([
   'registered', 'sessions_active', 'completed',
-])
-
-/** A School Visit becomes loggable once outreach is approved, through registration. */
-const SCHOOL_VISIT_STATUSES = new Set<SchoolDetail['status']>([
-  'outreach_approved', 'visit_completed', 'registered',
 ])
 
 /** Outreach Visit Request is the sole first gate for a fresh lead — it now
@@ -45,8 +38,7 @@ interface SchoolDetailProps {
   roster: TeamMember[]
   budget: CampusBudgetRow | null
   visitAccess: OutreachVisitRequestAccess
-  schoolVisits: SchoolVisitListItem[]
-  visitLogAccess: boolean
+  canApproveOnboarding: boolean
   isAdmin: boolean
 }
 
@@ -56,7 +48,7 @@ const TYPE_LABEL: Record<string, string> = {
 
 export function SchoolDetailView({
   school, basePath, canEdit, statusAccess, visitRequests, roster, budget, visitAccess,
-  schoolVisits, visitLogAccess, isAdmin,
+  canApproveOnboarding, isAdmin,
 }: SchoolDetailProps) {
   return (
     <div className="space-y-6">
@@ -119,27 +111,6 @@ export function SchoolDetailView({
             </CardContent>
           </Card>
 
-          {(SCHOOL_VISIT_STATUSES.has(school.status) || schoolVisits.length > 0) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <CalendarCheck className="size-4" /> School visit
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SchoolVisitPanel
-                  schoolId={school.id}
-                  schoolName={school.name}
-                  schoolStatus={school.status}
-                  sessionNumber={school.progress?.latest_session_number ?? null}
-                  visits={schoolVisits}
-                  roster={roster}
-                  canLog={visitLogAccess}
-                />
-              </CardContent>
-            </Card>
-          )}
-
           {(VISIT_REQUEST_STATUSES.has(school.status) || visitRequests.length > 0) && (
             <Card>
               <CardHeader>
@@ -175,6 +146,7 @@ export function SchoolDetailView({
                   plan={school.plan}
                   hasPriorSession={!!school.progress}
                   canEdit={canEdit}
+                  canApprove={canApproveOnboarding}
                 />
               </CardContent>
             </Card>
