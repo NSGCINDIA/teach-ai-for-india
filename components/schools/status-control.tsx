@@ -1,22 +1,19 @@
 'use client'
 
-import { useActionState, useState } from 'react'
-import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
+import { useActionState, useState, useMemo } from 'react'
+import { AlertCircle, Check, Lock, Loader2, ArrowRight, X } from 'lucide-react'
 import { changeSchoolStatus, type SchoolActionState } from '@/actions/schools'
 import { fieldValue } from '@/lib/actions/form-values'
 import {
   SCHOOL_STATUS_META,
   SCHOOL_TRANSITIONS,
+  SCHOOL_PIPELINE,
   schoolTransitionNeedsNote,
 } from '@/lib/constants/status'
 import type { SchoolStatus } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { StatusBadge } from '@/components/shared/status-badge'
-
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 interface StatusControlProps {
   schoolId: string
@@ -28,75 +25,175 @@ interface StatusControlProps {
 }
 
 export function StatusControl({ schoolId, current, canEdit, restrictTo }: StatusControlProps) {
-  const [state, action, pending] = useActionState<SchoolActionState, FormData>(changeSchoolStatus, {})
-  const options = (SCHOOL_TRANSITIONS[current] ?? []).filter((s) => !restrictTo || restrictTo.includes(s))
+  const [state, action, pending] = useActionState<SchoolActionState, FormData>(async (prev, formData) => {
+    const res = await changeSchoolStatus(prev, formData)
+    if (res.ok) {
+      setTarget('') // Reset selection on success
+    }
+    return res
+  }, {})
+
   const [target, setTarget] = useState<SchoolStatus | ''>('')
   const needsNote = target ? schoolTransitionNeedsNote(current, target) : false
 
+  // Allowed transitions
+  const options = useMemo(() => {
+    if (!canEdit) return []
+    return (SCHOOL_TRANSITIONS[current] ?? []).filter((s) => !restrictTo || restrictTo.includes(s))
+  }, [current, canEdit, restrictTo])
+
+  const currentIndex = SCHOOL_PIPELINE.indexOf(current)
+
+  const handleStepClick = (step: SchoolStatus) => {
+    if (!canEdit || !options.includes(step)) return
+    setTarget(target === step ? '' : step)
+  }
+
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Current stage</span>
-        <StatusBadge kind="school" status={current} />
+    <div className="space-y-6">
+      {/* Box Stepper Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+        {SCHOOL_PIPELINE.map((step, idx) => {
+          const isCompleted = currentIndex >= 0 && idx < currentIndex
+          const isCurrent = step === current
+          const isClickable = options.includes(step)
+          const isLocked = !isCurrent && !isCompleted && !isClickable
+
+          let boxStyle = 'border-muted bg-muted/20 text-muted-foreground/50'
+          let labelStyle = 'text-muted-foreground/60'
+          let numberStyle = 'bg-muted/40 text-muted-foreground/60'
+          let statusIcon = <Lock className="size-3.5 text-muted-foreground/30" />
+
+          if (isCompleted) {
+            boxStyle = 'border-success/30 bg-success/5 text-success'
+            labelStyle = 'text-success/90 font-medium'
+            numberStyle = 'bg-success/20 text-success font-semibold'
+            statusIcon = <Check className="size-3.5 text-success" />
+          } else if (isCurrent) {
+            boxStyle = 'border-brand bg-brand text-white shadow-soft ring-2 ring-brand/10'
+            labelStyle = 'text-white font-semibold'
+            numberStyle = 'bg-white/20 text-white font-bold'
+            statusIcon = (
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              </span>
+            )
+          } else if (isClickable) {
+            boxStyle = 'border-dashed border-brand/50 bg-background hover:bg-brand/5 hover:border-brand cursor-pointer text-brand transition-all'
+            labelStyle = 'text-brand/90 font-medium'
+            numberStyle = 'bg-brand/10 text-brand font-semibold'
+            statusIcon = <ArrowRight className="size-3.5 text-brand" />
+          }
+
+          return (
+            <button
+              key={step}
+              type="button"
+              disabled={!isClickable}
+              onClick={() => handleStepClick(step)}
+              className={`flex flex-col items-start p-3 rounded-xl border text-left font-display transition-all relative ${boxStyle}`}
+              title={isClickable ? `Move to ${SCHOOL_STATUS_META[step].label}` : SCHOOL_STATUS_META[step].label}
+            >
+              <div className="flex w-full items-center justify-between gap-1 mb-2">
+                <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-md ${numberStyle}`}>
+                  Step {idx + 1}
+                </span>
+                {statusIcon}
+              </div>
+              <span className={`text-xs ${labelStyle} leading-tight`}>
+                {SCHOOL_STATUS_META[step].label}
+              </span>
+              {/* Active Selection Indicator */}
+              {target === step && (
+                <span className="absolute bottom-1 right-1 size-1.5 rounded-full bg-brand" />
+              )}
+            </button>
+          )
+        })}
       </div>
 
-      {!canEdit ? (
-        <p className="text-sm text-muted-foreground">You have read-only access to this school’s pipeline.</p>
-      ) : options.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {restrictTo ? 'No pipeline moves are available to you for this stage.' : 'This school is in a terminal stage.'}
-        </p>
-      ) : (
-        <form action={action} className="space-y-3">
-          <input type="hidden" name="school_id" value={schoolId} />
+      {/* Action Confirmation Panel */}
+      {target && (
+        <div className="border border-brand/20 bg-brand/5 p-4 rounded-xl space-y-4">
+          <form action={action} className="space-y-4">
+            <input type="hidden" name="school_id" value={schoolId} />
+            <input type="hidden" name="new_status" value={target} />
 
-          {state.error && (
-            <p role="alert" className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
-              <AlertCircle className="size-4 shrink-0" /> {state.error}
-            </p>
-          )}
-          {state.ok && (
-            <p role="status" className="rounded-lg bg-success/10 px-3 py-2 text-sm text-success">{state.message}</p>
-          )}
-
-          <div className="space-y-1.5">
-            <Label htmlFor="new_status">Move to</Label>
-            <select
-              id="new_status"
-              name="new_status"
-              required
-              className={SELECT_CLASS}
-              value={target}
-              onChange={(e) => setTarget(e.target.value as SchoolStatus)}
-            >
-              <option value="">— Select next stage —</option>
-              {options.map((s) => (
-                <option key={s} value={s}>{SCHOOL_STATUS_META[s].label}</option>
-              ))}
-            </select>
-          </div>
-
-          {target && (
-            <div className="space-y-1.5">
-              <Label htmlFor="note">
-                Reason {needsNote ? <span className="text-error">*</span> : <span className="text-muted-foreground">(optional)</span>}
-              </Label>
-              <Textarea
-                id="note"
-                name="note"
-                rows={2}
-                required={needsNote}
-                defaultValue={fieldValue(state, 'note', '')}
-                placeholder={needsNote ? 'Required for archiving and backward moves' : 'Add context for the visit log'}
-              />
+            <div className="flex items-center justify-between">
+              <p className="text-sm">
+                Confirming transition from <strong className="text-muted-foreground">{SCHOOL_STATUS_META[current].label}</strong> to <strong className="text-brand">{SCHOOL_STATUS_META[target].label}</strong>.
+              </p>
+              <button
+                type="button"
+                onClick={() => setTarget('')}
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="Cancel transition"
+              >
+                <X className="size-4" />
+              </button>
             </div>
-          )}
 
-          <Button type="submit" size="sm" disabled={pending || !target}>
-            {pending ? <Loader2 className="size-4 animate-spin" /> : <ArrowRight className="size-4" />}
-            Update status
+            {needsNote && (
+              <div className="space-y-1.5">
+                <Label htmlFor="note" className="text-xs font-semibold">
+                  Transition Reason <span className="text-error">*</span>
+                </Label>
+                <Textarea
+                  id="note"
+                  name="note"
+                  rows={2}
+                  required
+                  defaultValue={fieldValue(state, 'note', '')}
+                  placeholder="A note is required for archiving and backward moves."
+                  className="bg-background text-sm"
+                />
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <Button type="submit" size="sm" disabled={pending} className="bg-brand text-white hover:bg-brand/90 flex items-center gap-1">
+                {pending ? <Loader2 className="size-4 animate-spin" /> : <ArrowRight className="size-4" />}
+                Confirm Update
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setTarget('')} disabled={pending}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Error state */}
+      {state.error && (
+        <p role="alert" className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
+          <AlertCircle className="size-4 shrink-0" /> {state.error}
+        </p>
+      )}
+      {state.ok && (
+        <p role="status" className="rounded-lg bg-success/10 px-3 py-2 text-sm text-success">{state.message}</p>
+      )}
+
+      {/* RLS/Permission Notice */}
+      {!canEdit && (
+        <p className="text-xs text-muted-foreground bg-muted/40 p-2.5 rounded-lg border border-border/50">
+          You have read-only access to this school’s pipeline.
+        </p>
+      )}
+
+      {/* Archive Actions */}
+      {canEdit && options.includes('archived') && !target && (
+        <div className="flex justify-end pt-2 border-t border-border/40">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setTarget('archived')}
+            className="text-xs border-error/25 hover:bg-error/5 hover:text-error text-muted-foreground transition-colors"
+          >
+            Archive School
           </Button>
-        </form>
+        </div>
       )}
     </div>
   )
