@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
 import {
-  canForEntity, schoolStatusAccess, outreachVisitRequestAccess, canLogSchoolVisit,
+  canForEntity, schoolStatusAccess, outreachVisitRequestAccess, canLogSchoolVisit, isAdmin,
 } from '@/lib/auth/rbac'
 import { getSchool } from '@/lib/data/schools'
 import { listOutreachVisitRequestsForSchool } from '@/lib/data/outreach-visit-requests'
@@ -46,6 +46,7 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
       visitAccess={visitAccess}
       schoolVisits={schoolVisits}
       visitLogAccess={visitLogAccess}
+      isAdmin={isAdmin(user.role)}
     />
   )
 }
