@@ -22,6 +22,7 @@ interface StatusControlProps {
   canEdit: boolean
   /** Restrict which target stages this user may pick (e.g. exec_lead's execution-only scope). Omit for unrestricted. */
   restrictTo?: SchoolStatus[]
+  /** True if the signed in user is a super_admin — bypasses role-specific scopes. */
   isAdmin?: boolean
 }
 

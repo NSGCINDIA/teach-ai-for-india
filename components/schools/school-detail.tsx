@@ -67,7 +67,7 @@ export function SchoolDetailView({
           <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="size-3.5" />
             {[school.mandal, school.district, school.state].filter(Boolean).join(', ')}
-            {' · '}{TYPE_LABEL[school.school_type]} · {school.board.toUpperCase()}
+            {' · '}{TYPE_LABEL[school.school_type] ?? school.school_type} · {school.board?.toUpperCase() ?? '—'}
           </p>
           {school.progress && (
             <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
