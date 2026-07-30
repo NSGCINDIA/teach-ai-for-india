@@ -148,7 +148,7 @@ export function SchoolDetailView({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <ClipboardList className="size-4" /> Session planning
+                  <ClipboardList className="size-4" /> School onboarding
                 </CardTitle>
               </CardHeader>
               <CardContent>

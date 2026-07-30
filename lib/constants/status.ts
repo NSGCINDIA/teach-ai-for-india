@@ -30,7 +30,7 @@ export const SCHOOL_STATUS_META: Record<SchoolStatus, { label: string; tone: Sta
   outreach_approved:  { label: 'Outreach Approved',    tone: 'info' },
   visit_completed:    { label: 'Visit Completed',      tone: 'info' },
   registered:         { label: 'Registered',           tone: 'success' },
-  sessions_active:    { label: 'Sessions Active',      tone: 'progress' },
+  sessions_active:    { label: 'Active School',      tone: 'progress' },
   completed:          { label: 'Completed',            tone: 'success' },
   archived:           { label: 'Archived',             tone: 'muted' },
 }

@@ -36,7 +36,7 @@ export async function savePlan(
   const values = formValues(formData)
   const user = await requireUser(`/dashboard/schools/${schoolId}`)
   if (can(user.role, 'edit_school') === false) {
-    return { error: 'You do not have permission to edit planning.', values }
+    return { error: 'You do not have permission to edit onboarding.', values }
   }
 
   const parsed = sessionPlanSchema.safeParse(Object.fromEntries(formData))
@@ -45,21 +45,62 @@ export async function savePlan(
   const payload = nullifyStrings(parsed.data)
 
   const supabase = await createClient()
-  const { data: existingDraft } = await supabase
+  
+  // Find the latest plan (whether draft or approved)
+  const { data: existingPlan } = await supabase
     .from('session_plans')
-    .select('id')
+    .select('id, status')
     .eq('school_id', schoolId)
-    .eq('status', 'draft')
+    .order('created_at', { ascending: false })
+    .limit(1)
     .maybeSingle()
 
-  const { error } = existingDraft
-    ? await supabase.from('session_plans').update(payload).eq('id', existingDraft.id)
-    : await supabase.from('session_plans').insert({ ...payload, created_by: user.id })
+  // Fetch the school's current status
+  const { data: school } = await supabase
+    .from('schools')
+    .select('status')
+    .eq('id', schoolId)
+    .single()
+
+  const isNewOnboarding = school?.status === 'registered'
+
+  // If new onboarding, we automatically approve the plan
+  const finalStatus = isNewOnboarding ? 'approved' : (existingPlan?.status ?? 'approved')
+  const approvalFields = isNewOnboarding ? {
+    approved_by: user.id,
+    approved_at: new Date().toISOString(),
+  } : {}
+
+  const payloadWithStatus = {
+    ...payload,
+    status: finalStatus,
+    ...approvalFields,
+  }
+
+  const { error } = existingPlan
+    ? await supabase.from('session_plans').update(payloadWithStatus).eq('id', existingPlan.id)
+    : await supabase.from('session_plans').insert({ ...payloadWithStatus, created_by: user.id })
+
   if (error) return { error: error.message, values }
+
+  if (isNewOnboarding) {
+    // Transition the school status to sessions_active (Active School)
+    const { error: statusError } = await supabase.rpc('change_school_status', {
+      p_school_id: schoolId,
+      p_new_status: 'sessions_active',
+      p_note: 'School onboarding completed',
+    })
+    if (statusError) {
+      console.error('Failed to transition school status to sessions_active:', statusError.message)
+    }
+  }
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath(`/admin/schools/${schoolId}`)
-  return { ok: true, message: 'Planning saved.' }
+  revalidatePath('/dashboard/schools')
+  revalidatePath('/admin/schools')
+  
+  return { ok: true, message: isNewOnboarding ? 'School onboarded successfully.' : 'Onboarding details updated.' }
 }
 
 /**

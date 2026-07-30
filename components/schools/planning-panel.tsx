@@ -1,8 +1,8 @@
 'use client'
 
 import { useActionState } from 'react'
-import { AlertCircle, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react'
-import { savePlan, approvePlan, type PlanActionState } from '@/actions/plans'
+import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
+import { savePlan, type PlanActionState } from '@/actions/plans'
 import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { SESSION_TYPE_META } from '@/lib/constants/sessions'
 import type { SessionPlanRow, SessionType, SchoolStatus } from '@/types/database'
@@ -30,25 +30,19 @@ interface PlanningPanelProps {
 
 export function PlanningPanel({ schoolId, schoolStatus, plan, hasPriorSession, canEdit }: PlanningPanelProps) {
   if (!canEdit) {
-    return <p className="text-sm text-muted-foreground">You have read-only access to this school’s planning.</p>
+    return <p className="text-sm text-muted-foreground">You have read-only access to this school’s onboarding.</p>
   }
 
   return (
     <div className="space-y-5">
-      {!plan && hasPriorSession && (
-        <p className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
-          <CheckCircle2 className="size-4 shrink-0" /> Last session's planning was approved. Plan the next session below.
-        </p>
-      )}
-      <PlanForm schoolId={schoolId} plan={plan} hasPriorSession={hasPriorSession} />
-      {plan && <ApproveForm schoolId={schoolId} planId={plan.id} schoolStatus={schoolStatus} />}
+      <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
     </div>
   )
 }
 
 function PlanForm({
-  schoolId, plan, hasPriorSession,
-}: { schoolId: string; plan: SessionPlanRow | null; hasPriorSession: boolean }) {
+  schoolId, plan, schoolStatus,
+}: { schoolId: string; plan: SessionPlanRow | null; schoolStatus: SchoolStatus }) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(savePlan, {})
 
   return (
@@ -97,30 +91,7 @@ function PlanForm({
         <Check name="has_internet" label="Internet" defaultChecked={fieldChecked(state, 'has_internet', plan?.has_internet)} />
       </Section>
 
-      <Section title="Scheduling">
-        <Field label="Session type">
-          <select name="session_type" defaultValue={fieldValue(state, 'session_type', plan?.session_type ?? 'awareness')} className={SELECT_CLASS}>
-            {SESSION_TYPES.map(([value, meta]) => (
-              <option key={value} value={value}>{meta.label}</option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Topic">
-          <Input name="topic" defaultValue={fieldValue(state, 'topic', plan?.topic ?? '')} placeholder="Session focus" />
-        </Field>
-        <Field label="Planned date">
-          <Input type="date" name="planned_date" defaultValue={fieldValue(state, 'planned_date', plan?.planned_date ?? '')} />
-        </Field>
-        <Field label="Backup date">
-          <Input type="date" name="backup_date" defaultValue={fieldValue(state, 'backup_date', plan?.backup_date ?? '')} />
-        </Field>
-        <Field label="Start time">
-          <Input type="time" name="start_time" defaultValue={fieldValue(state, 'start_time', plan?.start_time?.slice(0, 5) ?? '')} />
-        </Field>
-        <Field label="End time">
-          <Input type="time" name="end_time" defaultValue={fieldValue(state, 'end_time', plan?.end_time?.slice(0, 5) ?? '')} />
-        </Field>
-      </Section>
+      <input type="hidden" name="session_type" value="awareness" />
 
       <Section title="Documents">
         <Field label="Approval letter (storage path)" full>
@@ -135,38 +106,13 @@ function PlanForm({
 
       <Button type="submit" size="sm" variant="outline" disabled={pending}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
-        {plan ? 'Save planning' : hasPriorSession ? 'Plan next session' : 'Start planning'}
+        {schoolStatus === 'registered' ? 'Save & Onboard School' : 'Save Onboarding Details'}
       </Button>
     </form>
   )
 }
 
-function ApproveForm({ schoolId, planId, schoolStatus }: { schoolId: string; planId: string; schoolStatus: SchoolStatus }) {
-  const [state, action, pending] = useActionState<PlanActionState, FormData>(approvePlan, {})
-  const ready = schoolStatus === 'registered' || schoolStatus === 'sessions_active'
 
-  return (
-    <form action={action} className="space-y-2 border-t border-border pt-4">
-      <input type="hidden" name="school_id" value={schoolId} />
-      <input type="hidden" name="plan_id" value={planId} />
-
-      {state.error && (
-        <p role="alert" className="flex items-start gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
-          <AlertCircle className="mt-0.5 size-4 shrink-0" /> {state.error}
-        </p>
-      )}
-      {!ready && (
-        <p className="text-xs text-muted-foreground">
-          Approving planning creates the session and notifies the Execution &amp; Volunteer Leads. Available once the school reaches <strong>Registered</strong>.
-        </p>
-      )}
-      <Button type="submit" size="sm" disabled={pending || !ready}>
-        {pending ? <Loader2 className="size-4 animate-spin" /> : <ArrowRight className="size-4" />}
-        Approve planning
-      </Button>
-    </form>
-  )
-}
 
 function numVal(n: number | null | undefined): string {
   return n === null || n === undefined ? '' : String(n)

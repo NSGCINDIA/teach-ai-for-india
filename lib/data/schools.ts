@@ -116,14 +116,15 @@ export const getSchool = cache(async (id: string): Promise<SchoolDetail | null> 
   detail.contacts = (detail.contacts ?? []).sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary),
   )
-  // The current open (draft) planning record, if any — a school accumulates
-  // one approved session_plans row per session it's run, so this is fetched
-  // separately (filtered to 'draft') to keep the type a single object.
+  // The latest onboarding details record, if any — a school accumulates
+  // one approved session_plans row per session it's run, so this fetches the
+  // latest one to keep the details visible even after onboarding is approved.
   const { data: plan } = await supabase
     .from('session_plans')
     .select('*')
     .eq('school_id', id)
-    .eq('status', 'draft')
+    .order('created_at', { ascending: false })
+    .limit(1)
     .maybeSingle()
   detail.plan = (plan as SessionPlanRow | null) ?? null
 
