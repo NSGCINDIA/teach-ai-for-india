@@ -429,6 +429,10 @@ export interface Database {
         Args: { p_plan_id: string }
         Returns: string
       }
+      initiate_school_onboarding: {
+        Args: { p_school_id: string }
+        Returns: string
+      }
       assign_volunteers: {
         Args: { p_session_id: string; p_volunteer_ids: string[] }
         Returns: number

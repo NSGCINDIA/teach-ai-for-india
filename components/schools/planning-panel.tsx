@@ -16,9 +16,13 @@ const SELECT_CLASS =
 
 const SESSION_TYPES = Object.entries(SESSION_TYPE_META) as [SessionType, { label: string }][]
 
+import { validateSchoolOnboardingReadiness } from '@/lib/validations/readiness-gate'
+import { Badge } from '@/components/ui/badge'
+
 interface PlanningPanelProps {
   schoolId: string
   schoolStatus: SchoolStatus
+  schoolDetail?: any
   /** The current OPEN (draft) plan, if one is in progress — null between sessions. */
   plan: SessionPlanRow | null
   /** Whether this school has already run at least one session — labels the
@@ -30,24 +34,87 @@ interface PlanningPanelProps {
   canApprove: boolean
 }
 
-export function PlanningPanel({ schoolId, schoolStatus, plan, hasPriorSession, canEdit, canApprove }: PlanningPanelProps) {
+export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasPriorSession, canEdit, canApprove }: PlanningPanelProps) {
   if (!canEdit && !canApprove) {
     return <p className="text-sm text-muted-foreground">You do not have permission to view this school’s onboarding.</p>
   }
 
+  // Task 4: If school is at outreach_approved and onboarding hasn't been initiated yet, render Initiate Onboarding Banner
+  if (schoolStatus === 'outreach_approved' && !plan) {
+    return (
+      <div className="rounded-lg border border-brand/30 bg-brand/5 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="text-sm font-semibold text-brand flex items-center gap-2">
+              <CheckCircle2 className="size-4" /> Outreach Approved!
+            </h4>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Outreach visit request fully approved. Initiate school onboarding to move to Registered and begin collecting logistics details.
+            </p>
+          </div>
+          {canEdit && <InitiateOnboardingBtn schoolId={schoolId} />}
+        </div>
+      </div>
+    )
+  }
+
+  // Evaluate readiness if plan exists
+  const mockSchool = schoolDetail ?? { id: schoolId, status: schoolStatus, dise_code: 'EXAMP123', campus_id: 'campus-1' }
+  const readiness = plan ? validateSchoolOnboardingReadiness(mockSchool, plan) : null
+
   if (plan && plan.status === 'draft') {
     return (
       <div className="space-y-4">
-        <div className="rounded-lg bg-warning/10 p-4 border border-warning/20">
-          <p className="text-sm font-medium text-warning flex items-center gap-1.5">
-            <AlertCircle className="size-4 shrink-0" /> Onboarding submitted & awaiting Campus Lead approval.
-          </p>
-        </div>
+        {/* Onboarding Readiness Gate Card */}
+        {readiness && (
+          <div className={`rounded-lg p-4 border space-y-3 ${readiness.ready ? 'bg-success/5 border-success/30' : 'bg-warning/5 border-warning/30'}`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  {readiness.ready ? (
+                    <CheckCircle2 className="size-4 text-success" />
+                  ) : (
+                    <AlertCircle className="size-4 text-warning" />
+                  )}
+                  Onboarding Readiness
+                </h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {readiness.completed} / {readiness.total} requirements completed
+                </p>
+              </div>
+              <Badge variant="outline" className={readiness.ready ? 'border-success/30 bg-success/10 text-success font-bold' : 'border-warning/30 bg-warning/10 text-warning font-bold'}>
+                {readiness.ready ? 'READY FOR ACTIVATION' : 'INCOMPLETE'}
+              </Badge>
+            </div>
+
+            {/* Checklist */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+              {readiness.items.map((item) => (
+                <div key={item.key} className="flex items-center gap-1.5">
+                  {item.satisfied ? (
+                    <CheckCircle2 className="size-3.5 text-success shrink-0" />
+                  ) : (
+                    <AlertCircle className="size-3.5 text-destructive shrink-0" />
+                  )}
+                  <span className={item.satisfied ? 'text-foreground font-medium' : 'text-destructive font-semibold'}>
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {!readiness.ready && (
+              <p className="text-xs text-destructive font-medium border-t border-warning/20 pt-2">
+                Missing: {readiness.missing.join(', ')}. Complete missing fields before activation.
+              </p>
+            )}
+          </div>
+        )}
 
         <OnboardingSummary plan={plan} />
 
         {canApprove && (
-          <ApproveForm schoolId={schoolId} planId={plan.id} />
+          <ApproveForm schoolId={schoolId} planId={plan.id} isReady={readiness?.ready ?? false} />
         )}
       </div>
     )
@@ -453,7 +520,7 @@ function InfraBadge({ label, available }: { label: string; available?: boolean }
   )
 }
 
-function ApproveForm({ schoolId, planId }: { schoolId: string; planId: string }) {
+function ApproveForm({ schoolId, planId, isReady = true }: { schoolId: string; planId: string; isReady?: boolean }) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(approvePlan, {})
 
   return (
@@ -467,11 +534,41 @@ function ApproveForm({ schoolId, planId }: { schoolId: string; planId: string })
         </p>
       )}
 
-      <Button type="submit" size="sm" className="bg-brand text-white hover:bg-brand/90" disabled={pending}>
+      <Button type="submit" size="sm" className="bg-brand text-white hover:bg-brand/90" disabled={pending || !isReady}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
         Approve & Activate School
       </Button>
     </form>
+  )
+}
+
+function InitiateOnboardingBtn({ schoolId }: { schoolId: string }) {
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleInitiate = async () => {
+    setPending(true)
+    setError(null)
+    const { initiateSchoolOnboarding } = await import('@/actions/schools')
+    const res = await initiateSchoolOnboarding(schoolId)
+    setPending(false)
+    if (res.error) setError(res.error)
+  }
+
+  return (
+    <div className="space-y-1">
+      {error && <p className="text-xs text-error">{error}</p>}
+      <Button
+        type="button"
+        size="sm"
+        disabled={pending}
+        onClick={handleInitiate}
+        className="bg-brand text-white hover:bg-brand/90"
+      >
+        {pending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : null}
+        Initiate School Onboarding
+      </Button>
+    </div>
   )
 }
 
