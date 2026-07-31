@@ -9,6 +9,7 @@ import { getCampusBudget } from '@/lib/data/budgets'
 import { SessionDetailView } from '@/components/sessions/session-detail'
 
 import { getSessionWithDetails } from '@/lib/data/session-delivery'
+import { getSessionFinanceSummary } from '@/lib/data/operational-expenses'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -18,10 +19,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function DashboardSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const [user, session, sessionDetails] = await Promise.all([
+  const [user, session, sessionDetails, sessionFinance] = await Promise.all([
     requireAccess('/dashboard/sessions'),
     getSession(id),
     getSessionWithDetails(id),
+    getSessionFinanceSummary(id),
   ])
   if (!session) notFound()
 
@@ -48,6 +50,7 @@ export default async function DashboardSessionPage({ params }: { params: Promise
     <SessionDetailView
       session={session}
       sessionDetails={sessionDetails}
+      sessionFinance={sessionFinance}
       members={members}
       assignments={assignments}
       assignCandidates={assignCandidates}

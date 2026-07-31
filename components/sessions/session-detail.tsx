@@ -21,9 +21,12 @@ import { EvidenceUploader } from '@/components/evidence/evidence-uploader'
 import { MandatoryEvidenceChecklist } from '@/components/evidence/mandatory-evidence-checklist'
 import { isImageFileType } from '@/lib/constants/evidence'
 
+import { SessionFinanceCard } from '@/components/sessions/session-finance-card'
+
 interface Props {
   session: SessionDetail
   sessionDetails?: any
+  sessionFinance?: any
   members: TeamMember[]
   assignments: AssignmentWithVolunteer[]
   assignCandidates: TeamMember[]
@@ -39,7 +42,7 @@ interface Props {
 }
 
 export function SessionDetailView({
-  session, sessionDetails, members, assignments, assignCandidates, canAssign,
+  session, sessionDetails, sessionFinance, members, assignments, assignCandidates, canAssign,
   evidence, basePath, schoolBasePath, canEdit, canUploadEvidence,
   executionPlans, executionPlanAccess, budget,
 }: Props) {
@@ -117,9 +120,18 @@ export function SessionDetailView({
             <div>Departure / Meeting: <strong className="font-semibold">{schoolExecPlan.meeting_departure_notes ?? 'Campus Gate'}</strong></div>
             <div>Distance: <strong className="font-semibold">{schoolExecPlan.distance_km ?? '—'} km</strong></div>
             <div>Transport: <strong className="font-semibold">{schoolExecPlan.transport_mode ?? '—'}</strong></div>
-            <div>Equipment: <strong className="font-semibold">{schoolExecPlan.laptops_count} Laptops, {schoolExecPlan.projectors_count} Projectors</strong></div>
           </div>
         </Card>
+      )}
+
+      {/* Session Finance Card (Phase 4) */}
+      {sessionFinance && (
+        <SessionFinanceCard
+          sessionId={session.id}
+          schoolId={session.school_id}
+          finance={sessionFinance}
+          canManage={canEdit}
+        />
       )}
 
       <div className="grid gap-6 lg:grid-cols-3">

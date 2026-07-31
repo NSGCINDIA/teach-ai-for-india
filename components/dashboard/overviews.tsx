@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import {
   School, Users, GraduationCap, CalendarDays, CalendarClock, FileClock, Wallet,
-  Images, ClipboardList, TrendingUp, CheckCircle2, MapPin, Percent, Timer, Wrench, Clock,
+  Images, ClipboardList, TrendingUp, CheckCircle2, MapPin, Percent, Timer, Wrench, Clock, Receipt, DollarSign,
   type LucideIcon,
 } from 'lucide-react'
 import { MetricCard } from '@/components/shared/metric-card'
@@ -105,8 +105,9 @@ export function CampusLeadOverview({
   const k = data.kpis
   return (
     <div className="space-y-6">
-      <OverviewHeader name={name} role="Campus Lead" />
+      <OverviewHeader name={name} role="Campus Governance Lead" />
 
+      {/* Governance KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Kpi label="Active Schools" value={formatNumber(k.schoolsActive)} icon={School} />
         <Kpi label="Active Volunteers" value={formatNumber(k.volunteersActive)} icon={Users} />
@@ -116,40 +117,32 @@ export function CampusLeadOverview({
         <Kpi label="Sessions Scheduled This Week" value={formatNumber(k.sessionsScheduledThisWeek)} icon={CalendarClock} />
       </div>
 
-      <QuickActions />
-
+      {/* Governance Review Queues */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Widget title="Today's Sessions" href="/dashboard/sessions">
-          <SessionRows sessions={data.todaySessions} empty="No sessions scheduled today." />
+        <Widget title="Outreach Approvals Awaiting Review" href="/dashboard/schools">
+          <SchoolRows schools={data.pendingApprovals} empty="No schools awaiting outreach approval." />
         </Widget>
-        <Widget title="Upcoming Sessions" href="/dashboard/sessions">
-          <SessionRows sessions={data.upcomingSessions} empty="Nothing upcoming yet." />
+        <Widget title="Session Delivery Reports Awaiting Verification" href="/dashboard/sessions">
+          <SessionRows sessions={data.pendingReports} empty="All session reports verified! 🎉" />
         </Widget>
-        <Widget title="Pending School Approvals" href="/dashboard/schools">
-          <SchoolRows schools={data.pendingApprovals} empty="No schools awaiting approval." />
-        </Widget>
-        <Widget title="Pending Reports" href="/dashboard/sessions">
-          <SessionRows sessions={data.pendingReports} empty="All reports are in. 🎉" />
-        </Widget>
-        <Widget title="Pending Reimbursements" href="/dashboard/reimbursements">
-          {data.pendingReimbursements.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">No claims awaiting review.</p>
-          ) : (
-            <ul className="divide-y divide-border">
-              {data.pendingReimbursements.map((r) => (
-                <li key={r.id} className="flex items-center gap-3 py-2.5">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{r.claimant_name}</p>
-                    <p className="truncate text-xs text-muted-foreground">{r.reference_number}</p>
-                  </div>
-                  <span className="text-sm font-semibold tabular-nums">{formatCurrency(r.amount)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Widget>
-        <Widget title="Pending Budget Requests">
+        <Widget title="Extra Budget Increase Requests" href="/dashboard/finance">
           <BudgetRequestReviewList requests={data.pendingBudgetRequests} canReview={canReviewBudgetRequests} />
+        </Widget>
+        <Widget title="Quick Governance Links">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              { label: 'Campus Schools Pipeline', href: '/dashboard/schools', icon: School },
+              { label: 'Session Governance', href: '/dashboard/sessions', icon: CalendarDays },
+              { label: 'Evidence Gallery', href: '/dashboard/evidence', icon: Images },
+              { label: 'Campus Analytics', href: '/dashboard/analytics', icon: TrendingUp },
+            ].map((a) => (
+              <Link key={a.href} href={a.href}
+                className="flex items-center gap-2.5 rounded-lg border border-border px-3 py-2.5 text-sm font-medium hover:border-brand hover:bg-accent">
+                <span className="grid size-8 place-items-center rounded-md bg-brand/10 text-brand"><a.icon className="size-4" /></span>
+                {a.label}
+              </Link>
+            ))}
+          </div>
         </Widget>
       </div>
     </div>
@@ -603,43 +596,92 @@ export function VolunteerOverview({
 }
 
 // ─── Finance Lead ───────────────────────────────────────────────────────────
-export function FinanceLeadOverview({ name, data }: { name: string; data: FinanceLeadData }) {
+export function FinanceLeadOverview({
+  name,
+  data,
+  finWorkspaceData,
+}: {
+  name: string
+  data: FinanceLeadData
+  finWorkspaceData?: any
+}) {
   const k = data.kpis
+  const actionItems = finWorkspaceData?.actionItems ?? []
+
   return (
     <div className="space-y-6">
       <OverviewHeader name={name} role="Finance Lead" />
 
+      {/* Top Metrics */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Kpi label="Allocated Budget" value={formatCurrency(k.allocatedAmount)} icon={Wallet} />
-        <Kpi label="Reserved / Spent" value={formatCurrency(k.reservedAmount)} icon={TrendingUp} />
-        <Kpi label="Pending Claims" value={formatNumber(k.pendingClaimsCount)} icon={FileClock} />
-        <Kpi label="Budget Requests Pending" value={formatNumber(k.pendingBudgetRequestsCount)} icon={ClipboardList} />
+        <Kpi label="Allocated Budget" value={formatCurrency(finWorkspaceData?.allocatedBudget ?? k.allocatedAmount)} icon={Wallet} />
+        <Kpi label="Reserved Budget" value={formatCurrency(finWorkspaceData?.reservedBudget ?? k.reservedAmount)} icon={TrendingUp} />
+        <Kpi label="Actual Spend" value={formatCurrency(finWorkspaceData?.spentBudget ?? 0)} icon={Receipt} />
+        <Kpi label="Available Budget" value={`${formatCurrency(finWorkspaceData?.availableBudget ?? 0)} (${finWorkspaceData?.utilizationRate ?? 0}% Utilized)`} icon={CheckCircle2} />
       </div>
 
-      <FinanceQuickActions />
+      {/* Action Required Queue (Task 15) */}
+      <Card className="p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-display font-semibold text-base flex items-center gap-2">
+              <DollarSign className="size-4 text-brand" /> Action Required Queue — Operational Finance
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Financial tasks requiring review, bill verification, or budget approval.
+            </p>
+          </div>
+          <Link href="/dashboard/finance" className="text-xs font-semibold text-brand hover:underline">
+            View All Finance →
+          </Link>
+        </div>
+
+        {actionItems.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg">
+            No pending financial approvals or missing bills! All accounts reconciled. 🎉
+          </p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {actionItems.map((item: any) => (
+              <div key={item.id} className="p-3 rounded-xl border border-border bg-card space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-sm text-foreground">{item.title}</h4>
+                  <Badge variant="outline" className="border-warning/30 bg-warning/10 text-warning font-semibold">
+                    {item.status}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground">{item.subtitle}</p>
+                <div className="flex items-center justify-between border-t border-border/50 pt-2">
+                  <span className="font-bold text-sm text-brand">₹{item.amount}</span>
+                  {item.schoolId && (
+                    <Link href={`/dashboard/schools/${item.schoolId}`} className="text-xs font-semibold text-brand hover:underline">
+                      Review School →
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Widget title="Pending Reimbursement Claims" href="/dashboard/reimbursements">
-          {data.pendingReimbursements.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">No claims awaiting review.</p>
-          ) : (
-            <ul className="divide-y divide-border">
-              {data.pendingReimbursements.map((r) => (
-                <li key={r.id}>
-                  <Link href={`/dashboard/reimbursements/${r.id}`} className="flex items-center gap-3 py-2.5 hover:opacity-80">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{r.claimant_name}</p>
-                      <p className="truncate text-xs text-muted-foreground">{r.reference_number} · {r.status}</p>
-                    </div>
-                    <span className="text-sm font-semibold tabular-nums text-foreground">{formatCurrency(r.amount)}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Widget>
-        <Widget title="Budget Increase Requests" href="/dashboard/finance">
+        <Widget title="Extra Budget Requests" href="/dashboard/finance">
           <BudgetRequestReviewList requests={data.pendingBudgetRequests} canReview={false} />
+        </Widget>
+        <Widget title="Quick Links">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              { label: 'Campus Finance Summary', href: '/dashboard/finance', icon: TrendingUp },
+              { label: 'School Execution Plans', href: '/dashboard/schools', icon: Wrench },
+            ].map((a) => (
+              <Link key={a.href} href={a.href}
+                className="flex items-center gap-2.5 rounded-lg border border-border px-3 py-2.5 text-sm font-medium hover:border-brand hover:bg-accent">
+                <span className="grid size-8 place-items-center rounded-md bg-brand/10 text-brand"><a.icon className="size-4" /></span>
+                {a.label}
+              </Link>
+            ))}
+          </div>
         </Widget>
       </div>
     </div>

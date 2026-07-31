@@ -12,6 +12,8 @@ import { getSchoolExecutionPlan } from '@/lib/data/school-execution-plans'
 import { getSchoolSessions } from '@/lib/data/session-delivery'
 import { SchoolDetailView } from '@/components/schools/school-detail'
 
+import { getSchoolFinanceSummary, getSchoolActivityTimeline } from '@/lib/data/operational-expenses'
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const school = await getSchool(id)
@@ -29,7 +31,7 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
   const execPlanAccess = executionPlanAccess(user.role, user.campus_id, school.campus_id)
   const teamAccess = schoolTeamAccess(user.role, user.campus_id, school.campus_id)
 
-  const [visitRequests, roster, budget, team, execPlan, sessions] = await Promise.all([
+  const [visitRequests, roster, budget, team, execPlan, sessions, financeSummary, activityTimeline] = await Promise.all([
     listOutreachVisitRequestsForSchool(school.id),
     listTeamMembers(school.campus_id),
     school.campus_id && school.campus?.quarter
@@ -38,6 +40,8 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
     getSchoolTeam(school.id),
     getSchoolExecutionPlan(school.id),
     getSchoolSessions(school.id),
+    getSchoolFinanceSummary(school.id),
+    getSchoolActivityTimeline(school.id),
   ])
 
   const canApproveOnboarding = isAdmin(user.role) || ((user.role === 'campus_lead' || user.role === 'outreach_lead') && user.campus_id === school.campus_id)
@@ -61,6 +65,8 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
       execPlanAccess={execPlanAccess}
       teamAccess={teamAccess}
       canVerifySession={canVerifySession}
+      financeSummary={financeSummary}
+      activityTimeline={activityTimeline}
     />
   )
 }

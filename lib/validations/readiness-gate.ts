@@ -1,7 +1,7 @@
 import type { SchoolDetail } from '@/lib/data/schools'
 import type { SessionPlanRow } from '@/types/database'
 
-export type GateKind = 'onboarding' | 'team' | 'execution' | 'session' | 'completion'
+export type GateKind = 'onboarding' | 'team' | 'execution' | 'session' | 'completion' | 'finance_execution' | 'finance_session'
 
 export interface ReadinessItem {
   key: string

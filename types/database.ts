@@ -51,6 +51,12 @@ export type ExecutionPlanStatus =
   | 'draft' | 'submitted' | 'campus_changes_requested' | 'campus_approved'
   | 'finance_changes_requested' | 'approved'
 
+export type OperationalExpenseCategory =
+  | 'transport' | 'materials' | 'equipment' | 'printing' | 'food' | 'logistics' | 'school_visit' | 'other'
+
+export type OperationalExpenseStatus =
+  | 'draft' | 'recorded' | 'bill_attached' | 'verified' | 'closed'
+
 type Timestamps = { created_at: string; updated_at: string }
 
 // ─── Row shapes ──────────────────────────────────────────────────────────────
@@ -288,6 +294,15 @@ export type SchoolVisitRow = {
   created_by: string | null; created_at: string
 }
 
+export type OperationalExpenseRow = Timestamps & {
+  id: string; campus_id: string; school_id: string
+  session_id: string | null; execution_plan_id: string | null
+  category: OperationalExpenseCategory; amount: number; description: string | null
+  expense_date: string; bill_url: string | null; vendor_name: string | null
+  reference_number: string | null; status: OperationalExpenseStatus
+  created_by: string | null; verified_by: string | null; verified_at: string | null
+}
+
 // Execution plans (0029_execution_plans.sql)
 export type ExecutionPlanRow = Timestamps & {
   id: string; session_id: string; campus_id: string | null
@@ -395,6 +410,7 @@ export interface Database {
       school_team_members: TableDef<SchoolTeamMemberRow>
       school_execution_plans: TableDef<SchoolExecutionPlanRow>
       session_participants: TableDef<SessionParticipantRow>
+      operational_expenses: TableDef<OperationalExpenseRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -471,6 +487,24 @@ export interface Database {
       }
       set_school_team_lead: {
         Args: { p_school_id: string; p_member_id: string }
+        Returns: undefined
+      }
+      record_operational_expense: {
+        Args: {
+          p_school_id: string
+          p_session_id?: string
+          p_category?: string
+          p_amount?: number
+          p_description?: string
+          p_expense_date?: string
+          p_bill_url?: string
+          p_vendor_name?: string
+          p_reference_number?: string
+        }
+        Returns: string
+      }
+      verify_operational_expense: {
+        Args: { p_expense_id: string }
         Returns: undefined
       }
       resubmit_school_execution_plan: {

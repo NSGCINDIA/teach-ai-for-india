@@ -14,6 +14,7 @@ import {
 import { getVolunteerJourney } from '@/lib/data/volunteer-journey'
 import { getVolunteerLeadQueue } from '@/lib/data/volunteer-lead-queue'
 import { getExecLeadQueue } from '@/lib/data/exec-lead-queue'
+import { getFinanceLeadWorkspace } from '@/lib/data/finance-workspace'
 
 export const metadata = { title: 'Dashboard' }
 
@@ -68,8 +69,10 @@ export default async function DashboardOverview() {
       const execQueueData = await getExecLeadQueue(campusId)
       return <ExecOverview name={name} data={await getExecData(campusId)} execQueueData={execQueueData} />
     }
-    case 'finance_lead':
-      return <FinanceLeadOverview name={name} data={await getFinanceLeadData(campusId)} />
+    case 'finance_lead': {
+      const finWorkspaceData = await getFinanceLeadWorkspace(campusId)
+      return <FinanceLeadOverview name={name} data={await getFinanceLeadData(campusId)} finWorkspaceData={finWorkspaceData} />
+    }
     case 'campus_mgmt_admin':
       return <CampusMgmtOverview name={name} data={await getCampusLeadData(campusId)} />
     // Admins / viewers who land here (they normally route to /admin).

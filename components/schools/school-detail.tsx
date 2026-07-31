@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users, Wrench, Calendar } from 'lucide-react'
+import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users, Wrench, Calendar, DollarSign, Activity } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
 import type { SchoolStatusAccess, OutreachVisitRequestAccess, ExecutionPlanAccess, SchoolTeamAccess } from '@/lib/auth/rbac'
 import type { OutreachVisitRequestRow, CampusBudgetRow, SessionRow } from '@/types/database'
@@ -33,6 +33,9 @@ const VISIT_REQUEST_STATUSES = new Set<SchoolDetail['status']>([
   'lead_identified', 'outreach_requested',
 ])
 
+import { FinancePanel } from '@/components/schools/finance-panel'
+import { ActivityTimeline } from '@/components/schools/activity-timeline'
+
 interface SchoolDetailProps {
   school: SchoolDetail
   basePath: string
@@ -52,6 +55,8 @@ interface SchoolDetailProps {
   execPlanAccess?: ExecutionPlanAccess
   teamAccess?: SchoolTeamAccess
   canVerifySession?: boolean
+  financeSummary?: any
+  activityTimeline?: any[]
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -65,6 +70,8 @@ export function SchoolDetailView({
   execPlanAccess = { canSubmit: false, canReviewCampus: false, canReviewFinance: false },
   teamAccess = { canManage: false },
   canVerifySession = false,
+  financeSummary,
+  activityTimeline = [],
 }: SchoolDetailProps) {
   const isSessionsActiveOrDone = school.status === 'sessions_active' || school.status === 'completed'
   const confirmedVolunteers = team.filter((t) => t.is_active && t.status === 'confirmed').length
@@ -254,6 +261,36 @@ export function SchoolDetailView({
               </CardContent>
             </Card>
           )}
+
+          {/* School Finance Panel (Phase 4) */}
+          {isSessionsActiveOrDone && financeSummary && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <DollarSign className="size-4 text-brand" /> School Operational Finance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FinancePanel
+                  schoolId={school.id}
+                  finance={financeSummary}
+                  canManageFinance={statusAccess.canEdit || isAdmin}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* School Activity Feed (Phase 4) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Activity className="size-4 text-brand" /> Activity Feed
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ActivityTimeline items={activityTimeline} />
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">
