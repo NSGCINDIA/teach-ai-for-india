@@ -14,6 +14,18 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import type { BlogItem } from '@/lib/data/blogs'
 
+const sanitizeImageUrl = (value: string): string => {
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+
+  try {
+    const parsed = new URL(trimmed)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.toString() : ''
+  } catch {
+    return ''
+  }
+}
+
 const CATEGORIES = [
   'School Visit',
   'Volunteer Story',
@@ -247,7 +259,7 @@ export function BlogEditor({ blog }: { blog?: BlogItem }) {
             <Label htmlFor="cover_image_file">Cover Image</Label>
             {coverImage && (
               <div className="relative aspect-video rounded-xl overflow-hidden bg-muted mb-2 border border-border">
-                <img src={coverImage} alt="Cover Preview" className="object-cover w-full h-full" />
+                <img src={sanitizeImageUrl(coverImage)} alt="Cover Preview" className="object-cover w-full h-full" />
               </div>
             )}
             <div className="flex gap-2">
@@ -264,7 +276,7 @@ export function BlogEditor({ blog }: { blog?: BlogItem }) {
             <Input
               name="cover_image"
               value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
+              onChange={(e) => setCoverImage(sanitizeImageUrl(e.target.value))}
               placeholder="Or paste an image URL..."
               className="mt-2 text-xs rounded-xl"
             />
@@ -384,7 +396,7 @@ export function BlogEditor({ blog }: { blog?: BlogItem }) {
             <div className="border border-border/80 rounded-2xl p-6 md:p-8 bg-card/40 min-h-[400px] prose dark:prose-invert max-w-none shadow-soft">
               {coverImage && (
                 <div className="aspect-[21/9] w-full rounded-xl overflow-hidden mb-6 bg-muted shadow-soft">
-                  <img src={coverImage} alt="Cover Preview" className="object-cover w-full h-full" />
+                  <img src={sanitizeImageUrl(coverImage)} alt="Cover Preview" className="object-cover w-full h-full" />
                 </div>
               )}
               <div className="text-xs font-bold text-brand uppercase tracking-wider mb-2">{category}</div>
