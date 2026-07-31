@@ -13,6 +13,7 @@ import {
 
 import { getVolunteerJourney } from '@/lib/data/volunteer-journey'
 import { getVolunteerLeadQueue } from '@/lib/data/volunteer-lead-queue'
+import { getExecLeadQueue } from '@/lib/data/exec-lead-queue'
 
 export const metadata = { title: 'Dashboard' }
 
@@ -63,8 +64,10 @@ export default async function DashboardOverview() {
       const queueData = await getVolunteerLeadQueue(campusId)
       return <VolunteerLeadOverview name={name} data={await getVolunteerLeadData(campusId)} queueData={queueData} />
     }
-    case 'exec_lead':
-      return <ExecOverview name={name} data={await getExecData(campusId)} />
+    case 'exec_lead': {
+      const execQueueData = await getExecLeadQueue(campusId)
+      return <ExecOverview name={name} data={await getExecData(campusId)} execQueueData={execQueueData} />
+    }
     case 'finance_lead':
       return <FinanceLeadOverview name={name} data={await getFinanceLeadData(campusId)} />
     case 'campus_mgmt_admin':

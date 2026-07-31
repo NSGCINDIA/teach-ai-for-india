@@ -41,6 +41,18 @@ export async function createSessionDeliveryPlan(
 
   if (!school) return { error: 'School not found' }
 
+  // Get previous session if session_number > 1
+  let previousSessionId: string | null = null
+  if (d.session_number > 1) {
+    const { data: prevSess } = await supabase
+      .from('sessions')
+      .select('id')
+      .eq('school_id', d.school_id)
+      .eq('session_number', d.session_number - 1)
+      .maybeSingle()
+    if (prevSess) previousSessionId = prevSess.id
+  }
+
   // Insert session
   const { data, error } = await supabase
     .from('sessions')
@@ -55,6 +67,7 @@ export async function createSessionDeliveryPlan(
       end_time: d.end_time || null,
       status: 'planned',
       notes: d.notes || null,
+      previous_session_id: previousSessionId,
       created_by: user.id,
     })
     .select('id')
@@ -180,12 +193,16 @@ export async function submitSessionDeliveryReport(
   return { ok: true, message: 'Session report submitted and awaiting verification.' }
 }
 
-/** Verify a reported session (Campus Lead). */
+/** Verify a reported session (Campus Lead / Exec Lead / Super Admin). */
 export async function verifySessionDelivery(
   _prev: SessionDeliveryActionState,
   formData: FormData,
 ): Promise<SessionDeliveryActionState> {
   const user = await requireUser('/dashboard/sessions')
+  if (!['campus_lead', 'exec_lead', 'super_admin'].includes(user.role)) {
+    return { error: 'You do not have permission to verify session delivery reports.' }
+  }
+
   const sessionId = formData.get('session_id') as string
 
   if (!sessionId) return { error: 'Session ID is required' }

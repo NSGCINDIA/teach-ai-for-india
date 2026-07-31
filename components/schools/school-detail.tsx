@@ -223,6 +223,8 @@ export function SchoolDetailView({
                 <ExecutionPlanPanel
                   schoolId={school.id}
                   plan={execPlan}
+                  onboardingPlan={school.plan}
+                  teamConfirmed={confirmedVolunteers >= (school.required_volunteers ?? 2)}
                   access={execPlanAccess}
                   schoolStatus={school.status}
                   operationalPhase={school.operational_phase ?? null}
