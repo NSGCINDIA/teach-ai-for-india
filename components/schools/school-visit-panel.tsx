@@ -39,9 +39,8 @@ export function SchoolVisitPanel({
   // becomes an edit surface instead of a second log form.
   const visit = visits[0]
   // Mirrors log_school_visit()'s own gate — logging is only legal while the
-  // school hasn't moved past visit_completed, so the form must stop
-  // reappearing once Registration (and beyond) has happened.
-  const canLogNow = canLog && !visit && (schoolStatus === 'outreach_approved' || schoolStatus === 'visit_completed')
+  // school is at outreach_approved (visit_completed no longer exists in pipeline).
+  const canLogNow = canLog && !visit && schoolStatus === 'outreach_approved'
 
   return (
     <div className="space-y-5">

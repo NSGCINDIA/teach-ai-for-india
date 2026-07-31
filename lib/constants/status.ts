@@ -28,16 +28,15 @@ export const SCHOOL_STATUS_META: Record<SchoolStatus, { label: string; tone: Sta
   lead_identified:    { label: 'Lead Identified',      tone: 'neutral' },
   outreach_requested: { label: 'Outreach Requested',   tone: 'pending' },
   outreach_approved:  { label: 'Outreach Approved',    tone: 'info' },
-  visit_completed:    { label: 'Visit Completed',      tone: 'info' },
   registered:         { label: 'Registered',           tone: 'success' },
-  sessions_active:    { label: 'Active School',      tone: 'progress' },
-  completed:          { label: 'Completed',            tone: 'success' },
-  archived:           { label: 'Archived',             tone: 'muted' },
+  sessions_active:    { label: 'Active School',        tone: 'progress' },
+  completed:          { label: 'Completed',             tone: 'success' },
+  archived:           { label: 'Archived',              tone: 'muted' },
 }
 
 /** Ordered pipeline for the CRM board (excludes the terminal 'archived'). */
 export const SCHOOL_PIPELINE: SchoolStatus[] = [
-  'lead_identified', 'outreach_requested', 'outreach_approved', 'visit_completed',
+  'lead_identified', 'outreach_requested', 'outreach_approved',
   'registered', 'sessions_active', 'completed',
 ]
 
@@ -50,9 +49,8 @@ export const SCHOOL_PIPELINE: SchoolStatus[] = [
 export const SCHOOL_TRANSITIONS: Record<SchoolStatus, SchoolStatus[]> = {
   lead_identified:    ['outreach_requested', 'archived'],
   outreach_requested: ['outreach_approved', 'lead_identified', 'archived'],
-  outreach_approved:  ['visit_completed', 'outreach_requested', 'archived'],
-  visit_completed:    ['registered', 'outreach_approved', 'archived'],
-  registered:         ['sessions_active', 'visit_completed', 'archived'],
+  outreach_approved:  ['registered', 'outreach_requested', 'archived'],
+  registered:         ['sessions_active', 'outreach_approved', 'archived'],
   sessions_active:    ['completed', 'registered', 'archived'],
   completed:          ['sessions_active', 'archived'],
   archived:           ['lead_identified'],

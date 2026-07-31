@@ -6,4 +6,4 @@
 -- nullable with no format constraint — signup_requests.phone mirrors that.
 -- ═══════════════════════════════════════════════════════════════════════════
 
-alter table signup_requests add column phone text;
+alter table signup_requests add column if not exists phone text;

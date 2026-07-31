@@ -8,7 +8,7 @@ export interface StoredUser {
   niatId: string
   campus: string
   email: string
-  password: string
+  passwordHash: string
   role: Role
   status: "pending" | "approved" | "rejected"
   createdAt: string
@@ -95,39 +95,53 @@ export const DEFAULT_ADMIN = {
   password: "admin123",
 } as const
 
-function seedAdminIfNeeded(users: StoredUser[]): StoredUser[] {
+async function hashPassword(password: string): Promise<string> {
+  const cryptoObj = globalThis.crypto
+  if (cryptoObj?.subtle) {
+    const data = new TextEncoder().encode(password)
+    const digest = await cryptoObj.subtle.digest("SHA-256", data)
+    return Array.from(new Uint8Array(digest))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+  }
+  return btoa(password)
+}
+
+async function seedAdminIfNeeded(users: StoredUser[]): Promise<StoredUser[]> {
   const hasAdmin = users.some((u) => u.role === "admin")
   if (hasAdmin) return users
   const admin: StoredUser = {
-    id:        "admin-root",
-    fullName:  "Platform Admin",
-    niatId:    "ADMIN",
-    campus:    "HQ",
-    email:     DEFAULT_ADMIN.email,
-    password:  DEFAULT_ADMIN.password,
-    role:      "admin",
-    status:    "approved",
-    createdAt: "2026-01-01T00:00:00.000Z",
+    id:           "admin-root",
+    fullName:     "Platform Admin",
+    niatId:       "ADMIN",
+    campus:       "HQ",
+    email:        DEFAULT_ADMIN.email,
+    passwordHash: await hashPassword(DEFAULT_ADMIN.password),
+    role:         "admin",
+    status:       "approved",
+    createdAt:    "2026-01-01T00:00:00.000Z",
   }
   return [admin, ...users]
 }
 
 // Backward-compat: older records had no `role` field — treat them as volunteers.
-function normalizeUser(u: Partial<StoredUser>): StoredUser {
+function normalizeUser(u: Partial<StoredUser> & { password?: string }): StoredUser {
   return {
     role: "volunteer",
     status: "pending",
+    passwordHash: "",
     ...u,
+    passwordHash: u.passwordHash ?? "",
   } as StoredUser
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 
-export function getUsers(): StoredUser[] {
+export async function getUsers(): Promise<StoredUser[]> {
   try {
-    const raw = JSON.parse(localStorage.getItem(KEYS.users) ?? "[]") as Partial<StoredUser>[]
+    const raw = JSON.parse(localStorage.getItem(KEYS.users) ?? "[]") as (Partial<StoredUser> & { password?: string })[]
     const normalized = raw.map(normalizeUser)
-    const seeded = seedAdminIfNeeded(normalized)
+    const seeded = await seedAdminIfNeeded(normalized)
     // Persist the seeded admin so it survives reloads.
     if (seeded.length !== normalized.length) {
       localStorage.setItem(KEYS.users, JSON.stringify(seeded))

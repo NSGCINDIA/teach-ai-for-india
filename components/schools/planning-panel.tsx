@@ -1,8 +1,8 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
-import { savePlan, type PlanActionState } from '@/actions/plans'
+import { approvePlan, savePlan, type PlanActionState } from '@/actions/plans'
 import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { SESSION_TYPE_META } from '@/lib/constants/sessions'
 import type { SessionPlanRow, SessionType, SchoolStatus } from '@/types/database'
@@ -26,11 +26,45 @@ interface PlanningPanelProps {
   hasPriorSession: boolean
   /** Campus-scoped edit right (campus_lead / outreach_lead / admin). */
   canEdit: boolean
+  /** Campus-scoped approval right (campus_lead / super_admin). */
+  canApprove: boolean
 }
 
-export function PlanningPanel({ schoolId, schoolStatus, plan, hasPriorSession, canEdit }: PlanningPanelProps) {
-  if (!canEdit) {
-    return <p className="text-sm text-muted-foreground">You have read-only access to this school’s onboarding.</p>
+export function PlanningPanel({ schoolId, schoolStatus, plan, hasPriorSession, canEdit, canApprove }: PlanningPanelProps) {
+  if (!canEdit && !canApprove) {
+    return <p className="text-sm text-muted-foreground">You do not have permission to view this school’s onboarding.</p>
+  }
+
+  if (plan && plan.status === 'draft') {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg bg-warning/10 p-4 border border-warning/20">
+          <p className="text-sm font-medium text-warning flex items-center gap-1.5">
+            <AlertCircle className="size-4 shrink-0" /> Onboarding submitted & awaiting Campus Lead approval.
+          </p>
+        </div>
+
+        <OnboardingSummary plan={plan} />
+
+        {canApprove && (
+          <ApproveForm schoolId={schoolId} planId={plan.id} />
+        )}
+      </div>
+    )
+  }
+
+  if (plan && plan.status === 'approved') {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg bg-success/10 p-4 border border-success/20">
+          <p className="text-sm font-medium text-success flex items-center gap-1.5">
+            <CheckCircle2 className="size-4 shrink-0" /> Onboarding approved. School is Active!
+          </p>
+        </div>
+
+        <OnboardingSummary plan={plan} />
+      </div>
+    )
   }
 
   return (
@@ -45,9 +79,61 @@ function PlanForm({
 }: { schoolId: string; plan: SessionPlanRow | null; schoolStatus: SchoolStatus }) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(savePlan, {})
 
+  // Classes Covered state (Class 6..10)
+  const defaultClasses = plan?.classes_covered && Array.isArray(plan.classes_covered) ? plan.classes_covered : []
+  const [selectedClasses, setSelectedClasses] = useState<string[]>(defaultClasses)
+
+  // Digital Classrooms state & live recommendation (Digital Classrooms * 2)
+  const defaultDigitalClassrooms = plan?.digital_classrooms ?? 1
+  const [digitalClassrooms, setDigitalClassrooms] = useState<number>(defaultDigitalClassrooms)
+
+  // Assigned Fellows state (defaults to recommended count unless overridden)
+  const defaultAssignedFellows = plan?.assigned_fellows ?? (defaultDigitalClassrooms * 2)
+  const [assignedFellows, setAssignedFellows] = useState<number>(defaultAssignedFellows)
+  const [hasCustomAssigned, setHasCustomAssigned] = useState<boolean>(!!plan?.assigned_fellows)
+
+  const recommendedFellows = Math.max(0, digitalClassrooms * 2)
+
+  const handleDigitalClassroomsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Math.max(1, parseInt(e.target.value || '1', 10))
+    setDigitalClassrooms(val)
+    if (!hasCustomAssigned) {
+      setAssignedFellows(val * 2)
+    }
+  }
+
+  const handleAssignedFellowsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Math.max(0, parseInt(e.target.value || '0', 10))
+    setAssignedFellows(val)
+    setHasCustomAssigned(true)
+  }
+
+  const toggleClass = (cls: string) => {
+    setSelectedClasses(prev =>
+      prev.includes(cls) ? prev.filter(c => c !== cls) : [...prev, cls]
+    )
+  }
+
+  const AVAILABLE_CLASSES = ['Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10']
+
+  // Preferred Training Days state (Monday..Saturday)
+  const defaultDays = plan?.preferred_training_days && Array.isArray(plan.preferred_training_days) ? plan.preferred_training_days : []
+  const [selectedDays, setSelectedDays] = useState<string[]>(defaultDays)
+
+  const toggleDay = (day: string) => {
+    setSelectedDays(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    )
+  }
+
+  const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <form action={action} className="space-y-6" noValidate>
       <input type="hidden" name="school_id" value={schoolId} />
+      <input type="hidden" name="classes_covered" value={JSON.stringify(selectedClasses)} />
+      <input type="hidden" name="preferred_training_days" value={JSON.stringify(selectedDays)} />
+      <input type="hidden" name="recommended_fellows" value={recommendedFellows} />
 
       {state.error && (
         <p role="alert" className="flex items-start gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
@@ -70,26 +156,109 @@ function PlanForm({
         </Field>
       </Section>
 
-      <Section title="Scale">
-        <Field label="Student strength">
-          <Input type="number" min={0} name="student_strength" defaultValue={fieldValue(state, 'student_strength', numVal(plan?.student_strength))} />
+      <Section title="School Scale">
+        <Field label="Student strength" full>
+          <Input type="number" min={0} name="student_strength" defaultValue={fieldValue(state, 'student_strength', numVal(plan?.student_strength))} placeholder="e.g. 450" />
         </Field>
-        <Field label="Classes">
-          <Input type="number" min={0} name="num_classes" defaultValue={fieldValue(state, 'num_classes', numVal(plan?.num_classes))} />
-        </Field>
-        <Field label="Sections">
-          <Input type="number" min={0} name="num_sections" defaultValue={fieldValue(state, 'num_sections', numVal(plan?.num_sections))} />
-        </Field>
-        <Field label="Classrooms">
-          <Input type="number" min={0} name="num_classrooms" defaultValue={fieldValue(state, 'num_classrooms', numVal(plan?.num_classrooms))} />
+
+        <div className="col-span-2 space-y-2">
+          <Label>Classes Covered</Label>
+          <div className="flex flex-wrap gap-3 rounded-lg border border-border bg-card p-3">
+            {AVAILABLE_CLASSES.map((cls) => (
+              <label key={cls} className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={selectedClasses.includes(cls)}
+                  onChange={() => toggleClass(cls)}
+                  className="size-4 rounded border-input accent-brand"
+                />
+                <span className="font-medium">{cls}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Training Preferences">
+        <div className="col-span-2 space-y-2">
+          <Label>Preferred Training Days</Label>
+          <div className="flex flex-wrap gap-3 rounded-lg border border-border bg-card p-3">
+            {WEEK_DAYS.map((day) => (
+              <label key={day} className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={selectedDays.includes(day)}
+                  onChange={() => toggleDay(day)}
+                  className="size-4 rounded border-input accent-brand"
+                />
+                <span className="font-medium">{day}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <Field label="Preferred Time Slot" full>
+          <select
+            name="preferred_time_slot"
+            defaultValue={fieldValue(state, 'preferred_time_slot', plan?.preferred_time_slot ?? '')}
+            className={SELECT_CLASS}
+          >
+            <option value="">-- Select Time Slot --</option>
+            <option value="Morning">Morning</option>
+            <option value="Afternoon">Afternoon</option>
+            <option value="Full Day">Full Day</option>
+          </select>
         </Field>
       </Section>
 
-      <Section title="On-site infrastructure">
-        <Check name="has_lab" label="Computer lab" defaultChecked={fieldChecked(state, 'has_lab', plan?.has_lab)} />
-        <Check name="has_projector" label="Projector" defaultChecked={fieldChecked(state, 'has_projector', plan?.has_projector)} />
-        <Check name="has_internet" label="Internet" defaultChecked={fieldChecked(state, 'has_internet', plan?.has_internet)} />
+      <Section title="Infrastructure">
+        <Field label="Number of Digital Classrooms" full>
+          <Input
+            type="number"
+            min={1}
+            name="digital_classrooms"
+            value={digitalClassrooms}
+            onChange={handleDigitalClassroomsChange}
+            placeholder="e.g. 3"
+            required
+          />
+        </Field>
+
+        <div className="col-span-2 space-y-2.5">
+          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Infrastructure Checklist</Label>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <Check name="has_lab" label="Computer lab" defaultChecked={fieldChecked(state, 'has_lab', plan?.has_lab)} />
+            <Check name="has_internet" label="Internet" defaultChecked={fieldChecked(state, 'has_internet', plan?.has_internet)} />
+            <Check name="has_projector" label="Projector" defaultChecked={fieldChecked(state, 'has_projector', plan?.has_projector)} />
+            <Check name="smart_tv" label="Smart TV" defaultChecked={fieldChecked(state, 'smart_tv', plan?.smart_tv)} />
+            <Check name="ups_backup" label="UPS / Power Backup" defaultChecked={fieldChecked(state, 'ups_backup', plan?.ups_backup)} />
+          </div>
+        </div>
       </Section>
+
+      {/* Auto-calculated Recommendation Card */}
+      <div className="rounded-xl border border-brand/20 bg-brand/5 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-brand">Deployment Recommendation</h4>
+          <span className="text-xs text-muted-foreground">Rule: Digital Classrooms × 2</span>
+        </div>
+        <div className="grid grid-cols-2 gap-4 items-center">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Recommended Fellows</p>
+            <p className="text-2xl font-bold text-foreground">{recommendedFellows}</p>
+          </div>
+          <Field label="Assigned Fellows">
+            <Input
+              type="number"
+              min={0}
+              name="assigned_fellows"
+              value={assignedFellows}
+              onChange={handleAssignedFellowsChange}
+              placeholder="e.g. 6"
+            />
+          </Field>
+        </div>
+      </div>
 
       <input type="hidden" name="session_type" value="awareness" />
 
@@ -104,15 +273,15 @@ function PlanForm({
         <Textarea id="logistics_notes" name="logistics_notes" rows={3} defaultValue={fieldValue(state, 'logistics_notes', plan?.logistics_notes ?? '')} placeholder="Directions, permissions, equipment to carry…" />
       </div>
 
-      <Button type="submit" size="sm" variant="outline" disabled={pending}>
+      <Button type="submit" size="sm" disabled={pending}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
-        {schoolStatus === 'registered' ? 'Save & Onboard School' : 'Save Onboarding Details'}
+        {schoolStatus === 'registered'
+          ? 'Submit Onboarding Details'
+          : 'Update Onboarding Details'}
       </Button>
     </form>
   )
 }
-
-
 
 function numVal(n: number | null | undefined): string {
   return n === null || n === undefined ? '' : String(n)
@@ -144,3 +313,165 @@ function Check({ name, label, defaultChecked }: { name: string; label: string; d
     </label>
   )
 }
+
+function OnboardingSummary({ plan }: { plan: SessionPlanRow }) {
+  const classesList = plan.classes_covered && Array.isArray(plan.classes_covered) ? plan.classes_covered : []
+
+  return (
+    <div className="rounded-xl border border-border p-5 space-y-5 bg-card text-sm shadow-2xs">
+      <div className="flex items-center justify-between border-b border-border pb-3">
+        <h3 className="font-semibold text-base tracking-tight">Deployment Overview</h3>
+        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-brand/10 text-brand">
+          Operational Planning
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div>
+          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Coordinator Name</dt>
+          <dd className="mt-0.5 font-medium">{plan.coordinator_name || '—'}</dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Coordinator Phone</dt>
+          <dd className="mt-0.5 font-medium">{plan.coordinator_phone || '—'}</dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Designation</dt>
+          <dd className="mt-0.5 font-medium">{plan.coordinator_designation || '—'}</dd>
+        </div>
+      </div>
+
+      {/* Scale & Classes */}
+      <div className="border-t border-border pt-3 space-y-2">
+        <dt className="text-xs uppercase tracking-wide text-muted-foreground">Scale & Coverage</dt>
+        <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-2">
+          <div className="rounded-lg border border-border p-2.5 bg-muted/20">
+            <span className="text-muted-foreground block text-[10px] uppercase">Student Strength</span>
+            <span className="text-sm font-semibold text-foreground">{plan.student_strength ?? '—'}</span>
+          </div>
+          <div className="rounded-lg border border-border p-2.5 bg-muted/20">
+            <span className="text-muted-foreground block text-[10px] uppercase">Digital Classrooms</span>
+            <span className="text-sm font-semibold text-foreground">{plan.digital_classrooms ?? 1}</span>
+          </div>
+        </div>
+
+        <div>
+          <span className="text-xs text-muted-foreground block mb-1">Classes Covered:</span>
+          <div className="flex flex-wrap gap-1.5">
+            {classesList.length > 0 ? (
+              classesList.map((cls) => (
+                <span key={cls} className="rounded-md border border-border bg-muted/50 px-2 py-0.5 text-xs font-medium">
+                  {cls}
+                </span>
+              ))
+            ) : (
+              <span className="text-xs text-muted-foreground italic">None specified</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Training Preferences */}
+      <div className="border-t border-border pt-3 space-y-2">
+        <dt className="text-xs uppercase tracking-wide text-muted-foreground">Training Schedule Preferences</dt>
+        <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+          <div>
+            <span className="text-xs text-muted-foreground block mb-1">Preferred Days:</span>
+            <div className="flex flex-wrap gap-1.5">
+              {plan.preferred_training_days && Array.isArray(plan.preferred_training_days) && plan.preferred_training_days.length > 0 ? (
+                plan.preferred_training_days.map((day) => (
+                  <span key={day} className="rounded-md border border-brand/20 bg-brand/10 text-brand px-2 py-0.5 text-xs font-medium">
+                    {day}
+                  </span>
+                ))
+              ) : (
+                <span className="text-xs text-muted-foreground italic">None selected</span>
+              )}
+            </div>
+          </div>
+          <div>
+            <span className="text-xs text-muted-foreground block mb-1">Preferred Time Slot:</span>
+            <span className="inline-block rounded-md border border-border bg-muted/50 px-2.5 py-0.5 text-xs font-medium">
+              {plan.preferred_time_slot || 'Not specified'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Deployment & Fellow Recommendation */}
+      <div className="border-t border-border pt-3">
+        <dt className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Fellow Deployment</dt>
+        <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-2">
+          <div className="rounded-lg border border-brand/30 bg-brand/5 p-3">
+            <span className="text-muted-foreground block text-[10px] uppercase font-medium">Recommended Fellows</span>
+            <span className="text-lg font-bold text-brand">{plan.recommended_fellows ?? ((plan.digital_classrooms ?? 1) * 2)}</span>
+            <span className="text-[10px] text-muted-foreground block">({plan.digital_classrooms ?? 1} rooms × 2)</span>
+          </div>
+          <div className="rounded-lg border border-border bg-card p-3">
+            <span className="text-muted-foreground block text-[10px] uppercase font-medium">Assigned Fellows</span>
+            <span className="text-lg font-bold text-foreground">{plan.assigned_fellows ?? plan.recommended_fellows ?? 2}</span>
+            <span className="text-[10px] text-muted-foreground block">Operations Assigned</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Infrastructure Checklist */}
+      <div className="border-t border-border pt-3 space-y-2">
+        <dt className="text-xs uppercase tracking-wide text-muted-foreground">Infrastructure Summary</dt>
+        <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
+          <InfraBadge label="Computer Lab" available={plan.has_lab} />
+          <InfraBadge label="Internet" available={plan.has_internet} />
+          <InfraBadge label="Projector" available={plan.has_projector} />
+          <InfraBadge label="Smart TV" available={plan.smart_tv} />
+          <InfraBadge label="UPS / Power Backup" available={plan.ups_backup} />
+        </div>
+      </div>
+
+      {plan.approval_letter_path && (
+        <div className="border-t border-border pt-3">
+          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Approval Letter Path</dt>
+          <dd className="mt-0.5 font-mono text-xs text-muted-foreground truncate">{plan.approval_letter_path}</dd>
+        </div>
+      )}
+
+      {plan.logistics_notes && (
+        <div className="border-t border-border pt-3">
+          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Logistics Notes</dt>
+          <dd className="mt-0.5 text-muted-foreground whitespace-pre-line italic">“{plan.logistics_notes}”</dd>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function InfraBadge({ label, available }: { label: string; available?: boolean }) {
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-border p-2 bg-muted/20">
+      <span className={`size-2 rounded-full ${available ? 'bg-success' : 'bg-muted-foreground/30'}`} />
+      <span className="font-medium text-xs">{label}: <strong>{available ? 'Yes' : 'No'}</strong></span>
+    </div>
+  )
+}
+
+function ApproveForm({ schoolId, planId }: { schoolId: string; planId: string }) {
+  const [state, action, pending] = useActionState<PlanActionState, FormData>(approvePlan, {})
+
+  return (
+    <form action={action} className="space-y-2">
+      <input type="hidden" name="school_id" value={schoolId} />
+      <input type="hidden" name="plan_id" value={planId} />
+
+      {state.error && (
+        <p role="alert" className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
+          <AlertCircle className="size-4 shrink-0" /> {state.error}
+        </p>
+      )}
+
+      <Button type="submit" size="sm" className="bg-brand text-white hover:bg-brand/90" disabled={pending}>
+        {pending ? <Loader2 className="size-4 animate-spin" /> : null}
+        Approve & Activate School
+      </Button>
+    </form>
+  )
+}
+

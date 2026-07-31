@@ -6,6 +6,8 @@ import { requireUser } from '@/lib/auth/user'
 import { can } from '@/lib/auth/rbac'
 import { sessionPlanSchema, approvePlanSchema } from '@/lib/validations/plans'
 import { formValues } from '@/lib/actions/form-values'
+import type { SessionPlanStatus } from '@/types/database'
+
 
 export type PlanActionState = {
   error?: string; ok?: boolean; message?: string
@@ -62,19 +64,15 @@ export async function savePlan(
     .eq('id', schoolId)
     .single()
 
-  const isNewOnboarding = school?.status === 'registered'
 
-  // If new onboarding, we automatically approve the plan
-  const finalStatus = isNewOnboarding ? 'approved' : (existingPlan?.status ?? 'approved')
-  const approvalFields = isNewOnboarding ? {
-    approved_by: user.id,
-    approved_at: new Date().toISOString(),
-  } : {}
+  const isPendingApproval = school?.status === 'registered'
+
+  // Onboarding submitted at 'registered' status is saved as 'draft' (pending approval).
+  const finalStatus: SessionPlanStatus = 'draft'
 
   const payloadWithStatus = {
     ...payload,
     status: finalStatus,
-    ...approvalFields,
   }
 
   const { error } = existingPlan
@@ -83,24 +81,16 @@ export async function savePlan(
 
   if (error) return { error: error.message, values }
 
-  if (isNewOnboarding) {
-    // Transition the school status to sessions_active (Active School)
-    const { error: statusError } = await supabase.rpc('change_school_status', {
-      p_school_id: schoolId,
-      p_new_status: 'sessions_active',
-      p_note: 'School onboarding completed',
-    })
-    if (statusError) {
-      console.error('Failed to transition school status to sessions_active:', statusError.message)
-    }
-  }
-
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath(`/admin/schools/${schoolId}`)
   revalidatePath('/dashboard/schools')
   revalidatePath('/admin/schools')
-  
-  return { ok: true, message: isNewOnboarding ? 'School onboarded successfully.' : 'Onboarding details updated.' }
+
+  const message = isPendingApproval
+    ? 'Onboarding details submitted for approval! ✓'
+    : 'Onboarding details updated.'
+
+  return { ok: true, message }
 }
 
 /**
