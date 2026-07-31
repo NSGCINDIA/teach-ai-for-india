@@ -81,7 +81,11 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
   if (!id) return { error: 'Missing request id.' }
 
   const admin = createAdminClient()
-  const { data: req } = await admin.from('signup_requests').select('*').eq('id', id).maybeSingle()
+  const { data: req } = await admin
+    .from('signup_requests')
+    .select('id, email, full_name, role, status, auth_user_id, requested_role')
+    .eq('id', id)
+    .maybeSingle()
   if (!req) return { error: 'Signup request not found.' }
   if (req.status !== 'pending') return { error: 'This request has already been reviewed.' }
   if (!req.auth_user_id) return { error: 'This request is missing its credential and cannot be approved.' }
