@@ -95,19 +95,20 @@ export const DEFAULT_ADMIN = {
   password: "admin123",
 } as const
 
-async function hashPassword(password: string): Promise<string> {
-  const cryptoObj = globalThis.crypto
-  if (cryptoObj?.subtle) {
-    const data = new TextEncoder().encode(password)
-    const digest = await cryptoObj.subtle.digest("SHA-256", data)
-    return Array.from(new Uint8Array(digest))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("")
+function hashPasswordSync(password: string): string {
+  try {
+    let hash = 0
+    for (let i = 0; i < password.length; i++) {
+      hash = ((hash << 5) - hash) + password.charCodeAt(i)
+      hash |= 0
+    }
+    return Math.abs(hash).toString(16)
+  } catch {
+    return btoa(password)
   }
-  return btoa(password)
 }
 
-async function seedAdminIfNeeded(users: StoredUser[]): Promise<StoredUser[]> {
+function seedAdminIfNeeded(users: StoredUser[]): StoredUser[] {
   const hasAdmin = users.some((u) => u.role === "admin")
   if (hasAdmin) return users
   const admin: StoredUser = {
@@ -116,7 +117,7 @@ async function seedAdminIfNeeded(users: StoredUser[]): Promise<StoredUser[]> {
     niatId:       "ADMIN",
     campus:       "HQ",
     email:        DEFAULT_ADMIN.email,
-    passwordHash: await hashPassword(DEFAULT_ADMIN.password),
+    passwordHash: hashPasswordSync(DEFAULT_ADMIN.password),
     role:         "admin",
     status:       "approved",
     createdAt:    "2026-01-01T00:00:00.000Z",
@@ -129,19 +130,18 @@ function normalizeUser(u: Partial<StoredUser> & { password?: string }): StoredUs
   return {
     role: "volunteer",
     status: "pending",
-    passwordHash: "",
-    ...u,
     passwordHash: u.passwordHash ?? "",
+    ...u,
   } as StoredUser
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 
-export async function getUsers(): Promise<StoredUser[]> {
+export function getUsers(): StoredUser[] {
   try {
     const raw = JSON.parse(localStorage.getItem(KEYS.users) ?? "[]") as (Partial<StoredUser> & { password?: string })[]
     const normalized = raw.map(normalizeUser)
-    const seeded = await seedAdminIfNeeded(normalized)
+    const seeded = seedAdminIfNeeded(normalized)
     // Persist the seeded admin so it survives reloads.
     if (seeded.length !== normalized.length) {
       localStorage.setItem(KEYS.users, JSON.stringify(seeded))
