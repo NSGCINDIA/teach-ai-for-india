@@ -10,52 +10,54 @@
 :root {
   --radius: 0.875rem;
 
-  /* Brand */
-  --brand: #1b4dff;          /* Trust, technology */
-  --brand-orange: #ff6b35;   /* Energy, India */
-  --brand-teal: #00c9a7;     /* Growth, education */
+  /* NIAT Multi-Tone Brand Kit Palette */
+  --brand: #881337;          /* Maroon Red Primary */
+  --brand-orange: #ffb218;   /* Gold / Amber Accent */
+  --brand-teal: #16a34a;     /* Emerald Badge Accent */
+  --brand-dark: #0a0b0e;     /* Deep Dark Onyx */
+  --brand-card: #131415;     /* Dark Surface Card */
 
-  /* shadcn semantic (light) */
+  /* shadcn semantic mapped to NIAT multi-tone identity */
   --background: #f8fafc;
-  --foreground: #111827;
+  --foreground: #0f172a;
   --card: #ffffff;
-  --card-foreground: #111827;
+  --card-foreground: #0f172a;
   --popover: #ffffff;
-  --popover-foreground: #111827;
-  --primary: #1b4dff;
+  --popover-foreground: #0f172a;
+  --primary: #881337;
   --primary-foreground: #ffffff;
-  --secondary: #f1f3f9;
-  --secondary-foreground: #111827;
-  --muted: #f8f9fc;
-  --muted-foreground: #6b7280;
-  --accent: #eef1fb;
-  --accent-foreground: #1b4dff;
-  --destructive: #dc2626;
+  --secondary: #fff1f2;
+  --secondary-foreground: #881337;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --accent: #fef3c7;
+  --accent-foreground: #881337;
+  --destructive: #991b1b;
   --destructive-foreground: #ffffff;
-  --border: #e4e7ef;
-  --input: #e4e7ef;
-  --ring: #1b4dff;
-  --placeholder: #9ca3af;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #881337;
+  --placeholder: #94a3b8;
 
   /* Semantic */
   --success: #16a34a;
-  --warning: #d97706;
-  --error: #dc2626;
-  --info: #2563eb;
+  --warning: #ffb218;
+  --error: #991b1b;
+  --info: #881337;
 
-  /* Status badge colors (CRM + sessions — PRD §12.2) */
-  --status-lead: #9ca3af;
-  --status-contacted: #60a5fa;
-  --status-pending: #fbbf24;
-  --status-approved: #34d399;
-  --status-completed: #6366f1;
-  --status-archived: #e5e7eb;
+  /* Status badge colors (CRM + sessions) */
+  --status-lead: #94a3b8;
+  --status-contacted: #ffb218;
+  --status-pending: #881337;
+  --status-approved: #16a34a;
+  --status-completed: #e87811;
+  --status-archived: #e2e8f0;
 
-  --chart-1: #1b4dff;
-  --chart-2: #ff6b35;
-  --chart-3: #00c9a7;
-  --chart-4: #6366f1;
-  --chart-5: #fbbf24;
+  --chart-1: #881337;
+  --chart-2: #ffb218;
+  --chart-3: #16a34a;
+  --chart-4: #e87811;
+  --chart-5: #be123c;
 }
 
 @theme inline {
@@ -151,13 +153,13 @@
     @apply text-xs font-bold uppercase tracking-[0.18em];
   }
   .text-gradient-brand {
-    background: linear-gradient(120deg, var(--brand) 0%, #4f46e5 45%, var(--brand-teal) 100%);
+    background: linear-gradient(120deg, #881337 0%, #be123c 45%, #ffb218 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .text-gradient-warm {
-    background: linear-gradient(120deg, var(--brand-orange) 0%, #f43f5e 100%);
+    background: linear-gradient(120deg, #ffb218 0%, #e87811 50%, #881337 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

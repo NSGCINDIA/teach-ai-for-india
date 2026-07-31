@@ -26,8 +26,8 @@ export async function Footer() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded-md">
-              <span className="grid size-8 place-items-center rounded-lg bg-brand text-white shrink-0 group-hover:scale-105 transition-transform">
+            <Link href="/" className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#881337] rounded-md">
+              <span className="grid size-8 place-items-center rounded-lg bg-[#881337] text-white shrink-0 group-hover:scale-105 transition-transform shadow-sm shadow-rose-950/20">
                 <Sparkles className="size-4.5" aria-hidden />
               </span>
               <span className="font-display text-base font-extrabold tracking-tight text-slate-900">Teach AI for India</span>
@@ -43,7 +43,7 @@ export async function Footer() {
             <ul className="mt-4 space-y-2.5">
               {SITE_LINKS.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-slate-600 transition-colors hover:text-brand">
+                  <Link href={l.href} className="text-sm text-slate-600 transition-colors hover:text-[#881337]">
                     {l.label}
                   </Link>
                 </li>
@@ -57,7 +57,7 @@ export async function Footer() {
             <ul className="mt-4 space-y-2.5">
               {ENGAGE_LINKS.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-slate-600 transition-colors hover:text-brand">
+                  <Link href={l.href} className="text-sm text-slate-600 transition-colors hover:text-[#881337]">
                     {l.label}
                   </Link>
                 </li>
@@ -70,12 +70,12 @@ export async function Footer() {
             <h2 className="section-label text-slate-400">Contact</h2>
             <ul className="mt-4 space-y-2.5 text-sm text-slate-600">
               <li>
-                <a href={`mailto:${contact.email}`} className="inline-flex items-center gap-2 transition-colors hover:text-brand">
+                <a href={`mailto:${contact.email}`} className="inline-flex items-center gap-2 transition-colors hover:text-[#881337]">
                   <Mail className="size-4 shrink-0 text-slate-400" aria-hidden /> {contact.email}
                 </a>
               </li>
               <li>
-                <a href={`tel:${contact.phone.replace(/\s+/g, '')}`} className="inline-flex items-center gap-2 transition-colors hover:text-brand">
+                <a href={`tel:${contact.phone.replace(/\s+/g, '')}`} className="inline-flex items-center gap-2 transition-colors hover:text-[#881337]">
                   <Phone className="size-4 shrink-0 text-slate-400" aria-hidden /> {contact.phone}
                 </a>
               </li>
@@ -89,7 +89,7 @@ export async function Footer() {
                   <li key={s.label}>
                     <a
                       href={s.href}
-                      className="text-sm font-medium text-slate-500 transition-colors hover:text-brand"
+                      className="text-sm font-medium text-slate-500 transition-colors hover:text-[#881337]"
                       target="_blank"
                       rel="noreferrer noopener"
                     >

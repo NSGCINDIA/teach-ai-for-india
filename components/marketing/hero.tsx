@@ -84,7 +84,7 @@ export function Hero({ content }: { content: HeroContent }) {
         </svg>
       </div>
 
-      {/* Cybernetic ambient light blobs */}
+      {/* NIAT Multi-Tone Ambient Light Blobs (Maroon Red & Gold/Amber) */}
       <motion.div
         aria-hidden
         animate={{
@@ -97,7 +97,7 @@ export function Hero({ content }: { content: HeroContent }) {
           repeat: Infinity,
           ease: 'easeInOut',
         }}
-        className="pointer-events-none absolute -top-40 left-1/4 size-[40rem] rounded-full bg-gradient-to-br from-cyan-500/18 via-blue-600/12 to-transparent blur-[130px] dark:from-cyan-500/10 dark:via-blue-600/6"
+        className="pointer-events-none absolute -top-40 left-1/4 size-[40rem] rounded-full bg-gradient-to-br from-[#881337]/18 via-[#ffb218]/12 to-transparent blur-[130px] dark:from-[#881337]/15 dark:via-[#ffb218]/10"
       />
       <motion.div
         aria-hidden
@@ -111,7 +111,7 @@ export function Hero({ content }: { content: HeroContent }) {
           repeat: Infinity,
           ease: 'easeInOut',
         }}
-        className="pointer-events-none absolute bottom-0 right-1/4 size-[35rem] rounded-full bg-gradient-to-br from-indigo-600/20 via-sky-500/10 to-transparent dark:from-indigo-600/10 dark:via-sky-500/5 blur-[130px]"
+        className="pointer-events-none absolute bottom-0 right-1/4 size-[35rem] rounded-full bg-gradient-to-br from-[#ffb218]/15 via-[#881337]/10 to-transparent dark:from-[#ffb218]/10 dark:via-[#881337]/5 blur-[130px]"
       />
 
       <div className="container-wide relative px-5 md:px-8 lg:px-12 z-10">
@@ -126,8 +126,8 @@ export function Hero({ content }: { content: HeroContent }) {
           >
             {content.eyebrow && (
               <motion.div variants={item}>
-                <span className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 dark:bg-brand/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-brand shadow-soft backdrop-blur-md">
-                  <Sparkles className="size-3.5 animate-pulse text-brand" />
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#881337]/30 bg-gradient-to-r from-[#881337]/10 via-[#ffb218]/15 to-transparent px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#881337] shadow-soft backdrop-blur-md dark:text-[#ffb218]">
+                  <Sparkles className="size-3.5 animate-pulse text-[#881337] dark:text-[#ffb218]" />
                   {content.eyebrow}
                 </span>
               </motion.div>
@@ -139,7 +139,7 @@ export function Hero({ content }: { content: HeroContent }) {
             >
               Building India's first <br />
               student-led <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand via-brand-orange to-brand-teal">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#881337] via-[#be123c] to-[#ffb218]">
                 AI education movement
               </span>
             </motion.h1>
@@ -157,7 +157,7 @@ export function Hero({ content }: { content: HeroContent }) {
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -8, opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="inline-block text-brand dark:text-primary font-bold border-b border-brand/20 dark:border-primary/20 pb-0.5"
+                    className="inline-block text-[#881337] dark:text-[#ffb218] font-bold border-b border-[#881337]/30 dark:border-[#ffb218]/30 pb-0.5"
                   >
                     {words[index]}
                   </motion.span>
@@ -168,7 +168,7 @@ export function Hero({ content }: { content: HeroContent }) {
 
             {/* Email Capsule with Shifting Gradient Border Beam */}
             <motion.div variants={item} className="mt-8 w-full max-w-md relative group">
-              <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-brand via-brand-orange to-brand-teal opacity-30 blur group-hover:opacity-75 transition duration-500" />
+              <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-[#881337] via-[#be123c] to-[#ffb218] opacity-30 blur group-hover:opacity-75 transition duration-500" />
               
               <div className="relative p-1.5 w-full bg-background dark:bg-card/90 backdrop-blur-md rounded-full border border-border/80 flex items-center justify-between shadow-soft-lg transition-all duration-300">
                 <input
@@ -176,7 +176,7 @@ export function Hero({ content }: { content: HeroContent }) {
                   placeholder="Enter your email to volunteer..."
                   className="bg-transparent pl-5 pr-2 py-2.5 text-sm w-full outline-none border-none text-foreground placeholder:text-muted-foreground/75 font-medium"
                 />
-                <Button asChild size="sm" className="bg-brand text-white hover:bg-brand/90 rounded-full px-6 py-2.5 whitespace-nowrap font-bold shadow-md transition-all active:scale-95">
+                <Button asChild size="sm" className="bg-[#881337] text-white hover:bg-[#701a28] rounded-full px-6 py-2.5 whitespace-nowrap font-bold shadow-md shadow-rose-950/25 transition-all active:scale-95">
                   <Link href="/join">Apply Now</Link>
                 </Button>
               </div>
@@ -187,16 +187,16 @@ export function Hero({ content }: { content: HeroContent }) {
               variants={item}
               className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider cursor-default"
             >
-              <div className="flex items-center gap-1.5 hover:text-brand transition-colors">
-                <CheckCircle className="size-4.5 text-brand" />
+              <div className="flex items-center gap-1.5 hover:text-[#881337] transition-colors">
+                <CheckCircle className="size-4.5 text-[#881337]" />
                 <span>100% Student Led</span>
               </div>
-              <div className="flex items-center gap-1.5 hover:text-brand-orange transition-colors">
-                <CheckCircle className="size-4.5 text-brand-orange" />
+              <div className="flex items-center gap-1.5 hover:text-[#ffb218] transition-colors">
+                <CheckCircle className="size-4.5 text-[#ffb218]" />
                 <span>Telangana & AP</span>
               </div>
-              <div className="flex items-center gap-1.5 hover:text-brand-teal transition-colors">
-                <CheckCircle className="size-4.5 text-brand-teal" />
+              <div className="flex items-center gap-1.5 hover:text-[#16a34a] transition-colors">
+                <CheckCircle className="size-4.5 text-[#16a34a]" />
                 <span>9 Campuses</span>
               </div>
             </motion.div>
@@ -205,16 +205,16 @@ export function Hero({ content }: { content: HeroContent }) {
               variants={item}
               className="mt-10 flex flex-wrap items-center gap-4"
             >
-              <Button asChild size="lg" className="bg-brand text-white hover:bg-brand/90 rounded-full px-7 shadow-lg shadow-brand/20 transition-all hover:translate-y-[-2px] active:translate-y-0">
+              <Button asChild size="lg" className="bg-[#881337] text-white hover:bg-[#701a28] rounded-full px-7 shadow-lg shadow-rose-950/25 transition-all hover:translate-y-[-2px] active:translate-y-0 font-bold">
                 <Link href="/impact">
                   <BarChart3 className="size-4 mr-2" aria-hidden />
                   See our impact
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="group rounded-full px-7 hover:bg-muted/50 transition-all hover:translate-y-[-2px] active:translate-y-0">
+              <Button asChild size="lg" variant="outline" className="group rounded-full px-7 border-slate-300 dark:border-slate-700 hover:bg-rose-50/50 dark:hover:bg-slate-900 hover:border-[#881337] transition-all hover:translate-y-[-2px] active:translate-y-0 font-semibold">
                 <Link href="/join">
                   Join the movement
-                  <ArrowRight className="size-4 ml-2 transition-transform group-hover:translate-x-1" aria-hidden />
+                  <ArrowRight className="size-4 ml-2 transition-transform group-hover:translate-x-1 text-[#881337]" aria-hidden />
                 </Link>
               </Button>
             </motion.div>
