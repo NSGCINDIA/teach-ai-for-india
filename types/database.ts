@@ -457,6 +457,18 @@ export interface Database {
         Args: { p_member_id: string; p_replacement_volunteer_id: string; p_reason?: string }
         Returns: string
       }
+      check_volunteer_double_booking: {
+        Args: { p_volunteer_ids: string[]; p_target_school_id?: string }
+        Returns: { volunteer_id: string; conflicting_school_id: string; conflicting_school_name: string; conflict_reason: string }[]
+      }
+      mark_temporary_session_absence: {
+        Args: { p_session_id: string; p_user_id: string; p_status: string; p_notes?: string }
+        Returns: undefined
+      }
+      evaluate_and_issue_school_certificates: {
+        Args: { p_school_id: string }
+        Returns: number
+      }
       submit_school_execution_plan: {
         Args: {
           p_school_id: string

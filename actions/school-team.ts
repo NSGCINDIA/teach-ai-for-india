@@ -144,3 +144,26 @@ export async function replaceSchoolTeamMember(
   revalidatePath('/dashboard/schools')
   return { ok: true, message: 'Team member replaced and availability requested for replacement.' }
 }
+
+/** Mark temporary session absence for a single session (Task 12). */
+export async function markSessionAbsence(
+  sessionId: string,
+  userId: string,
+  status: 'absent' | 'excused',
+  notes?: string,
+): Promise<SchoolTeamActionState> {
+  await requireUser(`/dashboard/sessions/${sessionId}`)
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('mark_temporary_session_absence', {
+    p_session_id: sessionId,
+    p_user_id: userId,
+    p_status: status,
+    p_notes: notes || undefined,
+  })
+
+  if (error) return { error: error.message }
+
+  revalidatePath(`/dashboard/sessions/${sessionId}`)
+  return { ok: true, message: `Session status marked as ${status}.` }
+}

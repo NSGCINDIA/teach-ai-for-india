@@ -27,6 +27,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 
+import { validateSchoolTeamReadiness } from '@/lib/validations/team-readiness'
+
 interface TeamPanelProps {
   schoolId: string
   team: SchoolTeamMemberDetail[]
@@ -69,6 +71,10 @@ export function TeamPanel({
   const requestedMembers = activeMembers.filter((m) => m.status === 'requested')
   const unavailableMembers = activeMembers.filter((m) => m.status === 'unavailable')
 
+  // Evaluate Team Readiness Gate (Phase 2 Task 9 & 27)
+  const teamReadiness = validateSchoolTeamReadiness(requiredVolunteers || 2, activeMembers)
+  const isOversized = confirmedMembers.length > (requiredVolunteers || 2)
+
   // Volunteers on roster not yet on the active team
   const activeVolIds = new Set(activeMembers.map((m) => m.volunteer_id))
   const availableRoster = roster.filter((r) => !activeVolIds.has(r.id))
@@ -81,32 +87,71 @@ export function TeamPanel({
 
   return (
     <div className="space-y-6">
-      {/* Header Summary */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 p-3">
-        <div className="flex items-center gap-2">
-          <Users className="size-5 text-brand" />
+      {/* Team Readiness Gate Card (Task 27) */}
+      <div className={`rounded-xl p-4 border space-y-3 ${teamReadiness.ready ? 'bg-success/5 border-success/30' : 'bg-warning/5 border-warning/30'}`}>
+        <div className="flex items-center justify-between">
           <div>
-            <h4 className="text-sm font-semibold">School Volunteer Team</h4>
-            <p className="text-xs text-muted-foreground">
-              {confirmedMembers.length} confirmed of {requiredVolunteers || '—'} required volunteers
+            <h4 className="text-sm font-semibold flex items-center gap-2">
+              {teamReadiness.ready ? (
+                <ShieldCheck className="size-4 text-success" />
+              ) : (
+                <AlertCircle className="size-4 text-warning" />
+              )}
+              Team Readiness Gate
+            </h4>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {confirmedMembers.length} / {requiredVolunteers || 2} volunteers confirmed
             </p>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
           <Badge
             variant="outline"
             className={
-              confirmedMembers.length >= requiredVolunteers && requiredVolunteers > 0
-                ? 'border-success/30 bg-success/10 text-success'
-                : 'border-border'
+              teamReadiness.ready
+                ? 'border-success/30 bg-success/10 text-success font-bold'
+                : 'border-warning/30 bg-warning/10 text-warning font-bold'
             }
           >
-            {confirmedMembers.length >= requiredVolunteers && requiredVolunteers > 0
-              ? 'Team Ready'
-              : 'Team Building'}
+            {teamReadiness.ready ? 'TEAM READY' : 'BLOCKED'}
           </Badge>
         </div>
+
+        {/* Breakdown Stats Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs pt-1">
+          <div className="rounded border bg-background/50 p-1.5">
+            <span className="block text-muted-foreground text-[10px]">Required</span>
+            <strong className="font-bold">{requiredVolunteers || 2}</strong>
+          </div>
+          <div className="rounded border bg-success/10 text-success p-1.5">
+            <span className="block text-[10px]">Confirmed</span>
+            <strong className="font-bold">{confirmedMembers.length}</strong>
+          </div>
+          <div className="rounded border bg-brand/10 text-brand p-1.5">
+            <span className="block text-[10px]">Available</span>
+            <strong className="font-bold">{availableMembers.length}</strong>
+          </div>
+          <div className="rounded border bg-warning/10 text-warning p-1.5">
+            <span className="block text-[10px]">Awaiting</span>
+            <strong className="font-bold">{requestedMembers.length}</strong>
+          </div>
+          <div className="rounded border bg-destructive/10 text-destructive p-1.5">
+            <span className="block text-[10px]">Unavailable</span>
+            <strong className="font-bold">{unavailableMembers.length}</strong>
+          </div>
+        </div>
+
+        {!teamReadiness.ready && (
+          <p className="text-xs text-warning font-medium border-t border-warning/20 pt-2">
+            Reason: {teamReadiness.missing.join(', ')}
+          </p>
+        )}
+
+        {isOversized && (
+          <div className="rounded bg-warning/10 border border-warning/20 p-2 text-xs text-warning flex items-center gap-1.5">
+            <AlertCircle className="size-4 shrink-0" />
+            <span>Warning: You have confirmed {confirmedMembers.length} volunteers ({confirmedMembers.length - (requiredVolunteers || 2)} above the required count of {requiredVolunteers || 2}).</span>
+          </div>
+        )}
       </div>
 
       {/* Active Team List */}

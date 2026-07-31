@@ -8,6 +8,7 @@ import { MetricCard } from '@/components/shared/metric-card'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { EmptyState } from '@/components/shared/states'
 import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { BudgetRequestReviewList } from '@/components/dashboard/budget-request-review-list'
 import { formatDate, formatCurrency, formatNumber } from '@/lib/format'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
@@ -222,50 +223,94 @@ export function OutreachOverview({ name, data }: { name: string; data: OutreachD
 }
 
 // ─── Volunteer Lead ─────────────────────────────────────────────────────────
-export function VolunteerLeadOverview({ name, data }: { name: string; data: VolunteerLeadData }) {
+export function VolunteerLeadOverview({
+  name,
+  data,
+  queueData,
+}: {
+  name: string
+  data: VolunteerLeadData
+  queueData?: any
+}) {
   const k = data.kpis
+  const workItems = queueData?.workItems ?? []
+
   return (
     <div className="space-y-6">
       <OverviewHeader name={name} role="Volunteer Lead" />
 
+      {/* Top Operational Metrics */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Kpi label="Volunteers Available" value={formatNumber(k.volunteersAvailable)} icon={Users} />
-        <Kpi label="Upcoming Sessions" value={formatNumber(k.upcomingSessions)} icon={CalendarClock} />
-        <Kpi label="Attendance Rate" value={`${k.attendanceRate}%`} icon={Percent} />
-        <Kpi label="Sessions This Month" value={formatNumber(k.sessionsThisMonth)} icon={CheckCircle2} />
+        <Kpi label="Schools Needing Teams" value={formatNumber(queueData?.schoolsNeedingTeamsCount ?? 0)} icon={School} />
+        <Kpi label="Incomplete Teams" value={formatNumber(queueData?.incompleteTeamsCount ?? 0)} icon={Users} />
+        <Kpi label="Pending Responses" value={formatNumber(queueData?.pendingResponsesCount ?? 0)} icon={CalendarClock} />
+        <Kpi label="Teams Ready" value={formatNumber(queueData?.teamsReadyCount ?? 0)} icon={CheckCircle2} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Widget title="Upcoming Sessions — need volunteers" href="/dashboard/sessions">
-          <SessionRows sessions={data.upcomingSessions} empty="No upcoming sessions to staff." />
-        </Widget>
-        <Widget title="Attendance Summary">
-          <div className="flex items-center gap-6 py-2">
-            <div>
-              <p className="font-display text-3xl font-bold tabular-nums">{data.attendance.present}</p>
-              <p className="text-xs text-muted-foreground">Present marks</p>
-            </div>
-            <div>
-              <p className="font-display text-3xl font-bold tabular-nums">{data.attendance.total}</p>
-              <p className="text-xs text-muted-foreground">Total marks</p>
-            </div>
-            <div className="ml-auto text-right">
-              <p className="font-display text-3xl font-bold tabular-nums text-brand">{k.attendanceRate}%</p>
-              <p className="text-xs text-muted-foreground">Rate</p>
-            </div>
+      {/* Volunteer Lead Work Queue */}
+      <Card className="p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-display font-semibold text-base flex items-center gap-2">
+              <Users className="size-4 text-brand" /> Work Queue — Schools Needing Teams
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Active schools requiring volunteer team assignment.
+            </p>
           </div>
-        </Widget>
-      </div>
-
-      <Card className="flex items-start gap-4 border-brand/20 bg-brand/5 p-5">
-        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand text-primary-foreground"><Users className="size-5" /></span>
-        <div>
-          <h2 className="font-display font-semibold">Volunteer assignment is coming next</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Volunteer requests, per-session assignment, and accept/decline confirmations land in the next phase.
-            Your available-volunteer count and attendance are already live above.
-          </p>
+          <Link href="/dashboard/assignments" className="text-xs font-semibold text-brand hover:underline">
+            View All →
+          </Link>
         </div>
+
+        {workItems.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg">
+            No active schools needing teams right now. All teams are staffed! 🎉
+          </p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {workItems.map((item: any) => {
+              const isReady = item.confirmed_count >= item.required_volunteers
+              return (
+                <div
+                  key={item.id}
+                  className={`p-3 rounded-xl border space-y-2 text-xs ${
+                    isReady ? 'border-success/30 bg-success/5' : 'border-warning/30 bg-warning/5'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-bold text-sm">
+                        <Link href={`/dashboard/schools/${item.id}`} className="hover:underline text-brand">
+                          {item.name}
+                        </Link>
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">{item.district} · {item.student_strength} students</p>
+                    </div>
+                    <Badge variant="outline" className={isReady ? 'border-success/30 bg-success/10 text-success' : 'border-warning/30 bg-warning/10 text-warning'}>
+                      {isReady ? 'Ready' : 'Building'}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-border/50 pt-2 text-[11px]">
+                    <span>Confirmed: <strong>{item.confirmed_count} / {item.required_volunteers}</strong></span>
+                    <span>Awaiting: <strong>{item.requested_count}</strong></span>
+                    <span>Unavailable: <strong>{item.unavailable_count}</strong></span>
+                  </div>
+
+                  <div className="flex justify-end pt-1">
+                    <Link
+                      href={`/dashboard/schools/${item.id}`}
+                      className="text-xs font-semibold text-brand hover:underline"
+                    >
+                      {isReady ? 'View Team →' : 'Build Team →'}
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </Card>
     </div>
   )
@@ -314,41 +359,182 @@ export function ExecOverview({ name, data }: { name: string; data: ExecData }) {
   )
 }
 
-// ─── Volunteer ──────────────────────────────────────────────────────────────
-export function VolunteerOverview({ name, data }: { name: string; data: VolunteerData }) {
+// ─── Volunteer (My Teach AI Journey) ─────────────────────────────────────────
+export function VolunteerOverview({
+  name,
+  data,
+  journeyData,
+}: {
+  name: string
+  data: VolunteerData
+  journeyData?: any
+}) {
   const k = data.kpis
+  const school = journeyData?.school
+  const nextSess = journeyData?.nextSession
+  const prog = journeyData?.progress
+  const history = journeyData?.history ?? []
+
   return (
     <div className="space-y-6">
       <OverviewHeader name={name} role="Volunteer" />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Kpi label="Upcoming Sessions" value={formatNumber(k.upcomingCount)} icon={CalendarClock} />
-        <Kpi label="Sessions Attended" value={formatNumber(k.pastSessions)} icon={CheckCircle2} />
-        <Kpi label="Hours Contributed" value={formatNumber(k.hoursContributed)} icon={Timer} />
-        <Kpi label="My Claims" value={formatNumber(k.myClaims)} icon={Wallet} />
+      {/* MY TEACH AI JOURNEY CARD (Tasks 16, 23) */}
+      {school ? (
+        <Card className="border-brand/30 bg-brand/5 p-5 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span className="text-[10px] uppercase tracking-wider font-bold text-brand block">MY TEACH AI JOURNEY</span>
+              <h2 className="font-display text-xl font-bold text-foreground leading-tight">
+                {school.name}
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">{school.district} · Team Member</p>
+            </div>
+            <Badge variant="outline" className="border-success/30 bg-success/10 text-success font-bold text-xs">
+              Status: {school.team_status?.toUpperCase() ?? 'CONFIRMED'}
+            </Badge>
+          </div>
+
+          <div className="space-y-1 border-t border-brand/10 pt-3">
+            <div className="flex justify-between text-xs font-semibold">
+              <span>School Program Progress</span>
+              <span>{prog?.completedSessions ?? 0} / 4 Sessions Verified ({prog?.schoolCompletionPercentage ?? 0}%)</span>
+            </div>
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-brand transition-all" style={{ width: `${prog?.schoolCompletionPercentage ?? 0}%` }} />
+            </div>
+          </div>
+        </Card>
+      ) : (
+        <Card className="border-border p-5 text-center text-muted-foreground">
+          <p className="text-sm">You are not currently assigned to an active school team.</p>
+          <p className="text-xs mt-1">Your Volunteer Lead will request your availability when new school teams form.</p>
+        </Card>
+      )}
+
+      {/* NEXT SESSION CARD */}
+      {nextSess && (
+        <Card className="p-5 border-brand/20 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-base flex items-center gap-2">
+              <CalendarClock className="size-4 text-brand" /> NEXT SCHEDULED SESSION
+            </h3>
+            <Badge variant="outline" className="border-brand/30 bg-brand/10 text-brand font-semibold">
+              Session {nextSess.session_number}
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-muted/20 p-3 rounded-lg border">
+            <div>
+              <span className="text-muted-foreground block text-[10px] uppercase">Topic</span>
+              <strong className="font-semibold text-sm">{nextSess.topic}</strong>
+            </div>
+            <div>
+              <span className="text-muted-foreground block text-[10px] uppercase">Scheduled Date & Time</span>
+              <strong className="font-semibold">{formatDate(nextSess.scheduled_at)}</strong>
+            </div>
+            <div>
+              <span className="text-muted-foreground block text-[10px] uppercase">Meeting Point & Departure</span>
+              <strong className="font-semibold">{nextSess.meeting_point} ({nextSess.departure_time})</strong>
+            </div>
+            <div>
+              <span className="text-muted-foreground block text-[10px] uppercase">Team Size</span>
+              <strong className="font-semibold">{nextSess.team_size} Volunteers</strong>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Link href={`/dashboard/sessions/${nextSess.id}`} className="text-xs font-semibold text-brand hover:underline inline-flex items-center gap-1">
+              View Session Details →
+            </Link>
+          </div>
+        </Card>
+      )}
+
+      {/* MY PROGRESS & CERTIFICATE CARD */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="p-4 space-y-3">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <CheckCircle2 className="size-4 text-success" /> Participation Metrics
+          </h3>
+          <div className="grid grid-cols-2 gap-3 text-center text-xs">
+            <div className="rounded border p-2 bg-muted/20">
+              <span className="text-[10px] text-muted-foreground block">Sessions Attended</span>
+              <strong className="text-base font-bold text-foreground">{prog?.completedSessions ?? 0} / 4</strong>
+            </div>
+            <div className="rounded border p-2 bg-muted/20">
+              <span className="text-[10px] text-muted-foreground block">Attendance Rate</span>
+              <strong className="text-base font-bold text-brand">{prog?.attendanceRate ?? 100}%</strong>
+            </div>
+            <div className="rounded border p-2 bg-muted/20">
+              <span className="text-[10px] text-muted-foreground block">Evidence Uploads</span>
+              <strong className="text-base font-bold text-foreground">{prog?.evidenceContributions ?? 0}</strong>
+            </div>
+            <div className="rounded border p-2 bg-muted/20">
+              <span className="text-[10px] text-muted-foreground block">Completion</span>
+              <strong className="text-base font-bold text-foreground">{prog?.schoolCompletionPercentage ?? 0}%</strong>
+            </div>
+          </div>
+        </Card>
+
+        {/* CERTIFICATE ELIGIBILITY CARD (Tasks 21, 22) */}
+        <Card className={`p-4 space-y-3 border ${prog?.certificate?.status === 'unlocked' ? 'border-success/30 bg-success/5' : 'border-border'}`}>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              🎓 Fellowship Certificate
+            </h3>
+            <Badge variant="outline" className={prog?.certificate?.status === 'unlocked' ? 'border-success/30 bg-success/10 text-success font-bold' : 'border-muted text-muted-foreground'}>
+              {prog?.certificate?.status === 'unlocked' ? 'UNLOCKED' : 'LOCKED'}
+            </Badge>
+          </div>
+
+          {prog?.certificate?.status === 'unlocked' ? (
+            <div className="space-y-2 text-xs">
+              <p className="text-success font-semibold">Congratulations! Your fellowship certificate is ready.</p>
+              <p className="text-muted-foreground font-mono text-[11px]">{prog.certificate.certificateNumber}</p>
+              <Link href="/dashboard/certificates" className="inline-block mt-1 text-xs font-bold text-brand hover:underline">
+                View Certificate →
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2 text-xs text-muted-foreground">
+              <p>Complete the 4-session school fellowship to unlock your official certificate.</p>
+              <p className="text-[11px] font-medium text-warning">
+                {prog?.certificate?.missingSessions ?? 4} session(s) remaining to reach completion.
+              </p>
+            </div>
+          )}
+        </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Widget title="Upcoming Sessions" href="/dashboard/sessions">
-          <SessionRows sessions={data.upcomingSessions} empty="No assigned sessions yet — your Volunteer Lead will assign you soon." />
-        </Widget>
-        <Widget title="Your shortcuts">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              { label: 'My Sessions', href: '/dashboard/sessions', icon: CalendarDays },
-              { label: 'My Attendance', href: '/dashboard/attendance', icon: ClipboardList },
-              { label: 'My Evidence', href: '/dashboard/evidence', icon: Images },
-              { label: 'My Claims', href: '/dashboard/reimbursements', icon: Wallet },
-            ].map((a) => (
-              <Link key={a.href} href={a.href}
-                className="flex items-center gap-2.5 rounded-lg border border-border px-3 py-2.5 text-sm font-medium hover:border-brand hover:bg-accent">
-                <span className="grid size-8 place-items-center rounded-md bg-brand/10 text-brand"><a.icon className="size-4" /></span>
-                {a.label}
-              </Link>
-            ))}
+      {/* MY TEACHING HISTORY TIMELINE (Task 19) */}
+      {history.length > 0 && (
+        <Card className="p-4 space-y-3">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <Timer className="size-4 text-brand" /> My Teaching History
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+            {history.map((h: any) => {
+              let badgeStyle = 'border-border bg-muted/20 text-muted-foreground'
+              if (h.status === 'present') badgeStyle = 'border-success/30 bg-success/10 text-success'
+              if (h.status === 'absent') badgeStyle = 'border-destructive/30 bg-destructive/10 text-destructive'
+              if (h.status === 'excused') badgeStyle = 'border-warning/30 bg-warning/10 text-warning'
+              if (h.status === 'upcoming') badgeStyle = 'border-brand/30 bg-brand/10 text-brand'
+
+              return (
+                <div key={h.session_number} className={`p-2.5 rounded-lg border space-y-1 ${badgeStyle}`}>
+                  <div className="flex items-center justify-between font-bold">
+                    <span>Session {h.session_number}</span>
+                    <span className="uppercase text-[10px]">{h.status}</span>
+                  </div>
+                  <p className="text-[11px] truncate font-medium">{h.topic}</p>
+                  <p className="text-[10px] text-muted-foreground">{formatDate(h.scheduled_at)}</p>
+                </div>
+              )
+            })}
           </div>
-        </Widget>
-      </div>
+        </Card>
+      )}
     </div>
   )
 }

@@ -11,6 +11,9 @@ import {
   CampusMgmtOverview,
 } from '@/components/dashboard/overviews'
 
+import { getVolunteerJourney } from '@/lib/data/volunteer-journey'
+import { getVolunteerLeadQueue } from '@/lib/data/volunteer-lead-queue'
+
 export const metadata = { title: 'Dashboard' }
 
 /**
@@ -24,7 +27,8 @@ export default async function DashboardOverview() {
 
   // Volunteers don't need a campus for their personal view; everyone else does.
   if (user.role === 'volunteer') {
-    return <VolunteerOverview name={name} data={await getVolunteerData(user.id)} />
+    const journeyData = await getVolunteerJourney(user.id)
+    return <VolunteerOverview name={name} data={await getVolunteerData(user.id)} journeyData={journeyData} />
   }
 
   if (user.role === 'super_admin') {
@@ -55,8 +59,10 @@ export default async function DashboardOverview() {
       )
     case 'outreach_lead':
       return <OutreachOverview name={name} data={await getOutreachData(campusId)} />
-    case 'volunteer_lead':
-      return <VolunteerLeadOverview name={name} data={await getVolunteerLeadData(campusId)} />
+    case 'volunteer_lead': {
+      const queueData = await getVolunteerLeadQueue(campusId)
+      return <VolunteerLeadOverview name={name} data={await getVolunteerLeadData(campusId)} queueData={queueData} />
+    }
     case 'exec_lead':
       return <ExecOverview name={name} data={await getExecData(campusId)} />
     case 'finance_lead':

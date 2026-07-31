@@ -56,3 +56,65 @@ export const getVolunteerTeamAssignments = cache(async (volunteerId: string): Pr
     }
   })
 })
+
+export interface CandidateVolunteer {
+  id: string
+  full_name: string
+  email: string
+  phone: string | null
+  campus_id: string | null
+  active_teams_count: number
+  conflict?: string | null
+}
+
+export const getCandidateVolunteers = cache(async (campusId?: string | null): Promise<CandidateVolunteer[]> => {
+  const supabase = await createClient()
+  let query = supabase
+    .from('users')
+    .select('id, full_name, email, phone, campus_id')
+    .eq('role', 'volunteer')
+    .eq('is_active', true)
+
+  if (campusId) {
+    query = query.eq('campus_id', campusId)
+  }
+
+  const { data: users } = await query
+  if (!users || users.length === 0) return []
+
+  const userIds = users.map((u) => u.id)
+
+  // Fetch active school team assignments to check conflicts
+  const { data: activeAssignments } = await supabase
+    .from('school_team_members')
+    .select('volunteer_id, school_id, school:schools(name, status)')
+    .in('volunteer_id', userIds)
+    .eq('status', 'confirmed')
+
+  const conflictMap = new Map<string, { count: number; schoolName?: string }>()
+  if (activeAssignments) {
+    for (const a of activeAssignments) {
+      const s = Array.isArray(a.school) ? a.school[0] : a.school
+      if (s && s.status === 'sessions_active') {
+        const existing = conflictMap.get(a.volunteer_id) ?? { count: 0 }
+        conflictMap.set(a.volunteer_id, {
+          count: existing.count + 1,
+          schoolName: s.name,
+        })
+      }
+    }
+  }
+
+  return users.map((u) => {
+    const c = conflictMap.get(u.id)
+    return {
+      id: u.id,
+      full_name: u.full_name,
+      email: u.email,
+      phone: u.phone,
+      campus_id: u.campus_id,
+      active_teams_count: c?.count ?? 0,
+      conflict: c && c.count > 0 ? `Already on active team: ${c.schoolName}` : null,
+    }
+  })
+})

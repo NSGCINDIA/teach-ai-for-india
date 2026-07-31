@@ -22,70 +22,85 @@ export default async function AssignmentsPage() {
   return isCoordinator ? <CoordinatorBoard campusId={user.campus_id} /> : <MyAssignments userId={user.id} />
 }
 
-/** Volunteer Lead / Campus Lead coordination board across the campus. */
+import { getVolunteerLeadQueue } from '@/lib/data/volunteer-lead-queue'
+
+/** Volunteer Lead / Campus Lead coordination board across the campus (Task 25). */
 async function CoordinatorBoard({ campusId }: { campusId: string | null }) {
-  const rows = await listCampusAssignments(campusId)
-  const pending = rows.filter((r) => r.status === 'assigned').length
-  const needsAction = rows.filter((r) => r.status === 'declined' || r.status === 'replacement_requested').length
+  const queue = await getVolunteerLeadQueue(campusId)
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Assignments</h1>
-        <p className="mt-1 text-muted-foreground">Every volunteer assignment across your campus.</p>
+      <header className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold tracking-tight">School Team Coordination</h1>
+          <p className="mt-1 text-muted-foreground">School-centric team building and volunteer availability tracking.</p>
+        </div>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <MetricCard label="Total assignments" value={rows.length} icon={UsersRound} />
-        <MetricCard label="Awaiting reply" value={pending} />
-        <MetricCard label="Needs your action" value={needsAction} />
+      <div className="grid gap-4 sm:grid-cols-4">
+        <MetricCard label="Schools Needing Teams" value={queue.schoolsNeedingTeamsCount} icon={School} />
+        <MetricCard label="Pending Responses" value={queue.pendingResponsesCount} icon={UsersRound} />
+        <MetricCard label="Incomplete Teams" value={queue.incompleteTeamsCount} />
+        <MetricCard label="Teams Ready" value={queue.teamsReadyCount} />
       </div>
 
-      {rows.length === 0 ? (
+      {queue.workItems.length === 0 ? (
         <EmptyState
           icon={ClipboardList}
-          title="No assignments yet"
-          description="Assign volunteers from any scheduled session’s detail page."
+          title="No active schools needing teams"
+          description="When a school passes onboarding approval, it appears here for team building."
         />
       ) : (
-        <Card className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="p-3 font-medium">Volunteer</th>
-                <th className="p-3 font-medium">Session</th>
-                <th className="p-3 font-medium">Date</th>
-                <th className="p-3 font-medium">Status</th>
-                <th className="p-3 font-medium">Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.id} className="border-b last:border-0 hover:bg-accent/40">
-                  <td className="p-3 font-medium">
-                    {r.volunteer ? (
-                      <Link href={`/dashboard/volunteers/${r.volunteer.id}`} className="text-brand hover:underline">
-                        {r.volunteer.full_name}
+        <div className="grid gap-4 sm:grid-cols-2">
+          {queue.workItems.map((s) => {
+            const isReady = s.confirmed_count >= s.required_volunteers
+            return (
+              <Card key={s.id} className={`p-4 border space-y-3 ${isReady ? 'border-success/30 bg-success/5' : 'border-warning/30 bg-warning/5'}`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-base">
+                      <Link href={`/dashboard/schools/${s.id}`} className="hover:underline text-brand">
+                        {s.name}
                       </Link>
-                    ) : '—'}
-                  </td>
-                  <td className="p-3">
-                    {r.session ? (
-                      <Link href={`/dashboard/sessions/${r.session.id}`} className="text-brand hover:underline">
-                        {r.session.school?.name ?? r.session.topic}
-                      </Link>
-                    ) : '—'}
-                  </td>
-                  <td className="p-3 text-muted-foreground">{formatDate(r.session?.date)}</td>
-                  <td className="p-3">
-                    <StatusBadge label={ASSIGNMENT_STATUS_META[r.status].label} tone={ASSIGNMENT_STATUS_META[r.status].tone} />
-                  </td>
-                  <td className="p-3 text-muted-foreground">{r.note ? `“${r.note}”` : '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
+                    </h3>
+                    <p className="text-xs text-muted-foreground">{s.district} · {s.student_strength} students</p>
+                  </div>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded border ${isReady ? 'border-success/30 bg-success/10 text-success' : 'border-warning/30 bg-warning/10 text-warning'}`}>
+                    {isReady ? 'TEAM READY' : 'BUILDING TEAM'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2 text-center text-xs py-1">
+                  <div className="rounded border bg-background p-1.5">
+                    <span className="block text-[10px] text-muted-foreground">Required</span>
+                    <strong className="font-bold text-sm">{s.required_volunteers}</strong>
+                  </div>
+                  <div className="rounded border bg-success/10 text-success p-1.5">
+                    <span className="block text-[10px]">Confirmed</span>
+                    <strong className="font-bold text-sm">{s.confirmed_count}</strong>
+                  </div>
+                  <div className="rounded border bg-warning/10 text-warning p-1.5">
+                    <span className="block text-[10px]">Awaiting</span>
+                    <strong className="font-bold text-sm">{s.requested_count}</strong>
+                  </div>
+                  <div className="rounded border bg-destructive/10 text-destructive p-1.5">
+                    <span className="block text-[10px]">Unavailable</span>
+                    <strong className="font-bold text-sm">{s.unavailable_count}</strong>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-1">
+                  <Link
+                    href={`/dashboard/schools/${s.id}`}
+                    className="text-xs font-semibold text-brand hover:underline inline-flex items-center gap-1"
+                  >
+                    Manage Team →
+                  </Link>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
       )}
     </div>
   )
