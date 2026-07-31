@@ -18,7 +18,10 @@ function generateSlug(title: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
-  return `${base}-${Math.random().toString(36).substring(2, 7)}`
+  const randomSuffix = typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID().substring(0, 5)
+    : Date.now().toString(36).substring(4)
+  return `${base}-${randomSuffix}`
 }
 
 export async function saveBlog(

@@ -234,6 +234,18 @@
     width: max-content;
     animation: marquee 25s linear infinite;
   }
+  @keyframes flow-line {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  @keyframes dash-travel {
+    to { stroke-dashoffset: -24; }
+  }
+  @keyframes sonar-wave {
+    0% { r: 6px; opacity: 1; stroke-width: 3px; }
+    50% { opacity: 0.5; }
+    100% { r: 60px; opacity: 0; stroke-width: 1px; }
+  }
 }
 
 /* Accessibility — respect prefers-reduced-motion (PRD §12.4) */

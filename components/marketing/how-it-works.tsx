@@ -32,14 +32,6 @@ const STEP_IMAGES = [
 export function HowItWorks({ content }: { content: HowItWorksContent }) {
   return (
     <section className="section-padding bg-muted/40 relative overflow-hidden">
-      {/* Inline styles for connection timeline animation */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes flow-line {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 100% 50%; }
-        }
-      `}} />
-
       <div className="container-wide">
         <Reveal>
           <SectionHeading

@@ -203,7 +203,8 @@ export function BlogEditor({ blog }: { blog?: BlogItem }) {
     try {
       const supabase = createClient()
       const ext = file.name.split('.').pop()
-      const filename = `blogs/${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${ext}`
+      const randomId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID().substring(0, 8) : Date.now().toString(36)
+      const filename = `blogs/${Date.now()}-${randomId}.${ext}`
 
       const { data, error } = await supabase.storage.from('public-assets').upload(filename, file)
       if (error) throw error
