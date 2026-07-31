@@ -2,7 +2,7 @@ name: SonarQube Analysis
 
 on:
   push:
-    branches: [ main, feat/* ]
+    branches: [ main ]
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -24,7 +24,9 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v3.0.0
         with:
-          args: -Dsonar.projectKey=NSGCINDIA_teach-ai-for-india
+          args: >
+            -Dsonar.projectKey=NSGCINDIA_teach-ai-for-india
+            -Dsonar.organization=nsgcindia
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
