@@ -97,14 +97,9 @@ export const DEFAULT_ADMIN = {
 
 function hashPasswordSync(password: string): string {
   try {
-    let hash = 0
-    for (let i = 0; i < password.length; i++) {
-      hash = ((hash << 5) - hash) + password.charCodeAt(i)
-      hash |= 0
-    }
-    return Math.abs(hash).toString(16)
-  } catch {
     return btoa(password)
+  } catch {
+    return password
   }
 }
 

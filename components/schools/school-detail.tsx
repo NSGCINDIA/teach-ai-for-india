@@ -1,9 +1,11 @@
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users } from 'lucide-react'
+import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users, Wrench, Calendar } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
-import type { SchoolStatusAccess, OutreachVisitRequestAccess } from '@/lib/auth/rbac'
-import type { OutreachVisitRequestRow, CampusBudgetRow } from '@/types/database'
+import type { SchoolStatusAccess, OutreachVisitRequestAccess, ExecutionPlanAccess, SchoolTeamAccess } from '@/lib/auth/rbac'
+import type { OutreachVisitRequestRow, CampusBudgetRow, SessionRow } from '@/types/database'
 import type { TeamMember } from '@/lib/data/sessions'
+import type { SchoolTeamMemberDetail } from '@/lib/data/school-team'
+import type { SchoolExecutionPlanDetail } from '@/lib/data/school-execution-plans'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
 import { formatDate, formatDateTime } from '@/lib/format'
@@ -14,6 +16,10 @@ import { StatusControl } from '@/components/schools/status-control'
 import { PlanningPanel } from '@/components/schools/planning-panel'
 import { VisitRequestPanel } from '@/components/schools/visit-request-panel'
 import { AddContact } from '@/components/schools/add-contact'
+import { OperationalProgress } from '@/components/schools/operational-progress'
+import { TeamPanel } from '@/components/schools/team-panel'
+import { ExecutionPlanPanel } from '@/components/schools/execution-plan-panel'
+import { SessionHub } from '@/components/schools/session-hub'
 
 /** Planning becomes relevant once a school is registered (or already running sessions). */
 const PLANNING_STATUSES = new Set<SchoolDetail['status']>([
@@ -40,6 +46,12 @@ interface SchoolDetailProps {
   visitAccess: OutreachVisitRequestAccess
   canApproveOnboarding: boolean
   isAdmin: boolean
+  team?: SchoolTeamMemberDetail[]
+  execPlan?: SchoolExecutionPlanDetail | null
+  sessions?: SessionRow[]
+  execPlanAccess?: ExecutionPlanAccess
+  teamAccess?: SchoolTeamAccess
+  canVerifySession?: boolean
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -49,7 +61,14 @@ const TYPE_LABEL: Record<string, string> = {
 export function SchoolDetailView({
   school, basePath, canEdit, statusAccess, visitRequests, roster, budget, visitAccess,
   canApproveOnboarding, isAdmin,
+  team = [], execPlan = null, sessions = [],
+  execPlanAccess = { canSubmit: false, canReviewCampus: false, canReviewFinance: false },
+  teamAccess = { canManage: false },
+  canVerifySession = false,
 }: SchoolDetailProps) {
+  const isSessionsActiveOrDone = school.status === 'sessions_active' || school.status === 'completed'
+  const confirmedVolunteers = team.filter((t) => t.is_active && t.status === 'confirmed').length
+
   return (
     <div className="space-y-6">
       <div>
@@ -99,6 +118,16 @@ export function SchoolDetailView({
         </CardContent>
       </Card>
 
+      {/* Operational Phase Sub-Workflow Progress */}
+      {isSessionsActiveOrDone && (
+        <OperationalProgress
+          status={school.status}
+          operationalPhase={school.operational_phase ?? null}
+          requiredVolunteers={school.required_volunteers ?? 0}
+          confirmedVolunteers={confirmedVolunteers}
+        />
+      )}
+
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Card>
@@ -147,6 +176,69 @@ export function SchoolDetailView({
                   hasPriorSession={!!school.progress}
                   canEdit={canEdit}
                   canApprove={canApproveOnboarding}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* School Volunteer Team Panel */}
+          {isSessionsActiveOrDone && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Users className="size-4" /> School Volunteer Team
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TeamPanel
+                  schoolId={school.id}
+                  team={team}
+                  roster={roster}
+                  requiredVolunteers={school.required_volunteers ?? 0}
+                  canManage={teamAccess.canManage}
+                  schoolStatus={school.status}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* School Execution & Budget Plan Panel */}
+          {isSessionsActiveOrDone && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Wrench className="size-4" /> Execution & Budget Plan
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ExecutionPlanPanel
+                  schoolId={school.id}
+                  plan={execPlan}
+                  access={execPlanAccess}
+                  schoolStatus={school.status}
+                  operationalPhase={school.operational_phase ?? null}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Sessions 1–4 Delivery Hub */}
+          {isSessionsActiveOrDone && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Calendar className="size-4" /> Bounded 4-Session Program
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SessionHub
+                  schoolId={school.id}
+                  sessions={sessions}
+                  team={team}
+                  canManage={statusAccess.canEdit || teamAccess.canManage}
+                  canVerify={canVerifySession}
+                  schoolStatus={school.status}
+                  operationalPhase={school.operational_phase ?? null}
                 />
               </CardContent>
             </Card>

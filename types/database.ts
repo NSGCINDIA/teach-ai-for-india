@@ -37,6 +37,20 @@ export type ApprovalStatus = 'pending' | 'approved' | 'rejected'
 export type MediaEntityType = 'session' | 'school' | 'campus' | 'reimbursement' | 'school_visit'
 export type ApplicationStatus = 'new' | 'reviewing' | 'invited' | 'rejected'
 
+export type SchoolTeamStatus =
+  | 'requested' | 'available' | 'unavailable' | 'confirmed' | 'replaced' | 'completed'
+
+export type OperationalPhase =
+  | 'team_preparation' | 'team_ready' | 'execution_planning' | 'execution_ready'
+  | 'session_1_planning' | 'session_1_ready' | 'session_1_in_progress' | 'session_1_report_required' | 'session_1_submitted' | 'session_1_verified'
+  | 'session_2_planning' | 'session_2_ready' | 'session_2_in_progress' | 'session_2_report_required' | 'session_2_submitted' | 'session_2_verified'
+  | 'session_3_planning' | 'session_3_ready' | 'session_3_in_progress' | 'session_3_report_required' | 'session_3_submitted' | 'session_3_verified'
+  | 'session_4_planning' | 'session_4_ready' | 'session_4_in_progress' | 'session_4_report_required' | 'session_4_submitted' | 'session_4_verified'
+
+export type ExecutionPlanStatus =
+  | 'draft' | 'submitted' | 'campus_changes_requested' | 'campus_approved'
+  | 'finance_changes_requested' | 'approved'
+
 type Timestamps = { created_at: string; updated_at: string }
 
 // ─── Row shapes ──────────────────────────────────────────────────────────────
@@ -74,6 +88,34 @@ export type SchoolRow = Timestamps & {
   notes: string | null; total_sessions: number; total_students: number
   is_duplicate_flagged: boolean; created_by: string | null
   lead_source: string | null; lead_source_other: string | null
+  required_volunteers: number; operational_phase: OperationalPhase | null
+}
+
+export type SchoolTeamMemberRow = Timestamps & {
+  id: string; school_id: string; volunteer_id: string; campus_id: string | null
+  status: SchoolTeamStatus; assigned_by: string | null; assigned_at: string
+  responded_at: string | null; confirmed_at: string | null; replaced_at: string | null
+  replaced_by_member: string | null; replacement_reason: string | null
+  is_active: boolean
+}
+
+export type SchoolExecutionPlanRow = Timestamps & {
+  id: string; school_id: string; campus_id: string | null
+  laptops_count: number; projectors_count: number; hdmi_cables_count: number
+  extension_boards_count: number; teaching_kits_count: number; speakers_count: number
+  other_equipment: string | null; distance_km: number | null; transport_mode: string | null
+  estimated_travel_cost: number; meeting_departure_notes: string | null
+  transport_budget: number; materials_budget: number; equipment_budget: number
+  other_budget: number; total_budget: number; status: ExecutionPlanStatus
+  submitted_by: string | null; submitted_at: string | null
+  campus_reviewed_by: string | null; campus_reviewed_at: string | null; campus_comments: string | null
+  finance_reviewed_by: string | null; finance_reviewed_at: string | null; finance_comments: string | null
+  created_by: string | null
+}
+
+export type SessionParticipantRow = {
+  id: string; session_id: string; school_team_member_id: string; volunteer_id: string
+  participated: boolean; notes: string | null; marked_by: string | null; created_at: string
 }
 
 export type SchoolContactRow = {
@@ -350,6 +392,9 @@ export interface Database {
       execution_plans: TableDef<ExecutionPlanRow>
       budget_increase_requests: TableDef<BudgetIncreaseRequestRow>
       school_visits: TableDef<SchoolVisitRow>
+      school_team_members: TableDef<SchoolTeamMemberRow>
+      school_execution_plans: TableDef<SchoolExecutionPlanRow>
+      session_participants: TableDef<SessionParticipantRow>
     }
     Views: {
       public_impact_stats: { Row: PublicImpactStats; Relationships: [] }
@@ -390,6 +435,42 @@ export interface Database {
       }
       respond_to_assignment: {
         Args: { p_assignment_id: string; p_status: AssignmentStatus; p_note?: string }
+        Returns: undefined
+      }
+      request_school_team_availability: {
+        Args: { p_school_id: string; p_volunteer_ids: string[]; p_required_volunteers?: number }
+        Returns: number
+      }
+      respond_school_team_availability: {
+        Args: { p_member_id: string; p_available: boolean; p_note?: string }
+        Returns: undefined
+      }
+      confirm_school_team: {
+        Args: { p_school_id: string; p_member_ids: string[] }
+        Returns: undefined
+      }
+      replace_school_team_member: {
+        Args: { p_member_id: string; p_replacement_volunteer_id: string; p_reason?: string }
+        Returns: string
+      }
+      submit_school_execution_plan: {
+        Args: {
+          p_school_id: string
+          p_laptops_count?: number; p_projectors_count?: number; p_hdmi_cables_count?: number
+          p_extension_boards_count?: number; p_teaching_kits_count?: number; p_speakers_count?: number
+          p_other_equipment?: string; p_distance_km?: number; p_transport_mode?: string
+          p_estimated_travel_cost?: number; p_meeting_departure_notes?: string
+          p_transport_budget?: number; p_materials_budget?: number
+          p_equipment_budget?: number; p_other_budget?: number
+        }
+        Returns: string
+      }
+      review_school_execution_plan_campus: {
+        Args: { p_plan_id: string; p_decision: string; p_comments?: string }
+        Returns: undefined
+      }
+      review_school_execution_plan_finance: {
+        Args: { p_plan_id: string; p_decision: string; p_comments?: string }
         Returns: undefined
       }
       set_campus_budget: {
@@ -474,6 +555,8 @@ export interface Database {
       attendance_status: AttendanceStatus; reimbursement_status: ReimbursementStatus
       travel_mode: TravelMode; media_file_type: MediaFileType; approval_status: ApprovalStatus
       media_entity_type: MediaEntityType; application_status: ApplicationStatus
+      school_team_status: SchoolTeamStatus; operational_phase: OperationalPhase
+      execution_plan_status: ExecutionPlanStatus
     }
     CompositeTypes: Record<string, never>
   }
