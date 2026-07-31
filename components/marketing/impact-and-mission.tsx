@@ -52,24 +52,6 @@ export function ImpactAndMission({
 
   return (
     <section className="section-padding relative overflow-hidden bg-transparent">
-      {/* Dynamic inline styles for SVG beam and sonar animations */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes dash-travel {
-          to {
-            stroke-dashoffset: -24;
-          }
-        }
-        @keyframes sonar-wave {
-          0% { r: 6px; opacity: 1; stroke-width: 3px; }
-          50% { opacity: 0.5; }
-          100% { r: 60px; opacity: 0; stroke-width: 1px; }
-        }
-        .animated-beam {
-          stroke-dasharray: 8, 8;
-          animation: dash-travel 1.4s linear infinite;
-        }
-      `}} />
-
       <div className="container-wide relative z-10">
 
         {/* Section Header */}
