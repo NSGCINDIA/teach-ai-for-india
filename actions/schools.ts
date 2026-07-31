@@ -138,10 +138,32 @@ export async function addSchoolContact(
   return { ok: true, message: 'Contact added.' }
 }
 
+export async function initiateSchoolOnboarding(
+  schoolId: string,
+): Promise<SchoolActionState> {
+  const user = await requireUser(`/dashboard/schools/${schoolId}`)
+  if (can(user.role, 'edit_school') === false) {
+    return { error: 'You do not have permission to initiate onboarding for this school.' }
+  }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc('initiate_school_onboarding', {
+    p_school_id: schoolId,
+  })
+
+  if (error) return { error: humanizeDbError(error.message) }
+
+  revalidatePath(`/dashboard/schools/${schoolId}`)
+  revalidatePath('/dashboard/schools')
+  revalidatePath('/admin/schools')
+  return { ok: true, message: 'Onboarding initiated! School is now Registered.' }
+}
+
 /** Turn raised RAISE EXCEPTION text into something a user can read. */
 function humanizeDbError(msg: string): string {
   if (/Illegal school transition/.test(msg)) return 'That status change is not allowed from the current stage.'
   if (/permission|reopen an archived/i.test(msg)) return 'You do not have permission for that change.'
   if (/requires a reason/i.test(msg)) return 'A reason note is required for this change.'
+  if (/Super Admin/i.test(msg)) return 'Only a Super Admin may perform a manual status override.'
   return msg
 }

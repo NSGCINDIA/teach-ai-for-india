@@ -196,6 +196,22 @@ export function executionPlanAccess(
   }
 }
 
+export interface SchoolTeamAccess {
+  canManage: boolean
+}
+
+export function schoolTeamAccess(
+  role: UserRole,
+  userCampusId: string | null,
+  entityCampusId: string | null,
+): SchoolTeamAccess {
+  const admin = isAdmin(role)
+  const ownCampus = !!userCampusId && userCampusId === entityCampusId
+  return {
+    canManage: admin || ((role === 'volunteer_lead' || role === 'campus_lead') && ownCampus),
+  }
+}
+
 export interface CampusBudgetAccess {
   canAllocate: boolean
   canRequestIncrease: boolean

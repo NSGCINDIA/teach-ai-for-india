@@ -38,42 +38,50 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
   const [target, setTarget] = useState<SchoolStatus | ''>('')
   const needsNote = target ? schoolTransitionNeedsNote(current, target) : false
 
-  // Allowed transitions
+  // Manual stage override is Super Admin ONLY (Phase 1 Task 5)
   const options = useMemo(() => {
-    if (!canEdit || current === 'completed') return []
-    // Admins bypass role-specific scopes (restrictTo) but must follow standard transition steps (no skipping)
-    return (SCHOOL_TRANSITIONS[current] ?? []).filter((s) => isAdmin || !restrictTo || restrictTo.includes(s))
-  }, [current, canEdit, restrictTo, isAdmin])
+    if (!isAdmin || current === 'completed') return []
+    return (SCHOOL_TRANSITIONS[current] ?? [])
+  }, [current, isAdmin])
 
   const currentIndex = SCHOOL_PIPELINE.indexOf(current)
 
   const handleStepClick = (step: SchoolStatus) => {
-    if (!canEdit || !options.includes(step)) return
+    if (!isAdmin || !options.includes(step)) return
     setTarget(target === step ? '' : step)
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* Informative banner for normal users */}
+      {!isAdmin && (
+        <div className="rounded-lg border border-border bg-muted/20 p-2.5 text-xs text-muted-foreground flex items-center justify-between">
+          <span>
+            ℹ️ Lifecycle stages update automatically as business actions (Outreach Approval, Onboarding, Team Confirmation, Execution Approval, Sessions) succeed.
+          </span>
+        </div>
+      )}
+
       {/* Box Stepper Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
         {SCHOOL_PIPELINE.map((step, idx) => {
           const isCompleted = currentIndex >= 0 && idx < currentIndex
           const isCurrent = step === current
-          const isClickable = options.includes(step)
+          const isClickable = isAdmin && options.includes(step)
           const isLocked = !isCurrent && !isCompleted && !isClickable
 
-          let boxStyle = 'border-muted bg-muted/20 text-muted-foreground/50'
+          let boxStyle = 'border-muted bg-muted/20 text-muted-foreground/50 cursor-default'
           let labelStyle = 'text-muted-foreground/60'
           let numberStyle = 'bg-muted/40 text-muted-foreground/60'
           let statusIcon = <Lock className="size-3.5 text-muted-foreground/30" />
 
           if (isCompleted) {
-            boxStyle = 'border-success/30 bg-success/5 text-success'
+            boxStyle = 'border-success/30 bg-success/5 text-success cursor-default'
             labelStyle = 'text-success/90 font-medium'
             numberStyle = 'bg-success/20 text-success font-semibold'
             statusIcon = <Check className="size-3.5 text-success" />
           } else if (isCurrent) {
-            boxStyle = 'border-brand bg-brand text-white shadow-soft ring-2 ring-brand/10'
+            boxStyle = 'border-brand bg-brand text-white shadow-soft ring-2 ring-brand/10 cursor-default'
             labelStyle = 'text-white font-semibold'
             numberStyle = 'bg-white/20 text-white font-bold'
             statusIcon = (
@@ -96,7 +104,7 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
               disabled={!isClickable}
               onClick={() => handleStepClick(step)}
               className={`flex flex-col items-start p-3 rounded-xl border text-left font-display transition-all relative ${boxStyle}`}
-              title={isClickable ? `Move to ${SCHOOL_STATUS_META[step].label}` : SCHOOL_STATUS_META[step].label}
+              title={isClickable ? `Admin Override to ${SCHOOL_STATUS_META[step].label}` : SCHOOL_STATUS_META[step].label}
             >
               <div className="flex w-full items-center justify-between gap-1 mb-2">
                 <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-md ${numberStyle}`}>
@@ -116,6 +124,21 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
         })}
       </div>
 
+      {/* Super Admin Override Control Bar */}
+      {isAdmin && !target && (
+        <div className="flex justify-end pt-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setTarget(options[0] ?? 'archived')}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            Super Admin: Manual Stage Override
+          </Button>
+        </div>
+      )}
+
       {/* Action Confirmation Panel */}
       {target && (
         <div className="border border-brand/20 bg-brand/5 p-4 rounded-xl space-y-4">
@@ -125,7 +148,7 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
 
             <div className="flex items-center justify-between">
               <p className="text-sm">
-                Confirming transition from <strong className="text-muted-foreground">{SCHOOL_STATUS_META[current].label}</strong> to <strong className="text-brand">{SCHOOL_STATUS_META[target].label}</strong>.
+                Super Admin Override: Transitioning from <strong className="text-muted-foreground">{SCHOOL_STATUS_META[current].label}</strong> to <strong className="text-brand">{SCHOOL_STATUS_META[target].label}</strong>.
               </p>
               <button
                 type="button"
@@ -137,27 +160,25 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
               </button>
             </div>
 
-            {needsNote && (
-              <div className="space-y-1.5">
-                <Label htmlFor="note" className="text-xs font-semibold">
-                  Transition Reason <span className="text-error">*</span>
-                </Label>
-                <Textarea
-                  id="note"
-                  name="note"
-                  rows={2}
-                  required
-                  defaultValue={fieldValue(state, 'note', '')}
-                  placeholder="A note is required for archiving and backward moves."
-                  className="bg-background text-sm"
-                />
-              </div>
-            )}
+            <div className="space-y-1.5">
+              <Label htmlFor="note" className="text-xs font-semibold">
+                Mandatory Reason Note <span className="text-error">*</span>
+              </Label>
+              <Textarea
+                id="note"
+                name="note"
+                rows={2}
+                required
+                defaultValue={fieldValue(state, 'note', '')}
+                placeholder="Reason for manual super-admin status override..."
+                className="bg-background text-sm"
+              />
+            </div>
 
             <div className="flex gap-2">
               <Button type="submit" size="sm" disabled={pending} className="bg-brand text-white hover:bg-brand/90 flex items-center gap-1">
                 {pending ? <Loader2 className="size-4 animate-spin" /> : <ArrowRight className="size-4" />}
-                Confirm Update
+                Confirm Admin Override
               </Button>
               <Button type="button" variant="ghost" size="sm" onClick={() => setTarget('')} disabled={pending}>
                 Cancel
@@ -175,28 +196,6 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
       )}
       {state.ok && (
         <p role="status" className="rounded-lg bg-success/10 px-3 py-2 text-sm text-success">{state.message}</p>
-      )}
-
-      {/* RLS/Permission Notice */}
-      {!canEdit && (
-        <p className="text-xs text-muted-foreground bg-muted/40 p-2.5 rounded-lg border border-border/50">
-          You have read-only access to this school’s pipeline.
-        </p>
-      )}
-
-      {/* Archive Actions */}
-      {canEdit && options.includes('archived') && !target && (
-        <div className="flex justify-end pt-2 border-t border-border/40">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setTarget('archived')}
-            className="text-xs border-error/25 hover:bg-error/5 hover:text-error text-muted-foreground transition-colors"
-          >
-            Archive School
-          </Button>
-        </div>
       )}
     </div>
   )

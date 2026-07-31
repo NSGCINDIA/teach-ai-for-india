@@ -51,6 +51,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   ],
   volunteer_lead: [
     OVERVIEW,
+    { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers' },
     { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments' },
     { label: 'Availability', href: '/dashboard/availability', icon: 'availability' },
@@ -61,6 +62,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   ],
   exec_lead: [
     OVERVIEW,
+    { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: "Today's Sessions", href: '/dashboard/sessions', icon: 'sessions' },
     { label: 'Reports', href: '/dashboard/reports', icon: 'reports' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },

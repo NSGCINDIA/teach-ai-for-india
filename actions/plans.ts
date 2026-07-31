@@ -108,7 +108,21 @@ export async function approvePlan(
   const schoolId = String(formData.get('school_id') ?? '')
   const user = await requireUser(`/dashboard/schools/${schoolId}`)
   if (can(user.role, 'edit_school') === false) {
-    return { error: 'You do not have permission to approve planning.' }
+    return { error: 'You do not have permission to approve onboarding.' }
+  }
+
+  // Task 2: Strict Onboarding Readiness Validation
+  const { getSchool } = await import('@/lib/data/schools')
+  const { validateSchoolOnboardingReadiness } = await import('@/lib/validations/readiness-gate')
+  const school = await getSchool(schoolId)
+
+  if (school) {
+    const readiness = validateSchoolOnboardingReadiness(school, school.plan)
+    if (!readiness.ready) {
+      return {
+        error: `Cannot approve onboarding: Incomplete requirements (${readiness.completed}/${readiness.total} complete). Missing: ${readiness.missing.join(', ')}.`,
+      }
+    }
   }
 
   const supabase = await createClient()
@@ -117,14 +131,14 @@ export async function approvePlan(
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath(`/admin/schools/${schoolId}`)
-  revalidatePath('/dashboard/sessions')
-  revalidatePath('/admin/sessions')
-  return { ok: true, message: 'Planning approved — session created and the team has been notified.' }
+  revalidatePath('/dashboard/schools')
+  revalidatePath('/admin/schools')
+  return { ok: true, message: 'Onboarding approved! School activated and volunteer team preparation initialized.' }
 }
 
 function humanizeDbError(msg: string): string {
-  if (/already approved/i.test(msg)) return 'This planning record has already been approved.'
-  if (/must be Registered/i.test(msg)) return 'Move the school to Registered before approving planning.'
-  if (/permission/i.test(msg)) return 'You do not have permission to approve this planning record.'
+  if (/already approved/i.test(msg)) return 'This onboarding plan has already been approved.'
+  if (/must be Registered/i.test(msg)) return 'School must be in Registered / Onboarding status before approval.'
+  if (/permission/i.test(msg)) return 'You do not have permission to approve this onboarding plan.'
   return msg
 }

@@ -1,9 +1,11 @@
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users } from 'lucide-react'
+import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users, Wrench, Calendar } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
-import type { SchoolStatusAccess, OutreachVisitRequestAccess } from '@/lib/auth/rbac'
-import type { OutreachVisitRequestRow, CampusBudgetRow } from '@/types/database'
+import type { SchoolStatusAccess, OutreachVisitRequestAccess, ExecutionPlanAccess, SchoolTeamAccess } from '@/lib/auth/rbac'
+import type { OutreachVisitRequestRow, CampusBudgetRow, SessionRow } from '@/types/database'
 import type { TeamMember } from '@/lib/data/sessions'
+import type { SchoolTeamMemberDetail } from '@/lib/data/school-team'
+import type { SchoolExecutionPlanDetail } from '@/lib/data/school-execution-plans'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
 import { formatDate, formatDateTime } from '@/lib/format'
@@ -14,10 +16,14 @@ import { StatusControl } from '@/components/schools/status-control'
 import { PlanningPanel } from '@/components/schools/planning-panel'
 import { VisitRequestPanel } from '@/components/schools/visit-request-panel'
 import { AddContact } from '@/components/schools/add-contact'
+import { OperationalProgress } from '@/components/schools/operational-progress'
+import { TeamPanel } from '@/components/schools/team-panel'
+import { ExecutionPlanPanel } from '@/components/schools/execution-plan-panel'
+import { SessionHub } from '@/components/schools/session-hub'
 
-/** Planning becomes relevant once a school is registered (or already running sessions). */
+/** Planning becomes relevant once outreach is approved (or registered / running sessions). */
 const PLANNING_STATUSES = new Set<SchoolDetail['status']>([
-  'registered', 'sessions_active', 'completed',
+  'outreach_approved', 'registered', 'sessions_active', 'completed',
 ])
 
 /** Outreach Visit Request is the sole first gate for a fresh lead — it now
@@ -40,6 +46,12 @@ interface SchoolDetailProps {
   visitAccess: OutreachVisitRequestAccess
   canApproveOnboarding: boolean
   isAdmin: boolean
+  team?: SchoolTeamMemberDetail[]
+  execPlan?: SchoolExecutionPlanDetail | null
+  sessions?: SessionRow[]
+  execPlanAccess?: ExecutionPlanAccess
+  teamAccess?: SchoolTeamAccess
+  canVerifySession?: boolean
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -49,7 +61,14 @@ const TYPE_LABEL: Record<string, string> = {
 export function SchoolDetailView({
   school, basePath, canEdit, statusAccess, visitRequests, roster, budget, visitAccess,
   canApproveOnboarding, isAdmin,
+  team = [], execPlan = null, sessions = [],
+  execPlanAccess = { canSubmit: false, canReviewCampus: false, canReviewFinance: false },
+  teamAccess = { canManage: false },
+  canVerifySession = false,
 }: SchoolDetailProps) {
+  const isSessionsActiveOrDone = school.status === 'sessions_active' || school.status === 'completed'
+  const confirmedVolunteers = team.filter((t) => t.is_active && t.status === 'confirmed').length
+
   return (
     <div className="space-y-6">
       <div>
@@ -85,7 +104,7 @@ export function SchoolDetailView({
 
       {/* Full-width Pipeline Stepper */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-base">Pipeline</CardTitle>
         </CardHeader>
         <CardContent>
@@ -98,6 +117,24 @@ export function SchoolDetailView({
           />
         </CardContent>
       </Card>
+
+      {/* Operational Mission & Next Action Card */}
+      <OperationalMissionCard
+        school={school}
+        confirmedVolunteers={confirmedVolunteers}
+        execPlan={execPlan}
+        sessions={sessions}
+      />
+
+      {/* Operational Phase Sub-Workflow Progress */}
+      {isSessionsActiveOrDone && (
+        <OperationalProgress
+          status={school.status}
+          operationalPhase={school.operational_phase ?? null}
+          requiredVolunteers={school.required_volunteers ?? 0}
+          confirmedVolunteers={confirmedVolunteers}
+        />
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
@@ -143,10 +180,74 @@ export function SchoolDetailView({
                 <PlanningPanel
                   schoolId={school.id}
                   schoolStatus={school.status}
+                  schoolDetail={school}
                   plan={school.plan}
                   hasPriorSession={!!school.progress}
                   canEdit={canEdit}
                   canApprove={canApproveOnboarding}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* School Volunteer Team Panel */}
+          {isSessionsActiveOrDone && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Users className="size-4" /> School Volunteer Team
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TeamPanel
+                  schoolId={school.id}
+                  team={team}
+                  roster={roster}
+                  requiredVolunteers={school.required_volunteers ?? 0}
+                  canManage={teamAccess.canManage}
+                  schoolStatus={school.status}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* School Execution & Budget Plan Panel */}
+          {isSessionsActiveOrDone && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Wrench className="size-4" /> Execution & Budget Plan
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ExecutionPlanPanel
+                  schoolId={school.id}
+                  plan={execPlan}
+                  access={execPlanAccess}
+                  schoolStatus={school.status}
+                  operationalPhase={school.operational_phase ?? null}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Sessions 1–4 Delivery Hub */}
+          {isSessionsActiveOrDone && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Calendar className="size-4" /> Bounded 4-Session Program
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SessionHub
+                  schoolId={school.id}
+                  sessions={sessions}
+                  team={team}
+                  canManage={statusAccess.canEdit || teamAccess.canManage}
+                  canVerify={canVerifySession}
+                  schoolStatus={school.status}
+                  operationalPhase={school.operational_phase ?? null}
                 />
               </CardContent>
             </Card>
@@ -220,6 +321,81 @@ function Detail({ label, value, className }: { label: string; value?: string | n
     <div className={className}>
       <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
       <dd className="mt-0.5 font-medium">{value || '—'}</dd>
+    </div>
+  )
+}
+
+function OperationalMissionCard({
+  school,
+  confirmedVolunteers,
+  execPlan,
+  sessions,
+}: {
+  school: SchoolDetail
+  confirmedVolunteers: number
+  execPlan: any
+  sessions: SessionRow[]
+}) {
+  let owner = 'Outreach Lead'
+  let nextAction = 'Submit Outreach Visit Request'
+
+  if (school.status === 'outreach_requested') {
+    owner = 'Campus Lead & Finance Lead'
+    nextAction = 'Awaiting Outreach Visit Approval'
+  } else if (school.status === 'outreach_approved') {
+    owner = 'Outreach Lead / Campus Lead'
+    nextAction = 'Initiate School Onboarding'
+  } else if (school.status === 'registered') {
+    owner = 'Campus Lead / Outreach Lead'
+    nextAction = 'Complete Onboarding Details & Approval Letter'
+  } else if (school.status === 'sessions_active') {
+    const phase = school.operational_phase ?? 'team_preparation'
+    if (phase === 'team_preparation') {
+      owner = 'Volunteer Lead'
+      nextAction = `Build Volunteer Team (${confirmedVolunteers}/${school.required_volunteers ?? 2} confirmed)`
+    } else if (phase === 'team_ready' || phase === 'execution_planning') {
+      owner = 'Execution Lead'
+      nextAction = 'Submit School Execution & Budget Plan'
+    } else if (phase === 'execution_ready') {
+      owner = 'Execution Lead'
+      nextAction = 'Schedule Session 1 Delivery'
+    } else if (phase.endsWith('_planning') || phase.endsWith('_ready')) {
+      owner = 'Execution Lead'
+      nextAction = 'Deliver Scheduled Session'
+    } else if (phase.endsWith('_submitted') || phase.endsWith('_report_required')) {
+      owner = 'Campus Lead'
+      nextAction = 'Review & Verify Session Delivery Report'
+    }
+  } else if (school.status === 'completed') {
+    owner = 'All Teams'
+    nextAction = 'School Program Successfully Completed! 🎓'
+  }
+
+  return (
+    <div className="rounded-xl border border-brand/20 bg-brand/5 p-4 shadow-sm space-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <span className="text-[10px] uppercase tracking-wider font-bold text-brand">Current Operational Mission</span>
+          <h3 className="text-base font-bold text-foreground leading-tight mt-0.5">
+            {SCHOOL_STATUS_META[school.status]?.label ?? school.status}
+            {school.operational_phase ? ` · ${school.operational_phase.replace(/_/g, ' ')}` : ''}
+          </h3>
+        </div>
+
+        <div className="flex items-center gap-4 text-xs">
+          <div>
+            <span className="text-muted-foreground block text-[10px] uppercase font-medium">Owner</span>
+            <strong className="font-semibold text-foreground">{owner}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-brand/10 pt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div>
+          <span className="text-muted-foreground font-medium">Next Required Action:</span>{' '}
+          <strong className="text-brand font-bold">{nextAction}</strong>
+        </div>
+      </div>
     </div>
   )
 }
