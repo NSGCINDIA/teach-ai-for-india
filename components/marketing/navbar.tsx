@@ -17,6 +17,8 @@ import {
   SheetClose,
 } from '@/components/ui/sheet'
 
+import type { User } from '@supabase/supabase-js'
+
 const NAV_LINKS = [
   { href: '/about', label: 'About' },
   { href: '/impact', label: 'Impact' },
@@ -45,7 +47,7 @@ export function Navbar() {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {

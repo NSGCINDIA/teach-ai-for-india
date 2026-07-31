@@ -8,17 +8,17 @@ import { ArrowRight, BarChart3, Users, GraduationCap, MapPin, CheckCircle, Spark
 import { Button } from '@/components/ui/button'
 import type { HeroContent } from '@/app/(public)/content'
 
+const HERO_WORDS = ["applied AI literacy", "hands-on coding", "prompt engineering", "creative technology"] as const
+
 export function Hero({ content }: { content: HeroContent }) {
-  // Words to cycle through in the main heading
-  const words = ["applied AI literacy", "hands-on coding", "prompt engineering", "creative technology"]
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % words.length)
+      setIndex((prev) => (prev + 1) % HERO_WORDS.length)
     }, 3000)
     return () => clearInterval(timer)
-  }, [words.length])
+  }, [])
 
   // Mouse tilt tracking for 3D card effect
   const cardRef = useRef<HTMLDivElement>(null)
@@ -152,14 +152,14 @@ export function Hero({ content }: { content: HeroContent }) {
               <span className="text-foreground font-semibold inline-block min-w-[170px] text-left">
                 <AnimatePresence mode="wait">
                   <motion.span
-                    key={words[index]}
+                    key={HERO_WORDS[index]}
                     initial={{ y: 8, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -8, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                     className="inline-block text-[#881337] dark:text-[#ffb218] font-bold border-b border-[#881337]/30 dark:border-[#ffb218]/30 pb-0.5"
                   >
-                    {words[index]}
+                    {HERO_WORDS[index]}
                   </motion.span>
                 </AnimatePresence>
               </span>{' '}
