@@ -40,11 +40,18 @@ const CATEGORIES = [
 
 function sanitizeUrl(url: string): string {
   if (!url) return '#'
-  const trimmed = url.trim().toLowerCase()
-  if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:text/html') || trimmed.startsWith('vbscript:')) {
+  const trimmed = url.trim()
+  if (!trimmed) return '#'
+  if (trimmed.startsWith('/') || trimmed.startsWith('#')) return trimmed
+
+  try {
+    const parsed = new URL(trimmed, 'https://localhost')
+    const protocol = parsed.protocol.toLowerCase()
+    const allowed = ['http:', 'https:', 'mailto:', 'tel:']
+    return allowed.includes(protocol) ? trimmed : '#'
+  } catch {
     return '#'
   }
-  return url
 }
 
 // Simple Markdown to HTML parser for the Preview tab

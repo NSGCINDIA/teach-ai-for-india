@@ -83,7 +83,7 @@ export async function approveSignup(_prev: AdminActionState, formData: FormData)
   const admin = createAdminClient()
   const { data: req } = await admin
     .from('signup_requests')
-    .select('id, email, full_name, role, status, auth_user_id, requested_role')
+    .select('id, email, full_name, phone, campus_id, niat_id, status, auth_user_id, requested_role')
     .eq('id', id)
     .maybeSingle()
   if (!req) return { error: 'Signup request not found.' }
