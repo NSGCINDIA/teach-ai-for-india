@@ -28,9 +28,14 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 
+import { validateSchoolExecutionReadiness } from '@/lib/validations/execution-readiness'
+import { resubmitSchoolExecutionPlan } from '@/actions/school-execution-plans'
+
 interface ExecutionPlanPanelProps {
   schoolId: string
   plan: SchoolExecutionPlanDetail | null
+  onboardingPlan?: any
+  teamConfirmed?: boolean
   access: ExecutionPlanAccess
   schoolStatus: string
   operationalPhase: string | null
@@ -39,12 +44,16 @@ interface ExecutionPlanPanelProps {
 export function ExecutionPlanPanel({
   schoolId,
   plan,
+  onboardingPlan,
+  teamConfirmed = false,
   access,
   schoolStatus,
   operationalPhase,
 }: ExecutionPlanPanelProps) {
   const [subState, subAction, subPending] = useActionState<SchoolExecutionPlanActionState, FormData>(
-    submitSchoolExecutionPlan,
+    plan?.status === 'campus_changes_requested' || plan?.status === 'finance_changes_requested'
+      ? resubmitSchoolExecutionPlan
+      : submitSchoolExecutionPlan,
     {},
   )
   const [campState, campAction, campPending] = useActionState<SchoolExecutionPlanActionState, FormData>(
@@ -60,6 +69,13 @@ export function ExecutionPlanPanel({
   const [campusComments, setCampusComments] = useState('')
   const [financeComments, setFinanceComments] = useState('')
 
+  // Execution Readiness Gate Evaluation (Phase 3)
+  const execReadiness = validateSchoolExecutionReadiness(plan, teamConfirmed)
+
+  // Pre-fill equipment values derived from onboarding session_plans
+  const defaultProjectors = onboardingPlan?.has_projector ? 0 : 1
+  const defaultLaptops = onboardingPlan?.digital_classrooms ? Math.max(1, onboardingPlan.digital_classrooms * 2) : 2
+
   const statusMeta = {
     draft: { label: 'Draft', style: 'border-border text-muted-foreground', icon: Clock },
     submitted: { label: 'Awaiting Campus Review', style: 'border-warning/30 bg-warning/10 text-warning', icon: Clock },
@@ -73,6 +89,51 @@ export function ExecutionPlanPanel({
 
   return (
     <div className="space-y-6">
+      {/* Execution Readiness Gate Card */}
+      <div className={`rounded-xl p-4 border space-y-3 ${execReadiness.ready ? 'bg-success/5 border-success/30' : 'bg-warning/5 border-warning/30'}`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="text-sm font-semibold flex items-center gap-2">
+              {execReadiness.ready ? (
+                <CheckCircle2 className="size-4 text-success" />
+              ) : (
+                <AlertCircle className="size-4 text-warning" />
+              )}
+              Execution Readiness Gate
+            </h4>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {execReadiness.completed} / {execReadiness.total} requirements satisfied
+            </p>
+          </div>
+
+          <Badge
+            variant="outline"
+            className={
+              execReadiness.ready
+                ? 'border-success/30 bg-success/10 text-success font-bold'
+                : 'border-warning/30 bg-warning/10 text-warning font-bold'
+            }
+          >
+            {execReadiness.ready ? 'EXECUTION READY' : 'BLOCKED'}
+          </Badge>
+        </div>
+
+        {/* Checklist Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+          {execReadiness.items.map((item) => (
+            <div key={item.key} className="flex items-center gap-1.5">
+              {item.satisfied ? (
+                <CheckCircle2 className="size-3.5 text-success shrink-0" />
+              ) : (
+                <AlertCircle className="size-3.5 text-destructive shrink-0" />
+              )}
+              <span className={item.satisfied ? 'text-foreground font-medium' : 'text-destructive font-semibold'}>
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
       {/* Active Plan Header */}
       {plan ? (
         <div className="space-y-4">

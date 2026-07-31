@@ -8,6 +8,8 @@ import { listExecutionPlansForSession } from '@/lib/data/execution-plans'
 import { getCampusBudget } from '@/lib/data/budgets'
 import { SessionDetailView } from '@/components/sessions/session-detail'
 
+import { getSessionWithDetails } from '@/lib/data/session-delivery'
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const session = await getSession(id)
@@ -16,7 +18,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function DashboardSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const [user, session] = await Promise.all([requireAccess('/dashboard/sessions'), getSession(id)])
+  const [user, session, sessionDetails] = await Promise.all([
+    requireAccess('/dashboard/sessions'),
+    getSession(id),
+    getSessionWithDetails(id),
+  ])
   if (!session) notFound()
 
   const canEdit = canEditSession(user.role, user.id, user.campus_id, session)
@@ -41,6 +47,7 @@ export default async function DashboardSessionPage({ params }: { params: Promise
   return (
     <SessionDetailView
       session={session}
+      sessionDetails={sessionDetails}
       members={members}
       assignments={assignments}
       assignCandidates={assignCandidates}

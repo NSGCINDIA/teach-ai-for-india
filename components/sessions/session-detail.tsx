@@ -11,6 +11,7 @@ import { MEDIA_TYPE_META } from '@/lib/constants/evidence'
 import { formatDate } from '@/lib/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { SessionStatusControl } from '@/components/sessions/session-status-control'
 import { AttendanceEditor } from '@/components/sessions/attendance-editor'
@@ -22,6 +23,7 @@ import { isImageFileType } from '@/lib/constants/evidence'
 
 interface Props {
   session: SessionDetail
+  sessionDetails?: any
   members: TeamMember[]
   assignments: AssignmentWithVolunteer[]
   assignCandidates: TeamMember[]
@@ -37,13 +39,16 @@ interface Props {
 }
 
 export function SessionDetailView({
-  session, members, assignments, assignCandidates, canAssign,
+  session, sessionDetails, members, assignments, assignCandidates, canAssign,
   evidence, basePath, schoolBasePath, canEdit, canUploadEvidence,
   executionPlans, executionPlanAccess, budget,
 }: Props) {
   const field = SESSION_TYPE_FIELD[session.session_type]
   const detail = session.type_details?.[field.key] as string | undefined
   const time = [session.start_time, session.end_time].filter(Boolean).map((t) => t!.slice(0, 5)).join(' – ')
+  const prevSess = sessionDetails?.previousSession
+  const participants = sessionDetails?.participants ?? []
+  const schoolExecPlan = sessionDetails?.schoolExecutionPlan
 
   return (
     <div className="space-y-6">
@@ -79,6 +84,44 @@ export function SessionDetailView({
         )}
       </header>
 
+      {/* Previous Session Context Card (Tasks 18, 20) */}
+      {prevSess && (
+        <Card className="border-brand/30 bg-brand/5 p-4 space-y-2">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-brand flex items-center gap-1.5">
+            <Clock className="size-3.5" /> Context from Session {prevSess.session_number} ({prevSess.topic})
+          </h4>
+          <div className="grid gap-2 text-xs sm:grid-cols-2 pt-1 border-t border-brand/10">
+            {prevSess.improvement_notes && (
+              <div>
+                <strong className="text-foreground">Improvement Notes:</strong>
+                <p className="text-muted-foreground mt-0.5">{prevSess.improvement_notes}</p>
+              </div>
+            )}
+            {prevSess.next_steps && (
+              <div>
+                <strong className="text-foreground">Next Steps:</strong>
+                <p className="text-muted-foreground mt-0.5">{prevSess.next_steps}</p>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* School Execution Plan Summary */}
+      {schoolExecPlan && (
+        <Card className="p-4 space-y-2 bg-muted/10 border-border">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <ClipboardList className="size-3.5 text-brand" /> Approved School Logistics & Departure
+          </h4>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <div>Departure / Meeting: <strong className="font-semibold">{schoolExecPlan.meeting_departure_notes ?? 'Campus Gate'}</strong></div>
+            <div>Distance: <strong className="font-semibold">{schoolExecPlan.distance_km ?? '—'} km</strong></div>
+            <div>Transport: <strong className="font-semibold">{schoolExecPlan.transport_mode ?? '—'}</strong></div>
+            <div>Equipment: <strong className="font-semibold">{schoolExecPlan.laptops_count} Laptops, {schoolExecPlan.projectors_count} Projectors</strong></div>
+          </div>
+        </Card>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           {(session.status === 'planned' || executionPlans.length > 0) && (
@@ -96,6 +139,32 @@ export function SessionDetailView({
                   quarter={session.campus?.quarter ?? null}
                   access={executionPlanAccess}
                 />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* School Team Session Participants (New Architecture) */}
+          {participants.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Users className="size-4 text-brand" /> Confirmed School Team Participants ({participants.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-2 sm:grid-cols-2 text-xs">
+                  {participants.map((p: any) => (
+                    <div key={p.id} className="p-2.5 rounded-lg border bg-muted/20 flex items-center justify-between">
+                      <div>
+                        <strong className="font-semibold block">{p.volunteer?.full_name ?? 'Volunteer'}</strong>
+                        <span className="text-[11px] text-muted-foreground">{p.volunteer?.email}</span>
+                      </div>
+                      <Badge variant="outline" className={p.participated ? 'border-success/30 bg-success/10 text-success' : 'border-brand/30 bg-brand/10 text-brand'}>
+                        {p.participated ? 'PRESENT' : 'EXPECTED'}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import {
   School, Users, GraduationCap, CalendarDays, CalendarClock, FileClock, Wallet,
-  Images, ClipboardList, TrendingUp, CheckCircle2, MapPin, Percent, Timer,
+  Images, ClipboardList, TrendingUp, CheckCircle2, MapPin, Percent, Timer, Wrench, Clock,
   type LucideIcon,
 } from 'lucide-react'
 import { MetricCard } from '@/components/shared/metric-card'
@@ -317,17 +317,98 @@ export function VolunteerLeadOverview({
 }
 
 // ─── Execution Lead ─────────────────────────────────────────────────────────
-export function ExecOverview({ name, data }: { name: string; data: ExecData }) {
+export function ExecOverview({
+  name,
+  data,
+  execQueueData,
+}: {
+  name: string
+  data: ExecData
+  execQueueData?: any
+}) {
   const k = data.kpis
+  const workItems = execQueueData?.workItems ?? []
+
   return (
     <div className="space-y-6">
       <OverviewHeader name={name} role="Execution Lead" />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <Kpi label="Today's Sessions" value={formatNumber(k.todayCount)} icon={CalendarDays} />
-        <Kpi label="Upcoming Sessions" value={formatNumber(k.upcomingCount)} icon={CalendarClock} />
-        <Kpi label="Pending Reports" value={formatNumber(k.pendingReports)} icon={FileClock} />
+      {/* Top Metrics */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Kpi label="Needing Execution Plan" value={formatNumber(execQueueData?.needingPlanCount ?? 0)} icon={Wrench} />
+        <Kpi label="Awaiting Dual Approval" value={formatNumber(execQueueData?.awaitingApprovalCount ?? 0)} icon={Clock} />
+        <Kpi label="Execution Ready Schools" value={formatNumber(execQueueData?.executionReadyCount ?? 0)} icon={CheckCircle2} />
+        <Kpi label="Pending Session Reports" value={formatNumber(k.pendingReports)} icon={FileClock} />
       </div>
+
+      {/* Execution Lead Work Queue (Task 24) */}
+      <Card className="p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-display font-semibold text-base flex items-center gap-2">
+              <Wrench className="size-4 text-brand" /> Work Queue — Execution & Logistics Preparation
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Active school teams ready for execution planning and session scheduling.
+            </p>
+          </div>
+          <Link href="/dashboard/schools" className="text-xs font-semibold text-brand hover:underline">
+            View All Schools →
+          </Link>
+        </div>
+
+        {workItems.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg">
+            No active schools needing execution plans right now! 🎉
+          </p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {workItems.map((item: any) => {
+              const isApproved = item.execPlanStatus === 'approved'
+              const isPending = item.execPlanStatus === 'submitted' || item.execPlanStatus === 'campus_approved'
+              let badgeStyle = 'border-warning/30 bg-warning/10 text-warning'
+              let badgeLabel = 'Needs Plan'
+              if (isApproved) {
+                badgeStyle = 'border-success/30 bg-success/10 text-success'
+                badgeLabel = 'Plan Approved'
+              } else if (isPending) {
+                badgeStyle = 'border-brand/30 bg-brand/10 text-brand'
+                badgeLabel = 'In Review'
+              }
+
+              return (
+                <div key={item.id} className="p-3 rounded-xl border border-border bg-card space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-bold text-sm">
+                        <Link href={`/dashboard/schools/${item.id}`} className="hover:underline text-brand">
+                          {item.name}
+                        </Link>
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">{item.district} · {item.student_strength} students</p>
+                    </div>
+                    <Badge variant="outline" className={badgeStyle}>
+                      {badgeLabel}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-border/50 pt-2 text-[11px]">
+                    <span>Classrooms: <strong>{item.digital_classrooms} digital</strong></span>
+                    <span>Projector: <strong>{item.has_projector ? 'Yes' : 'Needs 1'}</strong></span>
+                    <span>Required Team: <strong>{item.required_volunteers}</strong></span>
+                  </div>
+
+                  <div className="flex justify-end pt-1">
+                    <Link href={`/dashboard/schools/${item.id}`} className="text-xs font-semibold text-brand hover:underline">
+                      {isApproved ? 'Schedule Sessions →' : 'Manage Execution Plan →'}
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Widget title="Today's Sessions" href="/dashboard/sessions">
@@ -335,24 +416,6 @@ export function ExecOverview({ name, data }: { name: string; data: ExecData }) {
         </Widget>
         <Widget title="Pending Reports" href="/dashboard/sessions">
           <SessionRows sessions={data.pendingReports} empty="No reports pending. 🎉" />
-        </Widget>
-        <Widget title="Upcoming Sessions" href="/dashboard/sessions">
-          <SessionRows sessions={data.upcomingSessions} empty="Nothing upcoming." />
-        </Widget>
-        <Widget title="Quick Links">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              { label: 'Attendance', href: '/dashboard/attendance', icon: ClipboardList },
-              { label: 'Evidence', href: '/dashboard/evidence', icon: Images },
-              { label: 'All Sessions', href: '/dashboard/sessions', icon: CalendarDays },
-            ].map((a) => (
-              <Link key={a.href} href={a.href}
-                className="flex items-center gap-2.5 rounded-lg border border-border px-3 py-2.5 text-sm font-medium hover:border-brand hover:bg-accent">
-                <span className="grid size-8 place-items-center rounded-md bg-brand/10 text-brand"><a.icon className="size-4" /></span>
-                {a.label}
-              </Link>
-            ))}
-          </div>
         </Widget>
       </div>
     </div>

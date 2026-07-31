@@ -96,7 +96,7 @@ export type SchoolTeamMemberRow = Timestamps & {
   status: SchoolTeamStatus; assigned_by: string | null; assigned_at: string
   responded_at: string | null; confirmed_at: string | null; replaced_at: string | null
   replaced_by_member: string | null; replacement_reason: string | null
-  is_active: boolean
+  is_active: boolean; is_team_lead: boolean
 }
 
 export type SchoolExecutionPlanRow = Timestamps & {
@@ -468,6 +468,22 @@ export interface Database {
       evaluate_and_issue_school_certificates: {
         Args: { p_school_id: string }
         Returns: number
+      }
+      set_school_team_lead: {
+        Args: { p_school_id: string; p_member_id: string }
+        Returns: undefined
+      }
+      resubmit_school_execution_plan: {
+        Args: {
+          p_plan_id: string
+          p_laptops_count?: number; p_projectors_count?: number; p_hdmi_cables_count?: number
+          p_extension_boards_count?: number; p_teaching_kits_count?: number; p_speakers_count?: number
+          p_other_equipment?: string; p_distance_km?: number; p_transport_mode?: string
+          p_estimated_travel_cost?: number; p_meeting_departure_notes?: string
+          p_transport_budget?: number; p_materials_budget?: number
+          p_equipment_budget?: number; p_other_budget?: number
+        }
+        Returns: string
       }
       submit_school_execution_plan: {
         Args: {
