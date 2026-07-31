@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { CalendarDays, ClipboardList, UsersRound } from 'lucide-react'
+import { CalendarDays, ClipboardList, UsersRound, School } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { can } from '@/lib/auth/rbac'
 import { listMyAssignments, listCampusAssignments } from '@/lib/data/assignments'
+import { getVolunteerTeamAssignments } from '@/lib/data/school-team'
 import { ASSIGNMENT_STATUS_META } from '@/lib/constants/status'
 import { formatDate } from '@/lib/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +11,7 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { MetricCard } from '@/components/shared/metric-card'
 import { EmptyState } from '@/components/shared/states'
 import { AssignmentResponse } from '@/components/assignments/assignment-response'
+import { VolunteerSessionCard } from '@/components/schools/volunteer-session-card'
 
 export const metadata = { title: 'Assignments' }
 
@@ -91,7 +93,10 @@ async function CoordinatorBoard({ campusId }: { campusId: string | null }) {
 
 /** A volunteer's own assignments with accept/decline controls. */
 async function MyAssignments({ userId }: { userId: string }) {
-  const rows = await listMyAssignments(userId)
+  const [rows, schoolTeamAssignments] = await Promise.all([
+    listMyAssignments(userId),
+    getVolunteerTeamAssignments(userId),
+  ])
   const pending = rows.filter((r) => r.status === 'assigned')
   const responded = rows.filter((r) => r.status !== 'assigned')
 
@@ -99,14 +104,36 @@ async function MyAssignments({ userId }: { userId: string }) {
     <div className="space-y-6">
       <header>
         <h1 className="font-display text-2xl font-bold tracking-tight">My assignments</h1>
-        <p className="mt-1 text-muted-foreground">Sessions you’ve been asked to help run. Confirm your availability.</p>
+        <p className="mt-1 text-muted-foreground">School teams and sessions you’ve been asked to help run.</p>
       </header>
 
-      {rows.length === 0 ? (
+      {/* School Team Assignments */}
+      {schoolTeamAssignments.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+            <School className="size-4 text-brand" /> School Team Requests
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {schoolTeamAssignments.map((a) => (
+              <VolunteerSessionCard
+                key={a.id}
+                memberId={a.id}
+                schoolId={a.school_id}
+                schoolName={a.school_name}
+                district={a.district}
+                status={a.status}
+                assignedAt={a.assigned_at}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {rows.length === 0 && schoolTeamAssignments.length === 0 ? (
         <EmptyState
           icon={ClipboardList}
           title="No assignments yet"
-          description="When a lead assigns you to a session, it shows up here to accept or decline."
+          description="When a lead requests you for a school team or session, it shows up here."
         />
       ) : (
         <div className="space-y-6">

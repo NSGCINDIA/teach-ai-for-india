@@ -1,0 +1,214 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
+import { requireUser } from '@/lib/auth/user'
+import {
+  createSessionDeliveryPlanSchema,
+  submitSessionReportSchema,
+} from '@/lib/validations/session-delivery'
+import type { SessionType } from '@/types/database'
+
+export type SessionDeliveryActionState = {
+  error?: string
+  ok?: boolean
+  message?: string
+  id?: string
+}
+
+/** Create/schedule a session delivery plan (Session 1–4). */
+export async function createSessionDeliveryPlan(
+  _prev: SessionDeliveryActionState,
+  formData: FormData,
+): Promise<SessionDeliveryActionState> {
+  const user = await requireUser('/dashboard/schools')
+  const raw = Object.fromEntries(formData)
+
+  const parsed = createSessionDeliveryPlanSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message }
+  }
+
+  const d = parsed.data
+  const supabase = await createClient()
+
+  // Get school details
+  const { data: school } = await supabase
+    .from('schools')
+    .select('id, name, campus_id')
+    .eq('id', d.school_id)
+    .single()
+
+  if (!school) return { error: 'School not found' }
+
+  // Insert session
+  const { data, error } = await supabase
+    .from('sessions')
+    .insert({
+      school_id: d.school_id,
+      campus_id: school.campus_id,
+      session_number: d.session_number,
+      session_type: d.session_type as SessionType,
+      topic: d.topic,
+      date: d.planned_date,
+      start_time: d.start_time || null,
+      end_time: d.end_time || null,
+      status: 'planned',
+      notes: d.notes || null,
+      created_by: user.id,
+    })
+    .select('id')
+    .single()
+
+  if (error) return { error: error.message }
+
+  // Also populate initial session_participants from confirmed school_team_members
+  const { data: teamMembers } = await supabase
+    .from('school_team_members')
+    .select('id, volunteer_id')
+    .eq('school_id', d.school_id)
+    .eq('status', 'confirmed')
+    .eq('is_active', true)
+
+  if (teamMembers && teamMembers.length > 0) {
+    const participants = teamMembers.map((m) => ({
+      session_id: data.id,
+      school_team_member_id: m.id,
+      volunteer_id: m.volunteer_id,
+      participated: false,
+    }))
+
+    await supabase.from('session_participants').insert(participants)
+  }
+
+  // Update school operational phase to session_N_ready
+  const nextPhase = `session_${d.session_number}_ready` as any
+  await supabase.from('schools').update({ operational_phase: nextPhase }).eq('id', d.school_id)
+
+  revalidatePath(`/dashboard/schools/${d.school_id}`)
+  revalidatePath('/dashboard/sessions')
+  return { ok: true, message: `Session ${d.session_number} scheduled for ${d.planned_date}.`, id: data.id }
+}
+
+/** Submit a delivery report for a session. */
+export async function submitSessionDeliveryReport(
+  _prev: SessionDeliveryActionState,
+  formData: FormData,
+): Promise<SessionDeliveryActionState> {
+  const user = await requireUser('/dashboard/sessions')
+
+  const participantIdsRaw = formData.getAll('participant_ids')
+  const participant_ids = participantIdsRaw.map(String).filter(Boolean)
+
+  const parsed = submitSessionReportSchema.safeParse({
+    session_id: formData.get('session_id'),
+    topic: formData.get('topic'),
+    student_count: formData.get('student_count'),
+    volunteer_count: formData.get('volunteer_count'),
+    notes: formData.get('notes') || undefined,
+    challenges: formData.get('challenges') || undefined,
+    next_steps: formData.get('next_steps') || undefined,
+    participant_ids,
+  })
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message }
+  }
+
+  const d = parsed.data
+  const supabase = await createClient()
+
+  // Verify evidence gate: check that at least 1 photo and 1 document media asset exist
+  const { data: media } = await supabase
+    .from('media_assets')
+    .select('file_type')
+    .eq('session_id', d.session_id)
+    .is('deleted_at', null)
+
+  const photoCount = (media ?? []).filter((m) => m.file_type === 'photo' || m.file_type.includes('photo')).length
+  const docCount = (media ?? []).filter((m) => m.file_type === 'document' || m.file_type === 'letter').length
+
+  if (photoCount < 1 || docCount < 1) {
+    return {
+      error: 'Cannot submit report: at least 1 photo and 1 attendance/report document are required in the Evidence section.',
+    }
+  }
+
+  // Update session status to reported
+  const { data: session, error } = await supabase
+    .from('sessions')
+    .update({
+      topic: d.topic,
+      student_count: d.student_count,
+      volunteer_count: d.volunteer_count,
+      notes: d.notes || null,
+      challenges: d.challenges || null,
+      next_steps: d.next_steps || null,
+      status: 'reported',
+    })
+    .eq('id', d.session_id)
+    .select('school_id, session_number')
+    .single()
+
+  if (error) return { error: error.message }
+
+  // Record participation flags
+  if (d.participant_ids && d.participant_ids.length > 0) {
+    // Reset all for this session to false first
+    await supabase
+      .from('session_participants')
+      .update({ participated: false, marked_by: user.id })
+      .eq('session_id', d.session_id)
+
+    // Set selected to true
+    await supabase
+      .from('session_participants')
+      .update({ participated: true, marked_by: user.id })
+      .eq('session_id', d.session_id)
+      .in('volunteer_id', d.participant_ids)
+  }
+
+  // Update school operational phase
+  if (session) {
+    const nextPhase = `session_${session.session_number}_submitted` as any
+    await supabase.from('schools').update({ operational_phase: nextPhase }).eq('id', session.school_id)
+    revalidatePath(`/dashboard/schools/${session.school_id}`)
+  }
+
+  revalidatePath(`/dashboard/sessions/${d.session_id}`)
+  revalidatePath('/dashboard/sessions')
+  return { ok: true, message: 'Session report submitted and awaiting verification.' }
+}
+
+/** Verify a reported session (Campus Lead). */
+export async function verifySessionDelivery(
+  _prev: SessionDeliveryActionState,
+  formData: FormData,
+): Promise<SessionDeliveryActionState> {
+  const user = await requireUser('/dashboard/sessions')
+  const sessionId = formData.get('session_id') as string
+
+  if (!sessionId) return { error: 'Session ID is required' }
+
+  const supabase = await createClient()
+
+  // Update session to verified
+  const { data: session, error } = await supabase
+    .from('sessions')
+    .update({
+      status: 'verified',
+      verified_by: user.id,
+      verified_at: new Date().toISOString(),
+    })
+    .eq('id', sessionId)
+    .select('school_id, session_number')
+    .single()
+
+  if (error) return { error: error.message }
+
+  revalidatePath(`/dashboard/sessions/${sessionId}`)
+  if (session) {
+    revalidatePath(`/dashboard/schools/${session.school_id}`)
+  }
+  return { ok: true, message: `Session ${session?.session_number ?? ''} verified!` }
+}
