@@ -14,7 +14,7 @@ export type SchoolVisitActionState = {
 
 /**
  * Log an onboarding visit. The DB function enforces role + campus scope,
- * guards the school's status, advances it to visit_completed, and notifies
+ * guards the school's status (outreach_approved only), and notifies
  * the campus's Campus/Outreach Leads; this just drives it.
  */
 export async function logSchoolVisit(

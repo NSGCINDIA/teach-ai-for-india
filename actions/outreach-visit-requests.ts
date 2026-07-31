@@ -34,10 +34,12 @@ export async function createOutreachVisitRequest(
   const supabase = await createClient()
   const { error } = await supabase.rpc('create_outreach_visit_request', {
     p_school_id: parsed.data.school_id,
-    p_purpose: parsed.data.purpose,
+    p_priority: parsed.data.priority,
+    p_expected_outcomes: parsed.data.expected_outcomes,
     p_proposed_visit_date: parsed.data.proposed_visit_date,
     p_estimated_travel_cost: parsed.data.estimated_travel_cost,
     p_team_member_ids: parsed.data.team_member_ids,
+    p_transportation: parsed.data.transportation || undefined,
   })
   if (error) return { error: humanizeDbError(error.message), values }
 

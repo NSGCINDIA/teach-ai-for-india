@@ -40,9 +40,45 @@ export const sessionPlanSchema = z.object({
   num_classes: count,
   num_sections: count,
   num_classrooms: count,
+  classes_covered: z
+    .string()
+    .optional()
+    .transform((s, ctx) => {
+      if (!s) return []
+      try {
+        return JSON.parse(s)
+      } catch {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Invalid classes selection' })
+        return z.NEVER
+      }
+    })
+    .pipe(z.array(z.string())),
+  digital_classrooms: z.coerce.number().int().min(1, 'Digital Classrooms must be at least 1').max(500).default(1),
+  recommended_fellows: z.coerce.number().int().min(0).default(2),
+  assigned_fellows: z.coerce.number().int().min(0).default(2),
   has_lab: checkbox,
   has_projector: checkbox,
   has_internet: checkbox,
+  smart_tv: checkbox,
+  ups_backup: checkbox,
+  preferred_training_days: z
+    .string()
+    .optional()
+    .transform((s, ctx) => {
+      if (!s) return []
+      try {
+        return JSON.parse(s)
+      } catch {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Invalid days selection' })
+        return z.NEVER
+      }
+    })
+    .pipe(z.array(z.string())),
+  preferred_time_slot: z
+    .enum(['Morning', 'Afternoon', 'Full Day'])
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => (v === '' ? null : v)),
   session_type: z.enum(SESSION_TYPES),
   topic: z.string().trim().max(200).optional().or(z.literal('')),
   planned_date: date,

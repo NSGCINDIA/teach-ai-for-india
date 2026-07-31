@@ -1,11 +1,10 @@
 import { notFound } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
 import {
-  canForEntity, schoolStatusAccess, outreachVisitRequestAccess, canLogSchoolVisit, isAdmin,
+  canForEntity, schoolStatusAccess, outreachVisitRequestAccess, isAdmin,
 } from '@/lib/auth/rbac'
 import { getSchool } from '@/lib/data/schools'
 import { listOutreachVisitRequestsForSchool } from '@/lib/data/outreach-visit-requests'
-import { listSchoolVisitsForSchool } from '@/lib/data/school-visits'
 import { listTeamMembers } from '@/lib/data/sessions'
 import { getCampusBudget } from '@/lib/data/budgets'
 import { SchoolDetailView } from '@/components/schools/school-detail'
@@ -24,15 +23,15 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
   const canEdit = canForEntity(user.role, 'edit_school', user.campus_id, school.campus_id)
   const statusAccess = schoolStatusAccess(user.role, user.campus_id, school.campus_id)
   const visitAccess = outreachVisitRequestAccess(user.role, user.campus_id, school.campus_id)
-  const visitLogAccess = canLogSchoolVisit(user.role, user.campus_id, school.campus_id)
-  const [visitRequests, roster, schoolVisits, budget] = await Promise.all([
+  const [visitRequests, roster, budget] = await Promise.all([
     listOutreachVisitRequestsForSchool(school.id),
     listTeamMembers(school.campus_id),
-    listSchoolVisitsForSchool(school.id),
     school.campus_id && school.campus?.quarter
       ? getCampusBudget(school.campus_id, school.campus.quarter)
       : Promise.resolve(null),
   ])
+
+  const canApproveOnboarding = isAdmin(user.role) || ((user.role === 'campus_lead' || user.role === 'outreach_lead') && user.campus_id === school.campus_id)
 
   return (
     <SchoolDetailView
@@ -44,8 +43,7 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
       roster={roster}
       budget={budget}
       visitAccess={visitAccess}
-      schoolVisits={schoolVisits}
-      visitLogAccess={visitLogAccess}
+      canApproveOnboarding={canApproveOnboarding}
       isAdmin={isAdmin(user.role)}
     />
   )
