@@ -52,7 +52,7 @@ export async function respondToAssignment(
   const { error } = await supabase.rpc('respond_to_assignment', {
     p_assignment_id: parsed.data.assignment_id,
     p_status: parsed.data.status,
-    p_note: parsed.data.note || undefined,
+    p_note: parsed.data.note ?? null,
   })
   if (error) return { error: humanizeDbError(error.message) }
 

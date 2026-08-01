@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
+import { CheckCircle2, Loader2 } from 'lucide-react'
 import { approvePlan, savePlan, type PlanActionState } from '@/actions/plans'
 import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { SESSION_TYPE_META } from '@/lib/constants/sessions'
@@ -113,8 +113,12 @@ export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasP
 
         <OnboardingSummary plan={plan} />
 
-        {canApprove && (
+        {canApprove ? (
           <ApproveForm schoolId={schoolId} planId={plan.id} isReady={readiness?.ready ?? false} />
+        ) : (
+          <p className="rounded-lg border border-muted bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+            Awaiting verification and approval from this school&apos;s Campus Lead.
+          </p>
         )}
       </div>
     )
@@ -528,6 +532,17 @@ function ApproveForm({ schoolId, planId, isReady = true }: { schoolId: string; p
       <input type="hidden" name="school_id" value={schoolId} />
       <input type="hidden" name="plan_id" value={planId} />
 
+      <label className="flex items-start gap-2 rounded-lg border border-border bg-muted/20 p-3 text-sm">
+        <input
+          type="checkbox"
+          name="approval_letter_verified"
+          value="true"
+          required
+          className="mt-0.5 size-4 accent-brand"
+        />
+        <span>I have verified that the official approval letter is valid for this school and session.</span>
+      </label>
+
       {state.error && (
         <p role="alert" className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
           <AlertCircle className="size-4 shrink-0" /> {state.error}
@@ -536,7 +551,7 @@ function ApproveForm({ schoolId, planId, isReady = true }: { schoolId: string; p
 
       <Button type="submit" size="sm" className="bg-brand text-white hover:bg-brand/90" disabled={pending || !isReady}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
-        Approve & Activate School
+        Verify, Approve & Activate School
       </Button>
     </form>
   )

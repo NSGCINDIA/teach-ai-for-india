@@ -91,6 +91,9 @@ export const sessionPlanSchema = z.object({
 
 export const approvePlanSchema = z.object({
   plan_id: z.string().uuid(),
+  approval_letter_verified: z.literal('true', {
+    errorMap: () => ({ message: 'Confirm that you have verified the official approval letter.' }),
+  }),
 })
 
 export type SessionPlanInput = z.infer<typeof sessionPlanSchema>

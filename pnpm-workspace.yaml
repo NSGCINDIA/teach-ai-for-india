@@ -1,2 +1,6 @@
 packages:
   - '.'
+allowBuilds:
+  sharp: set this to true or false
+minimumReleaseAgeExclude:
+  - '@types/pg@8.20.3'

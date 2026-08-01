@@ -40,7 +40,7 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
     getSchoolSessions(school.id),
   ])
 
-  const canApproveOnboarding = isAdmin(user.role) || ((user.role === 'campus_lead' || user.role === 'outreach_lead') && user.campus_id === school.campus_id)
+  const canApproveOnboarding = canForEntity(user.role, 'approve_school_onboarding', user.campus_id, school.campus_id)
   const canVerifySession = isAdmin(user.role) || (user.role === 'campus_lead' && user.campus_id === school.campus_id)
 
   return (
