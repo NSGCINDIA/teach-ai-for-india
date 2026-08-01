@@ -9,9 +9,7 @@ import {
   Clock,
   Send,
   Loader2,
-  DollarSign,
   Truck,
-  MessageSquare,
   FileCheck,
 } from 'lucide-react'
 import type { SchoolExecutionPlanDetail } from '@/lib/data/school-execution-plans'
@@ -37,8 +35,8 @@ interface ExecutionPlanPanelProps {
   onboardingPlan?: any
   teamConfirmed?: boolean
   access: ExecutionPlanAccess
-  schoolStatus: string
-  operationalPhase: string | null
+  schoolStatus?: string
+  operationalPhase?: string | null
 }
 
 export function ExecutionPlanPanel({
@@ -47,8 +45,6 @@ export function ExecutionPlanPanel({
   onboardingPlan,
   teamConfirmed = false,
   access,
-  schoolStatus,
-  operationalPhase,
 }: ExecutionPlanPanelProps) {
   const [subState, subAction, subPending] = useActionState<SchoolExecutionPlanActionState, FormData>(
     plan?.status === 'campus_changes_requested' || plan?.status === 'finance_changes_requested'
@@ -356,11 +352,11 @@ export function ExecutionPlanPanel({
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div>
                   <Label htmlFor="laptops_count" className="text-xs">Laptops</Label>
-                  <Input id="laptops_count" name="laptops_count" type="number" min={0} defaultValue={plan?.laptops_count ?? 2} className="mt-1 text-sm" />
+                  <Input id="laptops_count" name="laptops_count" type="number" min={0} defaultValue={plan?.laptops_count ?? defaultLaptops} className="mt-1 text-sm" />
                 </div>
                 <div>
                   <Label htmlFor="projectors_count" className="text-xs">Projectors</Label>
-                  <Input id="projectors_count" name="projectors_count" type="number" min={0} defaultValue={plan?.projectors_count ?? 1} className="mt-1 text-sm" />
+                  <Input id="projectors_count" name="projectors_count" type="number" min={0} defaultValue={plan?.projectors_count ?? defaultProjectors} className="mt-1 text-sm" />
                 </div>
                 <div>
                   <Label htmlFor="hdmi_cables_count" className="text-xs">HDMI Cables</Label>
