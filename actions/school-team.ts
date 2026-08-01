@@ -42,7 +42,7 @@ export async function requestSchoolTeamAvailability(
   const { data, error } = await supabase.rpc('request_school_team_availability', {
     p_school_id: parsed.data.school_id,
     p_volunteer_ids: parsed.data.volunteer_ids,
-    p_required_volunteers: parsed.data.required_volunteers,
+    p_required_volunteers: parsed.data.required_volunteers ?? null,
   })
 
   if (error) return { error: error.message }
@@ -73,7 +73,7 @@ export async function respondSchoolTeamAvailability(
   const { error } = await supabase.rpc('respond_school_team_availability', {
     p_member_id: parsed.data.member_id,
     p_available: parsed.data.available,
-    p_note: parsed.data.note,
+    p_note: parsed.data.note ?? null,
   })
 
   if (error) return { error: error.message }
@@ -136,7 +136,7 @@ export async function replaceSchoolTeamMember(
   const { error } = await supabase.rpc('replace_school_team_member', {
     p_member_id: parsed.data.member_id,
     p_replacement_volunteer_id: parsed.data.replacement_volunteer_id,
-    p_reason: parsed.data.reason,
+    p_reason: parsed.data.reason ?? null,
   })
 
   if (error) return { error: error.message }
@@ -159,7 +159,7 @@ export async function markSessionAbsence(
     p_session_id: sessionId,
     p_user_id: userId,
     p_status: status,
-    p_notes: notes || undefined,
+    p_notes: notes ?? null,
   })
 
   if (error) return { error: error.message }

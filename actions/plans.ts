@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/auth/user'
-import { can } from '@/lib/auth/rbac'
+import { can, canForEntity } from '@/lib/auth/rbac'
 import { sessionPlanSchema, approvePlanSchema } from '@/lib/validations/plans'
 import { formValues } from '@/lib/actions/form-values'
 import type { SessionPlanStatus } from '@/types/database'
@@ -107,14 +107,14 @@ export async function approvePlan(
   if (!parsed.success) return { error: 'Missing planning record.' }
   const schoolId = String(formData.get('school_id') ?? '')
   const user = await requireUser(`/dashboard/schools/${schoolId}`)
-  if (can(user.role, 'edit_school') === false) {
-    return { error: 'You do not have permission to approve onboarding.' }
-  }
-
   // Task 2: Strict Onboarding Readiness Validation
   const { getSchool } = await import('@/lib/data/schools')
   const { validateSchoolOnboardingReadiness } = await import('@/lib/validations/readiness-gate')
   const school = await getSchool(schoolId)
+
+  if (!school || !canForEntity(user.role, 'approve_school_onboarding', user.campus_id, school.campus_id)) {
+    return { error: 'Only the Campus Lead assigned to this school may verify and approve onboarding.' }
+  }
 
   if (school) {
     const readiness = validateSchoolOnboardingReadiness(school, school.plan)
@@ -126,14 +126,17 @@ export async function approvePlan(
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.rpc('approve_session_plan', { p_plan_id: parsed.data.plan_id })
+  const { error } = await supabase.rpc('approve_session_plan', {
+    p_plan_id: parsed.data.plan_id,
+    p_letter_verified: true,
+  })
   if (error) return { error: humanizeDbError(error.message) }
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath(`/admin/schools/${schoolId}`)
   revalidatePath('/dashboard/schools')
   revalidatePath('/admin/schools')
-  return { ok: true, message: 'Onboarding approved! School activated and volunteer team preparation initialized.' }
+  return { ok: true, message: 'Approval letter verified. Onboarding approved and school activated.' }
 }
 
 function humanizeDbError(msg: string): string {

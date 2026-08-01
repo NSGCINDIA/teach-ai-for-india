@@ -175,23 +175,16 @@ export function ExecutionPlanPanel({
               )}
             </div>
 
-            {/* Travel & Budget Breakdown */}
+            {/* Travel & Logistics Breakdown */}
             <div className="rounded-lg border border-border p-3 space-y-2 bg-card">
               <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <DollarSign className="size-3.5 text-brand" /> Travel & Budget
+                <Truck className="size-3.5 text-brand" /> Travel & Logistics
               </h5>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>Distance: <strong className="font-medium">{plan.distance_km ?? '—'} km</strong></div>
                 <div>Mode: <strong className="font-medium">{plan.transport_mode ?? '—'}</strong></div>
-                <div>Transport Budget: <strong className="font-medium">₹{plan.transport_budget}</strong></div>
-                <div>Materials Budget: <strong className="font-medium">₹{plan.materials_budget}</strong></div>
-                <div>Equipment Budget: <strong className="font-medium">₹{plan.equipment_budget}</strong></div>
-                <div>Other Budget: <strong className="font-medium">₹{plan.other_budget}</strong></div>
+                <div className="col-span-2">Estimated Travel Cost: <strong className="font-medium">₹{plan.estimated_travel_cost}</strong></div>
               </div>
-              <p className="text-xs font-semibold text-brand pt-1 border-t border-border/50 flex justify-between">
-                <span>Total Budget Request:</span>
-                <span>₹{plan.total_budget}</span>
-              </p>
             </div>
           </div>
 
@@ -414,31 +407,6 @@ export function ExecutionPlanPanel({
               <div>
                 <Label htmlFor="meeting_departure_notes" className="text-xs">Meeting & Departure Notes</Label>
                 <Textarea id="meeting_departure_notes" name="meeting_departure_notes" rows={2} placeholder="Departure place, meetup time, contact details" defaultValue={plan?.meeting_departure_notes ?? ''} className="mt-1 text-sm" />
-              </div>
-            </div>
-
-            {/* Budget Allocation Section */}
-            <div className="space-y-2 pt-2 border-t border-border">
-              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Budget Allocation (₹)
-              </h5>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <Label htmlFor="transport_budget" className="text-xs">Transport (₹)</Label>
-                  <Input id="transport_budget" name="transport_budget" type="number" min={0} defaultValue={plan?.transport_budget ?? 200} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="materials_budget" className="text-xs">Materials (₹)</Label>
-                  <Input id="materials_budget" name="materials_budget" type="number" min={0} defaultValue={plan?.materials_budget ?? 100} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="equipment_budget" className="text-xs">Equipment (₹)</Label>
-                  <Input id="equipment_budget" name="equipment_budget" type="number" min={0} defaultValue={plan?.equipment_budget ?? 0} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="other_budget" className="text-xs">Other (₹)</Label>
-                  <Input id="other_budget" name="other_budget" type="number" min={0} defaultValue={plan?.other_budget ?? 0} className="mt-1 text-sm" />
-                </div>
               </div>
             </div>
 

@@ -11,6 +11,7 @@ import { EXEC_LEAD_SCHOOL_STATUSES } from '@/lib/constants/status'
 export type Permission =
   | 'view_all_campuses'
   | 'edit_school'
+  | 'approve_school_onboarding'
   | 'create_session'
   | 'submit_reimbursement'
   | 'approve_reimbursement'
@@ -27,37 +28,37 @@ export type Scope = 'all' | 'own' | false
 
 const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
   super_admin: {
-    view_all_campuses: 'all', edit_school: 'all', create_session: 'all',
+    view_all_campuses: 'all', edit_school: 'all', approve_school_onboarding: false, create_session: 'all',
     submit_reimbursement: 'all', approve_reimbursement: 'all',
     view_analytics_all: 'all', view_analytics_campus: 'all', upload_evidence: 'all',
     assign_volunteers: 'all', edit_cms: 'all', manage_user_roles: 'all', export_data: 'all',
   },
   campus_lead: {
-    view_all_campuses: false, edit_school: 'own', create_session: 'own',
+    view_all_campuses: false, edit_school: 'own', approve_school_onboarding: 'own', create_session: 'own',
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
     assign_volunteers: false, edit_cms: false, manage_user_roles: 'own', export_data: 'own',
   },
   outreach_lead: {
-    view_all_campuses: false, edit_school: 'own', create_session: false,
+    view_all_campuses: false, edit_school: 'own', approve_school_onboarding: false, create_session: false,
     submit_reimbursement: 'own', approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
   exec_lead: {
-    view_all_campuses: false, edit_school: false, create_session: 'own',
+    view_all_campuses: false, edit_school: false, approve_school_onboarding: false, create_session: 'own',
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
   volunteer_lead: {
-    view_all_campuses: false, edit_school: false, create_session: false,
+    view_all_campuses: false, edit_school: false, approve_school_onboarding: false, create_session: false,
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: false,
     assign_volunteers: 'own', edit_cms: false, manage_user_roles: false, export_data: false,
   },
   volunteer: {
-    view_all_campuses: false, edit_school: false, create_session: false,
+    view_all_campuses: false, edit_school: false, approve_school_onboarding: false, create_session: false,
     submit_reimbursement: 'own', approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: false, upload_evidence: 'own',
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
@@ -65,13 +66,13 @@ const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
   // Campus-scoped monitoring roles (Operational Workflow Spec v2.0, Phase 1).
   // Read-only for now — their real review/approve workflows land in later phases.
   campus_mgmt_admin: {
-    view_all_campuses: false, edit_school: false, create_session: false,
+    view_all_campuses: false, edit_school: false, approve_school_onboarding: false, create_session: false,
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: false,
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
   finance_lead: {
-    view_all_campuses: false, edit_school: false, create_session: false,
+    view_all_campuses: false, edit_school: false, approve_school_onboarding: false, create_session: false,
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: false,
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,

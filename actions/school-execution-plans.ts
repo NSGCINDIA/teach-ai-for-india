@@ -39,15 +39,15 @@ export async function submitSchoolExecutionPlan(
     p_extension_boards_count: d.extension_boards_count,
     p_teaching_kits_count: d.teaching_kits_count,
     p_speakers_count: d.speakers_count,
-    p_other_equipment: d.other_equipment,
-    p_distance_km: d.distance_km,
-    p_transport_mode: d.transport_mode,
-    p_estimated_travel_cost: d.estimated_travel_cost,
-    p_meeting_departure_notes: d.meeting_departure_notes,
-    p_transport_budget: d.transport_budget,
-    p_materials_budget: d.materials_budget,
-    p_equipment_budget: d.equipment_budget,
-    p_other_budget: d.other_budget,
+    p_other_equipment: d.other_equipment ?? null,
+    p_distance_km: d.distance_km ?? null,
+    p_transport_mode: d.transport_mode ?? null,
+    p_estimated_travel_cost: d.estimated_travel_cost ?? 0,
+    p_meeting_departure_notes: d.meeting_departure_notes ?? null,
+    p_transport_budget: d.transport_budget ?? 0,
+    p_materials_budget: d.materials_budget ?? 0,
+    p_equipment_budget: d.equipment_budget ?? 0,
+    p_other_budget: d.other_budget ?? 0,
   })
 
   if (error) return { error: error.message }
@@ -78,7 +78,7 @@ export async function reviewSchoolExecutionPlanCampus(
   const { error } = await supabase.rpc('review_school_execution_plan_campus', {
     p_plan_id: parsed.data.plan_id,
     p_decision: parsed.data.decision,
-    p_comments: parsed.data.comments,
+    p_comments: parsed.data.comments ?? null,
   })
 
   if (error) return { error: error.message }
@@ -113,7 +113,7 @@ export async function reviewSchoolExecutionPlanFinance(
   const { error } = await supabase.rpc('review_school_execution_plan_finance', {
     p_plan_id: parsed.data.plan_id,
     p_decision: parsed.data.decision,
-    p_comments: parsed.data.comments,
+    p_comments: parsed.data.comments ?? null,
   })
 
   if (error) return { error: error.message }
@@ -152,15 +152,15 @@ export async function resubmitSchoolExecutionPlan(
     p_extension_boards_count: d.extension_boards_count,
     p_teaching_kits_count: d.teaching_kits_count,
     p_speakers_count: d.speakers_count,
-    p_other_equipment: d.other_equipment,
-    p_distance_km: d.distance_km,
-    p_transport_mode: d.transport_mode,
-    p_estimated_travel_cost: d.estimated_travel_cost,
-    p_meeting_departure_notes: d.meeting_departure_notes,
-    p_transport_budget: d.transport_budget,
-    p_materials_budget: d.materials_budget,
-    p_equipment_budget: d.equipment_budget,
-    p_other_budget: d.other_budget,
+    p_other_equipment: d.other_equipment ?? null,
+    p_distance_km: d.distance_km ?? null,
+    p_transport_mode: d.transport_mode ?? null,
+    p_estimated_travel_cost: d.estimated_travel_cost ?? 0,
+    p_meeting_departure_notes: d.meeting_departure_notes ?? null,
+    p_transport_budget: d.transport_budget ?? 0,
+    p_materials_budget: d.materials_budget ?? 0,
+    p_equipment_budget: d.equipment_budget ?? 0,
+    p_other_budget: d.other_budget ?? 0,
   })
 
   if (error) return { error: error.message }

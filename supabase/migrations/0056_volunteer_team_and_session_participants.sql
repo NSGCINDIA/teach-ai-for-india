@@ -26,7 +26,7 @@ CREATE POLICY sessions_select ON public.sessions FOR SELECT USING (
   )
   OR EXISTS (
     SELECT 1 FROM school_team_members stm
-     WHERE stm.school_id = sessions.school_id AND stm.user_id = auth.uid()
+     WHERE stm.school_id = sessions.school_id AND stm.volunteer_id = auth.uid()
        AND stm.status IN ('confirmed','available','requested')
   )
   -- Legacy fallback
@@ -51,7 +51,7 @@ CREATE POLICY session_participants_select ON public.session_participants FOR SEL
           AND s.campus_id IS NOT DISTINCT FROM auth_campus())
          OR EXISTS (
            SELECT 1 FROM school_team_members stm
-            WHERE stm.school_id = s.id AND stm.user_id = auth.uid()
+            WHERE stm.school_id = s.id AND stm.volunteer_id = auth.uid()
          )
        )
   )
@@ -73,13 +73,13 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   SELECT
-    stm.user_id AS volunteer_id,
+    stm.volunteer_id AS volunteer_id,
     s.id AS conflicting_school_id,
     s.name AS conflicting_school_name,
     ('Already confirmed on active team for ' || s.name) AS conflict_reason
   FROM school_team_members stm
   JOIN schools s ON s.id = stm.school_id
-  WHERE stm.user_id = ANY(p_volunteer_ids)
+  WHERE stm.volunteer_id = ANY(p_volunteer_ids)
     AND stm.status = 'confirmed'
     AND s.status = 'sessions_active'
     AND (p_target_school_id IS NULL OR stm.school_id <> p_target_school_id);
@@ -148,7 +148,7 @@ BEGIN
 
   -- Auto-populate session_participants from confirmed school_team_members (Task 14)
   FOR stm_rec IN
-    SELECT user_id FROM school_team_members
+    SELECT volunteer_id FROM school_team_members
      WHERE school_id = p_school_id AND status = 'confirmed'
   LOOP
     INSERT INTO session_participants (session_id, school_id, user_id, status)
@@ -227,9 +227,9 @@ BEGIN
 
   -- Evaluate each confirmed school team member
   FOR stm_rec IN
-    SELECT stm.user_id, u.full_name, u.email
+    SELECT stm.volunteer_id, u.full_name, u.email
       FROM school_team_members stm
-      JOIN users u ON u.id = stm.user_id
+      JOIN users u ON u.id = stm.volunteer_id
      WHERE stm.school_id = p_school_id AND stm.status = 'confirmed'
   LOOP
     -- Count attended sessions (present or expected in verified sessions)

@@ -454,15 +454,15 @@ export interface Database {
         Returns: number
       }
       respond_to_assignment: {
-        Args: { p_assignment_id: string; p_status: AssignmentStatus; p_note?: string }
+        Args: { p_assignment_id: string; p_status: AssignmentStatus; p_note?: string | null }
         Returns: undefined
       }
       request_school_team_availability: {
-        Args: { p_school_id: string; p_volunteer_ids: string[]; p_required_volunteers?: number }
+        Args: { p_school_id: string; p_volunteer_ids: string[]; p_required_volunteers?: number | null }
         Returns: number
       }
       respond_school_team_availability: {
-        Args: { p_member_id: string; p_available: boolean; p_note?: string }
+        Args: { p_member_id: string; p_available: boolean; p_note?: string | null }
         Returns: undefined
       }
       confirm_school_team: {
@@ -470,15 +470,15 @@ export interface Database {
         Returns: undefined
       }
       replace_school_team_member: {
-        Args: { p_member_id: string; p_replacement_volunteer_id: string; p_reason?: string }
+        Args: { p_member_id: string; p_replacement_volunteer_id: string; p_reason?: string | null }
         Returns: string
       }
       check_volunteer_double_booking: {
-        Args: { p_volunteer_ids: string[]; p_target_school_id?: string }
+        Args: { p_volunteer_ids: string[]; p_target_school_id?: string | null }
         Returns: { volunteer_id: string; conflicting_school_id: string; conflicting_school_name: string; conflict_reason: string }[]
       }
       mark_temporary_session_absence: {
-        Args: { p_session_id: string; p_user_id: string; p_status: string; p_notes?: string }
+        Args: { p_session_id: string; p_user_id: string; p_status: string; p_notes?: string | null }
         Returns: undefined
       }
       evaluate_and_issue_school_certificates: {
@@ -512,10 +512,10 @@ export interface Database {
           p_plan_id: string
           p_laptops_count?: number; p_projectors_count?: number; p_hdmi_cables_count?: number
           p_extension_boards_count?: number; p_teaching_kits_count?: number; p_speakers_count?: number
-          p_other_equipment?: string; p_distance_km?: number; p_transport_mode?: string
-          p_estimated_travel_cost?: number; p_meeting_departure_notes?: string
-          p_transport_budget?: number; p_materials_budget?: number
-          p_equipment_budget?: number; p_other_budget?: number
+          p_other_equipment?: string | null; p_distance_km?: number | null; p_transport_mode?: string | null
+          p_estimated_travel_cost?: number | null; p_meeting_departure_notes?: string | null
+          p_transport_budget?: number | null; p_materials_budget?: number | null
+          p_equipment_budget?: number | null; p_other_budget?: number | null
         }
         Returns: string
       }
@@ -524,19 +524,19 @@ export interface Database {
           p_school_id: string
           p_laptops_count?: number; p_projectors_count?: number; p_hdmi_cables_count?: number
           p_extension_boards_count?: number; p_teaching_kits_count?: number; p_speakers_count?: number
-          p_other_equipment?: string; p_distance_km?: number; p_transport_mode?: string
-          p_estimated_travel_cost?: number; p_meeting_departure_notes?: string
-          p_transport_budget?: number; p_materials_budget?: number
-          p_equipment_budget?: number; p_other_budget?: number
+          p_other_equipment?: string | null; p_distance_km?: number | null; p_transport_mode?: string | null
+          p_estimated_travel_cost?: number | null; p_meeting_departure_notes?: string | null
+          p_transport_budget?: number | null; p_materials_budget?: number | null
+          p_equipment_budget?: number | null; p_other_budget?: number | null
         }
         Returns: string
       }
       review_school_execution_plan_campus: {
-        Args: { p_plan_id: string; p_decision: string; p_comments?: string }
+        Args: { p_plan_id: string; p_decision: string; p_comments?: string | null }
         Returns: undefined
       }
       review_school_execution_plan_finance: {
-        Args: { p_plan_id: string; p_decision: string; p_comments?: string }
+        Args: { p_plan_id: string; p_decision: string; p_comments?: string | null }
         Returns: undefined
       }
       set_campus_budget: {
