@@ -152,7 +152,7 @@ export function outreachVisitRequestAccess(
   const isMgmt = role === 'campus_mgmt_admin'
 
   return {
-    canCreate: isSuper || isMgmt || ((role === 'campus_lead' || role === 'outreach_lead') && ownCampus),
+    canCreate: isSuper || isMgmt || role === 'campus_lead' || role === 'outreach_lead',
     canReviewCampus: isSuper || isMgmt || (role === 'campus_lead' && ownCampus),
     canReviewFinance: isSuper || isMgmt || (role === 'finance_lead' && ownCampus),
   }

@@ -261,9 +261,9 @@ function RequestForm({ schoolId, roster }: { schoolId: string; roster: TeamMembe
     createOutreachVisitRequest,
     {},
   )
-  const [selected, setSelected] = useState<string[]>([])
+  const [selected, setSelected] = useState<string[]>(() => roster.map((m) => m.id))
   const [selectedOutcomes, setSelectedOutcomes] = useState<string[]>([])
-  const [priority, setPriority] = useState<string>('')
+  const [priority, setPriority] = useState<string>('High')
   const [transportation, setTransportation] = useState<string>('')
 
   const toggleMember = (id: string) =>
