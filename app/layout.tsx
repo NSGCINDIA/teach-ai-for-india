@@ -18,20 +18,20 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://teachaiforindia.org
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Teach AI for India — Student-Led AI Education Movement',
-    template: '%s — Teach AI for India',
+    default: 'TEACHAIFORINDIA — Student-Led AI Education Movement',
+    template: '%s — TEACHAIFORINDIA',
   },
   description:
     'Building India\'s first student-led AI education movement. Applied AI literacy for government school students across Telangana & Andhra Pradesh.',
   keywords: ['AI education', 'India', 'NGO', 'government schools', 'Telangana', 'Andhra Pradesh', 'AI literacy', 'students'],
   openGraph: {
-    title: 'Teach AI for India',
+    title: 'TEACHAIFORINDIA',
     description: 'Building India\'s first student-led AI education movement.',
     url: siteUrl,
-    siteName: 'Teach AI for India',
+    siteName: 'TEACHAIFORINDIA',
     type: 'website',
   },
-  twitter: { card: 'summary_large_image', title: 'Teach AI for India' },
+  twitter: { card: 'summary_large_image', title: 'TEACHAIFORINDIA' },
   robots: { index: true, follow: true },
 }
 
