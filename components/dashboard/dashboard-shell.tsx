@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  Menu, Sparkles,
+  Menu,
   LayoutDashboard, CalendarDays, School, ClipboardCheck, Receipt, Images,
   Building2, Users, Wallet, FileBarChart, BarChart3, FileText, Settings,
   CalendarRange, UserRoundCheck, CalendarClock, Award, ClipboardList, UserCircle,
@@ -20,6 +20,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/s
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { SignOutButton } from '@/components/dashboard/sign-out-button'
+import { BrandLogo } from '@/components/ui/brand-logo'
 
 /** Resolves serializable nav icon keys (from the server) to Lucide components. */
 const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
@@ -83,8 +84,8 @@ export function DashboardShell({ items, user, panelLabel, children }: DashboardS
             <SidebarContent items={items} user={user} panelLabel={panelLabel} onNavigate={() => setOpen(false)} />
           </SheetContent>
         </Sheet>
-        <Link href="/" className="inline-flex items-center gap-2 font-display font-bold">
-          <Sparkles className="size-5 text-brand" /> Teach AI for India
+        <Link href="/" className="inline-flex items-center">
+          <BrandLogo size="md" />
         </Link>
       </header>
 
@@ -108,8 +109,8 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-border px-5 py-4">
-        <Link href="/" className="inline-flex items-center gap-2 font-display font-bold">
-          <Sparkles className="size-5 text-brand" /> Teach AI
+        <Link href="/" className="inline-flex items-center">
+          <BrandLogo size="md" />
         </Link>
         <span className="ml-auto rounded-md bg-accent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent-foreground">
           {panelLabel}

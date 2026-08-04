@@ -17,6 +17,7 @@ import {
   SheetClose,
 } from '@/components/ui/sheet'
 
+import { BrandLogo } from '@/components/ui/brand-logo'
 import type { User } from '@supabase/supabase-js'
 
 const NAV_LINKS = [
@@ -82,18 +83,9 @@ export function Navbar() {
     >
       {/* Mobile & Tablet Navbar (below lg) */}
       <div className="flex h-16 items-center justify-between px-5 md:px-8 lg:hidden">
-        <Link href="/" className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none" aria-label="Teach AI For India home">
-          <motion.div className="flex items-center gap-2.5" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-            <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png"
-              alt="Teach AI For India Logo"
-              width={210}
-              height={70}
-              className="object-contain -translate-x-1 dark:brightness-110"
-              style={{ width: 'auto', height: '60px' }}
-              priority
-              loading="eager"
-            />
+        <Link href="/" className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none" aria-label="TEACHAIFORINDIA home">
+          <motion.div className="flex items-center py-1" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+            <BrandLogo size="lg" />
           </motion.div>
         </Link>
 
@@ -133,7 +125,7 @@ export function Navbar() {
             <SheetContent side="right" className="w-72 bg-white text-slate-900 border-l border-slate-200 dark:bg-slate-950 dark:text-slate-100 dark:border-slate-800">
               <SheetHeader>
                 <SheetTitle className="font-display text-lg font-extrabold text-slate-900 dark:text-white">
-                  Teach AI for India
+                  <BrandLogo size="md" />
                 </SheetTitle>
               </SheetHeader>
               <ul className="flex flex-col gap-1 px-4 mt-6">
@@ -211,18 +203,9 @@ export function Navbar() {
 
         {/* Center Logo */}
         <div className="flex items-center justify-center px-8 border-r border-slate-200/60 dark:border-slate-800/60">
-          <Link href="/" className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none" aria-label="Teach AI For India home">
-            <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png"
-                alt="Teach AI For India Logo"
-                width={264}
-                height={80}
-                className="object-contain -translate-x-2 dark:brightness-110"
-                style={{ width: 'auto', height: '70px' }}
-                priority
-                loading="eager"
-              />
+          <Link href="/" className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none" aria-label="TEACHAIFORINDIA home">
+            <motion.div className="flex items-center py-2" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+              <BrandLogo size="xl" />
             </motion.div>
           </Link>
         </div>

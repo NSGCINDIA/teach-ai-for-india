@@ -7,6 +7,7 @@ import { CERTIFICATE_KIND_META } from '@/lib/constants/workspace'
 import { formatDate } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { PrintButton } from '@/components/analytics/print-button'
+import { BrandLogo } from '@/components/ui/brand-logo'
 
 export const metadata = { title: 'Certificate' }
 
@@ -27,7 +28,9 @@ export default async function CertificatePage({ params }: { params: Promise<{ id
 
       {/* The printable certificate. */}
       <div className="mx-auto max-w-3xl rounded-2xl border-4 border-double border-brand/40 bg-card p-10 text-center shadow-sm print:border-brand/60 print:shadow-none">
-        <p className="font-display text-sm font-semibold uppercase tracking-[0.3em] text-brand">Teach AI for India</p>
+        <div className="py-1">
+          <BrandLogo size="lg" />
+        </div>
         <p className="mt-8 text-sm uppercase tracking-widest text-muted-foreground">Certificate of {CERTIFICATE_KIND_META[cert.kind].label}</p>
         <h1 className="mt-6 font-display text-3xl font-bold tracking-tight">{cert.volunteer?.full_name ?? 'Volunteer'}</h1>
         <p className="mx-auto mt-6 max-w-xl text-base">

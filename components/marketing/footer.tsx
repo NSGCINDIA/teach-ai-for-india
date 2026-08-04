@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { Mail, MapPin, Phone, Sparkles } from 'lucide-react'
+import { Mail, MapPin, Phone } from 'lucide-react'
 import { getContactInfo } from '@/lib/data/public'
+import { BrandLogo } from '@/components/ui/brand-logo'
 
 const SITE_LINKS = [
   { href: '/about', label: 'About' },
@@ -26,11 +27,8 @@ export async function Footer() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#881337] rounded-md">
-              <span className="grid size-8 place-items-center rounded-lg bg-[#881337] text-white shrink-0 group-hover:scale-105 transition-transform shadow-sm shadow-rose-950/20">
-                <Sparkles className="size-4.5" aria-hidden />
-              </span>
-              <span className="font-display text-base font-extrabold tracking-tight text-slate-900">Teach AI for India</span>
+            <Link href="/" className="flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#881337] rounded-md">
+              <BrandLogo size="lg" lightOnly />
             </Link>
             <p className="mt-4 max-w-xs text-sm text-slate-500">
               India&apos;s first student-led AI education movement — applied AI literacy for every classroom.

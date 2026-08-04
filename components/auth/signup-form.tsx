@@ -27,6 +27,7 @@ import type { CampusRow } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { BrandLogo } from '@/components/ui/brand-logo'
 import { PasswordMatch, PasswordStrength } from '@/components/auth/password-feedback'
 
 const SELECT_CLASS =
@@ -78,20 +79,11 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
       
       {/* Header */}
       <div className="flex flex-col items-center mb-6">
-        <Link href="/" className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none mb-3" aria-label="Teach AI For India home">
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png"
-            alt="Teach AI For India"
-            width={180}
-            height={60}
-            className="object-contain dark:brightness-110"
-            style={{ width: 'auto', height: '65px' }}
-            priority
-            loading="eager"
-          />
+        <Link href="/" className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none mb-3" aria-label="TEACHAIFORINDIA home">
+          <BrandLogo size="xl" />
         </Link>
         <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Create Account</h1>
-        <p className="text-xs text-muted-foreground mt-1 text-center">Join the Teach AI For India team</p>
+        <p className="text-xs text-muted-foreground mt-1 text-center">Join the TEACHAIFORINDIA team</p>
       </div>
 
       <form action={action} className="space-y-4" noValidate>

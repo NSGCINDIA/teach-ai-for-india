@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
+import { BrandLogo } from '@/components/ui/brand-logo'
 
 export function BottomDock() {
   const pathname = usePathname()
@@ -48,16 +49,8 @@ export function BottomDock() {
           transition={{ type: 'spring', damping: 25, stiffness: 260 }}
           className="fixed bottom-6 left-1/2 z-50 w-[92%] max-w-[500px] bg-[#0f0f11]/90 dark:bg-slate-900/90 border border-white/10 dark:border-white/5 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.35)] rounded-full py-2 px-3.5 flex items-center justify-between gap-4 pointer-events-auto"
         >
-          {/* Logo Brand - Displaying the full stylized 3D logo, cropped to exclude the top NIAT header */}
-          <Link href="/" className="flex items-center shrink-0 group">
-            <div className="relative h-10 w-28 overflow-hidden rounded-lg shrink-0">
-              <img 
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Teach_Ai_1_page-0001-removebg-preview-ZJzf3R1J38t7BLntCYEUuQMl2LbJdV.png" 
-                alt="Teach AI for India Logo" 
-                className="absolute left-1/2 top-[48%] -translate-x-1/2 -translate-y-1/2 max-w-none" 
-                style={{ width: '120px', height: 'auto' }}
-              />
-            </div>
+          <Link href="/" className="flex items-center shrink-0 group px-2">
+            <BrandLogo size="sm" />
           </Link>
 
           {/* Central links */}
