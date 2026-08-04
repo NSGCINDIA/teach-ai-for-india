@@ -15,11 +15,11 @@ interface BrandLogoProps {
  */
 export function BrandLogo({ className = '', size = 'md', lightOnly = false }: BrandLogoProps) {
   const sizeClasses = {
-    sm: 'text-sm font-bold tracking-tight',
-    md: 'text-lg font-extrabold tracking-tight',
-    lg: 'text-xl sm:text-2xl font-extrabold tracking-tight',
-    xl: 'text-2xl sm:text-3xl font-black tracking-tight',
-    '2xl': 'text-3xl sm:text-4xl font-black tracking-tight',
+    sm: 'text-xs sm:text-sm font-bold tracking-tight',
+    md: 'text-sm sm:text-base font-extrabold tracking-tight',
+    lg: 'text-base sm:text-lg font-extrabold tracking-tight',
+    xl: 'text-lg sm:text-xl font-black tracking-tight',
+    '2xl': 'text-xl sm:text-2xl font-black tracking-tight',
   }[size]
 
   return (

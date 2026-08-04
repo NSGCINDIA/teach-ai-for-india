@@ -72,21 +72,26 @@ export function DashboardShell({ items, user, panelLabel, children }: DashboardS
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-card px-4 py-3 lg:hidden">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Open menu">
-              <Menu className="size-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-72 p-0">
-            <SheetTitle className="sr-only">Navigation</SheetTitle>
-            <SidebarContent items={items} user={user} panelLabel={panelLabel} onNavigate={() => setOpen(false)} />
-          </SheetContent>
-        </Sheet>
-        <Link href="/" className="inline-flex items-center">
-          <BrandLogo size="md" />
-        </Link>
+      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 lg:hidden">
+        <div className="flex items-center gap-3">
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Open menu">
+                <Menu className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 p-0">
+              <SheetTitle className="sr-only">Navigation</SheetTitle>
+              <SidebarContent items={items} user={user} panelLabel={panelLabel} onNavigate={() => setOpen(false)} />
+            </SheetContent>
+          </Sheet>
+          <Link href="/" className="inline-flex items-center">
+            <BrandLogo size="md" />
+          </Link>
+        </div>
+        <span className="shrink-0 rounded-md bg-brand/10 text-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+          {panelLabel}
+        </span>
       </header>
 
       <main className="lg:pl-64">
@@ -108,11 +113,11 @@ function SidebarContent({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 border-b border-border px-5 py-4">
-        <Link href="/" className="inline-flex items-center">
-          <BrandLogo size="md" />
+      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3.5">
+        <Link href="/" className="inline-flex items-center shrink-0">
+          <BrandLogo size="sm" />
         </Link>
-        <span className="ml-auto rounded-md bg-accent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent-foreground">
+        <span className="shrink-0 rounded-md bg-brand/10 text-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
           {panelLabel}
         </span>
       </div>
