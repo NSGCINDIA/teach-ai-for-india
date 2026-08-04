@@ -113,6 +113,9 @@ export async function submitSessionDeliveryReport(
   const participantIdsRaw = formData.getAll('participant_ids')
   const participant_ids = participantIdsRaw.map(String).filter(Boolean)
 
+  const photo_url = formData.get('photo_url')?.toString().trim() || undefined
+  const document_url = formData.get('document_url')?.toString().trim() || undefined
+
   const parsed = submitSessionReportSchema.safeParse({
     session_id: formData.get('session_id'),
     topic: formData.get('topic'),
@@ -122,6 +125,8 @@ export async function submitSessionDeliveryReport(
     challenges: formData.get('challenges') || undefined,
     next_steps: formData.get('next_steps') || undefined,
     participant_ids,
+    photo_url,
+    document_url,
   })
 
   if (!parsed.success) {
@@ -130,6 +135,48 @@ export async function submitSessionDeliveryReport(
 
   const d = parsed.data
   const supabase = await createClient()
+
+  // Fetch session details for school_id & campus_id
+  const { data: curSess } = await supabase
+    .from('sessions')
+    .select('school_id, campus_id')
+    .eq('id', d.session_id)
+    .single()
+
+  // Auto-record Google Drive evidence links if provided in the report form
+  if (d.photo_url) {
+    if (!d.photo_url.startsWith('http://') && !d.photo_url.startsWith('https://')) {
+      return { error: 'Please enter a valid HTTP/HTTPS link for the Session Photo Drive link.' }
+    }
+    await supabase.from('media_assets').insert({
+      external_url: d.photo_url,
+      file_name: 'Session Photo (Google Drive)',
+      file_type: 'photo',
+      entity_type: 'session',
+      entity_id: d.session_id,
+      session_id: d.session_id,
+      school_id: curSess?.school_id || null,
+      campus_id: curSess?.campus_id || user.campus_id || null,
+      uploaded_by: user.id,
+    })
+  }
+
+  if (d.document_url) {
+    if (!d.document_url.startsWith('http://') && !d.document_url.startsWith('https://')) {
+      return { error: 'Please enter a valid HTTP/HTTPS link for the Attendance/Report Google Doc link.' }
+    }
+    await supabase.from('media_assets').insert({
+      external_url: d.document_url,
+      file_name: 'Attendance/Report Document (Google Drive)',
+      file_type: 'document',
+      entity_type: 'session',
+      entity_id: d.session_id,
+      session_id: d.session_id,
+      school_id: curSess?.school_id || null,
+      campus_id: curSess?.campus_id || user.campus_id || null,
+      uploaded_by: user.id,
+    })
+  }
 
   // Verify evidence gate: check that at least 1 photo and 1 document media asset exist
   const { data: media } = await supabase
@@ -143,7 +190,7 @@ export async function submitSessionDeliveryReport(
 
   if (photoCount < 1 || docCount < 1) {
     return {
-      error: 'Cannot submit report: at least 1 photo and 1 attendance/report document are required in the Evidence section.',
+      error: 'Cannot submit report: at least 1 Session Photo link and 1 Attendance/Report Google Doc link are required.',
     }
   }
 

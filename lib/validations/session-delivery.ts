@@ -20,6 +20,8 @@ export const submitSessionReportSchema = z.object({
   challenges: z.string().optional(),
   next_steps: z.string().optional(),
   participant_ids: z.array(z.string().uuid()).optional(),
+  photo_url: z.string().optional(),
+  document_url: z.string().optional(),
 })
 
 export type CreateSessionDeliveryPlanInput = z.infer<typeof createSessionDeliveryPlanSchema>

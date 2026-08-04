@@ -14,6 +14,7 @@ import {
   Loader2,
   Users,
   Lock,
+  Link2,
 } from 'lucide-react'
 import type { SessionRow, MediaAssetRow, SessionParticipantRow, UserRow } from '@/types/database'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
@@ -314,11 +315,42 @@ export function SessionHub({
                     />
                   </div>
 
-                  {/* Evidence Notice */}
-                  <div className="rounded-lg border border-warning/40 bg-warning/5 p-3 text-xs text-warning-700 flex items-start gap-2">
-                    <Camera className="size-4 shrink-0 mt-0.5 text-warning" />
-                    <div>
-                      <strong>Quality Gate Requirement:</strong> Make sure at least 1 Photo and 1 Attendance/Report Document are uploaded to the Evidence section below before submitting.
+                  {/* Evidence Section — Google Drive Links */}
+                  <div className="rounded-lg border border-border bg-card p-3 space-y-3">
+                    <div className="flex items-center gap-2 border-b border-border pb-2">
+                      <Link2 className="size-4 text-brand" />
+                      <span className="text-xs font-semibold">Evidence Links (Google Drive / Docs)</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      To eliminate storage costs, share Google Drive links instead of uploading raw files. Make sure permissions are set to &quot;Anyone with the link can view&quot;.
+                    </p>
+
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="photo_url" className="text-xs font-semibold flex items-center gap-1">
+                          <Camera className="size-3.5 text-brand" /> Session Photo / Album Drive Link <span className="text-error">*</span>
+                        </Label>
+                        <Input
+                          id="photo_url"
+                          name="photo_url"
+                          type="url"
+                          placeholder="https://drive.google.com/drive/folders/... or photo link"
+                          className="mt-1 text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="document_url" className="text-xs font-semibold flex items-center gap-1">
+                          <FileText className="size-3.5 text-brand" /> Attendance / Report Google Doc Link <span className="text-error">*</span>
+                        </Label>
+                        <Input
+                          id="document_url"
+                          name="document_url"
+                          type="url"
+                          placeholder="https://docs.google.com/document/d/..."
+                          className="mt-1 text-xs"
+                        />
+                      </div>
                     </div>
                   </div>
 
