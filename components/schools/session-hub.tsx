@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import type { SessionRow, MediaAssetRow, SessionParticipantRow, UserRow } from '@/types/database'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
+import { getInitialScheduleDefaults } from '@/lib/validations/schedule'
 import {
   createSessionDeliveryPlan,
   submitSessionDeliveryReport,
@@ -420,25 +421,37 @@ export function SessionHub({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="planned_date" className="text-xs font-semibold">
-                    Planned Date <span className="text-error">*</span>
-                  </Label>
-                  <Input
-                    id="planned_date"
-                    name="planned_date"
-                    type="date"
-                    required
-                    defaultValue={new Date().toISOString().slice(0, 10)}
-                    className="mt-1 text-sm"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="start_time" className="text-xs">Start Time</Label>
-                  <Input id="start_time" name="start_time" type="time" defaultValue="10:00" className="mt-1 text-sm" />
-                </div>
-              </div>
+              {(() => {
+                const { todayStr, timeStr } = getInitialScheduleDefaults()
+                return (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="planned_date" className="text-xs font-semibold">
+                        Planned Date <span className="text-error">*</span>
+                      </Label>
+                      <Input
+                        id="planned_date"
+                        name="planned_date"
+                        type="date"
+                        required
+                        min={todayStr}
+                        defaultValue={todayStr}
+                        className="mt-1 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="start_time" className="text-xs font-semibold">Start Time</Label>
+                      <Input
+                        id="start_time"
+                        name="start_time"
+                        type="time"
+                        defaultValue={timeStr}
+                        className="mt-1 text-sm"
+                      />
+                    </div>
+                  </div>
+                )
+              })()}
 
               {createState.error && <p className="text-xs text-error">{createState.error}</p>}
               {createState.ok && <p className="text-xs text-success">{createState.message}</p>}

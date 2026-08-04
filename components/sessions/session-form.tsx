@@ -62,7 +62,7 @@ export function SessionForm({ mode, session, schools, cancelHref }: SessionFormP
           <p className="mt-1 text-xs text-muted-foreground">{SESSION_TYPE_META[type].blurb}</p>
         </Field>
         <Field label="Date" required>
-          <Input type="date" name="date" required defaultValue={fieldValue(state, 'date', session?.date ?? '')} />
+          <Input type="date" name="date" required min={new Date().toISOString().slice(0, 10)} defaultValue={fieldValue(state, 'date', session?.date ?? '')} />
         </Field>
         <Field label="Start time">
           <Input type="time" name="start_time" defaultValue={fieldValue(state, 'start_time', session?.start_time?.slice(0, 5) ?? '')} />

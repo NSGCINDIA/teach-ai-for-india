@@ -10,6 +10,7 @@ import {
 import type { SessionType } from '@/types/database'
 
 import { sanitizeDbError } from '@/lib/errors'
+import { validateFutureSchedule } from '@/lib/validations/schedule'
 
 export type SessionDeliveryActionState = {
   error?: string
@@ -32,6 +33,12 @@ export async function createSessionDeliveryPlan(
   }
 
   const d = parsed.data
+
+  // Validate that the planned date and start time are not in the past
+  const timeError = validateFutureSchedule(d.planned_date, d.start_time)
+  if (timeError) {
+    return { error: timeError }
+  }
   const supabase = await createClient()
 
   // Get school details

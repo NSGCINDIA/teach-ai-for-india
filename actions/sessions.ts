@@ -14,6 +14,7 @@ import {
   attendanceSchema,
 } from '@/lib/validations/sessions'
 import { formValues } from '@/lib/actions/form-values'
+import { validateFutureSchedule } from '@/lib/validations/schedule'
 import type { SessionType, AttendanceStatus, SessionRow, MediaFileType } from '@/types/database'
 
 export type SessionActionState = {
@@ -34,6 +35,9 @@ export async function createSession(
 
   const parsed = sessionSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+
+  const timeError = validateFutureSchedule(parsed.data.date, parsed.data.start_time)
+  if (timeError) return { error: timeError, values }
 
   const supabase = await createClient()
   const { data, error } = await supabase
