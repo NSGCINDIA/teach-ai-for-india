@@ -8,6 +8,7 @@ import {
   reviewOutreachVisitRequestSchema,
 } from '@/lib/validations/outreach-visit-requests'
 import { formValues } from '@/lib/actions/form-values'
+import { sanitizeDbError } from '@/lib/errors'
 
 export type OutreachVisitRequestActionState = {
   error?: string; ok?: boolean; message?: string
@@ -106,5 +107,5 @@ function humanizeDbError(msg: string): string {
   if (/Insufficient budget/i.test(msg)) return msg
   if (/outreach_visit_requests_one_pending_per_school/i.test(msg)) return 'This school already has an open visit request.'
   if (/not found/i.test(msg)) return 'That visit request could not be found.'
-  return msg
+  return sanitizeDbError(msg)
 }

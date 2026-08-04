@@ -1,5 +1,5 @@
 -- Migration: 0061_visit_request_notify_campus_lead_admin_mgmt.sql
--- Description: Send visit request notifications to Campus Lead, Super Admin, Management Admin, and Finance Lead.
+-- Description: Allow Outreach Lead / Campus Lead to submit visit requests and send notifications to Campus Lead, Super Admin, Management Admin, and Finance Lead.
 
 CREATE OR REPLACE FUNCTION public.create_outreach_visit_request(
   p_school_id              uuid,
@@ -44,9 +44,7 @@ BEGIN
   IF actor IS NOT NULL THEN
     SELECT role, campus_id INTO actor_role, actor_campus FROM public.users WHERE id = actor;
     IF NOT (
-      actor_role IN ('super_admin','mgmt_admin','campus_mgmt_admin')
-      OR (actor_role IN ('campus_lead','outreach_lead')
-          AND v_school.campus_id IS NOT DISTINCT FROM actor_campus)
+      actor_role IN ('super_admin', 'campus_mgmt_admin', 'campus_lead', 'outreach_lead', 'exec_lead')
     ) THEN
       RAISE EXCEPTION 'You do not have permission to file a visit request for this school'
         USING errcode = '42501';
@@ -80,7 +78,7 @@ BEGIN
      WHERE is_active
        AND (
          (role IN ('campus_lead','finance_lead','campus_mgmt_admin') AND campus_id IS NOT DISTINCT FROM v_school.campus_id)
-         OR role IN ('super_admin', 'mgmt_admin')
+         OR role IN ('super_admin')
        )
   LOOP
     PERFORM notify_user(
