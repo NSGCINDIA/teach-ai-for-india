@@ -147,12 +147,14 @@ export function outreachVisitRequestAccess(
   userCampusId: string | null,
   entityCampusId: string | null,
 ): OutreachVisitRequestAccess {
-  const admin = isAdmin(role)
+  const isSuper = role === 'super_admin'
   const ownCampus = !!userCampusId && userCampusId === entityCampusId
+  const isMgmt = role === 'campus_mgmt_admin'
+
   return {
-    canCreate: admin || ((role === 'campus_lead' || role === 'outreach_lead') && ownCampus),
-    canReviewCampus: admin || (role === 'campus_lead' && ownCampus),
-    canReviewFinance: admin || (role === 'finance_lead' && ownCampus),
+    canCreate: isSuper || isMgmt || ((role === 'campus_lead' || role === 'outreach_lead') && ownCampus),
+    canReviewCampus: isSuper || isMgmt || (role === 'campus_lead' && ownCampus),
+    canReviewFinance: isSuper || isMgmt || (role === 'finance_lead' && ownCampus),
   }
 }
 

@@ -45,7 +45,7 @@ export async function createOutreachVisitRequest(
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath(`/admin/schools/${schoolId}`)
-  return { ok: true, message: 'Visit request submitted — the Campus and Finance Leads have been notified.' }
+  return { ok: true, message: 'Visit request submitted — Campus Lead, Admin, Management Admin, and Finance Lead have been notified.' }
 }
 
 /** Campus Lead reviews school suitability for a visit request. */
