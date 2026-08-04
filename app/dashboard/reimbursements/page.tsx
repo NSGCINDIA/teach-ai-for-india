@@ -129,9 +129,7 @@ export default async function DashboardReimbursementsPage() {
             )}
           </div>
 
-          <div className="lg:col-span-1">
-            <ContextualUpdates module="finance" />
-          </div>
+          <ContextualUpdates module="finance" />
         </div>
       </div>
     )
@@ -164,13 +162,9 @@ export default async function DashboardReimbursementsPage() {
         )}
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-3">
-          <ClaimsTable claims={claims} basePath="/dashboard/reimbursements" showClaimant={isFinanceQueue} />
-        </div>
-        <div className="lg:col-span-1">
-          <ContextualUpdates module="finance" />
-        </div>
+      <div className="space-y-6">
+        <ClaimsTable claims={claims} basePath="/dashboard/reimbursements" showClaimant={isFinanceQueue} />
+        <ContextualUpdates module="finance" />
       </div>
     </div>
   )

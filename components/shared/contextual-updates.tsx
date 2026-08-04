@@ -52,24 +52,24 @@ export async function ContextualUpdates({ module }: ContextualUpdatesProps) {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <ul className="divide-y divide-border/60">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {updates.map((item) => (
-            <li key={item.id} className="py-2.5 transition-colors hover:bg-muted/10">
-              <div className="flex items-start justify-between gap-3">
+            <li key={item.id} className="rounded-lg border border-border/50 bg-background/80 p-3 shadow-2xs transition-colors hover:border-brand/30 hover:bg-background">
+              <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   {item.href ? (
-                    <Link href={item.href} className="text-sm font-medium text-foreground hover:text-brand hover:underline">
+                    <Link href={item.href} className="text-sm font-semibold text-foreground hover:text-brand hover:underline line-clamp-1">
                       {item.title}
                     </Link>
                   ) : (
-                    <span className="text-sm font-medium text-foreground">{item.title}</span>
+                    <span className="text-sm font-semibold text-foreground line-clamp-1">{item.title}</span>
                   )}
-                  <p className="mt-0.5 text-xs text-muted-foreground truncate">{item.description}</p>
-                  <p className="mt-1 text-[10px] text-muted-foreground/80">{relativeTime(item.date)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{item.description}</p>
+                  <p className="mt-2 text-[10px] font-medium text-muted-foreground/80">{relativeTime(item.date)}</p>
                 </div>
                 {item.badgeText && (
                   <div className="shrink-0">
-                    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold bg-accent text-accent-foreground uppercase tracking-wider">
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-brand/10 text-brand uppercase tracking-wider">
                       {item.badgeText}
                     </span>
                   </div>

@@ -35,13 +35,9 @@ export default async function DashboardSchoolsPage() {
         )}
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-3">
-          <SchoolsView schools={schools} campuses={campuses} basePath="/dashboard/schools" showCampusFilter={!scopedToCampus} />
-        </div>
-        <div className="lg:col-span-1">
-          <ContextualUpdates module="schools" />
-        </div>
+      <div className="space-y-6">
+        <SchoolsView schools={schools} campuses={campuses} basePath="/dashboard/schools" showCampusFilter={!scopedToCampus} />
+        <ContextualUpdates module="schools" />
       </div>
     </div>
   )

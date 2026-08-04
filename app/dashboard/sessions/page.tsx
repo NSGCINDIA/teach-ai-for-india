@@ -29,13 +29,9 @@ export default async function DashboardSessionsPage() {
         )}
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-3">
-          <SessionsView sessions={sessions} campuses={campuses} basePath="/dashboard/sessions" showCampusFilter={seesAll} />
-        </div>
-        <div className="lg:col-span-1">
-          <ContextualUpdates module="sessions" />
-        </div>
+      <div className="space-y-6">
+        <SessionsView sessions={sessions} campuses={campuses} basePath="/dashboard/sessions" showCampusFilter={seesAll} />
+        <ContextualUpdates module="sessions" />
       </div>
     </div>
   )

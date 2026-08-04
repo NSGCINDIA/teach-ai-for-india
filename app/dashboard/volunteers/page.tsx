@@ -50,8 +50,8 @@ export default async function DashboardVolunteersPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-3 space-y-6">
+      <div className="space-y-6">
+        <div className="space-y-6">
           {isAdmin(user.role) && signups.length > 0 && (
             <SignupRequests requests={signups} />
           )}
@@ -75,9 +75,8 @@ export default async function DashboardVolunteersPage() {
             <UsersTable users={users} campuses={campuses} canManage={canManage} currentUserId={user.id} canViewDetails={isAdmin(user.role)} scoped={scoped} />
           )}
         </div>
-        <div className="lg:col-span-1">
-          <ContextualUpdates module="volunteers" />
-        </div>
+
+        <ContextualUpdates module="volunteers" />
       </div>
     </div>
   )

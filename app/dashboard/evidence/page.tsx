@@ -18,18 +18,14 @@ export default async function DashboardEvidencePage() {
         <p className="mt-1 text-muted-foreground">Photos, attendance docs, and files captured during sessions.</p>
       </header>
       
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-3">
-          <EvidenceBrowser
-            items={items}
-            options={options}
-            canModerate={canModerate}
-            showCampusFilter={can(user.role, 'view_all_campuses') === 'all'}
-          />
-        </div>
-        <div className="lg:col-span-1">
-          <ContextualUpdates module="evidence" />
-        </div>
+      <div className="space-y-6">
+        <EvidenceBrowser
+          items={items}
+          options={options}
+          canModerate={canModerate}
+          showCampusFilter={can(user.role, 'view_all_campuses') === 'all'}
+        />
+        <ContextualUpdates module="evidence" />
       </div>
     </div>
   )
