@@ -111,7 +111,16 @@ export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasP
           </div>
         )}
 
-        <OnboardingSummary plan={plan} />
+        {canEdit ? (
+          <div className="space-y-4 rounded-xl border border-border p-5 bg-card">
+            <h3 className="font-semibold text-base tracking-tight border-b border-border pb-3">
+              Deployment & Onboarding Form
+            </h3>
+            <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
+          </div>
+        ) : (
+          <OnboardingSummary plan={plan} />
+        )}
 
         {canApprove ? (
           <ApproveForm schoolId={schoolId} planId={plan.id} isReady={readiness?.ready ?? false} />
