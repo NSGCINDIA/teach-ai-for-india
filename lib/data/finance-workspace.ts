@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export interface FinanceActionItem {
   id: string
-  kind: 'EXECUTION_PLAN' | 'MISSING_BILL' | 'BUDGET_OVERRUN' | 'EXTRA_BUDGET_REQUEST'
+  kind: 'EXECUTION_PLAN' | 'MISSING_BILL' | 'BUDGET_OVERRUN' | 'EXTRA_BUDGET_REQUEST' | 'OUTREACH_VISIT_REQUEST'
   title: string
   subtitle: string
   amount: number
@@ -24,60 +24,88 @@ export interface FinanceWorkspaceData {
   actionItems: FinanceActionItem[]
 }
 
-export const getFinanceLeadWorkspace = cache(async (campusId: string): Promise<FinanceWorkspaceData> => {
+export const getFinanceLeadWorkspace = cache(async (campusId?: string | null): Promise<FinanceWorkspaceData> => {
   const supabase = await createClient()
 
   // 1. Campus Budget
-  const { data: budget } = await supabase
+  let budgetQuery = supabase
     .from('campus_budgets')
     .select('allocated_amount, reserved_amount')
-    .eq('campus_id', campusId)
-    .maybeSingle()
+  if (campusId) budgetQuery = budgetQuery.eq('campus_id', campusId)
+  const { data: budget } = await budgetQuery.maybeSingle()
 
   const allocatedBudget = budget?.allocated_amount ?? 100000
   const reservedBudget = budget?.reserved_amount ?? 0
 
   // 2. Total Spent
-  const { data: expenses } = await supabase
+  let expensesQuery = supabase
     .from('operational_expenses')
     .select('amount, status')
-    .eq('campus_id', campusId)
+  if (campusId) expensesQuery = expensesQuery.eq('campus_id', campusId)
+  const { data: expenses } = await expensesQuery
 
   const spentBudget = (expenses ?? []).reduce((sum, e) => sum + Number(e.amount), 0)
   const availableBudget = Math.max(0, allocatedBudget - reservedBudget - spentBudget)
   const utilizationRate = allocatedBudget > 0 ? Math.round(((reservedBudget + spentBudget) / allocatedBudget) * 100) : 0
 
   // 3. Active schools
-  const { data: schools } = await supabase
+  let schoolsQuery = supabase
     .from('schools')
     .select('id, name, status')
-    .eq('campus_id', campusId)
     .eq('status', 'sessions_active')
+  if (campusId) schoolsQuery = schoolsQuery.eq('campus_id', campusId)
+  const { data: schools } = await schoolsQuery
 
   const activeSchoolsCount = schools?.length ?? 0
 
-  // 4. Pending execution plan budget reviews
-  const { data: pendingExecPlans } = await supabase
+  // 4. Pending Outreach Visit Requests awaiting Finance Lead Review
+  let outreachQuery = supabase
+    .from('outreach_visit_requests')
+    .select('id, school_id, estimated_travel_cost, priority, expected_outcomes, school:schools(name)')
+    .eq('finance_lead_review', 'pending')
+  if (campusId) outreachQuery = outreachQuery.eq('campus_id', campusId)
+  const { data: pendingOutreachRequests } = await outreachQuery
+
+  // 5. Pending execution plan budget reviews
+  let execPlanQuery = supabase
     .from('school_execution_plans')
     .select('id, school_id, total_budget, school:schools(name)')
-    .eq('campus_id', campusId)
     .eq('status', 'campus_approved')
+  if (campusId) execPlanQuery = execPlanQuery.eq('campus_id', campusId)
+  const { data: pendingExecPlans } = await execPlanQuery
 
-  // 5. Missing bills / recorded expenses
-  const { data: unverifiedExpenses } = await supabase
+  // 6. Missing bills / recorded expenses
+  let unverifiedQuery = supabase
     .from('operational_expenses')
     .select('id, school_id, amount, category, school:schools(name)')
-    .eq('campus_id', campusId)
     .eq('status', 'recorded')
+  if (campusId) unverifiedQuery = unverifiedQuery.eq('campus_id', campusId)
+  const { data: unverifiedExpenses } = await unverifiedQuery
 
-  // 6. Extra budget requests
-  const { data: extraRequests } = await supabase
+  // 7. Extra budget requests
+  let extraQuery = supabase
     .from('budget_increase_requests')
     .select('id, requested_amount, reason, status')
-    .eq('campus_id', campusId)
     .eq('status', 'pending')
+  if (campusId) extraQuery = extraQuery.eq('campus_id', campusId)
+  const { data: extraRequests } = await extraQuery
 
   const actionItems: FinanceActionItem[] = []
+
+  if (pendingOutreachRequests) {
+    for (const r of pendingOutreachRequests as any[]) {
+      const outcomes = Array.isArray(r.expected_outcomes) ? r.expected_outcomes.join(', ') : ''
+      actionItems.push({
+        id: r.id,
+        kind: 'OUTREACH_VISIT_REQUEST',
+        title: `Outreach Visit Travel Cost Approval: ${r.school?.name ?? 'School'}`,
+        subtitle: `Est. Travel Cost ₹${r.estimated_travel_cost} · ${r.priority ?? 'Normal'} Priority${outcomes ? ` (${outcomes})` : ''}`,
+        amount: Number(r.estimated_travel_cost),
+        schoolId: r.school_id,
+        status: 'Awaiting Finance Review',
+      })
+    }
+  }
 
   if (pendingExecPlans) {
     for (const p of pendingExecPlans as any[]) {
