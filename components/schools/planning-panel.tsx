@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { CheckCircle2, Loader2 } from 'lucide-react'
+import { CheckCircle2, Loader2, AlertCircle } from 'lucide-react'
 import { approvePlan, savePlan, type PlanActionState } from '@/actions/plans'
 import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { SESSION_TYPE_META } from '@/lib/constants/sessions'

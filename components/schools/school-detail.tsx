@@ -33,7 +33,6 @@ const VISIT_REQUEST_STATUSES = new Set<SchoolDetail['status']>([
   'lead_identified', 'outreach_requested',
 ])
 
-import { FinancePanel } from '@/components/schools/finance-panel'
 import { ActivityTimeline } from '@/components/schools/activity-timeline'
 
 interface SchoolDetailProps {
@@ -262,24 +261,6 @@ export function SchoolDetailView({
             </Card>
           )}
 
-          {/* School Finance Panel (Phase 4) */}
-          {isSessionsActiveOrDone && financeSummary && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <DollarSign className="size-4 text-brand" /> School Operational Finance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FinancePanel
-                  schoolId={school.id}
-                  finance={financeSummary}
-                  canManageFinance={statusAccess.canEdit || isAdmin}
-                />
-              </CardContent>
-            </Card>
-          )}
-
           {/* School Activity Feed (Phase 4) */}
           <Card>
             <CardHeader>
@@ -393,8 +374,19 @@ function OperationalMissionCard({
       owner = 'Volunteer Lead'
       nextAction = `Build Volunteer Team (${confirmedVolunteers}/${school.required_volunteers ?? 2} confirmed)`
     } else if (phase === 'team_ready' || phase === 'execution_planning') {
-      owner = 'Execution Lead'
-      nextAction = 'Submit School Execution & Budget Plan'
+      if (execPlan?.status === 'submitted') {
+        owner = 'Campus Lead'
+        nextAction = 'Awaiting Campus Lead Execution Plan Review'
+      } else if (execPlan?.status === 'campus_approved') {
+        owner = 'Finance Lead'
+        nextAction = 'Awaiting Finance Lead Budget Approval'
+      } else if (execPlan?.status === 'campus_changes_requested' || execPlan?.status === 'finance_changes_requested') {
+        owner = 'Execution Lead'
+        nextAction = 'Resubmit Execution Plan (Changes Requested)'
+      } else {
+        owner = 'Execution Lead'
+        nextAction = 'Submit School Execution & Budget Plan'
+      }
     } else if (phase === 'execution_ready') {
       owner = 'Execution Lead'
       nextAction = 'Schedule Session 1 Delivery'
