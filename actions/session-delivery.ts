@@ -9,6 +9,8 @@ import {
 } from '@/lib/validations/session-delivery'
 import type { SessionType } from '@/types/database'
 
+import { sanitizeDbError } from '@/lib/errors'
+
 export type SessionDeliveryActionState = {
   error?: string
   ok?: boolean
@@ -40,6 +42,14 @@ export async function createSessionDeliveryPlan(
     .single()
 
   if (!school) return { error: 'School not found' }
+
+  // Explicit permission check: Super/Mgmt Admin OR Campus/Exec Lead for this school's campus
+  const isSuperOrMgmt = ['super_admin', 'mgmt_admin'].includes(user.role)
+  const isCampusLeadOrExec = ['campus_lead', 'exec_lead'].includes(user.role) && !!user.campus_id && user.campus_id === school.campus_id
+
+  if (!isSuperOrMgmt && !isCampusLeadOrExec) {
+    return { error: 'You do not have permission to schedule session plans for this school.' }
+  }
 
   // Get previous session if session_number > 1
   let previousSessionId: string | null = null
@@ -73,7 +83,7 @@ export async function createSessionDeliveryPlan(
     .select('id')
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   // Also populate initial session_participants from confirmed school_team_members
   const { data: teamMembers } = await supabase
@@ -210,7 +220,7 @@ export async function submitSessionDeliveryReport(
     .select('school_id, session_number')
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   // Record participation flags
   if (d.participant_ids && d.participant_ids.length > 0) {
@@ -268,7 +278,7 @@ export async function verifySessionDelivery(
     .select('school_id, session_number')
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   revalidatePath(`/dashboard/sessions/${sessionId}`)
   if (session) {

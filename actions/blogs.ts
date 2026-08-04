@@ -7,6 +7,7 @@ import { requireUser } from '@/lib/auth/user'
 import { isAdmin } from '@/lib/auth/rbac'
 import { upsertBlogSchema, reviewBlogSchema } from '@/lib/validations/blogs'
 import { formValues } from '@/lib/actions/form-values'
+import { sanitizeDbError } from '@/lib/errors'
 
 export type BlogActionState = {
   error?: string; ok?: boolean; message?: string
@@ -123,7 +124,7 @@ export async function submitBlog(
     .update({ status: 'submitted', updated_at: new Date().toISOString() })
     .eq('id', id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   revalidatePath('/dashboard/blogs')
   return { ok: true, message: 'Submitted for review.' }
@@ -148,7 +149,7 @@ export async function deleteBlog(
   }
 
   const { error } = await supabase.from('blogs').delete().eq('id', id)
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   revalidatePath('/dashboard/blogs')
   return { ok: true, message: 'Blog deleted.' }
@@ -181,7 +182,7 @@ export async function reviewBlog(
   }
 
   const { error } = await supabase.from('blogs').update(payload).eq('id', id)
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   revalidatePath('/dashboard/blogs')
   revalidatePath('/stories')

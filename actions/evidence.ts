@@ -6,6 +6,7 @@ import { requireUser } from '@/lib/auth/user'
 import { isAdmin } from '@/lib/auth/rbac'
 import { recordUploadSchema, approveEvidenceSchema, evidenceIdSchema } from '@/lib/validations/evidence'
 import { isPubliclyPromotable } from '@/lib/constants/evidence'
+import { sanitizeDbError } from '@/lib/errors'
 
 export type EvidenceActionState = { error?: string; ok?: boolean; message?: string; id?: string }
 
@@ -38,7 +39,7 @@ export async function recordUpload(input: unknown): Promise<EvidenceActionState>
     })
     .select('id')
     .single()
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   if (d.session_id) revalidatePath(`/dashboard/sessions/${d.session_id}`)
   revalidatePath('/dashboard/evidence')
@@ -59,7 +60,7 @@ export async function softDeleteEvidence(
     .from('media_assets')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', parsed.data.id)
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   revalidatePath('/dashboard/evidence')
   revalidatePath('/admin/evidence')
@@ -110,7 +111,7 @@ export async function approveEvidence(
       ...(isPublic ? { is_public: true } : {}),
     })
     .eq('id', id)
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   revalidatePath('/admin/evidence')
   revalidatePath('/dashboard/evidence')
@@ -133,7 +134,7 @@ export async function rejectEvidence(
     .from('media_assets')
     .update({ approval_status: 'rejected', is_public: false })
     .eq('id', parsed.data.id)
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error) }
 
   revalidatePath('/admin/evidence')
   return { ok: true, message: 'Rejected.' }
