@@ -153,8 +153,8 @@ export function outreachVisitRequestAccess(
 
   return {
     canCreate: isSuper || isMgmt || role === 'campus_lead' || role === 'outreach_lead',
-    canReviewCampus: isSuper || isMgmt || (role === 'campus_lead' && ownCampus),
-    canReviewFinance: isSuper || isMgmt || (role === 'finance_lead' && ownCampus),
+    canReviewCampus: isSuper || isMgmt || (role === 'campus_lead' && (ownCampus || !userCampusId)),
+    canReviewFinance: isSuper || isMgmt || role === 'finance_lead',
   }
 }
 
