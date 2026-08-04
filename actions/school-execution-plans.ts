@@ -44,7 +44,7 @@ export async function submitSchoolExecutionPlan(
     p_transport_mode: d.transport_mode ?? null,
     p_estimated_travel_cost: d.estimated_travel_cost ?? 0,
     p_meeting_departure_notes: d.meeting_departure_notes ?? null,
-    p_transport_budget: d.transport_budget ?? 0,
+    p_transport_budget: d.transport_budget || d.estimated_travel_cost || 0,
     p_materials_budget: d.materials_budget ?? 0,
     p_equipment_budget: d.equipment_budget ?? 0,
     p_other_budget: d.other_budget ?? 0,
@@ -83,6 +83,16 @@ export async function reviewSchoolExecutionPlanCampus(
 
   if (error) return { error: error.message }
 
+  const { data: planData } = await supabase
+    .from('school_execution_plans')
+    .select('school_id')
+    .eq('id', parsed.data.plan_id)
+    .maybeSingle()
+
+  if (planData?.school_id) {
+    revalidatePath(`/dashboard/schools/${planData.school_id}`)
+    revalidatePath(`/admin/schools/${planData.school_id}`)
+  }
   revalidatePath('/dashboard/schools')
   return {
     ok: true,
@@ -118,6 +128,16 @@ export async function reviewSchoolExecutionPlanFinance(
 
   if (error) return { error: error.message }
 
+  const { data: planData } = await supabase
+    .from('school_execution_plans')
+    .select('school_id')
+    .eq('id', parsed.data.plan_id)
+    .maybeSingle()
+
+  if (planData?.school_id) {
+    revalidatePath(`/dashboard/schools/${planData.school_id}`)
+    revalidatePath(`/admin/schools/${planData.school_id}`)
+  }
   revalidatePath('/dashboard/schools')
   return {
     ok: true,
@@ -157,7 +177,7 @@ export async function resubmitSchoolExecutionPlan(
     p_transport_mode: d.transport_mode ?? null,
     p_estimated_travel_cost: d.estimated_travel_cost ?? 0,
     p_meeting_departure_notes: d.meeting_departure_notes ?? null,
-    p_transport_budget: d.transport_budget ?? 0,
+    p_transport_budget: d.transport_budget || d.estimated_travel_cost || 0,
     p_materials_budget: d.materials_budget ?? 0,
     p_equipment_budget: d.equipment_budget ?? 0,
     p_other_budget: d.other_budget ?? 0,

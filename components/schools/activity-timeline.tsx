@@ -7,7 +7,7 @@ interface ActivityTimelineProps {
 }
 
 export function ActivityTimeline({ items }: ActivityTimelineProps) {
-  if (items.length === 0) {
+  if (!items || items.length === 0) {
     return (
       <p className="text-xs text-muted-foreground text-center py-4 border border-dashed rounded-lg">
         No recent activity logged for this school.
@@ -15,8 +15,9 @@ export function ActivityTimeline({ items }: ActivityTimelineProps) {
     )
   }
 
-  const formatActionName = (action: string) => {
-    return action
+  const formatActionName = (action?: string | null) => {
+    if (!action) return 'Activity Logged'
+    return String(action)
       .replace(/_/g, ' ')
       .replace(/\b\w/g, (l) => l.toUpperCase())
   }
@@ -38,7 +39,7 @@ export function ActivityTimeline({ items }: ActivityTimelineProps) {
                 <span>{formatActionName(item.action)}</span>
                 <span className="text-[10px] text-muted-foreground font-normal">{formatDate(item.createdAt)}</span>
               </div>
-              <p className="text-muted-foreground text-[11px]">By {item.actorName}</p>
+              <p className="text-muted-foreground text-[11px]">By {item.actorName ?? 'System'}</p>
             </div>
           </div>
         ))}

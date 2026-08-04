@@ -11,6 +11,7 @@ import {
   Loader2,
   Truck,
   FileCheck,
+  DollarSign,
 } from 'lucide-react'
 import type { SchoolExecutionPlanDetail } from '@/lib/data/school-execution-plans'
 import type { ExecutionPlanAccess } from '@/lib/auth/rbac'
@@ -79,7 +80,7 @@ export function ExecutionPlanPanel({
     campus_approved: { label: 'Awaiting Finance Review', style: 'border-brand/30 bg-brand/10 text-brand', icon: Clock },
     finance_changes_requested: { label: 'Finance Lead Changes Requested', style: 'border-destructive/30 bg-destructive/10 text-destructive', icon: AlertCircle },
     approved: { label: 'Execution Plan Approved', style: 'border-success/30 bg-success/10 text-success', icon: CheckCircle2 },
-  }[plan?.status ?? 'draft']
+  }[plan?.status ?? 'draft'] ?? { label: plan?.status ?? 'Draft', style: 'border-border text-muted-foreground', icon: Clock }
 
   const StatusIcon = statusMeta.icon
 
@@ -403,6 +404,31 @@ export function ExecutionPlanPanel({
               <div>
                 <Label htmlFor="meeting_departure_notes" className="text-xs">Meeting & Departure Notes</Label>
                 <Textarea id="meeting_departure_notes" name="meeting_departure_notes" rows={2} placeholder="Departure place, meetup time, contact details" defaultValue={plan?.meeting_departure_notes ?? ''} className="mt-1 text-sm" />
+              </div>
+            </div>
+
+            {/* Budget Breakdown Section */}
+            <div className="space-y-2 pt-2 border-t border-border">
+              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Budget Allocation (₹)
+              </h5>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <Label htmlFor="transport_budget" className="text-xs">Transport Budget (₹)</Label>
+                  <Input id="transport_budget" name="transport_budget" type="number" min={0} defaultValue={plan?.transport_budget ?? plan?.estimated_travel_cost ?? 200} className="mt-1 text-sm" />
+                </div>
+                <div>
+                  <Label htmlFor="materials_budget" className="text-xs">Materials Budget (₹)</Label>
+                  <Input id="materials_budget" name="materials_budget" type="number" min={0} defaultValue={plan?.materials_budget ?? 0} className="mt-1 text-sm" />
+                </div>
+                <div>
+                  <Label htmlFor="equipment_budget" className="text-xs">Equipment Budget (₹)</Label>
+                  <Input id="equipment_budget" name="equipment_budget" type="number" min={0} defaultValue={plan?.equipment_budget ?? 0} className="mt-1 text-sm" />
+                </div>
+                <div>
+                  <Label htmlFor="other_budget" className="text-xs">Other Budget (₹)</Label>
+                  <Input id="other_budget" name="other_budget" type="number" min={0} defaultValue={plan?.other_budget ?? 0} className="mt-1 text-sm" />
+                </div>
               </div>
             </div>
 
