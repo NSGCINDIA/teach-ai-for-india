@@ -127,21 +127,28 @@ export async function getCampusFinanceSummary(campusId: string): Promise<CampusF
 
 /** Outreach visit requests / execution plans still awaiting this campus's Finance Lead review. */
 export async function getPendingFinanceReviewCounts(
-  campusId: string,
+  campusId?: string | null,
 ): Promise<{ outreachPending: number; executionPending: number }> {
   const supabase = await createClient()
+
+  let qOutreach = supabase
+    .from('outreach_visit_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('finance_lead_review', 'pending')
+
+  let qExec = supabase
+    .from('execution_plans')
+    .select('id', { count: 'exact', head: true })
+    .eq('finance_lead_review', 'pending')
+
+  if (campusId) {
+    qOutreach = qOutreach.eq('campus_id', campusId)
+    qExec = qExec.eq('campus_id', campusId)
+  }
+
   const [{ count: outreachPending }, { count: executionPending }] = await Promise.all([
-    supabase
-      .from('outreach_visit_requests')
-      .select('id', { count: 'exact', head: true })
-      .eq('campus_id', campusId)
-      .eq('finance_lead_review', 'pending'),
-    supabase
-      .from('execution_plans')
-      .select('id', { count: 'exact', head: true })
-      .eq('campus_id', campusId)
-      .eq('finance_lead_review', 'pending')
-      .eq('campus_lead_review', 'approved'),
+    qOutreach,
+    qExec,
   ])
   return { outreachPending: outreachPending ?? 0, executionPending: executionPending ?? 0 }
 }
