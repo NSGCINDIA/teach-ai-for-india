@@ -121,6 +121,7 @@ DECLARE
   actor_role    user_role;
   actor_campus  uuid;
   v_status      approval_status;
+  rec           record;
 BEGIN
   IF p_decision NOT IN ('approved','rejected') THEN
     RAISE EXCEPTION 'A review decision must be approved or rejected' USING errcode = '22023';
