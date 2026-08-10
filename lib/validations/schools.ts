@@ -22,14 +22,19 @@ export type LeadSource = (typeof LEAD_SOURCES)[number]
 
 const optionalText = z.string().trim().max(500).optional().or(z.literal(''))
 
+const friendlyEnum = <T extends readonly [string, ...string[]]>(values: T, message: string) =>
+  z.enum(values, {
+    errorMap: () => ({ message }),
+  })
+
 /**
  * Base ZodObject — kept as a plain object so callers can use .extend().
  * Apply the cross-field superRefine via the exported schoolSchema below.
  */
 const schoolBaseObject = z.object({
   name: z.string().trim().min(2, 'Enter the school name').max(200),
-  school_type: z.enum(SCHOOL_TYPES),
-  board: z.enum(BOARDS),
+  school_type: friendlyEnum(SCHOOL_TYPES, 'Please select a valid school type'),
+  board: friendlyEnum(BOARDS, 'Please select a valid education board'),
   state: z.string().trim().min(2, 'State is required').max(100),
   district: z.string().trim().min(2, 'District is required').max(100),
   cluster: optionalText,
@@ -55,7 +60,7 @@ const schoolBaseObject = z.object({
     .optional()
     .or(z.literal('')),
   notes: z.string().trim().max(2000).optional().or(z.literal('')),
-  lead_source: z.enum(LEAD_SOURCES, { required_error: 'Select how you identified this school' }),
+  lead_source: friendlyEnum(LEAD_SOURCES, 'Please select how you identified this school'),
   lead_source_other: z.string().trim().max(300).optional().or(z.literal('')),
 })
 

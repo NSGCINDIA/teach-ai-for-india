@@ -14,6 +14,8 @@ import {
 } from '@/lib/validations/schools'
 import { formValues } from '@/lib/actions/form-values'
 
+import { sanitizeDbError, sanitizeZodError } from '@/lib/errors'
+
 export type SchoolActionState = {
   error?: string
   ok?: boolean
@@ -42,7 +44,7 @@ export async function createSchool(
   }
 
   const parsed = createSchoolSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+  if (!parsed.success) return { error: sanitizeZodError(parsed.error), values }
   const { acknowledge_duplicate, ...input } = parsed.data
 
   // Blocking dedup warning unless the user explicitly acknowledged it.
@@ -66,7 +68,7 @@ export async function createSchool(
 
   const supabase = await createClient()
   const { data, error } = await supabase.from('schools').insert(payload).select('id').single()
-  if (error) return { error: error.message, values }
+  if (error) return { error: sanitizeDbError(error.message, 'Failed to create school. Please check your inputs.'), values }
 
   revalidatePath('/dashboard/schools')
   revalidatePath('/admin/schools')
@@ -86,11 +88,11 @@ export async function updateSchool(
   }
 
   const parsed = schoolSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+  if (!parsed.success) return { error: sanitizeZodError(parsed.error), values }
 
   const supabase = await createClient()
   const { error } = await supabase.from('schools').update(nullify(parsed.data)).eq('id', id)
-  if (error) return { error: error.message, values }
+  if (error) return { error: sanitizeDbError(error.message, 'Failed to update school.'), values }
 
   revalidatePath(`/dashboard/schools/${id}`)
   revalidatePath('/dashboard/schools')
@@ -104,7 +106,7 @@ export async function changeSchoolStatus(
 ): Promise<SchoolActionState> {
   const values = formValues(formData)
   const parsed = changeStatusSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+  if (!parsed.success) return { error: sanitizeZodError(parsed.error), values }
   await requireUser(`/dashboard/schools/${parsed.data.school_id}`)
 
   const supabase = await createClient()
@@ -113,7 +115,7 @@ export async function changeSchoolStatus(
     p_new_status: parsed.data.new_status,
     p_note: parsed.data.note || undefined,
   })
-  if (error) return { error: humanizeDbError(error.message), values }
+  if (error) return { error: sanitizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/schools/${parsed.data.school_id}`)
   revalidatePath('/dashboard/schools')
@@ -127,12 +129,12 @@ export async function addSchoolContact(
 ): Promise<SchoolActionState> {
   const values = formValues(formData)
   const parsed = schoolContactSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+  if (!parsed.success) return { error: sanitizeZodError(parsed.error), values }
   await requireUser(`/dashboard/schools/${parsed.data.school_id}`)
 
   const supabase = await createClient()
   const { error } = await supabase.from('school_contacts').insert(nullify(parsed.data))
-  if (error) return { error: humanizeDbError(error.message), values }
+  if (error) return { error: sanitizeDbError(error.message), values }
 
   revalidatePath(`/dashboard/schools/${parsed.data.school_id}`)
   return { ok: true, message: 'Contact added.' }
@@ -151,7 +153,7 @@ export async function initiateSchoolOnboarding(
     p_school_id: schoolId,
   })
 
-  if (error) return { error: humanizeDbError(error.message) }
+  if (error) return { error: sanitizeDbError(error.message) }
 
   revalidatePath(`/dashboard/schools/${schoolId}`)
   revalidatePath('/dashboard/schools')
@@ -161,9 +163,5 @@ export async function initiateSchoolOnboarding(
 
 /** Turn raised RAISE EXCEPTION text into something a user can read. */
 function humanizeDbError(msg: string): string {
-  if (/Illegal school transition/.test(msg)) return 'That status change is not allowed from the current stage.'
-  if (/permission|reopen an archived/i.test(msg)) return 'You do not have permission for that change.'
-  if (/requires a reason/i.test(msg)) return 'A reason note is required for this change.'
-  if (/Super Admin/i.test(msg)) return 'Only a Super Admin may perform a manual status override.'
-  return msg
+  return sanitizeDbError(msg)
 }

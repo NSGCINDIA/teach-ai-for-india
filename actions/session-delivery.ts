@@ -9,7 +9,7 @@ import {
 } from '@/lib/validations/session-delivery'
 import type { SessionType } from '@/types/database'
 
-import { sanitizeDbError } from '@/lib/errors'
+import { sanitizeDbError, sanitizeZodError } from '@/lib/errors'
 import { validateFutureSchedule } from '@/lib/validations/schedule'
 
 export type SessionDeliveryActionState = {
@@ -29,7 +29,7 @@ export async function createSessionDeliveryPlan(
 
   const parsed = createSessionDeliveryPlanSchema.safeParse(raw)
   if (!parsed.success) {
-    return { error: parsed.error.issues[0].message }
+    return { error: sanitizeZodError(parsed.error) }
   }
 
   const d = parsed.data
@@ -147,7 +147,7 @@ export async function submitSessionDeliveryReport(
   })
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0].message }
+    return { error: sanitizeZodError(parsed.error) }
   }
 
   const d = parsed.data
