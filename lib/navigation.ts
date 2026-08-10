@@ -99,11 +99,13 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   // Lead and Campus Management Admin's real screens landed in Phase 5.
   campus_mgmt_admin: [
     OVERVIEW,
+    { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
     { label: 'Finance', href: '/dashboard/finance', icon: 'finance' },
   ],
   finance_lead: [
     OVERVIEW,
+    { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
     { label: 'Reimbursements', href: '/dashboard/reimbursements', icon: 'reimbursements' },
     { label: 'Campus Finance', href: '/dashboard/finance', icon: 'finance' },
   ],
