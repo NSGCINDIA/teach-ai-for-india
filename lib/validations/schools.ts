@@ -93,9 +93,8 @@ export const schoolContactSchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(/^[+\d][\d\s-]{6,14}$/, 'Enter a valid phone')
-    .optional()
-    .or(z.literal('')),
+    .min(1, 'Phone number is required')
+    .regex(/^[+\d][\d\s-]{6,14}$/, 'Enter a valid phone number (e.g. +91 9876543210)'),
   email: z.string().email('Enter a valid email').optional().or(z.literal('')),
   whatsapp: z
     .string()
