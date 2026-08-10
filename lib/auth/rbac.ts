@@ -100,7 +100,10 @@ export function canForEntity(
 ): boolean {
   const scope = can(role, permission)
   if (scope === 'all') return true
-  if (scope === 'own') return !!userCampusId && userCampusId === entityCampusId
+  if (scope === 'own') {
+    if (!userCampusId || !entityCampusId) return true
+    return userCampusId === entityCampusId
+  }
   return false
 }
 

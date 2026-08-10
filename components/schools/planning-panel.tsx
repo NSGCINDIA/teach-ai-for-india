@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { CheckCircle2, Loader2, AlertCircle } from 'lucide-react'
+import { CheckCircle2, Loader2, AlertCircle, Pencil, Eye } from 'lucide-react'
 import { approvePlan, savePlan, type PlanActionState } from '@/actions/plans'
 import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { SESSION_TYPE_META } from '@/lib/constants/sessions'
@@ -35,6 +35,10 @@ interface PlanningPanelProps {
 }
 
 export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasPriorSession, canEdit, canApprove }: PlanningPanelProps) {
+  const mockSchool = schoolDetail ?? { id: schoolId, status: schoolStatus, dise_code: 'EXAMP123', campus_id: 'campus-1' }
+  const readiness = plan ? validateSchoolOnboardingReadiness(mockSchool, plan) : null
+  const [isEditing, setIsEditing] = useState<boolean>(!readiness?.ready)
+
   if (!canEdit && !canApprove) {
     return <p className="text-sm text-muted-foreground">You do not have permission to view this school’s onboarding.</p>
   }
@@ -57,10 +61,6 @@ export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasP
       </div>
     )
   }
-
-  // Evaluate readiness if plan exists
-  const mockSchool = schoolDetail ?? { id: schoolId, status: schoolStatus, dise_code: 'EXAMP123', campus_id: 'campus-1' }
-  const readiness = plan ? validateSchoolOnboardingReadiness(mockSchool, plan) : null
 
   if (plan && plan.status === 'draft') {
     return (
@@ -105,22 +105,44 @@ export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasP
 
             {!readiness.ready && (
               <p className="text-xs text-destructive font-medium border-t border-warning/20 pt-2">
-                Missing: {readiness.missing.join(', ')}. Complete missing fields before activation.
+                Missing: {readiness.missing.join(', ')}. Complete missing fields below before activation.
               </p>
             )}
           </div>
         )}
 
-        {canEdit ? (
-          <div className="space-y-4 rounded-xl border border-border p-5 bg-card">
-            <h3 className="font-semibold text-base tracking-tight border-b border-border pb-3">
-              Deployment & Onboarding Form
+        <div className="space-y-4 rounded-xl border border-border p-5 bg-card">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+            <h3 className="font-semibold text-base tracking-tight">
+              {isEditing || !plan.coordinator_name ? 'Fill / Edit Deployment & Onboarding Details' : 'Deployment Overview'}
             </h3>
-            <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
+            {canEdit && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="h-8 gap-1.5 text-xs font-semibold"
+              >
+                {isEditing ? (
+                  <>
+                    <Eye className="size-3.5" /> View Summary
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="size-3.5" /> Edit Onboarding Details
+                  </>
+                )}
+              </Button>
+            )}
           </div>
-        ) : (
-          <OnboardingSummary plan={plan} />
-        )}
+
+          {canEdit && (isEditing || !plan.coordinator_name) ? (
+            <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
+          ) : (
+            <OnboardingSummary plan={plan} />
+          )}
+        </div>
 
         {canApprove ? (
           <ApproveForm schoolId={schoolId} planId={plan.id} isReady={readiness?.ready ?? false} />
