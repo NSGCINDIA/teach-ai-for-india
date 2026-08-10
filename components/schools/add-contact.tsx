@@ -40,8 +40,8 @@ export function AddContact({ schoolId }: { schoolId: string }) {
           <Input id="c-desig" name="designation" required defaultValue={fieldValue(state, 'designation', '')} placeholder="Principal" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="c-phone">Phone</Label>
-          <Input id="c-phone" name="phone" inputMode="tel" defaultValue={fieldValue(state, 'phone', '')} />
+          <Label htmlFor="c-phone">Phone *</Label>
+          <Input id="c-phone" name="phone" inputMode="tel" required defaultValue={fieldValue(state, 'phone', '')} placeholder="+91 9876543210" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="c-email">Email</Label>

@@ -8,7 +8,7 @@ import {
   reviewOutreachVisitRequestSchema,
 } from '@/lib/validations/outreach-visit-requests'
 import { formValues } from '@/lib/actions/form-values'
-import { sanitizeDbError } from '@/lib/errors'
+import { sanitizeDbError, sanitizeZodError } from '@/lib/errors'
 
 export type OutreachVisitRequestActionState = {
   error?: string; ok?: boolean; message?: string
@@ -30,7 +30,7 @@ export async function createOutreachVisitRequest(
   await requireUser(`/dashboard/schools/${schoolId}`)
 
   const parsed = createOutreachVisitRequestSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+  if (!parsed.success) return { error: sanitizeZodError(parsed.error), values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('create_outreach_visit_request', {
@@ -59,7 +59,7 @@ export async function reviewOutreachVisitRequestCampus(
   await requireUser(`/dashboard/schools/${schoolId}`)
 
   const parsed = reviewOutreachVisitRequestSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+  if (!parsed.success) return { error: sanitizeZodError(parsed.error), values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('review_outreach_visit_request_campus', {
@@ -84,7 +84,7 @@ export async function reviewOutreachVisitRequestFinance(
   await requireUser(`/dashboard/schools/${schoolId}`)
 
   const parsed = reviewOutreachVisitRequestSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.issues[0].message, values }
+  if (!parsed.success) return { error: sanitizeZodError(parsed.error), values }
 
   const supabase = await createClient()
   const { error } = await supabase.rpc('review_outreach_visit_request_finance', {
