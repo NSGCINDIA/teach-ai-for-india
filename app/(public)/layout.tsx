@@ -3,6 +3,7 @@ import { LazyMotion, MotionConfig, domAnimation } from 'framer-motion'
 import { Navbar } from '@/components/marketing/navbar'
 import { Footer } from '@/components/marketing/footer'
 import { Background3D } from '@/components/marketing/bg-3d'
+import { EnableAnimations } from '@/components/shared/enable-animations'
 
 /**
  * Public marketing layout (Pillar 1). Nested inside the root layout, so it adds
@@ -21,6 +22,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
     <LazyMotion features={domAnimation}>
       <MotionConfig reducedMotion="user">
         <div className="flex min-h-screen flex-col relative bg-background overflow-hidden">
+          <EnableAnimations />
           <Background3D />
           <a
             href="#main"

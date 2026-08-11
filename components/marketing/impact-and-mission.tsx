@@ -51,7 +51,7 @@ export function ImpactAndMission({
   }
 
   return (
-    <section className="section-padding relative overflow-hidden bg-transparent">
+    <section className="cv-auto section-padding relative overflow-hidden bg-transparent">
       <div className="container-wide relative z-10">
 
         {/* Section Header */}
@@ -75,7 +75,7 @@ export function ImpactAndMission({
           {/* ── LEFT SIDE: Pulsing SVG India Map ── */}
           <div className="lg:col-span-6 relative flex flex-col items-center">
             <Reveal className="w-full">
-              <div className="relative w-full aspect-[4/3] rounded-3xl bg-card border border-border/80 p-6 shadow-soft backdrop-blur-sm overflow-hidden flex flex-col justify-between">
+              <div className="relative w-full aspect-[4/3] rounded-3xl bg-card border border-border/80 p-6 shadow-soft overflow-hidden flex flex-col justify-between">
 
                 {/* Map Title/Overlay */}
                 <div className="z-10 text-left select-none">
@@ -94,7 +94,7 @@ export function ImpactAndMission({
 
                     {/* SVG India Map image outline layer */}
                     <image
-                      href="/india_map_outline.png"
+                      href="/india_map_outline.webp"
                       x="120"
                       y="10"
                       width="260"
@@ -178,7 +178,7 @@ export function ImpactAndMission({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute bottom-4 left-4 right-4 bg-background/95 dark:bg-card/95 border border-border/80 backdrop-blur-md p-4 rounded-2xl shadow-lg z-20 flex gap-3 text-left items-start"
+                      className="absolute bottom-4 left-4 right-4 bg-background/95 dark:bg-card/95 border border-border/80 p-4 rounded-2xl shadow-lg z-20 flex gap-3 text-left items-start"
                     >
                       <div className={`grid size-9 place-items-center rounded-xl shrink-0 ${activeCampus.id === 'niat-nsrit' ? 'bg-brand-teal/15 text-brand-teal' : 'bg-brand-orange/15 text-brand-orange'
                         }`}>

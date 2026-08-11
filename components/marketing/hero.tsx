@@ -105,16 +105,6 @@ export function Hero({ content }: { content: HeroContent }) {
     if (frameRef.current) cancelAnimationFrame(frameRef.current)
   }, [])
 
-  const item = {
-    hidden: { opacity: 0, y: 25 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 100, damping: 20 } },
-  }
-
-  const container = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
-  }
-
   return (
     <section
       ref={sectionRef}
@@ -143,7 +133,7 @@ export function Hero({ content }: { content: HeroContent }) {
           translate stays on the compositor and never repaints. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-64 left-[15%] size-[52rem] rounded-full animate-drift-a"
+        className="deco-layer pointer-events-none absolute -top-64 left-[15%] size-[52rem] rounded-full animate-drift-a"
         style={{
           background:
             'radial-gradient(closest-side, rgba(136,19,55,0.09), rgba(255,178,24,0.06) 48%, transparent 72%)',
@@ -151,7 +141,7 @@ export function Hero({ content }: { content: HeroContent }) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-40 right-[15%] size-[46rem] rounded-full animate-drift-b"
+        className="deco-layer pointer-events-none absolute -bottom-40 right-[15%] size-[46rem] rounded-full animate-drift-b"
         style={{
           background:
             'radial-gradient(closest-side, rgba(255,178,24,0.075), rgba(136,19,55,0.05) 48%, transparent 72%)',
@@ -162,39 +152,37 @@ export function Hero({ content }: { content: HeroContent }) {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16 items-center">
           
           {/* ── LEFT COLUMN: Text Copy, Teaser Capsule, Trust Badges ── */}
-          <m.div
-            className="lg:col-span-7 flex flex-col items-start text-left"
-            variants={container}
-            initial="hidden"
-            animate="show"
-          >
+          <div className="lg:col-span-7 flex flex-col items-start text-left">
             {content.eyebrow && (
-              <m.div variants={item}>
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#881337]/30 bg-gradient-to-r from-[#881337]/10 via-[#ffb218]/15 to-transparent px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#881337] shadow-soft backdrop-blur-md dark:text-[#ffb218]">
+              <div className="hero-enter">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#881337]/30 bg-gradient-to-r from-[#881337]/10 via-[#ffb218]/15 to-transparent px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#881337] shadow-soft dark:text-[#ffb218]">
                   <Sparkles className="size-3.5 animate-pulse text-[#881337] dark:text-[#ffb218]" />
                   {content.eyebrow}
                 </span>
-              </m.div>
+              </div>
             )}
 
-            <m.h1
-              variants={item}
-              className="mt-6 font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl xl:text-7.5xl text-foreground"
+            {/* No animation-delay: this is the LCP element, so every ms of
+                delay here is a ms added to Largest Contentful Paint. */}
+            <h1
+              className="hero-enter mt-6 font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl xl:text-7.5xl text-foreground"
             >
               Building India's first <br />
               student-led <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#881337] via-[#be123c] to-[#ffb218]">
                 AI education movement
               </span>
-            </m.h1>
+            </h1>
 
-            <m.p
-              variants={item}
-              className="mt-6 max-w-2xl text-base md:text-lg text-muted-foreground leading-relaxed min-h-[56px]"
+            <p
+              style={{ animationDelay: '90ms' }}
+              className="hero-enter mt-6 max-w-2xl text-base md:text-lg text-muted-foreground leading-relaxed min-h-[56px]"
             >
               We bring{' '}
               <span className="text-foreground font-semibold inline-block min-w-[170px] text-left">
-                <AnimatePresence mode="wait">
+                {/* initial={false} so the first word renders visible on the
+                    server instead of waiting for hydration to fade it in. */}
+                <AnimatePresence mode="wait" initial={false}>
                   <m.span
                     key={HERO_WORDS[index]}
                     initial={{ y: 8, opacity: 0 }}
@@ -208,13 +196,13 @@ export function Hero({ content }: { content: HeroContent }) {
                 </AnimatePresence>
               </span>{' '}
               to government school classrooms across Telangana & Andhra Pradesh—run entirely by college student volunteers.
-            </m.p>
+            </p>
 
             {/* Email Capsule with Shifting Gradient Border Beam */}
-            <m.div variants={item} className="mt-8 w-full max-w-md relative group">
+            <div style={{ animationDelay: '150ms' }} className="hero-enter mt-8 w-full max-w-md relative group">
               <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-[#881337] via-[#be123c] to-[#ffb218] opacity-30 blur group-hover:opacity-75 transition duration-500" />
               
-              <div className="relative p-1.5 w-full bg-background dark:bg-card/90 backdrop-blur-md rounded-full border border-border/80 flex items-center justify-between shadow-soft-lg transition-all duration-300">
+              <div className="relative p-1.5 w-full bg-background dark:bg-card/90 rounded-full border border-border/80 flex items-center justify-between shadow-soft-lg transition-all duration-300">
                 <input
                   type="email"
                   placeholder="Enter your email to volunteer..."
@@ -224,12 +212,12 @@ export function Hero({ content }: { content: HeroContent }) {
                   <Link href="/join">Apply Now</Link>
                 </Button>
               </div>
-            </m.div>
+            </div>
 
             {/* Floating Trust Indicators */}
-            <m.div
-              variants={item}
-              className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider cursor-default"
+            <div
+              style={{ animationDelay: '210ms' }}
+              className="hero-enter mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider cursor-default"
             >
               <div className="flex items-center gap-1.5 hover:text-[#881337] transition-colors">
                 <CheckCircle className="size-4.5 text-[#881337]" />
@@ -243,11 +231,11 @@ export function Hero({ content }: { content: HeroContent }) {
                 <CheckCircle className="size-4.5 text-[#16a34a]" />
                 <span>9 Campuses</span>
               </div>
-            </m.div>
+            </div>
 
-            <m.div
-              variants={item}
-              className="mt-10 flex flex-wrap items-center gap-4"
+            <div
+              style={{ animationDelay: '270ms' }}
+              className="hero-enter mt-10 flex flex-wrap items-center gap-4"
             >
               <Button asChild size="lg" className="bg-[#881337] text-white hover:bg-[#701a28] rounded-full px-7 shadow-lg shadow-rose-950/25 transition-all hover:translate-y-[-2px] active:translate-y-0 font-bold">
                 <Link href="/impact">
@@ -261,15 +249,15 @@ export function Hero({ content }: { content: HeroContent }) {
                   <ArrowRight className="size-4 ml-2 transition-transform group-hover:translate-x-1 text-[#881337]" aria-hidden />
                 </Link>
               </Button>
-            </m.div>
-          </m.div>
+            </div>
+          </div>
 
           {/* ── RIGHT COLUMN: Browser Mockup with 3D Hover/Tilt + Interactive Glow Spotlight ── */}
-          <m.div
-            className="lg:col-span-5 relative w-full flex items-center justify-center pt-8 lg:pt-0"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.15, type: 'spring', stiffness: 80 }}
+          {/* Also CSS rather than motion: the mockup holds the hero photo, and a
+              motion `initial` would have kept it at opacity 0 until hydration. */}
+          <div
+            style={{ animationDelay: '120ms' }}
+            className="hero-enter lg:col-span-5 relative w-full flex items-center justify-center pt-8 lg:pt-0"
           >
             {/* macOS Browser Mockup Wrapper with mouse tilt */}
             <div
@@ -335,11 +323,8 @@ export function Hero({ content }: { content: HeroContent }) {
             </div>
 
             {/* FLOATING CARD 1: 500+ Student Volunteers */}
-            <m.div
-              animate={{ y: [-10, 10, -10] }}
-              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-              whileHover={{ scale: 1.08, zIndex: 50 }}
-              className="absolute -top-4 -left-4 md:-left-8 bg-white/95 dark:bg-card/95 backdrop-blur-md border border-border/80 shadow-xl rounded-2xl p-4 flex items-center gap-3 hover:shadow-2xl transition-all duration-300 z-20 cursor-default select-none group/card"
+            <div
+              className="deco-layer card-pop animate-bob-y absolute -top-4 -left-4 md:-left-8 bg-white/95 dark:bg-card/95 border border-border/80 shadow-xl rounded-2xl p-4 flex items-center gap-3 hover:shadow-2xl transition-shadow duration-300 z-20 cursor-default select-none group/card"
             >
               <div className="grid size-10 place-items-center rounded-xl bg-brand-orange/15 text-brand-orange group-hover/card:bg-brand-orange group-hover/card:text-white transition-all duration-300">
                 <Users className="size-5" />
@@ -348,14 +333,11 @@ export function Hero({ content }: { content: HeroContent }) {
                 <p className="text-[15px] font-extrabold text-foreground">500+ Volunteers</p>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Across Colleges</p>
               </div>
-            </m.div>
+            </div>
 
             {/* FLOATING CARD 2: 5,000+ Impacted */}
-            <m.div
-              animate={{ y: [10, -10, 10] }}
-              transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
-              whileHover={{ scale: 1.08, zIndex: 50 }}
-              className="absolute -bottom-6 right-2 bg-white/95 dark:bg-card/95 backdrop-blur-md border border-border/80 shadow-xl rounded-2xl p-4 flex items-center gap-3 hover:shadow-2xl transition-all duration-300 z-20 cursor-default select-none group/card"
+            <div
+              className="deco-layer card-pop animate-bob-y-alt absolute -bottom-6 right-2 bg-white/95 dark:bg-card/95 border border-border/80 shadow-xl rounded-2xl p-4 flex items-center gap-3 hover:shadow-2xl transition-shadow duration-300 z-20 cursor-default select-none group/card"
             >
               <div className="grid size-10 place-items-center rounded-xl bg-brand-teal/15 text-brand-teal group-hover/card:bg-brand-teal group-hover/card:text-white transition-all duration-300">
                 <GraduationCap className="size-5" />
@@ -364,14 +346,13 @@ export function Hero({ content }: { content: HeroContent }) {
                 <p className="text-[15px] font-extrabold text-foreground">5,000+ Students</p>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">AI Literacy Enabled</p>
               </div>
-            </m.div>
+            </div>
 
             {/* FLOATING CARD 3: 9 Active Campuses */}
-            <m.div
-              animate={{ x: [-8, 8, -8] }}
-              transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-              whileHover={{ scale: 1.08, zIndex: 50 }}
-              className="absolute top-1/2 -right-4 lg:-right-8 -translate-y-1/2 bg-white/95 dark:bg-card/95 backdrop-blur-md border border-border/80 shadow-xl rounded-2xl p-3.5 flex items-center gap-2.5 hover:shadow-2xl transition-all duration-300 z-20 cursor-default select-none group/card"
+            {/* No -translate-y-1/2 class here: the bob-x keyframe carries the
+                -50% itself, since an animated transform would override it. */}
+            <div
+              className="deco-layer card-pop animate-bob-x absolute top-1/2 -right-4 lg:-right-8 bg-white/95 dark:bg-card/95 border border-border/80 shadow-xl rounded-2xl p-3.5 flex items-center gap-2.5 hover:shadow-2xl transition-shadow duration-300 z-20 cursor-default select-none group/card"
             >
               <div className="grid size-9 place-items-center rounded-xl bg-brand/10 text-brand group-hover/card:bg-brand group-hover/card:text-white transition-all duration-300">
                 <MapPin className="size-4.5" />
@@ -380,9 +361,9 @@ export function Hero({ content }: { content: HeroContent }) {
                 <p className="text-[14px] font-extrabold text-foreground">9 Campuses</p>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">On the Ground</p>
               </div>
-            </m.div>
+            </div>
 
-          </m.div>
+          </div>
 
         </div>
       </div>

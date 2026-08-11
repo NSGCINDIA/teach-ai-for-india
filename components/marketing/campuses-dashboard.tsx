@@ -207,7 +207,7 @@ export function CampusesDashboard({ campuses }: CampusesDashboardProps) {
               >
                 {/* SVG India Map image outline layer */}
                 <image
-                  href="/india_map_outline.png"
+                  href="/india_map_outline.webp"
                   x="120"
                   y="10"
                   width="260"

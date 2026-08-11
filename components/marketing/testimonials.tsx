@@ -8,7 +8,7 @@ export function Testimonials({ content }: { content: TestimonialsContent }) {
   if (content.items.length === 0) return null
 
   return (
-    <section className="section-padding">
+    <section className="cv-auto section-padding">
       <div className="container-wide">
         <Reveal>
           <SectionHeading eyebrow="Voices" title="What the movement sounds like on the ground" />

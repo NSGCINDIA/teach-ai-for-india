@@ -243,7 +243,7 @@ export function Background3D() {
     // or paint for the real page content sitting above it.
     <div
       ref={rootRef}
-      className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden bg-background contain-layout contain-paint contain-style"
+      className="deco-layer pointer-events-none fixed inset-0 z-0 select-none overflow-hidden bg-background contain-layout contain-paint contain-style"
     >
 
       {/* Ambient colour wash. Soft-stop radial gradients rather than a blurred

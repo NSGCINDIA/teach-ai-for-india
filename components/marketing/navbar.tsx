@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { Menu } from 'lucide-react'
 import { m } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { hasAuthCookie } from '@/lib/auth/has-auth-cookie'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -50,9 +51,12 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null)
 
   // Resolving the session pulls in ~240 KB of supabase-js and costs a network
-  // round trip, but only swaps two buttons in the corner. Defer it past
-  // hydration so it never competes with the LCP paint on the marketing pages.
+  // round trip, but only swaps two buttons in the corner. So: skip it outright
+  // when no auth cookie exists (the normal case for a marketing visitor), and
+  // otherwise defer it past hydration so it never competes with the LCP paint.
   useEffect(() => {
+    if (!hasAuthCookie()) return
+
     let cancelled = false
 
     const checkUser = async () => {
@@ -87,7 +91,7 @@ export function Navbar() {
 
   return (
     <header
-      className="fixed top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-soft dark:border-slate-800 dark:bg-slate-950/90"
+      className="fixed top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 shadow-soft dark:border-slate-800 dark:bg-slate-950/90"
     >
       {/* Mobile & Tablet Navbar (below lg) */}
       <div className="flex h-16 items-center justify-between px-5 md:px-8 lg:hidden">

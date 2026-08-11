@@ -55,7 +55,7 @@ export default async function HomePage() {
       <KidsLearningLab />
 
       {/* Campuses */}
-      <section className="section-padding">
+      <section className="cv-auto section-padding">
         <div className="container-wide">
           <Reveal>
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">

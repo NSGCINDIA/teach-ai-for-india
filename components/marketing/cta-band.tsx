@@ -18,7 +18,7 @@ export function CtaBand({
   secondary = { href: '/contact', label: 'Partner with us' },
 }: CtaBandProps) {
   return (
-    <section className="section-padding">
+    <section className="cv-auto section-padding">
       <div className="container-wide">
         <Reveal>
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#4c0519] via-[#881337] to-[#4c0519] border border-rose-400/20 px-6 py-14 text-center text-white shadow-soft-lg md:px-12 md:py-20">
