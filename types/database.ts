@@ -449,6 +449,10 @@ export interface Database {
         Args: { p_school_id: string }
         Returns: string
       }
+      set_school_required_volunteers: {
+        Args: { p_school_id: string; p_required_volunteers: number }
+        Returns: number
+      }
       assign_volunteers: {
         Args: { p_session_id: string; p_volunteer_ids: string[] }
         Returns: number

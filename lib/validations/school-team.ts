@@ -6,6 +6,16 @@ export const requestTeamAvailabilitySchema = z.object({
   required_volunteers: z.number().int().min(1).optional(),
 })
 
+/** Changing only the target team size, with no availability request attached. */
+export const setRequiredVolunteersSchema = z.object({
+  school_id: z.string().uuid(),
+  required_volunteers: z.coerce
+    .number({ invalid_type_error: 'Enter the number of volunteers needed' })
+    .int('Enter a whole number')
+    .min(1, 'Required volunteers must be at least 1')
+    .max(500, 'That looks too high — enter 500 or fewer'),
+})
+
 export const respondTeamAvailabilitySchema = z.object({
   member_id: z.string().uuid(),
   available: z.boolean(),
@@ -24,6 +34,7 @@ export const replaceTeamMemberSchema = z.object({
 })
 
 export type RequestTeamAvailabilityInput = z.infer<typeof requestTeamAvailabilitySchema>
+export type SetRequiredVolunteersInput = z.infer<typeof setRequiredVolunteersSchema>
 export type RespondTeamAvailabilityInput = z.infer<typeof respondTeamAvailabilitySchema>
 export type ConfirmSchoolTeamInput = z.infer<typeof confirmSchoolTeamSchema>
 export type ReplaceTeamMemberInput = z.infer<typeof replaceTeamMemberSchema>
