@@ -37,7 +37,12 @@ interface PlanningPanelProps {
 export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasPriorSession, canEdit, canApprove }: PlanningPanelProps) {
   const mockSchool = schoolDetail ?? { id: schoolId, status: schoolStatus, dise_code: 'EXAMP123', campus_id: 'campus-1' }
   const readiness = plan ? validateSchoolOnboardingReadiness(mockSchool, plan) : null
-  const [isEditing, setIsEditing] = useState<boolean>(!readiness?.ready)
+  // An approved school opens on the summary — its details are already complete,
+  // so dropping straight into a form would be noise. A draft still opens in the
+  // form when requirements are outstanding, so they're visibly fillable.
+  const [isEditing, setIsEditing] = useState<boolean>(
+    plan?.status === 'approved' ? false : !readiness?.ready,
+  )
 
   if (!canEdit && !canApprove) {
     return <p className="text-sm text-muted-foreground">You do not have permission to view this school’s onboarding.</p>
@@ -164,7 +169,44 @@ export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasP
           </p>
         </div>
 
-        <OnboardingSummary plan={plan} />
+        {/* Approval is not the end of edits. Coordinators change, a projector
+            arrives, fellow counts get revised — an active school still needs its
+            deployment details corrected. This branch previously rendered the
+            summary alone, with no edit control anywhere, which left the details
+            permanently read-only once a Campus Lead approved onboarding.
+            Saving here keeps the plan approved (see savePlan). */}
+        <div className="space-y-4 rounded-xl border border-border p-5 bg-card">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+            <h3 className="font-semibold text-base tracking-tight">
+              {isEditing ? 'Edit Deployment & Onboarding Details' : 'Deployment Overview'}
+            </h3>
+            {canEdit && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="h-8 gap-1.5 text-xs font-semibold"
+              >
+                {isEditing ? (
+                  <>
+                    <Eye className="size-3.5" /> View Summary
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="size-3.5" /> Edit Onboarding Details
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+
+          {canEdit && isEditing ? (
+            <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
+          ) : (
+            <OnboardingSummary plan={plan} />
+          )}
+        </div>
       </div>
     )
   }
@@ -233,6 +275,9 @@ function PlanForm({
   return (
     <form action={action} className="space-y-6" noValidate>
       <input type="hidden" name="school_id" value={schoolId} />
+      {/* Pin the save to the plan this form was rendered from, so an approved
+          plan and a newer draft can't be confused for one another. */}
+      {plan?.id && <input type="hidden" name="plan_id" value={plan.id} />}
       <input type="hidden" name="classes_covered" value={JSON.stringify(selectedClasses)} />
       <input type="hidden" name="preferred_training_days" value={JSON.stringify(selectedDays)} />
       <input type="hidden" name="recommended_fellows" value={recommendedFellows} />
