@@ -5,7 +5,7 @@ import type { PublicCampusCard } from '@/types/database'
 import { CampusCard } from '@/components/shared/campus-card'
 import { formatNumber } from '@/lib/format'
 import { Search, LayoutGrid, List, MapPin, Trophy, BarChart3, Users, Landmark, BookOpen } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 
 interface ImpactDashboardProps {
   campuses: PublicCampusCard[]
@@ -139,7 +139,7 @@ export function ImpactDashboard({ campuses }: ImpactDashboardProps) {
           ) : (
             <AnimatePresence mode="wait">
               {viewMode === 'grid' ? (
-                <motion.div
+                <m.div
                   key="grid-view"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -147,19 +147,18 @@ export function ImpactDashboard({ campuses }: ImpactDashboardProps) {
                   className="grid gap-6 sm:grid-cols-2"
                 >
                   {filteredCampuses.map((campus) => (
-                    <motion.div
+                    <m.div
                       key={campus.id}
-                      layout
                       initial={{ scale: 0.95, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ duration: 0.25 }}
                     >
                       <CampusCard campus={campus} className="h-full" />
-                    </motion.div>
+                    </m.div>
                   ))}
-                </motion.div>
+                </m.div>
               ) : (
-                <motion.div
+                <m.div
                   key="table-view"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -190,7 +189,7 @@ export function ImpactDashboard({ campuses }: ImpactDashboardProps) {
                       ))}
                     </tbody>
                   </table>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           )}
@@ -219,7 +218,7 @@ export function ImpactDashboard({ campuses }: ImpactDashboardProps) {
                     <span className="text-brand tabular-nums">{formatNumber(campus.students_impacted)} kids</span>
                   </div>
                   <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <motion.div
+                    <m.div
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
                       transition={{ duration: 0.8, ease: 'easeOut' }}

@@ -173,6 +173,15 @@
     background-image: radial-gradient(circle, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px);
     background-size: 24px 24px;
   }
+
+  /* Skip layout/paint for off-screen sections. `auto` on contain-intrinsic-size
+     lets the browser remember each section's real height after its first
+     render, so scrollbar position stays honest. Ignored by browsers without
+     support — this is a pure speed-up, never a correctness dependency. */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 600px;
+  }
   .shadow-soft {
     box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.12);
   }
@@ -217,6 +226,22 @@
   }
   .animate-spin-slow {
     animation: spin-slow 22s linear infinite;
+  }
+  /* Ambient hero blobs. Translate-only so the whole animation lives on the
+     compositor — no repaint, no re-raster, no main-thread work per frame. */
+  @keyframes drift-a {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50%      { transform: translate3d(25px, -30px, 0); }
+  }
+  @keyframes drift-b {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50%      { transform: translate3d(-25px, 25px, 0); }
+  }
+  .animate-drift-a {
+    animation: drift-a 14s ease-in-out infinite;
+  }
+  .animate-drift-b {
+    animation: drift-b 16s ease-in-out infinite;
   }
   @keyframes pulse-slow {
     0%, 100% { opacity: 1; }

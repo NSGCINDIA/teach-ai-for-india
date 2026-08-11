@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -46,25 +46,33 @@ const RIGHT_NAV_LINKS = [
 /** Sticky marketing navbar — turns to glass on scroll, collapses to a Sheet drawer on mobile. */
 export function Navbar() {
   const pathname = usePathname()
-  const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const [user, setUser] = useState<User | null>(null)
 
+  // Resolving the session pulls in ~240 KB of supabase-js and costs a network
+  // round trip, but only swaps two buttons in the corner. Defer it past
+  // hydration so it never competes with the LCP paint on the marketing pages.
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 8)
-    }
+    let cancelled = false
 
     const checkUser = async () => {
       const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
       const { data: { user: sessionUser } } = await supabase.auth.getUser()
-      setUser(sessionUser)
+      if (!cancelled) setUser(sessionUser)
     }
-    checkUser()
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    // requestIdleCallback only reached Safari in 17.4, so keep a timer fallback.
+    const hasIdle = typeof window.requestIdleCallback === 'function'
+    const handle = hasIdle
+      ? window.requestIdleCallback(() => void checkUser(), { timeout: 2000 })
+      : window.setTimeout(() => void checkUser(), 200)
+
+    return () => {
+      cancelled = true
+      if (hasIdle) window.cancelIdleCallback(handle)
+      else window.clearTimeout(handle)
+    }
   }, [])
 
   const handleSignOut = async () => {
@@ -84,9 +92,9 @@ export function Navbar() {
       {/* Mobile & Tablet Navbar (below lg) */}
       <div className="flex h-16 items-center justify-between px-5 md:px-8 lg:hidden">
         <Link href="/" className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none" aria-label="TEACHAIFORINDIA home">
-          <motion.div className="flex items-center py-1" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+          <m.div className="flex items-center py-1" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
             <BrandLogo size="lg" />
-          </motion.div>
+          </m.div>
         </Link>
 
         <div className="flex items-center gap-2">
@@ -204,9 +212,9 @@ export function Navbar() {
         {/* Center Logo */}
         <div className="flex items-center justify-center px-8 border-r border-slate-200/60 dark:border-slate-800/60">
           <Link href="/" className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none" aria-label="TEACHAIFORINDIA home">
-            <motion.div className="flex items-center py-2" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+            <m.div className="flex items-center py-2" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
               <BrandLogo size="xl" />
-            </motion.div>
+            </m.div>
           </Link>
         </div>
 

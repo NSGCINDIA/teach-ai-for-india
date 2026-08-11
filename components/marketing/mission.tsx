@@ -5,7 +5,7 @@ import { SectionHeading } from '@/components/shared/section-heading'
 import { Reveal } from '@/components/marketing/reveal'
 import type { MissionContent } from '@/app/(public)/content'
 import { Sparkles, Users, ShieldCheck, Play, UserCheck, BarChart3, HelpCircle, Code, HeartHandshake } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 
 const ICON_MAP: Record<string, any> = {
   Sparkles: Sparkles,
@@ -134,7 +134,7 @@ export function Mission({ content }: { content: MissionContent }) {
 
             <AnimatePresence mode="wait">
               {activeTab === 0 && (
-                <motion.div
+                <m.div
                   key="sandbox-view"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -215,11 +215,11 @@ export function Mission({ content }: { content: MissionContent }) {
                       </button>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               )}
 
               {activeTab === 1 && (
-                <motion.div
+                <m.div
                   key="volunteer-view"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -271,11 +271,11 @@ export function Mission({ content }: { content: MissionContent }) {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               )}
 
               {activeTab === 2 && (
-                <motion.div
+                <m.div
                   key="equity-view"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -339,7 +339,7 @@ export function Mission({ content }: { content: MissionContent }) {
                     <HeartHandshake className="size-3.5 text-brand" />
                     Every single session counts toward closing the rural-urban digital tech divide.
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </div>

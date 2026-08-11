@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import { BrandLogo } from '@/components/ui/brand-logo'
 
 export function BottomDock() {
@@ -42,7 +42,7 @@ export function BottomDock() {
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
+        <m.div
           initial={{ y: 80, x: '-50%', opacity: 0 }}
           animate={{ y: 0, x: '-50%', opacity: 1 }}
           exit={{ y: 80, x: '-50%', opacity: 0 }}
@@ -76,7 +76,7 @@ export function BottomDock() {
           >
             LET'S TALK
           </Link>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import type { PublicCampusCard } from '@/types/database'
 import { CampusCard } from '@/components/shared/campus-card'
 import { Search, MapPin, Sparkles, GraduationCap, Users, Landmark, ZoomIn, ZoomOut } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 
 interface CampusesDashboardProps {
   campuses: PublicCampusCard[]
@@ -197,7 +197,7 @@ export function CampusesDashboard({ campuses }: CampusesDashboardProps) {
                 </clipPath>
               </defs>
 
-              <motion.g
+              <m.g
                 animate={{
                   scale: isZoomed ? 1.8 : 1,
                   x: isZoomed ? -184 : 0,
@@ -282,13 +282,13 @@ export function CampusesDashboard({ campuses }: CampusesDashboardProps) {
                     </g>
                   )
                 })}
-              </motion.g>
+              </m.g>
             </svg>
 
             {/* Hover Tooltip Overlay */}
             <AnimatePresence>
               {activeHoverDetails && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
@@ -318,7 +318,7 @@ export function CampusesDashboard({ campuses }: CampusesDashboardProps) {
                       <div className="text-[8px] uppercase tracking-wider text-slate-500 font-semibold mt-0.5">Sessions</div>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </div>

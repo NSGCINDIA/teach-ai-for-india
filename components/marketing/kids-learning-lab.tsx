@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import { Rocket, Sparkles, HelpCircle, Brain, RefreshCw, Star, Zap, Flame } from 'lucide-react'
 
 interface FlipCard {
@@ -102,7 +102,7 @@ export function KidsLearningLab() {
   }
 
   return (
-    <section className="section-padding bg-gradient-to-b from-transparent via-amber-50/10 to-transparent border-t border-b border-border relative overflow-hidden">
+    <section className="cv-auto section-padding bg-gradient-to-b from-transparent via-amber-50/10 to-transparent border-t border-b border-border relative overflow-hidden">
       
       {/* Playful Floating Kids Elements */}
       <div className="absolute top-12 left-10 text-4xl opacity-15 select-none animate-bounce" style={{ animationDuration: '4s' }}>🪁</div>
@@ -170,7 +170,7 @@ export function KidsLearningLab() {
                     className="relative h-64 w-full perspective cursor-pointer"
                     onClick={() => setFlippedCardId(isFlipped ? null : card.id)}
                   >
-                    <motion.div
+                    <m.div
                       animate={{ rotateY: isFlipped ? 180 : 0 }}
                       transition={{ duration: 0.6, ease: 'easeInOut' }}
                       style={{ transformStyle: 'preserve-3d' }}
@@ -222,7 +222,7 @@ export function KidsLearningLab() {
                         </p>
                       </div>
 
-                    </motion.div>
+                    </m.div>
                   </div>
                 )
               })}
@@ -308,7 +308,7 @@ export function KidsLearningLab() {
                   
                   {/* Countdown overlay */}
                   {launchState === 'countdown' && (
-                    <motion.span
+                    <m.span
                       key={countdown}
                       initial={{ scale: 0.5, opacity: 0 }}
                       animate={{ scale: 1.2, opacity: 1 }}
@@ -316,13 +316,13 @@ export function KidsLearningLab() {
                       className="absolute font-display font-extrabold text-5xl text-amber-500 drop-shadow"
                     >
                       {countdown}
-                    </motion.span>
+                    </m.span>
                   )}
 
                   {/* Rocket body rendering */}
                   <AnimatePresence>
                     {launchState !== 'countdown' && (
-                      <motion.div
+                      <m.div
                         initial={{ y: 80, scale: 0.8, opacity: 0 }}
                         animate={{
                           y: launchState === 'launched' ? -60 : 0,
@@ -346,7 +346,7 @@ export function KidsLearningLab() {
                         <Rocket className={`size-14 text-brand-teal drop-shadow-md ${
                           launchState === 'launched' ? 'animate-bounce' : ''
                         }`} />
-                      </motion.div>
+                      </m.div>
                     )}
                   </AnimatePresence>
 
@@ -365,13 +365,13 @@ export function KidsLearningLab() {
                     </p>
                   )}
                   {launchState === 'launched' && (
-                    <motion.p
+                    <m.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="text-[11px] text-emerald-400 font-mono leading-normal leading-relaxed text-left"
                     >
                       {launchMessage}
-                    </motion.p>
+                    </m.p>
                   )}
                 </div>
 

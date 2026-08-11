@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import { Sparkles, MapPin, Users, GraduationCap, PlayCircle, Building2, Landmark, CheckCircle } from 'lucide-react'
 import { AnimatedCounter } from '@/components/shared/animated-counter'
 import { SectionHeading } from '@/components/shared/section-heading'
@@ -173,7 +173,7 @@ export function ImpactAndMission({
                 {/* Floating Map Tooltip Modal */}
                 <AnimatePresence>
                   {activeCampus && (
-                    <motion.div
+                    <m.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -198,7 +198,7 @@ export function ImpactAndMission({
                           </div>
                         </div>
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
 
