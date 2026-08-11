@@ -6,7 +6,7 @@ export function Partners({ content }: { content: PartnersContent }) {
   if (content.items.length === 0) return null
 
   return (
-    <section className="section-padding-sm border-y border-border bg-muted/30">
+    <section className="cv-auto section-padding-sm border-y border-border bg-muted/30">
       <div className="container-wide">
         <Reveal>
           <p className="section-label text-center text-muted-foreground">Powered by a coalition of</p>

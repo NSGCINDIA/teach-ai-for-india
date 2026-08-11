@@ -52,7 +52,21 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    formats: ['image/webp'],
+    // AVIF first, WebP as the fallback: AVIF is typically 25-40% smaller than
+    // WebP at equal quality and is understood by Chrome 85+, Firefox 93+ and
+    // Safari 16.4+. Anything older simply negotiates down to WebP, then to the
+    // original — no browser is left without an image.
+    formats: ['image/avif', 'image/webp'],
+    // Trim the generated variants to the breakpoints this design actually uses
+    // (the `sizes` attributes across the site top out at 100vw). Fewer widths
+    // means fewer cold-cache optimizations and a higher CDN hit rate.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [44, 56, 64, 96, 128, 200, 256, 384],
+    // Session photography is uploaded once under a stable path, so a short TTL
+    // just re-pays the optimization cost. Raise this only as far as your upload
+    // flow allows: replacing a file at the same storage path will serve stale
+    // for up to this long.
+    minimumCacheTTL: 60 * 60 * 24 * 7,
     remotePatterns: [
       ...(supabaseHost
         ? [{ protocol: 'https', hostname: supabaseHost, pathname: '/storage/v1/object/**' }]
@@ -73,7 +87,19 @@ const nextConfig = {
   },
   // Apply the security headers to every route (issue #10).
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      // Icons and the map outline are content-stable and unhashed, so they
+      // would otherwise be revalidated on every navigation. `immutable` makes
+      // repeat visits and client-side route changes cost zero requests for
+      // them; bump the filename if one ever needs to change.
+      {
+        source: '/:file(icon.svg|apple-icon.png|icon-dark-32x32.png|icon-light-32x32.png|india_map_outline.png)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ]
   },
 }
 

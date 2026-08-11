@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import { ArrowRight, BarChart3, Users, GraduationCap, MapPin, CheckCircle, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { HeroContent } from '@/app/(public)/content'
@@ -12,63 +12,104 @@ const HERO_WORDS = ["applied AI literacy", "hands-on coding", "prompt engineerin
 
 export function Hero({ content }: { content: HeroContent }) {
   const [index, setIndex] = useState(0)
+  const sectionRef = useRef<HTMLElement>(null)
 
+  // Rotate the headline word only while the hero is actually on screen and the
+  // tab is in the foreground. Otherwise this ticks a re-render of the whole
+  // hero every 3s for as long as the page is open, from the footer of a long
+  // scroll or a background tab.
   useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % HERO_WORDS.length)
-    }, 3000)
-    return () => clearInterval(timer)
+    const section = sectionRef.current
+    if (!section) return
+
+    let timer: ReturnType<typeof setInterval> | undefined
+    let onScreen = false
+
+    const sync = () => {
+      const shouldRun = onScreen && document.visibilityState === 'visible'
+      if (shouldRun && !timer) {
+        timer = setInterval(() => {
+          setIndex((prev) => (prev + 1) % HERO_WORDS.length)
+        }, 3000)
+      } else if (!shouldRun && timer) {
+        clearInterval(timer)
+        timer = undefined
+      }
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting
+      sync()
+    })
+    observer.observe(section)
+    document.addEventListener('visibilitychange', sync)
+
+    return () => {
+      observer.disconnect()
+      document.removeEventListener('visibilitychange', sync)
+      if (timer) clearInterval(timer)
+    }
   }, [])
 
-  // Mouse tilt tracking for 3D card effect
+  // Mouse tilt + spotlight for the 3D card. Both are written straight to the
+  // card's own style as CSS variables inside a rAF, so dragging the pointer
+  // across the mockup never re-renders this (large, motion-heavy) subtree.
   const cardRef = useRef<HTMLDivElement>(null)
-  const [rotateX, setRotateX] = useState(0)
-  const [rotateY, setRotateY] = useState(0)
-  const [glowX, setGlowX] = useState(0)
-  const [glowY, setGlowY] = useState(0)
+  const frameRef = useRef(0)
+  const pendingRef = useRef<{ rotX: number; rotY: number; gx: number; gy: number } | null>(null)
   const [isHovered, setIsHovered] = useState(false)
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return
+  const flush = useCallback(() => {
+    frameRef.current = 0
     const card = cardRef.current
-    const rect = card.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
+    const next = pendingRef.current
+    if (!card || !next) return
+    card.style.setProperty('--tilt-x', `${next.rotX.toFixed(2)}deg`)
+    card.style.setProperty('--tilt-y', `${next.rotY.toFixed(2)}deg`)
+    card.style.setProperty('--glow-x', `${next.gx.toFixed(2)}%`)
+    card.style.setProperty('--glow-y', `${next.gy.toFixed(2)}%`)
+  }, [])
 
-    // Perspective calculation
-    const rotX = -(y - centerY) / 16
-    const rotY = (x - centerX) / 16
-    setRotateX(rotX)
-    setRotateY(rotY)
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const card = cardRef.current
+      if (!card) return
+      const rect = card.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
 
-    // Glow position
-    const glowPctX = (x / rect.width) * 100
-    const glowPctY = (y / rect.height) * 100
-    setGlowX(glowPctX)
-    setGlowY(glowPctY)
-  }
+      pendingRef.current = {
+        // Perspective calculation
+        rotX: -(y - rect.height / 2) / 16,
+        rotY: (x - rect.width / 2) / 16,
+        // Glow position
+        gx: (x / rect.width) * 100,
+        gy: (y / rect.height) * 100,
+      }
+      if (!frameRef.current) frameRef.current = requestAnimationFrame(flush)
+    },
+    [flush],
+  )
 
   const handleMouseEnter = () => setIsHovered(true)
   const handleMouseLeave = () => {
     setIsHovered(false)
-    setRotateX(0)
-    setRotateY(0)
+    const card = cardRef.current
+    if (card) {
+      card.style.setProperty('--tilt-x', '0deg')
+      card.style.setProperty('--tilt-y', '0deg')
+    }
   }
 
-  const item = {
-    hidden: { opacity: 0, y: 25 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 100, damping: 20 } },
-  }
-
-  const container = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
-  }
+  useEffect(() => () => {
+    if (frameRef.current) cancelAnimationFrame(frameRef.current)
+  }, [])
 
   return (
-    <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden py-16 lg:py-24 bg-transparent">
+    <section
+      ref={sectionRef}
+      className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden py-16 lg:py-24 bg-transparent"
+    >
       {/* Background dot grid flourish */}
       <div aria-hidden className="pointer-events-none absolute inset-0 dot-grid opacity-30 dark:opacity-15" />
       
@@ -84,74 +125,65 @@ export function Hero({ content }: { content: HeroContent }) {
         </svg>
       </div>
 
-      {/* NIAT Multi-Tone Ambient Light Blobs (Maroon Red & Gold/Amber) */}
-      <motion.div
+      {/* NIAT Multi-Tone Ambient Light Blobs (Maroon Red & Gold/Amber).
+          Soft-stop radial gradients on a translate-only CSS keyframe. The
+          previous pair animated `scale` on a `blur(130px)` layer, which makes
+          the browser re-run the blur every frame for the life of the page —
+          the most expensive thing on this route in Gecko and WebKit. Pure
+          translate stays on the compositor and never repaints. */}
+      <div
         aria-hidden
-        animate={{
-          scale: [1, 1.12, 1],
-          x: [0, 25, 0],
-          y: [0, -30, 0],
+        className="deco-layer pointer-events-none absolute -top-64 left-[15%] size-[52rem] rounded-full animate-drift-a"
+        style={{
+          background:
+            'radial-gradient(closest-side, rgba(136,19,55,0.09), rgba(255,178,24,0.06) 48%, transparent 72%)',
         }}
-        transition={{
-          duration: 14,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        className="pointer-events-none absolute -top-40 left-1/4 size-[40rem] rounded-full bg-gradient-to-br from-[#881337]/18 via-[#ffb218]/12 to-transparent blur-[130px] dark:from-[#881337]/15 dark:via-[#ffb218]/10"
       />
-      <motion.div
+      <div
         aria-hidden
-        animate={{
-          scale: [1.1, 0.95, 1.1],
-          x: [0, -25, 0],
-          y: [0, 25, 0],
+        className="deco-layer pointer-events-none absolute -bottom-40 right-[15%] size-[46rem] rounded-full animate-drift-b"
+        style={{
+          background:
+            'radial-gradient(closest-side, rgba(255,178,24,0.075), rgba(136,19,55,0.05) 48%, transparent 72%)',
         }}
-        transition={{
-          duration: 16,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        className="pointer-events-none absolute bottom-0 right-1/4 size-[35rem] rounded-full bg-gradient-to-br from-[#ffb218]/15 via-[#881337]/10 to-transparent dark:from-[#ffb218]/10 dark:via-[#881337]/5 blur-[130px]"
       />
 
       <div className="container-wide relative px-5 md:px-8 lg:px-12 z-10">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16 items-center">
           
           {/* ── LEFT COLUMN: Text Copy, Teaser Capsule, Trust Badges ── */}
-          <motion.div
-            className="lg:col-span-7 flex flex-col items-start text-left"
-            variants={container}
-            initial="hidden"
-            animate="show"
-          >
+          <div className="lg:col-span-7 flex flex-col items-start text-left">
             {content.eyebrow && (
-              <motion.div variants={item}>
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#881337]/30 bg-gradient-to-r from-[#881337]/10 via-[#ffb218]/15 to-transparent px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#881337] shadow-soft backdrop-blur-md dark:text-[#ffb218]">
+              <div className="hero-enter">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#881337]/30 bg-gradient-to-r from-[#881337]/10 via-[#ffb218]/15 to-transparent px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#881337] shadow-soft dark:text-[#ffb218]">
                   <Sparkles className="size-3.5 animate-pulse text-[#881337] dark:text-[#ffb218]" />
                   {content.eyebrow}
                 </span>
-              </motion.div>
+              </div>
             )}
 
-            <motion.h1
-              variants={item}
-              className="mt-6 font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl xl:text-7.5xl text-foreground"
+            {/* No animation-delay: this is the LCP element, so every ms of
+                delay here is a ms added to Largest Contentful Paint. */}
+            <h1
+              className="hero-enter mt-6 font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl xl:text-7.5xl text-foreground"
             >
               Building India's first <br />
               student-led <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#881337] via-[#be123c] to-[#ffb218]">
                 AI education movement
               </span>
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              variants={item}
-              className="mt-6 max-w-2xl text-base md:text-lg text-muted-foreground leading-relaxed min-h-[56px]"
+            <p
+              style={{ animationDelay: '90ms' }}
+              className="hero-enter mt-6 max-w-2xl text-base md:text-lg text-muted-foreground leading-relaxed min-h-[56px]"
             >
               We bring{' '}
               <span className="text-foreground font-semibold inline-block min-w-[170px] text-left">
-                <AnimatePresence mode="wait">
-                  <motion.span
+                {/* initial={false} so the first word renders visible on the
+                    server instead of waiting for hydration to fade it in. */}
+                <AnimatePresence mode="wait" initial={false}>
+                  <m.span
                     key={HERO_WORDS[index]}
                     initial={{ y: 8, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -160,17 +192,17 @@ export function Hero({ content }: { content: HeroContent }) {
                     className="inline-block text-[#881337] dark:text-[#ffb218] font-bold border-b border-[#881337]/30 dark:border-[#ffb218]/30 pb-0.5"
                   >
                     {HERO_WORDS[index]}
-                  </motion.span>
+                  </m.span>
                 </AnimatePresence>
               </span>{' '}
               to government school classrooms across Telangana & Andhra Pradesh—run entirely by college student volunteers.
-            </motion.p>
+            </p>
 
             {/* Email Capsule with Shifting Gradient Border Beam */}
-            <motion.div variants={item} className="mt-8 w-full max-w-md relative group">
+            <div style={{ animationDelay: '150ms' }} className="hero-enter mt-8 w-full max-w-md relative group">
               <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-[#881337] via-[#be123c] to-[#ffb218] opacity-30 blur group-hover:opacity-75 transition duration-500" />
               
-              <div className="relative p-1.5 w-full bg-background dark:bg-card/90 backdrop-blur-md rounded-full border border-border/80 flex items-center justify-between shadow-soft-lg transition-all duration-300">
+              <div className="relative p-1.5 w-full bg-background dark:bg-card/90 rounded-full border border-border/80 flex items-center justify-between shadow-soft-lg transition-all duration-300">
                 <input
                   type="email"
                   placeholder="Enter your email to volunteer..."
@@ -180,12 +212,12 @@ export function Hero({ content }: { content: HeroContent }) {
                   <Link href="/join">Apply Now</Link>
                 </Button>
               </div>
-            </motion.div>
+            </div>
 
             {/* Floating Trust Indicators */}
-            <motion.div
-              variants={item}
-              className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider cursor-default"
+            <div
+              style={{ animationDelay: '210ms' }}
+              className="hero-enter mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider cursor-default"
             >
               <div className="flex items-center gap-1.5 hover:text-[#881337] transition-colors">
                 <CheckCircle className="size-4.5 text-[#881337]" />
@@ -199,11 +231,11 @@ export function Hero({ content }: { content: HeroContent }) {
                 <CheckCircle className="size-4.5 text-[#16a34a]" />
                 <span>9 Campuses</span>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              variants={item}
-              className="mt-10 flex flex-wrap items-center gap-4"
+            <div
+              style={{ animationDelay: '270ms' }}
+              className="hero-enter mt-10 flex flex-wrap items-center gap-4"
             >
               <Button asChild size="lg" className="bg-[#881337] text-white hover:bg-[#701a28] rounded-full px-7 shadow-lg shadow-rose-950/25 transition-all hover:translate-y-[-2px] active:translate-y-0 font-bold">
                 <Link href="/impact">
@@ -217,15 +249,15 @@ export function Hero({ content }: { content: HeroContent }) {
                   <ArrowRight className="size-4 ml-2 transition-transform group-hover:translate-x-1 text-[#881337]" aria-hidden />
                 </Link>
               </Button>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* ── RIGHT COLUMN: Browser Mockup with 3D Hover/Tilt + Interactive Glow Spotlight ── */}
-          <motion.div
-            className="lg:col-span-5 relative w-full flex items-center justify-center pt-8 lg:pt-0"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.15, type: 'spring', stiffness: 80 }}
+          {/* Also CSS rather than motion: the mockup holds the hero photo, and a
+              motion `initial` would have kept it at opacity 0 until hydration. */}
+          <div
+            style={{ animationDelay: '120ms' }}
+            className="hero-enter lg:col-span-5 relative w-full flex items-center justify-center pt-8 lg:pt-0"
           >
             {/* macOS Browser Mockup Wrapper with mouse tilt */}
             <div
@@ -234,7 +266,8 @@ export function Hero({ content }: { content: HeroContent }) {
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               style={{
-                transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+                transform:
+                  'perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))',
                 transformStyle: 'preserve-3d',
                 transition: isHovered ? 'none' : 'transform 0.5s ease',
               }}
@@ -245,7 +278,8 @@ export function Hero({ content }: { content: HeroContent }) {
                 <div
                   className="absolute pointer-events-none inset-0 z-30 transition-opacity duration-300 opacity-60"
                   style={{
-                    background: `radial-gradient(circle 200px at ${glowX}% ${glowY}%, color-mix(in srgb, var(--brand-teal) 15%, transparent), transparent)`,
+                    background:
+                      'radial-gradient(circle 200px at var(--glow-x, 50%) var(--glow-y, 50%), color-mix(in srgb, var(--brand-teal) 15%, transparent), transparent)',
                   }}
                 />
               )}
@@ -289,11 +323,8 @@ export function Hero({ content }: { content: HeroContent }) {
             </div>
 
             {/* FLOATING CARD 1: 500+ Student Volunteers */}
-            <motion.div
-              animate={{ y: [-10, 10, -10] }}
-              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-              whileHover={{ scale: 1.08, zIndex: 50 }}
-              className="absolute -top-4 -left-4 md:-left-8 bg-white/95 dark:bg-card/95 backdrop-blur-md border border-border/80 shadow-xl rounded-2xl p-4 flex items-center gap-3 hover:shadow-2xl transition-all duration-300 z-20 cursor-default select-none group/card"
+            <div
+              className="deco-layer card-pop animate-bob-y absolute -top-4 -left-4 md:-left-8 bg-white/95 dark:bg-card/95 border border-border/80 shadow-xl rounded-2xl p-4 flex items-center gap-3 hover:shadow-2xl transition-shadow duration-300 z-20 cursor-default select-none group/card"
             >
               <div className="grid size-10 place-items-center rounded-xl bg-brand-orange/15 text-brand-orange group-hover/card:bg-brand-orange group-hover/card:text-white transition-all duration-300">
                 <Users className="size-5" />
@@ -302,14 +333,11 @@ export function Hero({ content }: { content: HeroContent }) {
                 <p className="text-[15px] font-extrabold text-foreground">500+ Volunteers</p>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Across Colleges</p>
               </div>
-            </motion.div>
+            </div>
 
             {/* FLOATING CARD 2: 5,000+ Impacted */}
-            <motion.div
-              animate={{ y: [10, -10, 10] }}
-              transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
-              whileHover={{ scale: 1.08, zIndex: 50 }}
-              className="absolute -bottom-6 right-2 bg-white/95 dark:bg-card/95 backdrop-blur-md border border-border/80 shadow-xl rounded-2xl p-4 flex items-center gap-3 hover:shadow-2xl transition-all duration-300 z-20 cursor-default select-none group/card"
+            <div
+              className="deco-layer card-pop animate-bob-y-alt absolute -bottom-6 right-2 bg-white/95 dark:bg-card/95 border border-border/80 shadow-xl rounded-2xl p-4 flex items-center gap-3 hover:shadow-2xl transition-shadow duration-300 z-20 cursor-default select-none group/card"
             >
               <div className="grid size-10 place-items-center rounded-xl bg-brand-teal/15 text-brand-teal group-hover/card:bg-brand-teal group-hover/card:text-white transition-all duration-300">
                 <GraduationCap className="size-5" />
@@ -318,14 +346,13 @@ export function Hero({ content }: { content: HeroContent }) {
                 <p className="text-[15px] font-extrabold text-foreground">5,000+ Students</p>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">AI Literacy Enabled</p>
               </div>
-            </motion.div>
+            </div>
 
             {/* FLOATING CARD 3: 9 Active Campuses */}
-            <motion.div
-              animate={{ x: [-8, 8, -8] }}
-              transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-              whileHover={{ scale: 1.08, zIndex: 50 }}
-              className="absolute top-1/2 -right-4 lg:-right-8 -translate-y-1/2 bg-white/95 dark:bg-card/95 backdrop-blur-md border border-border/80 shadow-xl rounded-2xl p-3.5 flex items-center gap-2.5 hover:shadow-2xl transition-all duration-300 z-20 cursor-default select-none group/card"
+            {/* No -translate-y-1/2 class here: the bob-x keyframe carries the
+                -50% itself, since an animated transform would override it. */}
+            <div
+              className="deco-layer card-pop animate-bob-x absolute top-1/2 -right-4 lg:-right-8 bg-white/95 dark:bg-card/95 border border-border/80 shadow-xl rounded-2xl p-3.5 flex items-center gap-2.5 hover:shadow-2xl transition-shadow duration-300 z-20 cursor-default select-none group/card"
             >
               <div className="grid size-9 place-items-center rounded-xl bg-brand/10 text-brand group-hover/card:bg-brand group-hover/card:text-white transition-all duration-300">
                 <MapPin className="size-4.5" />
@@ -334,9 +361,9 @@ export function Hero({ content }: { content: HeroContent }) {
                 <p className="text-[14px] font-extrabold text-foreground">9 Campuses</p>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">On the Ground</p>
               </div>
-            </motion.div>
+            </div>
 
-          </motion.div>
+          </div>
 
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import { Calendar, Clock, ArrowRight, X, Quote, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/format'
@@ -342,7 +342,7 @@ export function StoriesDashboard({ initialBlogs = [] }: { initialBlogs?: any[] }
       {/* Immersive Overlay Reader pane */}
       <AnimatePresence>
         {activeStory && (
-          <motion.div 
+          <m.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -352,7 +352,7 @@ export function StoriesDashboard({ initialBlogs = [] }: { initialBlogs?: any[] }
             <div className="absolute inset-0 cursor-pointer" onClick={() => setActiveStory(null)} />
 
             {/* Sliding Panel */}
-            <motion.div
+            <m.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -435,8 +435,8 @@ export function StoriesDashboard({ initialBlogs = [] }: { initialBlogs?: any[] }
                 </Button>
               </div>
 
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 

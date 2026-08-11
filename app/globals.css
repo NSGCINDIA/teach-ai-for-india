@@ -63,7 +63,8 @@
 @theme inline {
   --font-sans: var(--font-body), 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), 'Plus Jakarta Sans', ui-sans-serif, sans-serif;
-  --font-mono: var(--font-mono-code), 'JetBrains Mono', ui-monospace, monospace;
+  /* System mono stack — see the note in app/layout.tsx for why the webfont went. */
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -173,6 +174,41 @@
     background-image: radial-gradient(circle, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px);
     background-size: 24px 24px;
   }
+
+  /* ── Decorative animation gate ──────────────────────────────────────────
+     Roughly two dozen elements on the landing page loop forever. Left alone
+     they start at first paint and tick style-recalc + layout on every frame
+     while React is still hydrating, on the same main thread — which on a
+     throttled CPU is seconds of delay for motion nobody is looking at yet.
+
+     Anything inside `.deco-layer` is therefore *paused*, not disabled, until a
+     class lands on <html> once the page has gone idle. Paused animations hold
+     their 0% frame and never advance, so they cost nothing per frame, and the
+     keyframes here all start from the resting position — so nothing moves or
+     jumps when they are released. */
+  .deco-layer,
+  .deco-layer * {
+    animation-play-state: paused;
+  }
+  :root.anim-ready .deco-layer,
+  :root.anim-ready .deco-layer * {
+    animation-play-state: running;
+  }
+
+  /* Skip layout/paint for off-screen sections. `auto` on contain-intrinsic-size
+     lets the browser remember each section's real height after its first
+     render, so scrollbar position stays honest. Ignored by browsers without
+     support — this is a pure speed-up, never a correctness dependency. */
+  .cv-auto {
+    content-visibility: auto;
+    /* 950px is the measured average height of the sections this is applied to.
+       The `auto` keyword makes the browser substitute each section's real height
+       once it has rendered, so this figure only governs the very first scroll
+       through — but a bad estimate there shows up as the scrollbar jumping, so
+       it is worth keeping close. Measured with a 600px estimate, the document
+       grew 9714px -> 12398px on first pass; at 950px that is largely gone. */
+    contain-intrinsic-size: auto 950px;
+  }
   .shadow-soft {
     box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.12);
   }
@@ -185,6 +221,26 @@
     to   { opacity: 1; transform: translateY(0); }
   }
   .animate-fade-up { animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  /* Hero entrance — CSS rather than framer-motion, and transform-only.
+     Two separate LCP traps live here:
+       1. framer-motion applies its `initial` state during SSR, so the headline
+          shipped as `opacity: 0` and could not register as the Largest
+          Contentful Paint until React had hydrated and begun animating it.
+       2. Chrome does not count a transparent element as painted at all, so ANY
+          opacity fade on above-the-fold text pushes LCP out by the length of
+          the animation plus its delay — a fade-up here still measured a ~2.2s
+          element render delay.
+     A transform is free of both problems: the browser counts the paint
+     immediately and the element slides into place afterwards. Below the fold,
+     where nothing is an LCP candidate, `Reveal` still fades. */
+  @keyframes rise-in {
+    from { transform: translateY(14px); }
+    to   { transform: translateY(0); }
+  }
+  .hero-enter {
+    animation: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
 
   @keyframes shimmer {
     100% { transform: translateX(100%); }
@@ -218,6 +274,48 @@
   .animate-spin-slow {
     animation: spin-slow 22s linear infinite;
   }
+  /* Ambient hero blobs. Translate-only so the whole animation lives on the
+     compositor — no repaint, no re-raster, no main-thread work per frame. */
+  @keyframes drift-a {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50%      { transform: translate3d(25px, -30px, 0); }
+  }
+  @keyframes drift-b {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50%      { transform: translate3d(-25px, 25px, 0); }
+  }
+  .animate-drift-a {
+    animation: drift-a 14s ease-in-out infinite;
+  }
+  .animate-drift-b {
+    animation: drift-b 16s ease-in-out infinite;
+  }
+
+  /* Hero stat cards. These used framer-motion `repeat: Infinity` loops, i.e.
+     JavaScript computing three transforms every frame for the life of the page —
+     including all through hydration. As CSS keyframes they run on the compositor
+     and honour the `.deco-layer` pause above.
+
+     `--card-s` keeps the hover pop working: the keyframe samples the custom
+     property, so `:hover` changing it re-resolves the transform without needing
+     a second element to scale. */
+  @keyframes bob-y {
+    0%, 100% { transform: translate3d(0, -10px, 0) scale(var(--card-s, 1)); }
+    50%      { transform: translate3d(0, 10px, 0) scale(var(--card-s, 1)); }
+  }
+  @keyframes bob-y-alt {
+    0%, 100% { transform: translate3d(0, 10px, 0) scale(var(--card-s, 1)); }
+    50%      { transform: translate3d(0, -10px, 0) scale(var(--card-s, 1)); }
+  }
+  /* Keeps the -50% vertical centring this one relies on from its class list. */
+  @keyframes bob-x {
+    0%, 100% { transform: translate3d(-8px, -50%, 0) scale(var(--card-s, 1)); }
+    50%      { transform: translate3d(8px, -50%, 0) scale(var(--card-s, 1)); }
+  }
+  .animate-bob-y     { animation: bob-y 4.5s ease-in-out infinite; }
+  .animate-bob-y-alt { animation: bob-y-alt 5.2s ease-in-out infinite; }
+  .animate-bob-x     { animation: bob-x 4.8s ease-in-out infinite; }
+  .card-pop:hover    { --card-s: 1.08; z-index: 50; }
   @keyframes pulse-slow {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.6; }

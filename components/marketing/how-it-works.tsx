@@ -31,7 +31,7 @@ const STEP_IMAGES = [
 /** "How it works" — a numbered 5-step timeline (identify → report). */
 export function HowItWorks({ content }: { content: HowItWorksContent }) {
   return (
-    <section className="section-padding bg-muted/40 relative overflow-hidden">
+    <section className="cv-auto section-padding bg-muted/40 relative overflow-hidden">
       <div className="container-wide">
         <Reveal>
           <SectionHeading

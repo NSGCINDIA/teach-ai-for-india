@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, type CSSProperties } from 'react'
 
 // ==========================================
 // Hand-Drawn SVG Doodle Components
@@ -175,36 +175,95 @@ function BrainGearDoodle(props: React.SVGProps<SVGSVGElement>) {
 // Main Background Component
 // ==========================================
 
+/**
+ * Parallax offset for one layer, expressed against the two CSS variables the
+ * pointer loop writes on the root (`--bg-x` / `--bg-y`, each normalised to
+ * -0.5…0.5). Deriving every layer from inherited custom properties means a
+ * pointer move is one style write on one element instead of a React render of
+ * this whole tree.
+ */
+function depth(px: number): CSSProperties {
+  return {
+    transform: `translate3d(calc(var(--bg-x, 0) * ${px}px), calc(var(--bg-y, 0) * ${px}px), 0)`,
+  }
+}
+
 export function Background3D() {
-  const [mouse, setMouse] = useState({ x: 0, y: 0 })
+  const rootRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      // Calculate normalized mouse positions (-0.5 to 0.5)
-      const x = (e.clientX / window.innerWidth) - 0.5
-      const y = (e.clientY / window.innerHeight) - 0.5
-      setMouse({ x, y })
+    const root = rootRef.current
+    if (!root) return
+
+    // Pointer parallax is a mouse affordance. Skipping it on touch/pen and
+    // under prefers-reduced-motion drops the listener, the rAF loop and 14
+    // layer transforms on exactly the devices least able to afford them.
+    if (
+      !window.matchMedia('(pointer: fine)').matches ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return
     }
-    window.addEventListener('mousemove', handleMouseMove, { passive: true })
-    return () => window.removeEventListener('mousemove', handleMouseMove)
+
+    let targetX = 0
+    let targetY = 0
+    let currentX = 0
+    let currentY = 0
+    let raf = 0
+
+    const step = () => {
+      // Damped follow, then park: an idle pointer costs zero frames because the
+      // loop stops scheduling itself once it has caught up.
+      currentX += (targetX - currentX) * 0.1
+      currentY += (targetY - currentY) * 0.1
+      root.style.setProperty('--bg-x', currentX.toFixed(4))
+      root.style.setProperty('--bg-y', currentY.toFixed(4))
+      raf =
+        Math.abs(targetX - currentX) > 0.0005 || Math.abs(targetY - currentY) > 0.0005
+          ? requestAnimationFrame(step)
+          : 0
+    }
+
+    const handlePointerMove = (e: PointerEvent) => {
+      targetX = e.clientX / window.innerWidth - 0.5
+      targetY = e.clientY / window.innerHeight - 0.5
+      if (!raf) raf = requestAnimationFrame(step)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      if (raf) cancelAnimationFrame(raf)
+    }
   }, [])
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden bg-background">
-      
-      {/* Dynamic ambient color gradients reacting to mouse depth offsets */}
-      <div 
-        className="absolute top-[-15%] left-[-15%] size-[60%] rounded-full bg-gradient-to-br from-cyan-500/10 to-blue-600/8 blur-[120px] opacity-80"
+    // `contain-*` fences this decorative overlay's layout and painting into its
+    // own box, so twelve infinite doodle animations can never invalidate layout
+    // or paint for the real page content sitting above it.
+    <div
+      ref={rootRef}
+      className="deco-layer pointer-events-none fixed inset-0 z-0 select-none overflow-hidden bg-background contain-layout contain-paint contain-style"
+    >
+
+      {/* Ambient colour wash. Soft-stop radial gradients rather than a blurred
+          solid: a `blur(120px)` filter over a 60vw element is re-rasterised on
+          every transform in Gecko/WebKit, which is the whole cost of a layer
+          that only ever drifts a few pixels. */}
+      <div
+        className="absolute top-[-25%] left-[-25%] size-[80%] rounded-full opacity-80"
         style={{
-          transform: `translate3d(${mouse.x * -5}px, ${mouse.y * -5}px, 0)`,
-          transition: 'transform 0.7s ease-out',
+          ...depth(-5),
+          background:
+            'radial-gradient(closest-side, rgba(6,182,212,0.06), rgba(37,99,235,0.035) 55%, transparent 78%)',
         }}
       />
-      <div 
-        className="absolute bottom-[-15%] right-[-15%] size-[65%] rounded-full bg-gradient-to-br from-indigo-600/8 to-sky-500/6 blur-[140px] opacity-80"
+      <div
+        className="absolute bottom-[-25%] right-[-25%] size-[85%] rounded-full opacity-80"
         style={{
-          transform: `translate3d(${mouse.x * -4}px, ${mouse.y * -4}px, 0)`,
-          transition: 'transform 0.7s ease-out',
+          ...depth(-4),
+          background:
+            'radial-gradient(closest-side, rgba(79,70,229,0.05), rgba(14,165,233,0.03) 55%, transparent 78%)',
         }}
       />
 
@@ -214,10 +273,7 @@ export function Background3D() {
         {/* 1. Robot Face (Top Left) */}
         <div 
           className="absolute top-[8%] left-[4%]"
-          style={{
-            transform: `translate3d(${mouse.x * -8}px, ${mouse.y * -8}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-8)}
         >
           <div className="animate-float-slow">
             <RobotDoodle className="size-10 sm:size-14 md:size-18 lg:size-22 text-brand dark:text-cyan-400/80" />
@@ -227,10 +283,7 @@ export function Background3D() {
         {/* 2. Rocket (Top Left-Center) */}
         <div 
           className="absolute top-[25%] left-[15%] md:left-[12%]"
-          style={{
-            transform: `translate3d(${mouse.x * -12}px, ${mouse.y * -12}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-12)}
         >
           <div className="animate-float">
             <RocketDoodle className="size-10 sm:size-12 md:size-16 text-brand-orange dark:text-amber-400/80" />
@@ -240,10 +293,7 @@ export function Background3D() {
         {/* 3. Lightbulb with Brain filament (Middle Left) */}
         <div 
           className="absolute top-[48%] left-[3%] md:left-[6%]"
-          style={{
-            transform: `translate3d(${mouse.x * -10}px, ${mouse.y * -10}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-10)}
         >
           <div className="animate-float-slow">
             <LightbulbDoodle className="size-12 sm:size-16 md:size-20 text-brand-orange dark:text-amber-400/80" />
@@ -253,10 +303,7 @@ export function Background3D() {
         {/* 4. Open Book with Math floating (Bottom Left-Center) */}
         <div 
           className="absolute bottom-[22%] left-[14%] md:left-[10%]"
-          style={{
-            transform: `translate3d(${mouse.x * -7}px, ${mouse.y * -7}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-7)}
         >
           <div className="animate-float">
             <OpenBookDoodle className="size-10 sm:size-12 md:size-16 text-brand dark:text-blue-400/80" />
@@ -266,10 +313,7 @@ export function Background3D() {
         {/* 5. Graduation Cap (Bottom Left) */}
         <div 
           className="absolute bottom-[8%] left-[4%] md:left-[5%]"
-          style={{
-            transform: `translate3d(${mouse.x * -9}px, ${mouse.y * -9}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-9)}
         >
           <div className="animate-float-slow">
             <GraduationCapDoodle className="size-10 sm:size-14 md:size-18 lg:size-22 text-brand-teal dark:text-emerald-400/80" />
@@ -279,10 +323,7 @@ export function Background3D() {
         {/* 6. Atom (Top Right) */}
         <div 
           className="absolute top-[10%] right-[4%]"
-          style={{
-            transform: `translate3d(${mouse.x * -6}px, ${mouse.y * -6}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-6)}
         >
           <div className="animate-spin-slow">
             <AtomDoodle className="size-12 sm:size-16 md:size-20 lg:size-24 text-brand-teal dark:text-cyan-400/80" />
@@ -292,10 +333,7 @@ export function Background3D() {
         {/* 7. Sparkles / Stars (Top Right-Center) */}
         <div 
           className="absolute top-[28%] right-[16%] md:right-[12%]"
-          style={{
-            transform: `translate3d(${mouse.x * -14}px, ${mouse.y * -14}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-14)}
         >
           <div className="animate-pulse-slow">
             <SparklesDoodle className="size-8 sm:size-12 md:size-14 text-brand-teal dark:text-yellow-400/85" />
@@ -305,10 +343,7 @@ export function Background3D() {
         {/* 8. Neural Node Network (Middle Right) */}
         <div 
           className="absolute top-[50%] right-[3%] md:right-[6%]"
-          style={{
-            transform: `translate3d(${mouse.x * -11}px, ${mouse.y * -11}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-11)}
         >
           <div className="animate-float-slow">
             <NeuralNodeDoodle className="size-12 sm:size-16 md:size-20 text-brand-teal dark:text-cyan-300/80" />
@@ -318,10 +353,7 @@ export function Background3D() {
         {/* 9. Blackboard Math Graph (Bottom Right-Center) */}
         <div 
           className="absolute bottom-[25%] right-[15%] md:right-[10%]"
-          style={{
-            transform: `translate3d(${mouse.x * -8}px, ${mouse.y * -8}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-8)}
         >
           <div className="animate-float">
             <BlackboardDoodle className="size-10 sm:size-12 md:size-16 text-brand-orange dark:text-amber-400/80" />
@@ -331,10 +363,7 @@ export function Background3D() {
         {/* 10. Globe on Stand (Bottom Right) */}
         <div 
           className="absolute bottom-[8%] right-[4%] md:right-[5%]"
-          style={{
-            transform: `translate3d(${mouse.x * -7}px, ${mouse.y * -7}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-7)}
         >
           <div className="animate-float-slow">
             <GlobeDoodle className="size-10 sm:size-14 md:size-18 lg:size-22 text-brand-teal dark:text-emerald-400/80" />
@@ -344,10 +373,7 @@ export function Background3D() {
         {/* 11. Code Curly Braces & Cursor (Top Center) */}
         <div 
           className="absolute top-[6%] left-[45%] lg:left-[48%] hidden lg:block"
-          style={{
-            transform: `translate3d(${mouse.x * -15}px, ${mouse.y * -15}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-15)}
         >
           <div className="animate-float">
             <CodeBracesDoodle className="size-10 sm:size-12 md:size-16 text-brand dark:text-blue-400/80" />
@@ -357,10 +383,7 @@ export function Background3D() {
         {/* 12. Brain Profile with Gear (Middle Center-Right) */}
         <div 
           className="absolute top-[38%] right-[30%] lg:right-[26%] hidden lg:block"
-          style={{
-            transform: `translate3d(${mouse.x * -5}px, ${mouse.y * -5}px, 0)`,
-            transition: 'transform 0.6s ease-out',
-          }}
+          style={depth(-5)}
         >
           <div className="animate-pulse-slow">
             <BrainGearDoodle className="size-10 sm:size-14 md:size-18 text-brand dark:text-indigo-400/80" />

@@ -9,6 +9,22 @@ import { rateLimit, clientIp } from '@/lib/security/rate-limit'
 // Unauthenticated endpoints that warrant a tighter cap (issue #10).
 const AUTH_PATHS = ['/login', '/admin-login', '/signup', '/forgot-password', '/reset-password']
 
+// Statically rendered marketing routes. A GET to one of these needs no session:
+// nothing on the page is gated, and the navbar resolves auth on the client. The
+// session work below costs a Supabase round trip per request, so skipping it
+// here takes it off the critical path of the site's highest-traffic pages.
+// Non-GET (server actions on /join, /contact) still falls through to the full
+// path so rate limiting and session refresh keep applying.
+const PUBLIC_GET_PATHS = new Set([
+  '/', '/about', '/impact', '/campuses', '/stories', '/gallery', '/faq', '/contact', '/join', '/403',
+])
+
+function isPublicGet(request: NextRequest): boolean {
+  if (request.method !== 'GET') return false
+  const path = request.nextUrl.pathname
+  return PUBLIC_GET_PATHS.has(path) || path.startsWith('/campuses/')
+}
+
 function tooManyRequests(retryAfterSec: number): NextResponse {
   return new NextResponse('Too many requests. Please slow down and try again shortly.', {
     status: 429,
@@ -57,6 +73,11 @@ export async function updateSession(request: NextRequest) {
     return response
   }
 
+  // Public marketing GETs need no session — return before paying for one.
+  if (isPublicGet(request)) {
+    return response
+  }
+
   const supabase = createServerClient<Database>(
     SUPABASE_URL!,
     SUPABASE_ANON_KEY!,
@@ -92,7 +113,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (user) {
+  // `role` is only consulted for protected routes and for bouncing a signed-in
+  // user off /login, so the profile lookup is scoped to those. It used to run on
+  // every request a logged-in user made, adding a database round trip to pages
+  // that never read the result. Deactivation is still enforced everywhere it can
+  // gate access, and RLS remains the real enforcement layer (see rbac.ts).
+  if (user && (isProtected || path === '/login')) {
     // Fetch role for role-aware routing (cheap, indexed lookup).
     const { data: profile } = await supabase
       .from('users')
