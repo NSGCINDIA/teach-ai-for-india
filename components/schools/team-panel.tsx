@@ -18,6 +18,7 @@ import type { SchoolTeamMemberDetail } from '@/lib/data/school-team'
 import type { TeamMember } from '@/lib/data/sessions'
 import {
   requestSchoolTeamAvailability,
+  setSchoolRequiredVolunteers,
   confirmSchoolTeam,
   replaceSchoolTeamMember,
   type SchoolTeamActionState,
@@ -48,6 +49,10 @@ export function TeamPanel({
 }: TeamPanelProps) {
   const [reqState, reqAction, reqPending] = useActionState<SchoolTeamActionState, FormData>(
     requestSchoolTeamAvailability,
+    {},
+  )
+  const [countState, countAction, countPending] = useActionState<SchoolTeamActionState, FormData>(
+    setSchoolRequiredVolunteers,
     {},
   )
   const [confState, confAction, confPending] = useActionState<SchoolTeamActionState, FormData>(
@@ -330,10 +335,14 @@ export function TeamPanel({
             </h4>
           </div>
 
-          <form action={reqAction} className="space-y-4">
+          {/* Target team size saves on its own. It used to be a field of the
+              availability request below, which the database rejects unless at
+              least one volunteer is also ticked — so the count could not be
+              corrected by itself, and could not be corrected at all once every
+              campus volunteer had already been requested. */}
+          <form action={countAction} className="flex flex-wrap items-end gap-2">
             <input type="hidden" name="school_id" value={schoolId} />
-
-            <div className="w-48">
+            <div className="w-40">
               <Label htmlFor="required_volunteers" className="text-xs font-medium">
                 Required Volunteers Count
               </Label>
@@ -347,6 +356,23 @@ export function TeamPanel({
                 className="mt-1 text-sm"
               />
             </div>
+            <Button type="submit" size="sm" variant="outline" disabled={countPending}>
+              {countPending ? <Loader2 className="size-4 animate-spin mr-1" /> : null}
+              Save count
+            </Button>
+          </form>
+          {countState.error && (
+            <p role="alert" className="text-xs text-error">{countState.error}</p>
+          )}
+          {countState.ok && countState.message && (
+            <p role="status" className="text-xs text-success">{countState.message}</p>
+          )}
+
+          <form action={reqAction} className="space-y-4">
+            <input type="hidden" name="school_id" value={schoolId} />
+            {/* Still sent so requesting availability keeps honouring whatever the
+                box currently shows, even if "Save count" was not pressed. */}
+            <input type="hidden" name="required_volunteers" value={reqVolCount} />
 
             <div>
               <Label className="text-xs font-medium">Select Volunteers to Request</Label>

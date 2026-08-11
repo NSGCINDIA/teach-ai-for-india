@@ -47,15 +47,27 @@ export async function savePlan(
   const payload = nullifyStrings(parsed.data)
 
   const supabase = await createClient()
-  
-  // Find the latest plan (whether draft or approved)
-  const { data: existingPlan } = await supabase
-    .from('session_plans')
-    .select('id, status')
-    .eq('school_id', schoolId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+
+  // Target the exact plan the form was rendered from when it tells us which one
+  // that is. A school can hold an approved plan *and* a newer draft at the same
+  // time (0036: one draft, unlimited approved history), so picking "the latest
+  // row" could update a different plan than the one on screen. The id is still
+  // scoped by school_id so a caller cannot reach another school's plan.
+  const planId = String(formData.get('plan_id') ?? '')
+  const { data: existingPlan } = planId
+    ? await supabase
+        .from('session_plans')
+        .select('id, status')
+        .eq('id', planId)
+        .eq('school_id', schoolId)
+        .maybeSingle()
+    : await supabase
+        .from('session_plans')
+        .select('id, status')
+        .eq('school_id', schoolId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
 
   // Fetch the school's current status
   const { data: school } = await supabase
@@ -67,17 +79,17 @@ export async function savePlan(
 
   const isPendingApproval = school?.status === 'registered'
 
-  // Onboarding submitted at 'registered' status is saved as 'draft' (pending approval).
-  const finalStatus: SessionPlanStatus = 'draft'
-
-  const payloadWithStatus = {
-    ...payload,
-    status: finalStatus,
-  }
-
+  // Leave an existing plan's status alone. This used to hard-code 'draft', so
+  // editing an already-approved plan silently un-approved the school's
+  // onboarding — and where the school had since opened another draft it also
+  // tripped the session_plans_one_draft_per_school unique index, surfacing a raw
+  // duplicate-key error to the user. A brand-new plan still starts as a draft,
+  // which is the column default anyway.
   const { error } = existingPlan
-    ? await supabase.from('session_plans').update(payloadWithStatus).eq('id', existingPlan.id)
-    : await supabase.from('session_plans').insert({ ...payloadWithStatus, created_by: user.id })
+    ? await supabase.from('session_plans').update(payload).eq('id', existingPlan.id)
+    : await supabase
+        .from('session_plans')
+        .insert({ ...payload, status: 'draft' satisfies SessionPlanStatus, created_by: user.id })
 
   if (error) return { error: error.message, values }
 

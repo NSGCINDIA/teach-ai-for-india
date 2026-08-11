@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/auth/user'
 import {
   requestTeamAvailabilitySchema,
+  setRequiredVolunteersSchema,
   respondTeamAvailabilitySchema,
   confirmSchoolTeamSchema,
   replaceTeamMemberSchema,
@@ -50,6 +51,46 @@ export async function requestSchoolTeamAvailability(
   revalidatePath(`/dashboard/schools/${parsed.data.school_id}`)
   revalidatePath(`/admin/schools/${parsed.data.school_id}`)
   return { ok: true, message: `Availability requested from ${data ?? 0} volunteers.`, count: data ?? 0 }
+}
+
+/**
+ * Set a school's target team size on its own.
+ *
+ * The count used to be reachable only as the third argument of
+ * request_school_team_availability(), which refuses to run without at least one
+ * volunteer id — so it could not be adjusted by itself, and could not be
+ * adjusted at all once every campus volunteer had already been requested. This
+ * goes through set_school_required_volunteers() (migration 0063), which writes
+ * that one column and enforces the same role gate.
+ */
+export async function setSchoolRequiredVolunteers(
+  _prev: SchoolTeamActionState,
+  formData: FormData,
+): Promise<SchoolTeamActionState> {
+  const schoolId = String(formData.get('school_id') ?? '')
+  await requireUser(`/dashboard/schools/${schoolId}`)
+
+  const parsed = setRequiredVolunteersSchema.safeParse({
+    school_id: formData.get('school_id'),
+    required_volunteers: formData.get('required_volunteers'),
+  })
+  if (!parsed.success) return { error: parsed.error.issues[0].message }
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('set_school_required_volunteers', {
+    p_school_id: parsed.data.school_id,
+    p_required_volunteers: parsed.data.required_volunteers,
+  })
+  if (error) return { error: error.message }
+
+  revalidatePath(`/dashboard/schools/${parsed.data.school_id}`)
+  revalidatePath(`/admin/schools/${parsed.data.school_id}`)
+  revalidatePath('/dashboard/schools')
+  return {
+    ok: true,
+    message: `Required team size set to ${parsed.data.required_volunteers}.`,
+    count: parsed.data.required_volunteers,
+  }
 }
 
 /** Volunteer responds to availability request. */
