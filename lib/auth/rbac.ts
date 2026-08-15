@@ -46,7 +46,7 @@ const MATRIX: Record<UserRole, Record<Permission, Scope>> = {
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
   },
   exec_lead: {
-    view_all_campuses: false, edit_school: 'own', approve_school_onboarding: false, create_session: 'own',
+    view_all_campuses: false, edit_school: false, approve_school_onboarding: false, create_session: 'own',
     submit_reimbursement: false, approve_reimbursement: false,
     view_analytics_all: false, view_analytics_campus: 'own', upload_evidence: 'own',
     assign_volunteers: false, edit_cms: false, manage_user_roles: false, export_data: false,
