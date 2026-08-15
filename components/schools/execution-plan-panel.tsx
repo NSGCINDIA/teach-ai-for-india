@@ -228,49 +228,57 @@ export function ExecutionPlanPanel({
               <h4 className="text-sm font-semibold text-brand flex items-center gap-2">
                 <FileCheck className="size-4" /> Campus Lead Review
               </h4>
-              <form action={campAction} className="space-y-3">
-                <input type="hidden" name="plan_id" value={plan.id} />
-                <div>
-                  <Label htmlFor="campus_comments" className="text-xs">
-                    Comments / Feedback (Required if requesting changes)
-                  </Label>
-                  <Textarea
-                    id="campus_comments"
-                    name="comments"
-                    rows={2}
-                    placeholder="Enter review comments..."
-                    value={campusComments}
-                    onChange={(e) => setCampusComments(e.target.value)}
-                    className="mt-1 text-sm bg-background"
-                  />
+              {campState.ok ? (
+                <div className="bg-success/10 border border-success/30 rounded-lg p-3">
+                  <p className="text-sm text-success font-medium flex items-center gap-1.5">
+                    <CheckCircle2 className="size-4" />
+                    {campState.message}
+                  </p>
                 </div>
-                {campState.error && <p className="text-xs text-error">{campState.error}</p>}
-                {campState.ok && <p className="text-xs text-success">{campState.message}</p>}
-                <div className="flex gap-2">
-                  <Button
-                    type="submit"
-                    name="decision"
-                    value="approved"
-                    size="sm"
-                    disabled={campPending}
-                    className="bg-brand text-white"
-                  >
-                    {campPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <CheckCircle2 className="size-3.5 mr-1" />}
-                    Approve & Forward to Finance
-                  </Button>
-                  <Button
-                    type="submit"
-                    name="decision"
-                    value="changes_requested"
-                    variant="outline"
-                    size="sm"
-                    disabled={campPending}
-                    className="border-error/30 text-error hover:bg-error/10"
-                  >
-                    Request Changes
-                  </Button>
-                </div>
-              </form>
+              ) : (
+                <form action={campAction} className="space-y-3">
+                  <input type="hidden" name="plan_id" value={plan.id} />
+                  <div>
+                    <Label htmlFor="campus_comments" className="text-xs">
+                      Comments / Feedback (Required if requesting changes)
+                    </Label>
+                    <Textarea
+                      id="campus_comments"
+                      name="comments"
+                      rows={2}
+                      placeholder="Enter review comments..."
+                      value={campusComments}
+                      onChange={(e) => setCampusComments(e.target.value)}
+                      className="mt-1 text-sm bg-background"
+                    />
+                  </div>
+                  {campState.error && <p className="text-xs text-error">{campState.error}</p>}
+                  <div className="flex gap-2">
+                    <Button
+                      type="submit"
+                      name="decision"
+                      value="approved"
+                      size="sm"
+                      disabled={campPending}
+                      className="bg-brand text-white"
+                    >
+                      {campPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <CheckCircle2 className="size-3.5 mr-1" />}
+                      Approve & Forward to Finance
+                    </Button>
+                    <Button
+                      type="submit"
+                      name="decision"
+                      value="changes_requested"
+                      variant="outline"
+                      size="sm"
+                      disabled={campPending}
+                      className="border-error/30 text-error hover:bg-error/10"
+                    >
+                      Request Changes
+                    </Button>
+                  </div>
+                </form>
+              )}
             </div>
           )}
 
@@ -283,49 +291,57 @@ export function ExecutionPlanPanel({
               <p className="text-xs text-muted-foreground">
                 Total Budget Requested: <strong>₹{totalBudget.toLocaleString('en-IN')}</strong>
               </p>
-              <form action={finAction} className="space-y-3">
-                <input type="hidden" name="plan_id" value={plan.id} />
-                <div>
-                  <Label htmlFor="finance_comments" className="text-xs">
-                    Budget Comments (Required if requesting changes)
-                  </Label>
-                  <Textarea
-                    id="finance_comments"
-                    name="comments"
-                    rows={2}
-                    placeholder="Enter budget review comments..."
-                    value={financeComments}
-                    onChange={(e) => setFinanceComments(e.target.value)}
-                    className="mt-1 text-sm bg-background"
-                  />
+              {finState.ok ? (
+                <div className="bg-success/10 border border-success/30 rounded-lg p-3">
+                  <p className="text-sm text-success font-medium flex items-center gap-1.5">
+                    <CheckCircle2 className="size-4" />
+                    {finState.message}
+                  </p>
                 </div>
-                {finState.error && <p className="text-xs text-error">{finState.error}</p>}
-                {finState.ok && <p className="text-xs text-success">{finState.message}</p>}
-                <div className="flex gap-2">
-                  <Button
-                    type="submit"
-                    name="decision"
-                    value="approved"
-                    size="sm"
-                    disabled={finPending}
-                    className="bg-brand text-white"
-                  >
-                    {finPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <CheckCircle2 className="size-3.5 mr-1" />}
-                    Approve Budget (₹{totalBudget.toLocaleString('en-IN')})
-                  </Button>
-                  <Button
-                    type="submit"
-                    name="decision"
-                    value="changes_requested"
-                    variant="outline"
-                    size="sm"
-                    disabled={finPending}
-                    className="border-error/30 text-error hover:bg-error/10"
-                  >
-                    Request Changes
-                  </Button>
-                </div>
-              </form>
+              ) : (
+                <form action={finAction} className="space-y-3">
+                  <input type="hidden" name="plan_id" value={plan.id} />
+                  <div>
+                    <Label htmlFor="finance_comments" className="text-xs">
+                      Budget Comments (Required if requesting changes)
+                    </Label>
+                    <Textarea
+                      id="finance_comments"
+                      name="comments"
+                      rows={2}
+                      placeholder="Enter budget review comments..."
+                      value={financeComments}
+                      onChange={(e) => setFinanceComments(e.target.value)}
+                      className="mt-1 text-sm bg-background"
+                    />
+                  </div>
+                  {finState.error && <p className="text-xs text-error">{finState.error}</p>}
+                  <div className="flex gap-2">
+                    <Button
+                      type="submit"
+                      name="decision"
+                      value="approved"
+                      size="sm"
+                      disabled={finPending}
+                      className="bg-brand text-white"
+                    >
+                      {finPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <CheckCircle2 className="size-3.5 mr-1" />}
+                      Approve Budget (₹{totalBudget.toLocaleString('en-IN')})
+                    </Button>
+                    <Button
+                      type="submit"
+                      name="decision"
+                      value="changes_requested"
+                      variant="outline"
+                      size="sm"
+                      disabled={finPending}
+                      className="border-error/30 text-error hover:bg-error/10"
+                    >
+                      Request Changes
+                    </Button>
+                  </div>
+                </form>
+              )}
             </div>
           )}
         </div>
