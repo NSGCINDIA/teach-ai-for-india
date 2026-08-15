@@ -156,7 +156,7 @@ export async function submitSessionDeliveryReport(
   // Fetch session details for school_id & campus_id
   const { data: curSess } = await supabase
     .from('sessions')
-    .select('school_id, campus_id')
+    .select('school_id, campus_id, status')
     .eq('id', d.session_id)
     .single()
 
@@ -209,6 +209,16 @@ export async function submitSessionDeliveryReport(
     return {
       error: 'Cannot submit report: at least 1 Session Photo link and 1 Attendance/Report Google Doc link are required.',
     }
+  }
+
+  // If the session is currently in 'planned' state, transition it to 'in_progress' first
+  if (curSess?.status === 'planned') {
+    const { error: startErr } = await supabase
+      .from('sessions')
+      .update({ status: 'in_progress' })
+      .eq('id', d.session_id)
+
+    if (startErr) return { error: sanitizeDbError(startErr) }
   }
 
   // Update session status to reported
