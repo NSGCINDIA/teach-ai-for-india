@@ -38,7 +38,7 @@ export async function savePlan(
   const values = formValues(formData)
   const user = await requireUser(`/dashboard/schools/${schoolId}`)
   if (can(user.role, 'edit_school') === false) {
-    return { error: 'You do not have permission to edit onboarding.', values }
+    return { error: 'Only Outreach Lead or Campus Lead may edit or submit school onboarding details.', values }
   }
 
   const parsed = sessionPlanSchema.safeParse(Object.fromEntries(formData))
