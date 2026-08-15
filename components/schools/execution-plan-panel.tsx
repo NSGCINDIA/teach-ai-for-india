@@ -86,6 +86,8 @@ export function ExecutionPlanPanel({
     approved: { label: 'Execution Plan Approved', style: 'border-success/30 bg-success/10 text-success', icon: CheckCircle2 },
   }[plan?.status ?? 'draft'] ?? { label: plan?.status ?? 'Draft', style: 'border-border text-muted-foreground', icon: Clock }
 
+  const StatusIcon = statusMeta.icon
+
   const totalBudget = plan ? (
     plan.total_budget ?? (
       (plan.transport_budget ?? 0) +

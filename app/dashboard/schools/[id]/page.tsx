@@ -31,17 +31,19 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
   const execPlanAccess = executionPlanAccess(user.role, user.campus_id, school.campus_id)
   const teamAccess = schoolTeamAccess(user.role, user.campus_id, school.campus_id)
 
+  // Each fetch is individually guarded so that an RLS gap or network blip
+  // for one data source never crashes the entire school-detail page.
   const [visitRequests, roster, budget, team, execPlan, sessions, financeSummary, activityTimeline] = await Promise.all([
-    listOutreachVisitRequestsForSchool(school.id),
-    listTeamMembers(school.campus_id),
-    school.campus_id && school.campus?.quarter
+    listOutreachVisitRequestsForSchool(school.id).catch(() => [] as Awaited<ReturnType<typeof listOutreachVisitRequestsForSchool>>),
+    listTeamMembers(school.campus_id).catch(() => [] as Awaited<ReturnType<typeof listTeamMembers>>),
+    (school.campus_id && school.campus?.quarter
       ? getCampusBudget(school.campus_id, school.campus.quarter)
-      : Promise.resolve(null),
-    getSchoolTeam(school.id),
-    getSchoolExecutionPlan(school.id),
-    getSchoolSessions(school.id),
-    getSchoolFinanceSummary(school.id),
-    getSchoolActivityTimeline(school.id),
+      : Promise.resolve(null)).catch(() => null),
+    getSchoolTeam(school.id).catch(() => [] as Awaited<ReturnType<typeof getSchoolTeam>>),
+    getSchoolExecutionPlan(school.id).catch(() => null),
+    getSchoolSessions(school.id).catch(() => [] as Awaited<ReturnType<typeof getSchoolSessions>>),
+    getSchoolFinanceSummary(school.id).catch(() => undefined),
+    getSchoolActivityTimeline(school.id).catch(() => [] as Awaited<ReturnType<typeof getSchoolActivityTimeline>>),
   ])
 
   const canApproveOnboarding = canForEntity(user.role, 'approve_school_onboarding', user.campus_id, school.campus_id)
