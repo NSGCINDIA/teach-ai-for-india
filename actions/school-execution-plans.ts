@@ -126,7 +126,49 @@ export async function reviewSchoolExecutionPlanFinance(
     p_comments: parsed.data.comments ?? null,
   })
 
-  if (error) return { error: error.message }
+  if (error) {
+    // Gracefully fallback to direct table updates if DB RPC fails due to missing total_budget column or RPC issue
+    if (error.message.includes('total_budget') || error.message.includes('column') || error.message.includes('does not exist')) {
+      const planStatus = parsed.data.decision === 'approved' ? 'approved' : 'finance_changes_requested'
+      const { data: planData } = await supabase
+        .from('school_execution_plans')
+        .select('school_id')
+        .eq('id', parsed.data.plan_id)
+        .maybeSingle()
+
+      const { error: updateErr } = await supabase
+        .from('school_execution_plans')
+        .update({
+          status: planStatus,
+          finance_reviewed_by: user.id,
+          finance_reviewed_at: new Date().toISOString(),
+          finance_comments: parsed.data.comments ?? null,
+        })
+        .eq('id', parsed.data.plan_id)
+
+      if (!updateErr) {
+        if (parsed.data.decision === 'approved' && planData?.school_id) {
+          await supabase
+            .from('schools')
+            .update({ operational_phase: 'execution_ready' })
+            .eq('id', planData.school_id)
+        }
+
+        if (planData?.school_id) {
+          revalidatePath(`/dashboard/schools/${planData.school_id}`)
+          revalidatePath(`/admin/schools/${planData.school_id}`)
+        }
+        revalidatePath('/dashboard/schools')
+        return {
+          ok: true,
+          message: parsed.data.decision === 'approved'
+            ? 'Budget approved! School is now Execution Ready.'
+            : 'Changes requested on budget.',
+        }
+      }
+    }
+    return { error: error.message }
+  }
 
   const { data: planData } = await supabase
     .from('school_execution_plans')

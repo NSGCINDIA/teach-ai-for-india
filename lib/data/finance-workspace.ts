@@ -69,7 +69,7 @@ export const getFinanceLeadWorkspace = cache(async (campusId?: string | null): P
   // 5. Pending execution plan budget reviews
   let execPlanQuery = supabase
     .from('school_execution_plans')
-    .select('id, school_id, total_budget, school:schools(name)')
+    .select('id, school_id, total_budget, transport_budget, materials_budget, equipment_budget, other_budget, school:schools(name)')
     .eq('status', 'campus_approved')
   if (campusId) execPlanQuery = execPlanQuery.eq('campus_id', campusId)
   const { data: pendingExecPlans } = await execPlanQuery
@@ -109,12 +109,18 @@ export const getFinanceLeadWorkspace = cache(async (campusId?: string | null): P
 
   if (pendingExecPlans) {
     for (const p of pendingExecPlans as any[]) {
+      const calcTotal = p.total_budget ?? (
+        Number(p.transport_budget ?? 0) +
+        Number(p.materials_budget ?? 0) +
+        Number(p.equipment_budget ?? 0) +
+        Number(p.other_budget ?? 0)
+      )
       actionItems.push({
         id: p.id,
         kind: 'EXECUTION_PLAN',
         title: `Execution Plan Budget Review: ${p.school?.name ?? 'School'}`,
         subtitle: 'Reviewed by Campus Lead; awaiting Finance Lead budget approval',
-        amount: Number(p.total_budget),
+        amount: Number(calcTotal),
         schoolId: p.school_id,
         status: 'Awaiting Review',
       })

@@ -430,6 +430,9 @@ CREATE TABLE IF NOT EXISTS public.school_execution_plans (
   materials_budget        numeric(12,2) NOT NULL DEFAULT 0 CHECK (materials_budget >= 0),
   equipment_budget        numeric(12,2) NOT NULL DEFAULT 0 CHECK (equipment_budget >= 0),
   other_budget            numeric(12,2) NOT NULL DEFAULT 0 CHECK (other_budget >= 0),
+  total_budget            numeric(12,2) GENERATED ALWAYS AS (
+    coalesce(transport_budget, 0) + coalesce(materials_budget, 0) + coalesce(equipment_budget, 0) + coalesce(other_budget, 0)
+  ) STORED,
   status                  public.execution_plan_status NOT NULL DEFAULT 'draft',
   submitted_by            uuid REFERENCES public.users(id) ON DELETE SET NULL,
   submitted_at            timestamptz,
