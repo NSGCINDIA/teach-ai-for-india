@@ -77,7 +77,7 @@ export async function savePlan(
     .single()
 
 
-  const isPendingApproval = school?.status === 'registered'
+  const isPendingApproval = existingPlan?.status !== 'approved' && school?.status !== 'sessions_active'
 
   // Leave an existing plan's status alone. This used to hard-code 'draft', so
   // editing an already-approved plan silently un-approved the school's
@@ -99,7 +99,7 @@ export async function savePlan(
   revalidatePath('/admin/schools')
 
   const message = isPendingApproval
-    ? 'Onboarding details submitted for approval! ✓'
+    ? 'Onboarding details submitted for Campus Lead review & approval! ✓'
     : 'Onboarding details updated.'
 
   return { ok: true, message }
