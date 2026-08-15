@@ -86,7 +86,14 @@ export function ExecutionPlanPanel({
     approved: { label: 'Execution Plan Approved', style: 'border-success/30 bg-success/10 text-success', icon: CheckCircle2 },
   }[plan?.status ?? 'draft'] ?? { label: plan?.status ?? 'Draft', style: 'border-border text-muted-foreground', icon: Clock }
 
-  const StatusIcon = statusMeta.icon
+  const totalBudget = plan ? (
+    plan.total_budget ?? (
+      (plan.transport_budget ?? 0) +
+      (plan.materials_budget ?? 0) +
+      (plan.equipment_budget ?? 0) +
+      (plan.other_budget ?? 0)
+    )
+  ) : 0
 
   return (
     <div className="space-y-6">
@@ -272,7 +279,7 @@ export function ExecutionPlanPanel({
                 <DollarSign className="size-4" /> Finance Lead Budget Review
               </h4>
               <p className="text-xs text-muted-foreground">
-                Total Budget Requested: <strong>₹{plan.total_budget}</strong>
+                Total Budget Requested: <strong>₹{totalBudget.toLocaleString('en-IN')}</strong>
               </p>
               <form action={finAction} className="space-y-3">
                 <input type="hidden" name="plan_id" value={plan.id} />
@@ -302,7 +309,7 @@ export function ExecutionPlanPanel({
                     className="bg-brand text-white"
                   >
                     {finPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <CheckCircle2 className="size-3.5 mr-1" />}
-                    Approve Budget (₹{plan.total_budget})
+                    Approve Budget (₹{totalBudget.toLocaleString('en-IN')})
                   </Button>
                   <Button
                     type="submit"

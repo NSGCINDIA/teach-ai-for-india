@@ -171,12 +171,21 @@ export const getSessionFinanceSummary = cache(async (sessionId: string): Promise
 
   const { data: execPlan } = await supabase
     .from('school_execution_plans')
-    .select('total_budget')
+    .select('total_budget, transport_budget, materials_budget, equipment_budget, other_budget')
     .eq('school_id', session.school_id)
     .eq('status', 'approved')
     .maybeSingle()
 
-  const plannedBudget = execPlan ? Math.round(execPlan.total_budget / 4) : 2500
+  const calcTotal = execPlan ? (
+    execPlan.total_budget ?? (
+      Number(execPlan.transport_budget ?? 0) +
+      Number(execPlan.materials_budget ?? 0) +
+      Number(execPlan.equipment_budget ?? 0) +
+      Number(execPlan.other_budget ?? 0)
+    )
+  ) : 0
+
+  const plannedBudget = execPlan ? Math.round(calcTotal / 4) : 2500
 
   const { data: expensesRaw } = await supabase
     .from('operational_expenses')
