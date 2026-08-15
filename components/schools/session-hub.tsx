@@ -40,6 +40,7 @@ interface SessionHubProps {
   canVerify: boolean
   schoolStatus: string
   operationalPhase: string | null
+  isExecPlanApproved?: boolean
 }
 
 const TOTAL_SESSIONS = 4
@@ -52,6 +53,7 @@ export function SessionHub({
   canVerify,
   schoolStatus,
   operationalPhase,
+  isExecPlanApproved,
 }: SessionHubProps) {
   const [createState, createAction, createPending] = useActionState<SessionDeliveryActionState, FormData>(
     createSessionDeliveryPlan,
@@ -69,6 +71,12 @@ export function SessionHub({
   const [activeSessionNum, setActiveSessionNum] = useState<number>(1)
   const [isPlanFormOpen, setIsPlanFormOpen] = useState(false)
   const [isReportFormOpen, setIsReportFormOpen] = useState(false)
+
+  // Execution Plan completion gate: Execution & Budget Plan must be approved before unlocking session program
+  const isPlanCompleted = isExecPlanApproved ?? (
+    operationalPhase === 'execution_ready' ||
+    (!!operationalPhase && operationalPhase.startsWith('session_'))
+  )
 
   // Map existing sessions by session_number (1..4)
   const sessionMap = new Map<number, SessionRow>()
@@ -89,7 +97,7 @@ export function SessionHub({
           const isVerified = sess?.status === 'verified'
           const isReported = sess?.status === 'reported'
           const isPlanned = sess?.status === 'planned' || sess?.status === 'in_progress'
-          const isUnlocked = num <= nextSchedulableNum
+          const isUnlocked = isPlanCompleted && num <= nextSchedulableNum
           const isSelected = activeSessionNum === num
 
           return (
@@ -375,8 +383,24 @@ export function SessionHub({
               </div>
             )}
           </div>
+        ) : !isPlanCompleted ? (
+          /* Locked State: Execution & Budget Plan not completed yet */
+          <div className="py-6 text-center space-y-3 border border-dashed border-warning/40 bg-warning/5 rounded-lg p-6">
+            <Lock className="size-8 text-warning mx-auto" />
+            <div>
+              <h5 className="text-sm font-bold text-foreground">Bounded 4-Session Program Locked</h5>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1">
+                The Execution &amp; Budget Plan must be submitted by the Execution Lead and approved by both Campus Lead and Finance Lead before scheduling sessions.
+              </p>
+            </div>
+            <div className="pt-1">
+              <Badge variant="outline" className="border-warning/40 bg-warning/10 text-warning font-semibold">
+                ⚠️ Execution &amp; Budget Plan Pending Approval
+              </Badge>
+            </div>
+          </div>
         ) : (
-          /* No Session Record Yet for this slot */
+          /* No Session Record Yet for this slot (Plan Completed) */
           <div className="py-6 text-center space-y-3 border border-dashed rounded-lg">
             <Calendar className="size-8 text-muted-foreground mx-auto" />
             <div>
@@ -398,7 +422,7 @@ export function SessionHub({
         )}
 
         {/* Schedule Form */}
-        {canManage && isPlanFormOpen && !selectedSession && (
+        {canManage && isPlanCompleted && isPlanFormOpen && !selectedSession && (
           <div className="rounded-lg border border-border p-4 bg-muted/10 space-y-4">
             <h5 className="text-sm font-semibold flex items-center gap-2">
               <Calendar className="size-4 text-brand" /> Schedule Session {activeSessionNum}

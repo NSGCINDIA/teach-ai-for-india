@@ -256,6 +256,7 @@ export function SchoolDetailView({
                   canVerify={canVerifySession}
                   schoolStatus={school.status}
                   operationalPhase={school.operational_phase ?? null}
+                  isExecPlanApproved={execPlan?.status === 'approved' || school.operational_phase === 'execution_ready' || (!!school.operational_phase && school.operational_phase.startsWith('session_'))}
                 />
               </CardContent>
             </Card>
