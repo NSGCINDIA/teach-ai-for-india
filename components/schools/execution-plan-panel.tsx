@@ -46,6 +46,8 @@ export function ExecutionPlanPanel({
   onboardingPlan,
   teamConfirmed = false,
   access,
+  schoolStatus,
+  operationalPhase,
 }: ExecutionPlanPanelProps) {
   const [subState, subAction, subPending] = useActionState<SchoolExecutionPlanActionState, FormData>(
     plan?.status === 'campus_changes_requested' || plan?.status === 'finance_changes_requested'
@@ -66,8 +68,10 @@ export function ExecutionPlanPanel({
   const [campusComments, setCampusComments] = useState('')
   const [financeComments, setFinanceComments] = useState('')
 
+  const isTeamReady = teamConfirmed || (!!operationalPhase && operationalPhase !== 'team_preparation')
+
   // Execution Readiness Gate Evaluation (Phase 3)
-  const execReadiness = validateSchoolExecutionReadiness(plan, teamConfirmed)
+  const execReadiness = validateSchoolExecutionReadiness(plan, isTeamReady)
 
   // Pre-fill equipment values derived from onboarding session_plans
   const defaultProjectors = onboardingPlan?.has_projector ? 0 : 1
@@ -318,21 +322,34 @@ export function ExecutionPlanPanel({
         </div>
       ) : (
         /* No plan submitted yet */
-        <div className="rounded-lg border border-dashed p-6 text-center space-y-3">
-          <Wrench className="size-8 text-muted-foreground mx-auto" />
-          <div>
-            <h4 className="text-sm font-semibold">No Execution Plan Submitted</h4>
-            <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1">
-              The Execution Lead creates a school-level plan detailing equipment needs, travel logistics, and budget allocation for dual approval.
-            </p>
-          </div>
+        !isFormOpen && (
+          <div className="rounded-lg border border-dashed p-6 text-center space-y-3">
+            <Wrench className="size-8 text-muted-foreground mx-auto" />
+            <div>
+              <h4 className="text-sm font-semibold">No Execution Plan Submitted</h4>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1">
+                The Execution Lead creates a school-level plan detailing equipment needs, travel logistics, and budget allocation for dual approval.
+              </p>
+            </div>
 
-          {access.canSubmit && (
-            <Button size="sm" onClick={() => setIsFormOpen(!isFormOpen)}>
-              {isFormOpen ? 'Cancel' : 'Create School Execution Plan'}
-            </Button>
-          )}
-        </div>
+            {access.canSubmit && (
+              isTeamReady ? (
+                <Button size="sm" onClick={() => setIsFormOpen(true)}>
+                  Create School Execution Plan
+                </Button>
+              ) : (
+                <div className="space-y-2 pt-1">
+                  <Button size="sm" disabled>
+                    Create School Execution Plan
+                  </Button>
+                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                    ⚠️ School team must be confirmed by the Volunteer Lead before creating an execution plan.
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        )
       )}
 
       {/* Submission / Edit Form */}

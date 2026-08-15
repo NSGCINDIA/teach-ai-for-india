@@ -115,6 +115,16 @@ export async function changeSessionStatus(
   const { session_id, new_status, note } = parsed.data
 
   const supabase = await createClient()
+
+  // If attempting to transition directly to 'reported' while session is 'planned', move to 'in_progress' first
+  if (new_status === 'reported') {
+    const { data: cur } = await supabase.from('sessions').select('status').eq('id', session_id).single()
+    if (cur?.status === 'planned') {
+      const { error: startErr } = await supabase.from('sessions').update({ status: 'in_progress' }).eq('id', session_id)
+      if (startErr) return { error: humanizeDbError(startErr.message), values }
+    }
+  }
+
   // Cancellation needs a reason in notes (the DB trigger enforces this too).
   const payload: Partial<SessionRow> = { status: new_status }
   if (new_status === 'cancelled') {
