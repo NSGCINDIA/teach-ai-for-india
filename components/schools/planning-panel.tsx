@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { CheckCircle2, Loader2, AlertCircle, Pencil, Eye } from 'lucide-react'
+import { CheckCircle2, Loader2, AlertCircle, Pencil, Eye, ShieldCheck } from 'lucide-react'
 import { approvePlan, savePlan, type PlanActionState } from '@/actions/plans'
 import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { SESSION_TYPE_META } from '@/lib/constants/sessions'
@@ -150,11 +150,22 @@ export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasP
         </div>
 
         {canApprove ? (
-          <ApproveForm schoolId={schoolId} planId={plan.id} isReady={readiness?.ready ?? false} />
+          <div className="rounded-xl border border-brand/40 bg-brand/5 p-4 space-y-3">
+            <div>
+              <h4 className="text-sm font-bold text-brand flex items-center gap-2">
+                <ShieldCheck className="size-4" /> Campus Lead Verification &amp; Activation
+              </h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Review the onboarding &amp; deployment details submitted by the Outreach Lead. Verify that the official approval letter is valid to activate this school.
+              </p>
+            </div>
+            <ApproveForm schoolId={schoolId} planId={plan.id} isReady={readiness?.ready ?? false} />
+          </div>
         ) : (
-          <p className="rounded-lg border border-muted bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
-            Awaiting verification and approval from this school&apos;s Campus Lead.
-          </p>
+          <div className="rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground flex items-center gap-2">
+            <ShieldCheck className="size-4 text-muted-foreground shrink-0" />
+            <span>Submitted for Campus Lead verification &amp; approval. Only the assigned Campus Lead can approve onboarding and activate the school.</span>
+          </div>
         )}
       </div>
     )

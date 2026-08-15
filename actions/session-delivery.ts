@@ -58,6 +58,20 @@ export async function createSessionDeliveryPlan(
     return { error: 'You do not have permission to schedule session plans for this school.' }
   }
 
+  // Verify Execution & Budget Plan completion gate: must be approved before scheduling sessions
+  const { data: execPlan } = await supabase
+    .from('school_execution_plans')
+    .select('status')
+    .eq('school_id', d.school_id)
+    .eq('status', 'approved')
+    .maybeSingle()
+
+  if (!execPlan) {
+    return {
+      error: 'Cannot schedule session: The school Execution & Budget Plan must be submitted and approved first.',
+    }
+  }
+
   // Get previous session if session_number > 1
   let previousSessionId: string | null = null
   if (d.session_number > 1) {
