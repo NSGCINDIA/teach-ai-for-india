@@ -32,20 +32,20 @@ function resolve(props: StatusBadgeProps): { label: string; tone: StatusTone } {
 }
 
 /**
- * StatusBadge (PRD §12.3) — a colored pill for any status. Always renders the
- * text label (never color-only — WCAG, PRD §13.2) plus a tone dot.
+ * StatusBadge — TAI warm brand treatment with better visual hierarchy.
+ * Always renders text label (WCAG compliant) plus optional tone indicator.
  */
 export function StatusBadge(props: StatusBadgeProps) {
   const { label, tone } = resolve(props)
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap',
+        'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap transition-colors',
         TONE_CLASS[tone],
         props.className,
       )}
     >
-      <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+      <span className="size-1.5 rounded-full bg-current" aria-hidden />
       {label}
     </span>
   )

@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { ArrowUpRight, GraduationCap, MapPin, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { PublicCampusCard } from '@/types/database'
+import { ImageWithFallback } from './image-with-fallback'
 
 const FALLBACK_IMAGES = [
   'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_600/v1784177876/DJI_20260711124202_0244_D_zgvqzo.jpg', // Team with students outdoor
@@ -43,25 +43,15 @@ export function CampusCard({ campus, className }: { campus: PublicCampusCard; cl
         className,
       )}
     >
-      <div className="relative aspect-[16/9] overflow-hidden bg-muted">
-        {campus.hero_image_url ? (
-          <Image
-            src={campus.hero_image_url}
-            alt={`${campus.name} campus`}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <Image
-            src={getFallbackImage(campus.slug)}
-            alt={`Teach AI for India volunteers and students at ${campus.name}`}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        )}
-        <div className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-card/80 text-foreground opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
+      <div className="relative overflow-hidden bg-muted">
+        <ImageWithFallback
+          src={campus.hero_image_url || getFallbackImage(campus.slug)}
+          alt={`Teach AI for India volunteers and students at ${campus.name}`}
+          aspectRatio="16:9"
+          className="transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, 33vw"
+        />
+        <div className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-card/80 text-foreground opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 z-10">
           <ArrowUpRight className="size-4" aria-hidden />
         </div>
       </div>

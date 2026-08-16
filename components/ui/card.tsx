@@ -2,12 +2,29 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-function Card({ className, ...props }: React.ComponentProps<'div'>) {
+/**
+ * Card variants for TAI visual hierarchy:
+ * - default: Standard elevated card (white bg, soft shadow)
+ * - flat: Flat section without elevation (for background grouping)
+ * - bento: Larger feature card with more presence
+ * - hero: Maximum presence for hero panels
+ */
+interface CardProps extends React.ComponentProps<'div'> {
+  variant?: 'default' | 'flat' | 'bento' | 'hero'
+}
+
+function Card({ className, variant = 'default', ...props }: CardProps) {
   return (
     <div
       data-slot="card"
       className={cn(
-        'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm',
+        'text-card-foreground flex flex-col gap-6 py-6',
+        {
+          'bg-card rounded-lg border border-border/50 shadow-soft': variant === 'default',
+          'bg-transparent': variant === 'flat',
+          'bg-card rounded-xl border border-border/50 shadow-warm p-8': variant === 'bento',
+          'bg-card rounded-2xl border-2 border-brand/10 shadow-warm p-10': variant === 'hero',
+        },
         className,
       )}
       {...props}
@@ -32,7 +49,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-title"
-      className={cn('leading-none font-semibold', className)}
+      className={cn('leading-tight font-semibold text-foreground', className)}
       {...props}
     />
   )
@@ -42,7 +59,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-description"
-      className={cn('text-muted-foreground text-sm', className)}
+      className={cn('text-muted-foreground text-sm leading-relaxed', className)}
       {...props}
     />
   )

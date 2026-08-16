@@ -15,13 +15,13 @@ export type StatusTone =
   | 'neutral' | 'info' | 'pending' | 'progress' | 'success' | 'danger' | 'muted'
 
 export const TONE_CLASS: Record<StatusTone, string> = {
-  neutral:  'bg-status-lead/15 text-status-lead ring-1 ring-status-lead/30',
-  info:     'bg-status-contacted/15 text-status-contacted ring-1 ring-status-contacted/30',
-  pending:  'bg-status-pending/20 text-warning ring-1 ring-status-pending/40',
-  progress: 'bg-status-completed/15 text-status-completed ring-1 ring-status-completed/30',
-  success:  'bg-success/15 text-success ring-1 ring-success/30',
-  danger:   'bg-error/15 text-error ring-1 ring-error/30',
-  muted:    'bg-muted text-muted-foreground ring-1 ring-border',
+  neutral:  'bg-status-lead/20 text-text-secondary border border-status-lead/30',
+  info:     'bg-status-contacted/20 text-brand-warm-gold border border-status-contacted/40',
+  pending:  'bg-brand-orange/15 text-brand-orange border border-brand-orange/40',
+  progress: 'bg-brand-gold/20 text-brand-gold border border-brand-gold/40',
+  success:  'bg-success/15 text-success border border-success/35',
+  danger:   'bg-error/15 text-error border border-error/35',
+  muted:    'bg-status-archived/30 text-text-tertiary border border-status-archived/50',
 }
 
 export const SCHOOL_STATUS_META: Record<SchoolStatus, { label: string; tone: StatusTone }> = {
