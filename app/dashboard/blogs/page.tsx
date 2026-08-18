@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { SubmitButton } from '@/components/blogs/submit-button'
 import { formatDateTime } from '@/lib/format'
+import { ImageWithFallback } from '@/components/shared/image-with-fallback'
 import type { BlogStatus } from '@/types/database'
 import type { StatusTone } from '@/lib/constants/status'
 
@@ -69,8 +70,8 @@ export default async function BlogsPage() {
               <div key={b.id} className="flex flex-col sm:flex-row sm:items-center justify-between border border-border bg-card p-4 rounded-xl gap-4 shadow-soft">
                 <div className="flex gap-4">
                   {b.cover_image && (
-                    <div className="size-16 rounded-lg overflow-hidden bg-muted shrink-0 hidden sm:block">
-                      <img src={b.cover_image} alt={b.title} className="object-cover w-full h-full" />
+                    <div className="size-16 shrink-0 hidden sm:block">
+                      <ImageWithFallback src={b.cover_image} alt={b.title} aspectRatio="1:1" className="rounded-lg overflow-hidden border border-border" />
                     </div>
                   )}
                   <div className="space-y-1">
@@ -120,8 +121,8 @@ export default async function BlogsPage() {
                   <div key={b.id} className="flex flex-col sm:flex-row justify-between border border-border p-4 rounded-xl gap-4 hover:border-brand/20 transition-colors shadow-soft">
                     <div className="flex gap-4">
                       {b.cover_image && (
-                        <div className="size-16 rounded-lg overflow-hidden bg-muted shrink-0 hidden sm:block">
-                          <img src={b.cover_image} alt={b.title} className="object-cover w-full h-full" />
+                        <div className="size-16 shrink-0 hidden sm:block">
+                          <ImageWithFallback src={b.cover_image} alt={b.title} aspectRatio="1:1" className="rounded-lg overflow-hidden border border-border" />
                         </div>
                       )}
                       <div className="space-y-1.5 text-left">
@@ -187,8 +188,8 @@ export default async function BlogsPage() {
               return (
                 <div key={b.id} className="flex gap-4 border border-border p-4 rounded-xl shadow-soft">
                   {b.cover_image && (
-                    <div className="size-16 rounded-lg overflow-hidden bg-muted shrink-0 hidden sm:block">
-                      <img src={b.cover_image} alt={b.title} className="object-cover w-full h-full" />
+                    <div className="size-16 shrink-0 hidden sm:block">
+                      <ImageWithFallback src={b.cover_image} alt={b.title} aspectRatio="1:1" className="rounded-lg overflow-hidden border border-border" />
                     </div>
                   )}
                   <div className="space-y-1.5 text-left">

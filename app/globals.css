@@ -4,66 +4,77 @@
 @custom-variant dark (&:is(.dark-mode-disabled-permanent *));
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Design tokens — PRD §12.2. shadcn semantic vars are mapped onto the brand
-   palette (do NOT use shadcn defaults directly — PRD §12.3).
+   TAI Brand Design System — Warm, human, mission-driven visual identity
+   "Students Teaching Students" | "AI Education for Every Child"
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --radius: 0.875rem;
+  --radius: 1rem;
 
-  /* NIAT Multi-Tone Brand Kit Palette */
-  --brand: #881337;          /* Maroon Red Primary */
-  --brand-orange: #ffb218;   /* Gold / Amber Accent */
-  --brand-teal: #16a34a;     /* Emerald Badge Accent */
-  --brand-dark: #0a0b0e;     /* Deep Dark Onyx */
-  --brand-card: #131415;     /* Dark Surface Card */
+  /* TAI Brand Palette — Warm, Mission-Driven, Community-Oriented */
+  --brand-deep-maroon: #7A0E17;     /* Primary brand, hero moments */
+  --brand-maroon: #A81822;          /* Primary actions, active states */
+  --brand-orange: #F47A20;          /* Progress, energy, accent */
+  --brand-gold: #F6A500;            /* Highlights, achievement */
+  --brand-warm-gold: #E7B823;       /* Secondary accent */
+  
+  /* Warm Cream Surface System */
+  --cream-lightest: #FFF9F2;        /* Page background, breathable */
+  --cream-light: #F8F2E8;           /* Secondary background, elevated sections */
+  --cream-warm: #F5EBD9;            /* Subtle tint for cards */
+  --surface-elevated: #FFFFFF;      /* Primary cards, highest elevation */
+  
+  /* Warm Charcoal Text Hierarchy */
+  --text-primary: #2B1810;          /* Deep warm charcoal for body text */
+  --text-secondary: #5C4A3E;        /* Supporting text, captions */
+  --text-tertiary: #8B7461;         /* Muted text, placeholders */
+  
+  /* Semantic Colors (maintain accessibility) */
+  --success: #16a34a;               /* Keep semantic green */
+  --warning: #E7B823;               /* Warm gold for warnings */
+  --error: #991b1b;                 /* Semantic red for errors */
+  --info: #7A0E17;                  /* Deep maroon for info */
 
-  /* shadcn semantic mapped to NIAT multi-tone identity */
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #881337;
+  /* shadcn semantic mapping to TAI warm palette */
+  --background: var(--cream-lightest);
+  --foreground: var(--text-primary);
+  --card: var(--surface-elevated);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--brand-maroon);
   --primary-foreground: #ffffff;
-  --secondary: #fff1f2;
-  --secondary-foreground: #881337;
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
-  --accent: #fef3c7;
-  --accent-foreground: #881337;
-  --destructive: #991b1b;
+  --secondary: #FFF4E6;             /* Warm peach tint */
+  --secondary-foreground: var(--brand-deep-maroon);
+  --muted: var(--cream-light);
+  --muted-foreground: var(--text-secondary);
+  --accent: #FFF4E6;                /* Warm accent background */
+  --accent-foreground: var(--brand-deep-maroon);
+  --destructive: var(--error);
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #881337;
-  --placeholder: #94a3b8;
+  --border: #E8D7C3;                /* Warm border, subtle */
+  --input: #E8D7C3;
+  --ring: var(--brand-maroon);
+  --placeholder: var(--text-tertiary);
 
-  /* Semantic */
-  --success: #16a34a;
-  --warning: #ffb218;
-  --error: #991b1b;
-  --info: #881337;
+  /* Status badge colors (CRM + sessions) — warmer tones */
+  --status-lead: #8B7461;           /* Warm grey for leads */
+  --status-contacted: var(--brand-warm-gold);
+  --status-pending: var(--brand-orange);
+  --status-approved: var(--success);
+  --status-completed: var(--brand-gold);
+  --status-archived: #D4C4B0;       /* Warm archived */
 
-  /* Status badge colors (CRM + sessions) */
-  --status-lead: #94a3b8;
-  --status-contacted: #ffb218;
-  --status-pending: #881337;
-  --status-approved: #16a34a;
-  --status-completed: #e87811;
-  --status-archived: #e2e8f0;
-
-  --chart-1: #881337;
-  --chart-2: #ffb218;
-  --chart-3: #16a34a;
-  --chart-4: #e87811;
-  --chart-5: #be123c;
+  /* Chart colors — TAI brand palette */
+  --chart-1: var(--brand-deep-maroon);
+  --chart-2: var(--brand-orange);
+  --chart-3: var(--brand-gold);
+  --chart-4: var(--success);
+  --chart-5: var(--brand-warm-gold);
 }
 
 @theme inline {
-  --font-sans: var(--font-body), 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-display), 'Plus Jakarta Sans', ui-sans-serif, sans-serif;
-  /* System mono stack — see the note in app/layout.tsx for why the webfont went. */
+  --font-sans: var(--font-body), 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-body), 'Manrope', ui-sans-serif, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
   --color-background: var(--background);
@@ -86,10 +97,12 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Brand + semantic utilities (bg-brand, text-brand-teal, bg-success, …) */
-  --color-brand: var(--brand);
+  /* TAI Brand utilities */
+  --color-brand: var(--brand-maroon);
+  --color-brand-deep: var(--brand-deep-maroon);
   --color-brand-orange: var(--brand-orange);
-  --color-brand-teal: var(--brand-teal);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-warm-gold: var(--brand-warm-gold);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
@@ -108,11 +121,12 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 12px);
+  /* TAI Radius Scale: 8px controls → 24px hero panels */
+  --radius-sm: 0.5rem;        /* 8px — small controls, pills */
+  --radius-md: 0.625rem;      /* 10px — buttons, inputs */
+  --radius-lg: 1rem;          /* 16px — standard cards */
+  --radius-xl: 1.25rem;       /* 20px — feature cards */
+  --radius-2xl: 1.5rem;       /* 24px — hero panels, major sections */
 }
 
 @layer base {
@@ -124,10 +138,12 @@
     font-family: var(--font-sans);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'kern' 1, 'liga' 1;
   }
-  h1, h2, h3, h4, h5 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+    font-weight: 700;
   }
   html {
     scroll-behavior: smooth;
@@ -154,25 +170,39 @@
     @apply text-xs font-bold uppercase tracking-[0.18em];
   }
   .text-gradient-brand {
-    background: linear-gradient(120deg, #881337 0%, #be123c 45%, #ffb218 100%);
+    background: linear-gradient(135deg, #7A0E17 0%, #A81822 40%, #F47A20 80%, #F6A500 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .text-gradient-warm {
-    background: linear-gradient(120deg, #ffb218 0%, #e87811 50%, #881337 100%);
+    background: linear-gradient(120deg, #F6A500 0%, #F47A20 50%, #A81822 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+  .bg-gradient-brand {
+    background: linear-gradient(135deg, #7A0E17 0%, #A81822 50%, #F47A20 100%);
+  }
   .glass {
-    background: color-mix(in srgb, var(--card) 70%, transparent);
-    backdrop-filter: blur(12px) saturate(160%);
-    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    background: color-mix(in srgb, var(--surface-elevated) 85%, transparent);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+  }
+  .glass-warm {
+    background: color-mix(in srgb, var(--cream-light) 90%, transparent);
+    backdrop-filter: blur(12px) saturate(120%);
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
   }
   .dot-grid {
-    background-image: radial-gradient(circle, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px);
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--brand-maroon) 6%, transparent) 1px, transparent 1px);
     background-size: 24px 24px;
+  }
+  .neural-grid {
+    background-image: 
+      linear-gradient(90deg, color-mix(in srgb, var(--brand-maroon) 3%, transparent) 1px, transparent 1px),
+      linear-gradient(0deg, color-mix(in srgb, var(--brand-maroon) 3%, transparent) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 
   /* ── Decorative animation gate ──────────────────────────────────────────
@@ -210,10 +240,19 @@
     contain-intrinsic-size: auto 950px;
   }
   .shadow-soft {
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.12);
+    box-shadow: 
+      0 1px 2px rgba(122, 14, 23, 0.04),
+      0 8px 20px -10px rgba(122, 14, 23, 0.08);
   }
   .shadow-soft-lg {
-    box-shadow: 0 2px 4px rgba(16, 24, 40, 0.05), 0 24px 48px -20px rgba(16, 24, 40, 0.18);
+    box-shadow: 
+      0 2px 4px rgba(122, 14, 23, 0.05),
+      0 20px 40px -16px rgba(122, 14, 23, 0.12);
+  }
+  .shadow-warm {
+    box-shadow: 
+      0 2px 8px rgba(122, 14, 23, 0.06),
+      0 12px 32px -12px rgba(244, 122, 32, 0.10);
   }
 
   @keyframes fade-up {
@@ -250,8 +289,25 @@
     content: '';
     position: absolute; inset: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--foreground) 6%, transparent), transparent);
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--brand-gold) 8%, transparent), transparent);
     animation: shimmer 1.8s infinite;
+  }
+  
+  @keyframes progress-fill {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  .animate-progress {
+    transform-origin: left;
+    animation: progress-fill 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .animate-scale-in {
+    animation: scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   @keyframes float-slow {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
