@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import type { BlogItem } from '@/lib/data/blogs'
+import { ImageWithFallback } from '@/components/shared/image-with-fallback'
 
 const sanitizeImageUrl = (value: string): string => {
   const trimmed = value.trim()
@@ -275,9 +276,12 @@ export function BlogEditor({ blog }: { blog?: BlogItem }) {
           <div className="space-y-1.5">
             <Label htmlFor="cover_image_file">Cover Image</Label>
             {coverImage && (
-              <div className="relative aspect-video rounded-xl overflow-hidden bg-muted mb-2 border border-border">
-                <img src={sanitizeImageUrl(coverImage)} alt="Cover Preview" className="object-cover w-full h-full" />
-              </div>
+              <ImageWithFallback
+                src={sanitizeImageUrl(coverImage)}
+                alt="Cover Preview"
+                aspectRatio="16:9"
+                className="rounded-xl border border-border mb-2"
+              />
             )}
             <div className="flex gap-2">
               <Input
@@ -412,9 +416,12 @@ export function BlogEditor({ blog }: { blog?: BlogItem }) {
           ) : (
             <div className="border border-border/80 rounded-2xl p-6 md:p-8 bg-card/40 min-h-[400px] prose dark:prose-invert max-w-none shadow-soft">
               {coverImage && (
-                <div className="aspect-[21/9] w-full rounded-xl overflow-hidden mb-6 bg-muted shadow-soft">
-                  <img src={sanitizeImageUrl(coverImage)} alt="Cover Preview" className="object-cover w-full h-full" />
-                </div>
+                <ImageWithFallback
+                  src={sanitizeImageUrl(coverImage)}
+                  alt="Cover Preview"
+                  aspectRatio="21:9"
+                  className="rounded-xl overflow-hidden mb-6 border border-border shadow-soft"
+                />
               )}
               <div className="text-xs font-bold text-brand uppercase tracking-wider mb-2">{category}</div>
               <h1 className="font-display font-extrabold text-2.5xl text-foreground leading-tight">{title || 'Untitled Article'}</h1>

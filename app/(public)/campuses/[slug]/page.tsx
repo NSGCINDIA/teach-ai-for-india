@@ -21,6 +21,7 @@ import {
 import { SESSION_TYPE_META } from '@/lib/constants/sessions'
 import { roleLabel } from '@/lib/auth/roles'
 import { formatDate, formatNumber } from '@/lib/format'
+import { AvatarImage } from '@/components/shared/image-with-fallback'
 
 export const revalidate = 300
 
@@ -159,13 +160,11 @@ export default async function CampusDetailPage({ params }: { params: Promise<{ s
             <aside className="rounded-2xl border border-border bg-card p-6 shadow-soft">
               <h2 className="section-label text-muted-foreground">Campus lead</h2>
               <div className="mt-4 flex items-center gap-4">
-                <span className="relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-full bg-accent text-brand">
-                  {campus.lead_avatar_url ? (
-                    <Image src={campus.lead_avatar_url} alt={campus.lead_name ?? 'Campus lead'} fill sizes="56px" className="object-cover" />
-                  ) : (
-                    <UserRound className="size-7" aria-hidden />
-                  )}
-                </span>
+                <AvatarImage
+                  src={campus.lead_avatar_url}
+                  alt={campus.lead_name ?? 'Lead'}
+                  className="size-14 w-14 h-14 shrink-0"
+                />
                 <div>
                   <p className="font-display font-bold">{campus.lead_name ?? 'Lead role open'}</p>
                   <p className="text-sm text-muted-foreground">
@@ -254,13 +253,11 @@ export default async function CampusDetailPage({ params }: { params: Promise<{ s
               <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                 {team.map((m) => (
                   <li key={m.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-soft">
-                    <span className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-full bg-accent text-brand">
-                      {m.avatar_url ? (
-                        <Image src={m.avatar_url} alt="" fill sizes="44px" className="object-cover" />
-                      ) : (
-                        <UserRound className="size-5" aria-hidden />
-                      )}
-                    </span>
+                    <AvatarImage
+                      src={m.avatar_url}
+                      alt={m.full_name}
+                      className="size-11 w-11 h-11 shrink-0"
+                    />
                     <div className="min-w-0">
                       <p className="truncate font-medium">{m.full_name}</p>
                       <p className="truncate text-xs text-muted-foreground">{roleLabel(m.role)}</p>

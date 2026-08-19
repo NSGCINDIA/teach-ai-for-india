@@ -8,7 +8,7 @@ import {
   LayoutDashboard, CalendarDays, School, ClipboardCheck, Receipt, Images,
   Building2, Users, Wallet, FileBarChart, BarChart3, FileText, Settings,
   CalendarRange, UserRoundCheck, CalendarClock, Award, ClipboardList, UserCircle,
-  Megaphone, BookOpen,
+  Megaphone, BookOpen, ChevronRight,
   type LucideIcon,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -65,14 +65,14 @@ export function DashboardShell({ items, user, panelLabel, children }: DashboardS
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="min-h-dvh bg-muted/30">
+    <div className="min-h-dvh bg-background">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border bg-card lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border/50 bg-card lg:flex">
         <SidebarContent items={items} user={user} panelLabel={panelLabel} />
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 lg:hidden">
+      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border/50 bg-card px-4 py-3 lg:hidden shadow-sm">
         <div className="flex items-center gap-3">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -89,7 +89,7 @@ export function DashboardShell({ items, user, panelLabel, children }: DashboardS
             <BrandLogo size="md" />
           </Link>
         </div>
-        <span className="shrink-0 rounded-md bg-brand/10 text-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+        <span className="shrink-0 rounded-full bg-brand-orange/10 text-brand-orange px-3 py-1 text-[10px] font-bold uppercase tracking-wider border border-brand-orange/20">
           {panelLabel}
         </span>
       </header>
@@ -112,65 +112,84 @@ function SidebarContent({
   const pathname = usePathname()
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3.5">
+    <div className="flex h-full flex-col bg-gradient-to-b from-cream-light/30 to-background">
+      {/* Brand Header */}
+      <div className="flex items-center justify-between gap-2 border-b border-border/50 px-5 py-4 bg-card/50">
         <Link href="/" className="inline-flex items-center shrink-0">
           <BrandLogo size="sm" />
         </Link>
-        <span className="shrink-0 rounded-md bg-brand/10 text-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+        <span className="shrink-0 rounded-full bg-brand-orange/10 text-brand-orange px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider border border-brand-orange/20">
           {panelLabel}
         </span>
       </div>
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {items.map((item) => {
           const active = pathname === item.href
           const Icon = NAV_ICONS[item.icon]
+          
           if (item.soon) {
             return (
               <span
                 key={item.href}
-                className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground/60"
+                className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/50"
                 title="Coming soon"
               >
                 <Icon className="size-4" />
-                {item.label}
-                <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase">Soon</span>
+                <span className="flex-1">{item.label}</span>
+                <span className="rounded-md bg-muted px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide">Soon</span>
               </span>
             )
           }
+          
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                active ? 'bg-brand text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200 relative',
+                active 
+                  ? 'bg-brand text-primary-foreground shadow-sm' 
+                  : 'text-foreground hover:bg-cream-light hover:text-brand',
               )}
               aria-current={active ? 'page' : undefined}
             >
-              <Icon className="size-4" />
-              {item.label}
+              {/* Active indicator bar */}
+              {active && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-brand-orange rounded-r-full" />
+              )}
+              
+              <Icon className={cn(
+                "size-4 transition-colors",
+                active ? "text-brand-orange" : "text-muted-foreground group-hover:text-brand"
+              )} />
+              <span className="flex-1">{item.label}</span>
+              
+              {active && (
+                <ChevronRight className="size-4 text-brand-orange" />
+              )}
             </Link>
           )
         })}
       </nav>
 
-      <div className="border-t border-border p-3">
-        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-          <Avatar className="size-8">
+      {/* User Footer */}
+      <div className="border-t border-border/50 p-3 bg-card/50">
+        <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 mb-2">
+          <Avatar className="size-9 ring-2 ring-brand-orange/20">
             <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
-            <AvatarFallback>{user.full_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="bg-gradient-to-br from-brand-orange to-brand-gold text-white text-sm font-bold">
+              {user.full_name.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{user.full_name}</p>
-            <p className="truncate text-xs text-muted-foreground">{roleLabel(user.role)}</p>
+            <p className="truncate text-sm font-semibold text-foreground">{user.full_name}</p>
+            <p className="truncate text-xs text-muted-foreground font-medium">{roleLabel(user.role)}</p>
           </div>
         </div>
-        <div className="mt-1">
-          <SignOutButton />
-        </div>
+        <SignOutButton />
       </div>
     </div>
   )
