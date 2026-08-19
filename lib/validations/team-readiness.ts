@@ -10,8 +10,12 @@ export function validateSchoolTeamReadiness(
   teamMembers: SchoolTeamMemberRow[],
 ): GateResult {
   const reqCount = requiredVolunteers || 2
-  const confirmed = teamMembers.filter((m) => m.status === 'confirmed').length
-  const available = teamMembers.filter((m) => m.status === 'available' || m.status === 'confirmed').length
+  // 'completed' members were confirmed and served the whole program — a closed
+  // out school must not read as BLOCKED once its team is released.
+  const confirmed = teamMembers.filter((m) => m.status === 'confirmed' || m.status === 'completed').length
+  const available = teamMembers.filter(
+    (m) => m.status === 'available' || m.status === 'confirmed' || m.status === 'completed',
+  ).length
   const requested = teamMembers.length
   const unavailable = teamMembers.filter((m) => m.status === 'unavailable').length
 

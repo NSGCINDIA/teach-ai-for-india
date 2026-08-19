@@ -71,7 +71,9 @@ export function TeamPanel({
   const [replacementReason, setReplacementReason] = useState<string>('')
 
   const activeMembers = team.filter((m) => m.is_active)
-  const confirmedMembers = activeMembers.filter((m) => m.status === 'confirmed')
+  // A member flips 'confirmed' → 'completed' when the school program closes
+  // out; they are still a confirmed member of the delivered team.
+  const confirmedMembers = activeMembers.filter((m) => m.status === 'confirmed' || m.status === 'completed')
   const availableMembers = activeMembers.filter((m) => m.status === 'available')
   const requestedMembers = activeMembers.filter((m) => m.status === 'requested')
   const unavailableMembers = activeMembers.filter((m) => m.status === 'unavailable')

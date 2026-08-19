@@ -433,6 +433,10 @@ export interface Database {
         Args: { p_school_id: string; p_new_status: SchoolStatus; p_note?: string }
         Returns: undefined
       }
+      finalize_school_completion: {
+        Args: { p_school_id: string }
+        Returns: boolean
+      }
       find_similar_schools: {
         Args: { p_name: string; p_district: string; p_max_distance?: number }
         Returns: { id: string; name: string; district: string; campus_id: string | null; status: SchoolStatus; distance: number }[]

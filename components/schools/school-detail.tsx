@@ -73,7 +73,11 @@ export function SchoolDetailView({
   activityTimeline = [],
 }: SchoolDetailProps) {
   const isSessionsActiveOrDone = school.status === 'sessions_active' || school.status === 'completed'
-  const confirmedVolunteers = team.filter((t) => t.is_active && t.status === 'confirmed').length
+  // 'completed' is the post-program state of a confirmed member (set when the
+  // school closes out), so it still counts toward the confirmed team size.
+  const confirmedVolunteers = team.filter(
+    (t) => t.is_active && (t.status === 'confirmed' || t.status === 'completed'),
+  ).length
 
   return (
     <div className="space-y-6">
@@ -256,7 +260,7 @@ export function SchoolDetailView({
                   canVerify={canVerifySession}
                   schoolStatus={school.status}
                   operationalPhase={school.operational_phase ?? null}
-                  isExecPlanApproved={execPlan?.status === 'approved' || school.operational_phase === 'execution_ready' || (!!school.operational_phase && school.operational_phase.startsWith('session_'))}
+                  isExecPlanApproved={execPlan?.status === 'approved' || school.status === 'completed' || school.operational_phase === 'execution_ready' || (!!school.operational_phase && school.operational_phase.startsWith('session_'))}
                 />
               </CardContent>
             </Card>
@@ -397,6 +401,17 @@ function OperationalMissionCard({
     } else if (phase.endsWith('_submitted') || phase.endsWith('_report_required')) {
       owner = 'Campus Lead'
       nextAction = 'Review & Verify Session Delivery Report'
+    } else if (phase.endsWith('_verified')) {
+      // A verified session either unlocks the next one or closes the program
+      // out. Never fall through to the outreach default here.
+      const verifiedNumber = Number(phase.match(/^session_(\d)_verified$/)?.[1] ?? 0)
+      if (verifiedNumber > 0 && verifiedNumber < 4) {
+        owner = 'Execution Lead'
+        nextAction = `Schedule Session ${verifiedNumber + 1} Delivery`
+      } else {
+        owner = 'Campus Lead'
+        nextAction = 'All 4 Sessions Verified — Closing Out School Program'
+      }
     }
   } else if (school.status === 'completed') {
     owner = 'All Teams'
