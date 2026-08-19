@@ -404,9 +404,27 @@ export async function verifySessionDelivery(
 
   if (error) return { error: sanitizeDbError(error) }
 
+  // Close the school out once all 4 sessions are verified. The DB trigger does
+  // this too (0067); calling the RPC keeps the pipeline correct even on a
+  // database where the trigger never landed. No-op until the school qualifies.
+  let completed = false
+  if (session) {
+    const { data: didComplete } = await supabase.rpc('finalize_school_completion', {
+      p_school_id: session.school_id,
+    })
+    completed = didComplete === true
+  }
+
   revalidatePath(`/dashboard/sessions/${sessionId}`)
+  revalidatePath('/dashboard/sessions')
   if (session) {
     revalidatePath(`/dashboard/schools/${session.school_id}`)
+    revalidatePath('/dashboard/schools')
   }
-  return { ok: true, message: `Session ${session?.session_number ?? ''} verified!` }
+  return {
+    ok: true,
+    message: completed
+      ? `Session ${session?.session_number ?? ''} verified — all 4 sessions complete, school program closed out! 🎓`
+      : `Session ${session?.session_number ?? ''} verified!`,
+  }
 }
