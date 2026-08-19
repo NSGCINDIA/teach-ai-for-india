@@ -19,6 +19,27 @@ export type SessionDeliveryActionState = {
   id?: string
 }
 
+/** Roles that run the Session Hub for a school (schedule + report delivery). */
+const SESSION_MANAGER_ROLES = ['campus_lead', 'exec_lead', 'outreach_lead'] as const
+
+/** File names used for the two auto-recorded Google Drive evidence links. */
+const PHOTO_EVIDENCE_NAME = 'Session Photo (Google Drive)'
+const DOCUMENT_EVIDENCE_NAME = 'Attendance/Report Document (Google Drive)'
+
+/** Mirrors the sessions RLS write policy: Super Admin, or a campus-scoped lead. */
+function canManageSessions(
+  role: string,
+  userCampusId: string | null,
+  schoolCampusId: string | null,
+): boolean {
+  if (['super_admin', 'mgmt_admin'].includes(role)) return true
+  return (
+    (SESSION_MANAGER_ROLES as readonly string[]).includes(role) &&
+    !!userCampusId &&
+    userCampusId === schoolCampusId
+  )
+}
+
 /** Create/schedule a session delivery plan (Session 1–4). */
 export async function createSessionDeliveryPlan(
   _prev: SessionDeliveryActionState,
@@ -50,11 +71,8 @@ export async function createSessionDeliveryPlan(
 
   if (!school) return { error: 'School not found' }
 
-  // Explicit permission check: Super/Mgmt Admin OR Campus/Exec Lead for this school's campus
-  const isSuperOrMgmt = ['super_admin', 'mgmt_admin'].includes(user.role)
-  const isCampusLeadOrExec = ['campus_lead', 'exec_lead'].includes(user.role) && !!user.campus_id && user.campus_id === school.campus_id
-
-  if (!isSuperOrMgmt && !isCampusLeadOrExec) {
+  // Explicit permission check — mirrors the sessions RLS write policy.
+  if (!canManageSessions(user.role, user.campus_id, school.campus_id)) {
     return { error: 'You do not have permission to schedule session plans for this school.' }
   }
 
@@ -122,7 +140,9 @@ export async function createSessionDeliveryPlan(
       participated: false,
     }))
 
-    await supabase.from('session_participants').insert(participants)
+    await supabase
+      .from('session_participants')
+      .upsert(participants, { onConflict: 'session_id,volunteer_id' })
   }
 
   // Update school operational phase to session_N_ready
@@ -174,15 +194,49 @@ export async function submitSessionDeliveryReport(
     .eq('id', d.session_id)
     .single()
 
-  // Auto-record Google Drive evidence links if provided in the report form
-  if (d.photo_url) {
-    if (!d.photo_url.startsWith('http://') && !d.photo_url.startsWith('https://')) {
-      return { error: 'Please enter a valid HTTP/HTTPS link for the Session Photo Drive link.' }
+  if (!curSess) return { error: 'Session not found, or you do not have access to it.' }
+
+  if (!canManageSessions(user.role, user.campus_id, curSess.campus_id)) {
+    return { error: 'You do not have permission to submit a delivery report for this session.' }
+  }
+
+  /**
+   * Record a Google Drive evidence link against the session. Re-submitting the
+   * report (or retrying after a failure) must not pile up duplicate rows, so an
+   * existing auto-recorded link of the same kind is updated in place.
+   */
+  async function saveEvidenceLink(
+    url: string,
+    fileType: 'photo' | 'document',
+    fileName: string,
+    label: string,
+  ): Promise<string | null> {
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return `Please enter a valid HTTP/HTTPS link for the ${label}.`
     }
-    await supabase.from('media_assets').insert({
-      external_url: d.photo_url,
-      file_name: 'Session Photo (Google Drive)',
-      file_type: 'photo',
+
+    const { data: existing } = await supabase
+      .from('media_assets')
+      .select('id')
+      .eq('session_id', d.session_id)
+      .eq('file_type', fileType)
+      .eq('file_name', fileName)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+
+    if (existing && existing.length > 0) {
+      const { error: updErr } = await supabase
+        .from('media_assets')
+        .update({ external_url: url })
+        .eq('id', existing[0].id)
+      return updErr ? sanitizeDbError(updErr) : null
+    }
+
+    const { error: insErr } = await supabase.from('media_assets').insert({
+      external_url: url,
+      file_name: fileName,
+      file_type: fileType,
       entity_type: 'session',
       entity_id: d.session_id,
       session_id: d.session_id,
@@ -190,33 +244,35 @@ export async function submitSessionDeliveryReport(
       campus_id: curSess?.campus_id || user.campus_id || null,
       uploaded_by: user.id,
     })
+    return insErr ? sanitizeDbError(insErr) : null
+  }
+
+  // Auto-record Google Drive evidence links if provided in the report form
+  if (d.photo_url) {
+    const err = await saveEvidenceLink(d.photo_url, 'photo', PHOTO_EVIDENCE_NAME, 'Session Photo Drive link')
+    if (err) return { error: err }
   }
 
   if (d.document_url) {
-    if (!d.document_url.startsWith('http://') && !d.document_url.startsWith('https://')) {
-      return { error: 'Please enter a valid HTTP/HTTPS link for the Attendance/Report Google Doc link.' }
-    }
-    await supabase.from('media_assets').insert({
-      external_url: d.document_url,
-      file_name: 'Attendance/Report Document (Google Drive)',
-      file_type: 'document',
-      entity_type: 'session',
-      entity_id: d.session_id,
-      session_id: d.session_id,
-      school_id: curSess?.school_id || null,
-      campus_id: curSess?.campus_id || user.campus_id || null,
-      uploaded_by: user.id,
-    })
+    const err = await saveEvidenceLink(
+      d.document_url,
+      'document',
+      DOCUMENT_EVIDENCE_NAME,
+      'Attendance/Report Google Doc link',
+    )
+    if (err) return { error: err }
   }
 
-  // Verify evidence gate: check that at least 1 photo and 1 document media asset exist
+  // Verify evidence gate: check that at least 1 photo and 1 document media asset
+  // exist. Mirrors the same gate in enforce_session_transition() so the user
+  // gets a form-level message instead of a database exception.
   const { data: media } = await supabase
     .from('media_assets')
     .select('file_type')
     .eq('session_id', d.session_id)
     .is('deleted_at', null)
 
-  const photoCount = (media ?? []).filter((m) => m.file_type === 'photo' || m.file_type.includes('photo')).length
+  const photoCount = (media ?? []).filter((m) => m.file_type.includes('photo')).length
   const docCount = (media ?? []).filter((m) => m.file_type === 'document' || m.file_type === 'letter').length
 
   if (photoCount < 1 || docCount < 1) {
@@ -253,20 +309,29 @@ export async function submitSessionDeliveryReport(
 
   if (error) return { error: sanitizeDbError(error) }
 
-  // Record participation flags
-  if (d.participant_ids && d.participant_ids.length > 0) {
-    // Reset all for this session to false first
-    await supabase
-      .from('session_participants')
-      .update({ participated: false, marked_by: user.id })
-      .eq('session_id', d.session_id)
+  // Record participation flags. Upserted from the school's active team so the
+  // rows exist even when the session predates session_participants being
+  // populated at scheduling time.
+  if (session) {
+    const selected = new Set(d.participant_ids ?? [])
+    const { data: teamMembers } = await supabase
+      .from('school_team_members')
+      .select('id, volunteer_id')
+      .eq('school_id', session.school_id)
+      .eq('is_active', true)
 
-    // Set selected to true
-    await supabase
-      .from('session_participants')
-      .update({ participated: true, marked_by: user.id })
-      .eq('session_id', d.session_id)
-      .in('volunteer_id', d.participant_ids)
+    if (teamMembers && teamMembers.length > 0) {
+      await supabase.from('session_participants').upsert(
+        teamMembers.map((m) => ({
+          session_id: d.session_id,
+          school_team_member_id: m.id,
+          volunteer_id: m.volunteer_id,
+          participated: selected.has(m.volunteer_id),
+          marked_by: user.id,
+        })),
+        { onConflict: 'session_id,volunteer_id' },
+      )
+    }
   }
 
   // Update school operational phase
@@ -296,6 +361,34 @@ export async function verifySessionDelivery(
   if (!sessionId) return { error: 'Session ID is required' }
 
   const supabase = await createClient()
+
+  const { data: curSess } = await supabase
+    .from('sessions')
+    .select('status, campus_id')
+    .eq('id', sessionId)
+    .single()
+
+  if (!curSess) return { error: 'Session not found, or you do not have access to it.' }
+
+  if (user.role !== 'super_admin' && (!user.campus_id || user.campus_id !== curSess.campus_id)) {
+    return { error: 'You can only verify sessions for your own campus.' }
+  }
+
+  if (curSess.status !== 'reported' && curSess.status !== 'campus_approved') {
+    return { error: 'Only a session with a submitted delivery report can be verified.' }
+  }
+
+  // The delivery lifecycle is reported → campus_approved → verified (enforced by
+  // enforce_session_transition). The Session Hub exposes this as a single
+  // "Verify" action, so record the campus approval leg first.
+  if (curSess.status === 'reported') {
+    const { error: approveErr } = await supabase
+      .from('sessions')
+      .update({ status: 'campus_approved', reviewed_by: user.id, reviewed_at: new Date().toISOString() })
+      .eq('id', sessionId)
+
+    if (approveErr) return { error: sanitizeDbError(approveErr) }
+  }
 
   // Update session to verified
   const { data: session, error } = await supabase

@@ -62,8 +62,22 @@ export function sanitizeDbError(error: unknown, fallbackMessage?: string): strin
   if (/Only Campus Lead or above may cancel/i.test(message)) {
     return 'Only a Campus Lead or above may cancel a session.'
   }
+  if (/at least 1 photo and 1 attendance/i.test(message)) {
+    return 'Add a Session Photo link and an Attendance/Report document link before submitting the report.'
+  }
 
-  // 6. Strip raw SQL schema indicators (table, column, relation names)
+  // 6. Internal PostgreSQL faults (type/operator/function mismatches) — never
+  // surface the raw text; it is a bug report, not something the user can act on.
+  if (
+    /operator does not exist/i.test(message) ||
+    /function .* does not exist/i.test(message) ||
+    /invalid input value for enum/i.test(message) ||
+    /syntax error at or near/i.test(message)
+  ) {
+    return fallbackMessage || 'Something went wrong while saving. Please try again, or contact your Campus Lead if it keeps happening.'
+  }
+
+  // 7. Strip raw SQL schema indicators (table, column, relation names)
   if (/table ".*"/i.test(message) || /column ".*"/i.test(message) || /relation ".*"/i.test(message)) {
     return fallbackMessage || 'Action could not be completed due to database policy constraints.'
   }

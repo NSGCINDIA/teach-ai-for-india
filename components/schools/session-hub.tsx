@@ -95,7 +95,7 @@ export function SessionHub({
         {[1, 2, 3, 4].map((num) => {
           const sess = sessionMap.get(num)
           const isVerified = sess?.status === 'verified'
-          const isReported = sess?.status === 'reported'
+          const isReported = sess?.status === 'reported' || sess?.status === 'campus_approved'
           const isPlanned = sess?.status === 'planned' || sess?.status === 'in_progress'
           const isUnlocked = isPlanCompleted && num <= nextSchedulableNum
           const isSelected = activeSessionNum === num
@@ -163,7 +163,7 @@ export function SessionHub({
               className={
                 selectedSession.status === 'verified'
                   ? 'border-success/30 bg-success/10 text-success'
-                  : selectedSession.status === 'reported'
+                  : selectedSession.status === 'reported' || selectedSession.status === 'campus_approved'
                     ? 'border-warning/30 bg-warning/10 text-warning'
                     : 'border-brand/30 bg-brand/10 text-brand'
               }
@@ -190,7 +190,9 @@ export function SessionHub({
             </div>
 
             {/* Delivery Stats if reported/verified */}
-            {(selectedSession.status === 'reported' || selectedSession.status === 'verified') && (
+            {(selectedSession.status === 'reported' ||
+              selectedSession.status === 'campus_approved' ||
+              selectedSession.status === 'verified') && (
               <div className="grid grid-cols-2 gap-3 rounded-lg bg-muted/20 p-3 text-xs">
                 <div>
                   <span className="text-muted-foreground">Students Reached:</span>{' '}
@@ -221,7 +223,8 @@ export function SessionHub({
               )}
 
               {/* Verify Action (Campus Lead) */}
-              {canVerify && selectedSession.status === 'reported' && (
+              {canVerify &&
+                (selectedSession.status === 'reported' || selectedSession.status === 'campus_approved') && (
                 <form action={verifyAction} className="inline">
                   <input type="hidden" name="session_id" value={selectedSession.id} />
                   <Button type="submit" size="sm" disabled={verifyPending} className="bg-success text-white">
@@ -343,6 +346,7 @@ export function SessionHub({
                           id="photo_url"
                           name="photo_url"
                           type="url"
+                          required
                           placeholder="https://drive.google.com/drive/folders/... or photo link"
                           className="mt-1 text-xs"
                         />
@@ -356,6 +360,7 @@ export function SessionHub({
                           id="document_url"
                           name="document_url"
                           type="url"
+                          required
                           placeholder="https://docs.google.com/document/d/..."
                           className="mt-1 text-xs"
                         />
