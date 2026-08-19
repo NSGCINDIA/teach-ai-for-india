@@ -221,4 +221,13 @@ BEGIN
   RAISE NOTICE '0067: completed % school(s) stranded at sessions_active', v_fixed;
 END $$;
 
+-- A completed school has no operational phase. Schools closed out by a manual
+-- Super Admin override kept their last session phase; normalise them so the
+-- Execution Workflow card and the mission banner read consistently.
+UPDATE schools
+   SET operational_phase = NULL,
+       updated_at = now()
+ WHERE status = 'completed'
+   AND operational_phase IS NOT NULL;
+
 COMMIT;
