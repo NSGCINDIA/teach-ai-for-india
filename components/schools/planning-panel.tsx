@@ -424,8 +424,13 @@ function PlanForm({
       <input type="hidden" name="session_type" value="awareness" />
 
       <Section title="Documents">
-        <Field label="Approval letter (storage path)" full>
-          <Input name="approval_letter_path" defaultValue={fieldValue(state, 'approval_letter_path', plan?.approval_letter_path ?? '')} placeholder="Paste the uploaded letter path (optional)" />
+        <Field label="Approval letter (storage path)" required full>
+          <Input
+            name="approval_letter_path"
+            required
+            defaultValue={fieldValue(state, 'approval_letter_path', plan?.approval_letter_path ?? '')}
+            placeholder="Paste the uploaded letter path"
+          />
         </Field>
       </Section>
 
@@ -457,10 +462,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-function Field({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
+function Field({ label, children, full, required }: { label: string; children: React.ReactNode; full?: boolean; required?: boolean }) {
   return (
     <div className={`space-y-1.5 ${full ? 'col-span-2' : ''}`}>
-      <Label>{label}</Label>
+      <Label>
+        {label}
+        {required && <span className="text-error"> *</span>}
+      </Label>
       {children}
     </div>
   )

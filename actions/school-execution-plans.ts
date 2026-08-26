@@ -46,7 +46,11 @@ export async function submitSchoolExecutionPlan(
     p_transport_mode: d.transport_mode ?? null,
     p_estimated_travel_cost: d.estimated_travel_cost ?? 0,
     p_meeting_departure_notes: d.meeting_departure_notes ?? null,
-    p_transport_budget: d.transport_budget || d.estimated_travel_cost || 0,
+    // Send exactly what was allocated. The old `|| d.estimated_travel_cost`
+    // fallback silently rewrote a deliberate ₹0 transport budget into the travel
+    // estimate, so reviewers approved a figure the submitter never entered. The
+    // zod schema already defaults this to 0 — there is nothing to fall back to.
+    p_transport_budget: d.transport_budget,
     p_materials_budget: d.materials_budget ?? 0,
     p_equipment_budget: d.equipment_budget ?? 0,
     p_other_budget: d.other_budget ?? 0,
@@ -227,7 +231,11 @@ export async function resubmitSchoolExecutionPlan(
     p_transport_mode: d.transport_mode ?? null,
     p_estimated_travel_cost: d.estimated_travel_cost ?? 0,
     p_meeting_departure_notes: d.meeting_departure_notes ?? null,
-    p_transport_budget: d.transport_budget || d.estimated_travel_cost || 0,
+    // Send exactly what was allocated. The old `|| d.estimated_travel_cost`
+    // fallback silently rewrote a deliberate ₹0 transport budget into the travel
+    // estimate, so reviewers approved a figure the submitter never entered. The
+    // zod schema already defaults this to 0 — there is nothing to fall back to.
+    p_transport_budget: d.transport_budget,
     p_materials_budget: d.materials_budget ?? 0,
     p_equipment_budget: d.equipment_budget ?? 0,
     p_other_budget: d.other_budget ?? 0,

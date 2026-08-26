@@ -85,7 +85,14 @@ export const sessionPlanSchema = z.object({
   backup_date: date,
   start_time: time,
   end_time: time,
-  approval_letter_path: z.string().trim().max(500).optional().or(z.literal('')),
+  // Mandatory for the Outreach Lead filling in onboarding: the letter is what
+  // the Campus Lead verifies at approval, and 0059 rejects approval without it.
+  // Requiring it here surfaces the problem at entry instead of at approval.
+  approval_letter_path: z
+    .string()
+    .trim()
+    .min(1, 'Approval letter is required — paste the uploaded letter path')
+    .max(500),
   logistics_notes: z.string().trim().max(2000).optional().or(z.literal('')),
 })
 

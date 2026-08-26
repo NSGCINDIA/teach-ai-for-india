@@ -135,14 +135,20 @@ export function ExecutionPlanPanel({
 
   const StatusIcon = statusMeta.icon
 
-  const totalBudget = plan ? (
-    plan.total_budget ?? (
-      (plan.transport_budget ?? 0) +
-      (plan.materials_budget ?? 0) +
-      (plan.equipment_budget ?? 0) +
-      (plan.other_budget ?? 0)
-    )
-  ) : 0
+  // Number() everywhere: PostgREST can return numerics as strings, and `a + b`
+  // on strings concatenates instead of adding. Recomputed from the four lines
+  // rather than trusting total_budget, so the total always matches the
+  // breakdown shown beside it.
+  const budgetLines = plan
+    ? [
+        { label: 'Transport', value: Number(plan.transport_budget ?? 0) },
+        { label: 'Materials', value: Number(plan.materials_budget ?? 0) },
+        { label: 'Equipment', value: Number(plan.equipment_budget ?? 0) },
+        { label: 'Other', value: Number(plan.other_budget ?? 0) },
+      ]
+    : []
+  const totalBudget = budgetLines.reduce((sum, line) => sum + line.value, 0)
+  const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`
 
   return (
     <div className="space-y-6">
@@ -240,8 +246,34 @@ export function ExecutionPlanPanel({
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>Distance: <strong className="font-medium">{plan.distance_km ?? '—'} km</strong></div>
                 <div>Mode: <strong className="font-medium">{plan.transport_mode ?? '—'}</strong></div>
-                <div className="col-span-2">Estimated Travel Cost: <strong className="font-medium">₹{plan.estimated_travel_cost}</strong></div>
+                <div className="col-span-2">Estimated Travel Cost: <strong className="font-medium">{inr(Number(plan.estimated_travel_cost ?? 0))}</strong></div>
               </div>
+            </div>
+
+            {/* Budget the reviewers act on: the total they approve AND every
+                category it is made of. Showing only the total was what made a
+                part-filled allocation look like a transport-only figure. */}
+            <div className="rounded-lg border border-border p-3 space-y-2 bg-card sm:col-span-2">
+              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <DollarSign className="size-3.5 text-brand" /> Budget Allocation
+              </h5>
+              <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                {budgetLines.map((line) => (
+                  <div key={line.label}>
+                    {line.label}: <strong className="font-medium">{inr(line.value)}</strong>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-between border-t border-border/50 pt-2 text-xs">
+                <span className="font-semibold text-foreground">Total Budget Requested</span>
+                <strong className="text-sm text-brand">{inr(totalBudget)}</strong>
+              </div>
+              {Number(plan.transport_budget ?? 0) < Number(plan.estimated_travel_cost ?? 0) && (
+                <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                  Transport budget is below the {inr(Number(plan.estimated_travel_cost ?? 0))} travel
+                  estimate — confirm this is intended before approving.
+                </p>
+              )}
             </div>
           </div>
 
@@ -336,7 +368,7 @@ export function ExecutionPlanPanel({
                 <DollarSign className="size-4" /> Finance Lead Budget Review
               </h4>
               <p className="text-xs text-muted-foreground">
-                Total Budget Requested: <strong>₹{totalBudget.toLocaleString('en-IN')}</strong>
+                Total Budget Requested: <strong>{inr(totalBudget)}</strong>
               </p>
               {finState.ok ? (
                 <div className="bg-success/10 border border-success/30 rounded-lg p-3">
@@ -373,7 +405,7 @@ export function ExecutionPlanPanel({
                       className="bg-brand text-white"
                     >
                       {finPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <CheckCircle2 className="size-3.5 mr-1" />}
-                      Approve Budget (₹{totalBudget.toLocaleString('en-IN')})
+                      Approve Budget ({inr(totalBudget)})
                     </Button>
                     <Button
                       type="submit"
