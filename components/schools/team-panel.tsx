@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import {
   Users,
   UserPlus,
@@ -29,6 +29,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 
 import { validateSchoolTeamReadiness } from '@/lib/validations/team-readiness'
+import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface TeamPanelProps {
   schoolId: string
@@ -68,6 +69,24 @@ export function TeamPanel({
   const [reqVolCount, setReqVolCount] = useState<number>(requiredVolunteers || 2)
   const [replacingMemberId, setReplacingMemberId] = useState<string | null>(null)
   const [replacementVolunteerId, setReplacementVolunteerId] = useState<string>('')
+
+  const reqFormRef = useRef<HTMLFormElement>(null)
+  const countFormRef = useRef<HTMLFormElement>(null)
+  const repFormRef = useRef<HTMLFormElement>(null)
+
+  useFormSuccess(reqState, {
+    formRef: reqFormRef,
+    onSuccess: () => setSelectedVolunteers([]),
+  })
+  useFormSuccess(countState, { formRef: countFormRef })
+  useFormSuccess(confState)
+  useFormSuccess(repState, {
+    formRef: repFormRef,
+    onSuccess: () => {
+      setReplacingMemberId(null)
+      setReplacementVolunteerId('')
+    },
+  })
   const [replacementReason, setReplacementReason] = useState<string>('')
 
   const activeMembers = team.filter((m) => m.is_active)
@@ -239,7 +258,7 @@ export function TeamPanel({
                       <p className="text-xs font-semibold">
                         Replace {m.volunteer?.full_name} with another volunteer:
                       </p>
-                      <form action={repAction} className="space-y-3">
+                      <form ref={repFormRef} action={repAction} className="space-y-3">
                         <input type="hidden" name="member_id" value={m.id} />
 
                         <div>
@@ -342,7 +361,7 @@ export function TeamPanel({
               least one volunteer is also ticked — so the count could not be
               corrected by itself, and could not be corrected at all once every
               campus volunteer had already been requested. */}
-          <form action={countAction} className="flex flex-wrap items-end gap-2">
+          <form ref={countFormRef} action={countAction} className="flex flex-wrap items-end gap-2">
             <input type="hidden" name="school_id" value={schoolId} />
             <div className="w-40">
               <Label htmlFor="required_volunteers" className="text-xs font-medium">
@@ -370,7 +389,7 @@ export function TeamPanel({
             <p role="status" className="text-xs text-success">{countState.message}</p>
           )}
 
-          <form action={reqAction} className="space-y-4">
+          <form ref={reqFormRef} action={reqAction} className="space-y-4">
             <input type="hidden" name="school_id" value={schoolId} />
             {/* Still sent so requesting availability keeps honouring whatever the
                 box currently shows, even if "Save count" was not pressed. */}

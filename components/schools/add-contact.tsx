@@ -1,16 +1,19 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import { AlertCircle, Loader2, Plus } from 'lucide-react'
 import { addSchoolContact, type SchoolActionState } from '@/actions/schools'
 import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useFormSuccess } from '@/hooks/use-form-success'
 
 export function AddContact({ schoolId }: { schoolId: string }) {
   const [open, setOpen] = useState(false)
   const [state, action, pending] = useActionState<SchoolActionState, FormData>(addSchoolContact, {})
+  const formRef = useRef<HTMLFormElement>(null)
+  useFormSuccess(state, { formRef })
 
   if (state.ok && open) setOpen(false)
 
@@ -23,7 +26,7 @@ export function AddContact({ schoolId }: { schoolId: string }) {
   }
 
   return (
-    <form action={action} className="space-y-3 rounded-lg border border-border p-3">
+    <form ref={formRef} action={action} className="space-y-3 rounded-lg border border-border p-3">
       <input type="hidden" name="school_id" value={schoolId} />
       {state.error && (
         <p role="alert" className="flex items-center gap-2 rounded bg-error/10 px-2 py-1.5 text-xs text-error">

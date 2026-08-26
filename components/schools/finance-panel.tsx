@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import {
   DollarSign,
   TrendingDown,
@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface FinancePanelProps {
   schoolId: string
@@ -41,6 +42,10 @@ export function FinancePanel({ schoolId, finance, canManageFinance }: FinancePan
   )
 
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const recFormRef = useRef<HTMLFormElement>(null)
+
+  useFormSuccess(recState, { formRef: recFormRef, onSuccess: () => setIsFormOpen(false) })
+  useFormSuccess(verState)
 
   const statusStyle = {
     NO_PLAN: 'border-border text-muted-foreground',
@@ -129,7 +134,7 @@ export function FinancePanel({ schoolId, finance, canManageFinance }: FinancePan
             <Receipt className="size-4 text-brand" /> Record Operational Expense
           </h4>
 
-          <form action={recAction} className="space-y-4">
+          <form ref={recFormRef} action={recAction} className="space-y-4">
             <input type="hidden" name="school_id" value={schoolId} />
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">

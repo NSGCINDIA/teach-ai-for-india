@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import {
   Wrench,
   Laptop,
@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui/badge'
 
 import { validateSchoolExecutionReadiness } from '@/lib/validations/execution-readiness'
 import { resubmitSchoolExecutionPlan } from '@/actions/school-execution-plans'
+import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface ExecutionPlanPanelProps {
   schoolId: string
@@ -64,6 +65,10 @@ export function ExecutionPlanPanel({
     {},
   )
 
+  const submitFormRef = useRef<HTMLFormElement>(null)
+  const campusFormRef = useRef<HTMLFormElement>(null)
+  const financeFormRef = useRef<HTMLFormElement>(null)
+
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [campusComments, setCampusComments] = useState('')
   const [financeComments, setFinanceComments] = useState('')
@@ -97,6 +102,18 @@ export function ExecutionPlanPanel({
 
   const transportShortfall =
     Number(transportBudget || 0) < Number(travelCost || 0)
+
+  // Success toast + clear the form. The submit form also closes: once the plan
+  // moves to 'submitted' the panel renders the read-only summary instead.
+  useFormSuccess(subState, {
+    formRef: submitFormRef,
+    onSuccess: () => {
+      setIsFormOpen(false)
+      setTransportEdited(false)
+    },
+  })
+  useFormSuccess(campState, { formRef: campusFormRef, onSuccess: () => setCampusComments('') })
+  useFormSuccess(finState, { formRef: financeFormRef, onSuccess: () => setFinanceComments('') })
 
   const isTeamReady = teamConfirmed || (!!operationalPhase && operationalPhase !== 'team_preparation')
 
@@ -266,7 +283,7 @@ export function ExecutionPlanPanel({
                   </p>
                 </div>
               ) : (
-                <form action={campAction} className="space-y-3">
+                <form ref={campusFormRef} action={campAction} className="space-y-3">
                   <input type="hidden" name="plan_id" value={plan.id} />
                   <div>
                     <Label htmlFor="campus_comments" className="text-xs">
@@ -329,7 +346,7 @@ export function ExecutionPlanPanel({
                   </p>
                 </div>
               ) : (
-                <form action={finAction} className="space-y-3">
+                <form ref={financeFormRef} action={finAction} className="space-y-3">
                   <input type="hidden" name="plan_id" value={plan.id} />
                   <div>
                     <Label htmlFor="finance_comments" className="text-xs">
@@ -414,7 +431,7 @@ export function ExecutionPlanPanel({
             <Send className="size-4 text-brand" /> Submit School Execution Plan
           </h4>
 
-          <form action={subAction} className="space-y-4">
+          <form ref={submitFormRef} action={subAction} className="space-y-4">
             <input type="hidden" name="school_id" value={schoolId} />
             {/* Required by resubmitSchoolExecutionPlan when the plan is in a
                 *_changes_requested state — without it the action posts an empty

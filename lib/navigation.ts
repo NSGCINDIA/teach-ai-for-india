@@ -32,7 +32,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   campus_lead: [
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
-    { label: 'Sessions', href: '/dashboard/sessions', icon: 'sessions' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers' },
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
     { label: 'Finance Analysis', href: '/dashboard/reimbursements', icon: 'finance' },
@@ -63,7 +62,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   exec_lead: [
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
-    { label: "Today's Sessions", href: '/dashboard/sessions', icon: 'sessions' },
     { label: 'Reports', href: '/dashboard/reports', icon: 'reports' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar' },
     { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence' },
@@ -71,7 +69,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   ],
   volunteer: [
     OVERVIEW,
-    { label: 'My Sessions', href: '/dashboard/sessions', icon: 'sessions' },
     { label: 'My Assignments', href: '/dashboard/assignments', icon: 'assignments' },
     { label: 'Availability', href: '/dashboard/availability', icon: 'availability' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
@@ -84,7 +81,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     OVERVIEW,
     { label: 'Admin Panel', href: '/admin', icon: 'settings' },
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools' },
-    { label: 'Sessions', href: '/dashboard/sessions', icon: 'sessions' },
     { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance' },
@@ -117,7 +113,6 @@ const ADMIN_NAV: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: 'overview' },
   { label: 'Campuses', href: '/admin/campuses', icon: 'campuses' },
   { label: 'Schools', href: '/admin/schools', icon: 'schools' },
-  { label: 'Sessions', href: '/admin/sessions', icon: 'sessions' },
   { label: 'Volunteers', href: '/admin/volunteers', icon: 'volunteers' },
   { label: 'Finance', href: '/admin/finance', icon: 'finance' },
   { label: 'Evidence', href: '/admin/evidence', icon: 'evidence' },

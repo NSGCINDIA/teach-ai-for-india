@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import { CheckCircle2, Loader2, AlertCircle, Pencil, Eye, ShieldCheck } from 'lucide-react'
 import { approvePlan, savePlan, type PlanActionState } from '@/actions/plans'
 import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
@@ -18,6 +18,8 @@ const SESSION_TYPES = Object.entries(SESSION_TYPE_META) as [SessionType, { label
 
 import { validateSchoolOnboardingReadiness } from '@/lib/validations/readiness-gate'
 import { Badge } from '@/components/ui/badge'
+import { useFormSuccess } from '@/hooks/use-form-success'
+import { toast } from 'sonner'
 
 interface PlanningPanelProps {
   schoolId: string
@@ -233,6 +235,7 @@ function PlanForm({
   schoolId, plan, schoolStatus,
 }: { schoolId: string; plan: SessionPlanRow | null; schoolStatus: SchoolStatus }) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(savePlan, {})
+  useFormSuccess(state)
 
   // Classes Covered state (Class 6..10)
   const defaultClasses = plan?.classes_covered && Array.isArray(plan.classes_covered) ? plan.classes_covered : []
@@ -613,9 +616,11 @@ function InfraBadge({ label, available }: { label: string; available?: boolean }
 
 function ApproveForm({ schoolId, planId, isReady = true }: { schoolId: string; planId: string; isReady?: boolean }) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(approvePlan, {})
+  const formRef = useRef<HTMLFormElement>(null)
+  useFormSuccess(state, { formRef })
 
   return (
-    <form action={action} className="space-y-2">
+    <form ref={formRef} action={action} className="space-y-2">
       <input type="hidden" name="school_id" value={schoolId} />
       <input type="hidden" name="plan_id" value={planId} />
 
@@ -654,7 +659,11 @@ function InitiateOnboardingBtn({ schoolId }: { schoolId: string }) {
     const { initiateSchoolOnboarding } = await import('@/actions/schools')
     const res = await initiateSchoolOnboarding(schoolId)
     setPending(false)
-    if (res.error) setError(res.error)
+    if (res.error) {
+      setError(res.error)
+      return
+    }
+    toast.success(res.message ?? 'School onboarding initiated successfully')
   }
 
   return (

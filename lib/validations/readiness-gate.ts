@@ -29,12 +29,6 @@ export function validateSchoolOnboardingReadiness(
 ): GateResult {
   const items: ReadinessItem[] = [
     {
-      key: 'dise_code',
-      label: 'DISE Code',
-      satisfied: !!school.dise_code && school.dise_code.trim().length > 0,
-      description: 'Official DISE code recorded for school',
-    },
-    {
       key: 'campus',
       label: 'Assigned Campus',
       satisfied: !!school.campus_id,

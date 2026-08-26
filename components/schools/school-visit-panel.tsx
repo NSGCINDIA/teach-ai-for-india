@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useRef, useEffect, useState } from 'react'
 import { AlertCircle, Loader2, Pencil, Send } from 'lucide-react'
 import { logSchoolVisit, updateSchoolVisit, type SchoolVisitActionState } from '@/actions/school-visits'
 import { fieldValue } from '@/lib/actions/form-values'
@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea'
 
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import type { SchoolVisitListItem } from '@/lib/data/school-visits'
+import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface SchoolVisitPanelProps {
   schoolId: string
@@ -162,10 +163,12 @@ function VisitRecord({
 
 function VisitForm({ schoolId, roster }: { schoolId: string; roster: TeamMember[] }) {
   const [state, action, pending] = useActionState<SchoolVisitActionState, FormData>(logSchoolVisit, {})
+  const formRef = useRef<HTMLFormElement>(null)
+  useFormSuccess(state, { formRef })
   const [selected, setSelected] = useState<string[]>([])
 
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form ref={formRef} action={action} className="space-y-4" noValidate>
       <input type="hidden" name="school_id" value={schoolId} />
       <input type="hidden" name="team_member_ids" value={JSON.stringify(selected)} />
       <VisitFormFields state={state} roster={roster} selected={selected} onSelectedChange={setSelected} visitedAtDefault={fieldValue(state, 'visited_at', '')} />
@@ -195,6 +198,7 @@ function EditVisitForm({
   onDone: () => void
 }) {
   const [state, action, pending] = useActionState<SchoolVisitActionState, FormData>(updateSchoolVisit, {})
+  useFormSuccess(state)
   const [selected, setSelected] = useState<string[]>(visit.team_member_ids)
 
   useEffect(() => {

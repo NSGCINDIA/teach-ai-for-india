@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import {
   Calendar,
   CheckCircle2,
@@ -31,10 +31,14 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import type { SchoolTeamMemberDetail } from '@/lib/data/school-team'
+import type { EvidenceListItem } from '@/lib/data/evidence'
+import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface SessionHubProps {
   schoolId: string
   sessions: SessionRow[]
+  /** Drive/Docs links and uploads recorded against this school's sessions. */
+  evidence?: EvidenceListItem[]
   team: SchoolTeamMemberDetail[]
   canManage: boolean
   canVerify: boolean
@@ -48,6 +52,7 @@ const TOTAL_SESSIONS = 4
 export function SessionHub({
   schoolId,
   sessions,
+  evidence = [],
   team,
   canManage,
   canVerify,
@@ -72,6 +77,13 @@ export function SessionHub({
   const [isPlanFormOpen, setIsPlanFormOpen] = useState(false)
   const [isReportFormOpen, setIsReportFormOpen] = useState(false)
 
+  const planFormRef = useRef<HTMLFormElement>(null)
+  const reportFormRef = useRef<HTMLFormElement>(null)
+
+  useFormSuccess(createState, { formRef: planFormRef, onSuccess: () => setIsPlanFormOpen(false) })
+  useFormSuccess(reportState, { formRef: reportFormRef, onSuccess: () => setIsReportFormOpen(false) })
+  useFormSuccess(verifyState)
+
   // Execution Plan completion gate: Execution & Budget Plan must be approved before unlocking session program
   const isPlanCompleted = isExecPlanApproved ?? (
     operationalPhase === 'execution_ready' ||
@@ -87,6 +99,12 @@ export function SessionHub({
   const nextSchedulableNum = Math.min(verifiedCount + 1, TOTAL_SESSIONS)
 
   const selectedSession = sessionMap.get(activeSessionNum)
+
+  // Evidence the Exec Lead attached to this session. The Campus Lead has to be
+  // able to open these before verifying — that review IS the verification.
+  const sessionEvidence = selectedSession
+    ? evidence.filter((e) => e.session_id === selectedSession.id)
+    : []
 
   return (
     <div className="space-y-6">
@@ -212,6 +230,65 @@ export function SessionHub({
               </div>
             )}
 
+            {/* Submitted evidence — the Campus Lead reviews these links before verifying. */}
+            {(selectedSession.status === 'reported' ||
+              selectedSession.status === 'campus_approved' ||
+              selectedSession.status === 'verified') && (
+              <div className="rounded-lg border border-border p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Link2 className="size-3.5 text-brand" />
+                  <span className="text-xs font-semibold">Submitted Evidence</span>
+                </div>
+
+                {sessionEvidence.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    No evidence links recorded for this session.
+                  </p>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {sessionEvidence.map((item) => {
+                      const href = item.signed_url ?? item.external_url
+                      const isDoc = item.file_type === 'document' || item.file_type === 'letter'
+                      const label = isDoc
+                        ? 'Attendance / Report Doc'
+                        : item.file_type === 'photo'
+                          ? 'Session Photos / Album'
+                          : item.file_name || item.file_type
+                      return (
+                        <li key={item.id} className="flex items-center gap-2 text-xs">
+                          {isDoc ? (
+                            <FileText className="size-3.5 shrink-0 text-muted-foreground" />
+                          ) : (
+                            <Camera className="size-3.5 shrink-0 text-muted-foreground" />
+                          )}
+                          {href ? (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-brand underline underline-offset-2 hover:opacity-80 break-all"
+                            >
+                              {label}
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground">{label} (no link)</span>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+
+                {canVerify &&
+                  (selectedSession.status === 'reported' ||
+                    selectedSession.status === 'campus_approved') && (
+                  <p className="text-[11px] text-muted-foreground pt-1 border-t border-border">
+                    Open each link and confirm the evidence before verifying.
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Action Bar based on Status */}
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
               {/* Submit Report Action */}
@@ -245,7 +322,7 @@ export function SessionHub({
                   <FileText className="size-4 text-brand" /> Delivery Report & Evidence Gate
                 </h5>
 
-                <form action={reportAction} className="space-y-4">
+                <form ref={reportFormRef} action={reportAction} className="space-y-4">
                   <input type="hidden" name="session_id" value={selectedSession.id} />
 
                   <div>
@@ -433,7 +510,7 @@ export function SessionHub({
               <Calendar className="size-4 text-brand" /> Schedule Session {activeSessionNum}
             </h5>
 
-            <form action={createAction} className="space-y-4">
+            <form ref={planFormRef} action={createAction} className="space-y-4">
               <input type="hidden" name="school_id" value={schoolId} />
               <input type="hidden" name="session_number" value={activeSessionNum} />
 
