@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState, useMemo } from 'react'
+import { useActionState, useRef, useState, useMemo } from 'react'
 import { AlertCircle, Check, Lock, Loader2, ArrowRight, X } from 'lucide-react'
 import { changeSchoolStatus, type SchoolActionState } from '@/actions/schools'
 import { fieldValue } from '@/lib/actions/form-values'
@@ -14,6 +14,7 @@ import type { SchoolStatus } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface StatusControlProps {
   schoolId: string
@@ -36,6 +37,8 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
   }, {})
 
   const [target, setTarget] = useState<SchoolStatus | ''>('')
+  const formRef = useRef<HTMLFormElement>(null)
+  useFormSuccess(state, { formRef })
   const needsNote = target ? schoolTransitionNeedsNote(current, target) : false
 
   // Manual stage override is Super Admin ONLY (Phase 1 Task 5)
@@ -142,7 +145,7 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
       {/* Action Confirmation Panel */}
       {target && (
         <div className="border border-brand/20 bg-brand/5 p-4 rounded-xl space-y-4">
-          <form action={action} className="space-y-4">
+          <form ref={formRef} action={action} className="space-y-4">
             <input type="hidden" name="school_id" value={schoolId} />
             <input type="hidden" name="new_status" value={target} />
 

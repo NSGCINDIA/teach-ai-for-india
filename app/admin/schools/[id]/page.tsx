@@ -10,6 +10,7 @@ import { getCampusBudget } from '@/lib/data/budgets'
 import { getSchoolTeam } from '@/lib/data/school-team'
 import { getSchoolExecutionPlan } from '@/lib/data/school-execution-plans'
 import { getSchoolSessions } from '@/lib/data/session-delivery'
+import { listEvidence } from '@/lib/data/evidence'
 import { SchoolDetailView } from '@/components/schools/school-detail'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -29,7 +30,7 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
   const execPlanAccess = executionPlanAccess(user.role, user.campus_id, school.campus_id)
   const teamAccess = schoolTeamAccess(user.role, user.campus_id, school.campus_id)
 
-  const [visitRequests, roster, budget, team, execPlan, sessions] = await Promise.all([
+  const [visitRequests, roster, budget, team, execPlan, sessions, sessionEvidence] = await Promise.all([
     listOutreachVisitRequestsForSchool(school.id),
     listTeamMembers(school.campus_id),
     school.campus_id && school.campus?.quarter
@@ -38,6 +39,7 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
     getSchoolTeam(school.id),
     getSchoolExecutionPlan(school.id),
     getSchoolSessions(school.id),
+    listEvidence({ school_id: school.id }).catch(() => [] as Awaited<ReturnType<typeof listEvidence>>),
   ])
 
   const canApproveOnboarding = canForEntity(user.role, 'approve_school_onboarding', user.campus_id, school.campus_id)
@@ -61,6 +63,7 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
       execPlanAccess={execPlanAccess}
       teamAccess={teamAccess}
       canVerifySession={canVerifySession}
+      sessionEvidence={sessionEvidence}
     />
   )
 }

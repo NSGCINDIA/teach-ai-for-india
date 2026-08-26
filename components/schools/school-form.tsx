@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
+import { useFormSuccess } from '@/hooks/use-form-success'
 
 const SELECT_CLASS =
   'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
@@ -55,6 +56,8 @@ export function SchoolForm({ school, campuses, lockedCampusId, cancelHref }: Sch
     isEdit ? updateSchool : createSchool,
     {},
   )
+
+  useFormSuccess(state)
 
   // Track lead_source locally so the conditional "Please specify" field renders immediately.
   const initialLeadSource = (fieldValue(state, 'lead_source', school?.lead_source ?? '') || '') as LeadSource | ''
@@ -109,9 +112,6 @@ export function SchoolForm({ school, campuses, lockedCampusId, cancelHref }: Sch
           <select name="board" className={SELECT_CLASS} defaultValue={fieldValue(state, 'board', school?.board ?? 'state')}>
             {BOARDS.map((b) => <option key={b.value} value={b.value}>{b.label}</option>)}
           </select>
-        </Field>
-        <Field label="DISE code">
-          <Input name="dise_code" inputMode="numeric" defaultValue={fieldValue(state, 'dise_code', school?.dise_code ?? '')} placeholder="11-digit code" />
         </Field>
       </Section>
 

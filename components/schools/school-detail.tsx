@@ -34,6 +34,7 @@ const VISIT_REQUEST_STATUSES = new Set<SchoolDetail['status']>([
 ])
 
 import { ActivityTimeline } from '@/components/schools/activity-timeline'
+import type { EvidenceListItem } from '@/lib/data/evidence'
 
 interface SchoolDetailProps {
   school: SchoolDetail
@@ -56,6 +57,8 @@ interface SchoolDetailProps {
   canVerifySession?: boolean
   financeSummary?: any
   activityTimeline?: any[]
+  /** Evidence (Drive/Docs links + uploads) for every session at this school. */
+  sessionEvidence?: EvidenceListItem[]
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -71,6 +74,7 @@ export function SchoolDetailView({
   canVerifySession = false,
   financeSummary,
   activityTimeline = [],
+  sessionEvidence = [],
 }: SchoolDetailProps) {
   const isSessionsActiveOrDone = school.status === 'sessions_active' || school.status === 'completed'
   // 'completed' is the post-program state of a confirmed member (set when the
@@ -151,7 +155,6 @@ export function SchoolDetailView({
           <Card>
             <CardHeader><CardTitle className="text-base">Details</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-              <Detail label="DISE code" value={school.dise_code} />
               <Detail label="Cluster" value={school.cluster} />
               <Detail label="Sessions" value={String(school.total_sessions)} />
               <Detail label="Students reached" value={String(school.total_students)} />
@@ -255,6 +258,7 @@ export function SchoolDetailView({
                 <SessionHub
                   schoolId={school.id}
                   sessions={sessions}
+                  evidence={sessionEvidence}
                   team={team}
                   canManage={statusAccess.canEdit || teamAccess.canManage}
                   canVerify={canVerifySession}

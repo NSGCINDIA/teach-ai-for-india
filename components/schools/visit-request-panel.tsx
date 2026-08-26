@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import { AlertCircle, CheckCircle2, Loader2, Send } from 'lucide-react'
 import {
   createOutreachVisitRequest,
@@ -25,6 +25,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { cn } from '@/lib/utils'
+import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface VisitRequestPanelProps {
   schoolId: string
@@ -211,10 +212,12 @@ function ReviewForm({
   action: (prev: OutreachVisitRequestActionState, formData: FormData) => Promise<OutreachVisitRequestActionState>
 }) {
   const [state, formAction, pending] = useActionState<OutreachVisitRequestActionState, FormData>(action, {})
+  const formRef = useRef<HTMLFormElement>(null)
+  useFormSuccess(state, { formRef })
   const [decision, setDecision] = useState<'approved' | 'rejected' | ''>('')
 
   return (
-    <form action={formAction} className="space-y-2" noValidate>
+    <form ref={formRef} action={formAction} className="space-y-2" noValidate>
       <input type="hidden" name="school_id" value={schoolId} />
       <input type="hidden" name="request_id" value={requestId} />
       <input type="hidden" name="decision" value={decision} />
@@ -261,10 +264,24 @@ function RequestForm({ schoolId, roster }: { schoolId: string; roster: TeamMembe
     createOutreachVisitRequest,
     {},
   )
+
+  const requestFormRef = useRef<HTMLFormElement>(null)
   const [selected, setSelected] = useState<string[]>(() => roster.map((m) => m.id))
   const [selectedOutcomes, setSelectedOutcomes] = useState<string[]>([])
   const [priority, setPriority] = useState<string>('High')
   const [transportation, setTransportation] = useState<string>('')
+
+  // form.reset() only clears native inputs — the chip selections above are React
+  // state and have to be put back to their defaults by hand.
+  useFormSuccess(state, {
+    formRef: requestFormRef,
+    onSuccess: () => {
+      setSelected(roster.map((m) => m.id))
+      setSelectedOutcomes([])
+      setPriority('High')
+      setTransportation('')
+    },
+  })
 
   const toggleMember = (id: string) =>
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
@@ -273,7 +290,7 @@ function RequestForm({ schoolId, roster }: { schoolId: string; roster: TeamMembe
     setSelectedOutcomes((s) => (s.includes(outcome) ? s.filter((x) => x !== outcome) : [...s, outcome]))
 
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form ref={requestFormRef} action={action} className="space-y-4" noValidate>
       <input type="hidden" name="school_id" value={schoolId} />
       <input type="hidden" name="team_member_ids" value={JSON.stringify(selected)} />
       <input type="hidden" name="expected_outcomes" value={JSON.stringify(selectedOutcomes)} />

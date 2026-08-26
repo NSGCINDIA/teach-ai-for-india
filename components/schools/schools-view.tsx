@@ -50,7 +50,7 @@ export function SchoolsView({ schools, campuses, basePath, showCampusFilter = tr
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search name, district, DISE code…"
+            placeholder="Search name, district…"
             className="pl-9"
             aria-label="Search schools"
           />

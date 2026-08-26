@@ -69,7 +69,7 @@ export const getFinanceLeadWorkspace = cache(async (campusId?: string | null): P
   // 5. Pending execution plan budget reviews
   let execPlanQuery = supabase
     .from('school_execution_plans')
-    .select('id, school_id, total_budget, transport_budget, materials_budget, equipment_budget, other_budget, school:schools(name)')
+    .select('id, school_id, created_at, total_budget, transport_budget, materials_budget, equipment_budget, other_budget, school:schools(name)')
     .eq('status', 'campus_approved')
   if (campusId) execPlanQuery = execPlanQuery.eq('campus_id', campusId)
   const { data: pendingExecPlans } = await execPlanQuery
@@ -108,18 +108,31 @@ export const getFinanceLeadWorkspace = cache(async (campusId?: string | null): P
   }
 
   if (pendingExecPlans) {
+    // Defensive dedupe for rows that predate migration 0069: a school could hold
+    // several open plans, and listing all of them let Finance approve a stale
+    // budget while the school page showed a different figure. Keep the newest
+    // per school, matching what getSchoolExecutionPlan() returns.
+    const newestPerSchool = new Map<string, any>()
     for (const p of pendingExecPlans as any[]) {
-      const calcTotal = p.total_budget ?? (
-        Number(p.transport_budget ?? 0) +
-        Number(p.materials_budget ?? 0) +
-        Number(p.equipment_budget ?? 0) +
-        Number(p.other_budget ?? 0)
-      )
+      const prev = newestPerSchool.get(p.school_id)
+      if (!prev || String(p.created_at ?? '') > String(prev.created_at ?? '')) {
+        newestPerSchool.set(p.school_id, p)
+      }
+    }
+
+    for (const p of newestPerSchool.values()) {
+      // Recomputed from the lines so the amount always matches the breakdown
+      // spelled out beside it; numerics can arrive as strings.
+      const transport = Number(p.transport_budget ?? 0)
+      const materials = Number(p.materials_budget ?? 0)
+      const equipment = Number(p.equipment_budget ?? 0)
+      const other = Number(p.other_budget ?? 0)
+      const calcTotal = transport + materials + equipment + other
       actionItems.push({
         id: p.id,
         kind: 'EXECUTION_PLAN',
         title: `Execution Plan Budget Review: ${p.school?.name ?? 'School'}`,
-        subtitle: 'Reviewed by Campus Lead; awaiting Finance Lead budget approval',
+        subtitle: `Transport ₹${transport} · Materials ₹${materials} · Equipment ₹${equipment} · Other ₹${other} — awaiting Finance Lead approval`,
         amount: Number(calcTotal),
         schoolId: p.school_id,
         status: 'Awaiting Review',
