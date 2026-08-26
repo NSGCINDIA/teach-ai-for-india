@@ -68,6 +68,36 @@ export function ExecutionPlanPanel({
   const [campusComments, setCampusComments] = useState('')
   const [financeComments, setFinanceComments] = useState('')
 
+  // Travel cost and transport budget are kept in sync: the transport line of the
+  // budget mirrors the travel estimate until the submitter deliberately changes
+  // it. Previously both fields were uncontrolled with a hardcoded ₹200 default,
+  // so raising the travel estimate left the transport budget at 200 — the number
+  // Finance actually reviews — and the plan came back as changes-requested.
+  const [travelCost, setTravelCost] = useState(
+    plan?.estimated_travel_cost != null ? String(plan.estimated_travel_cost) : '',
+  )
+  const [transportBudget, setTransportBudget] = useState(
+    plan?.transport_budget != null
+      ? String(plan.transport_budget)
+      : plan?.estimated_travel_cost != null
+        ? String(plan.estimated_travel_cost)
+        : '',
+  )
+  // An existing plan whose transport budget already differs from the estimate is
+  // a deliberate allocation — never overwrite it.
+  const [transportEdited, setTransportEdited] = useState(
+    plan?.transport_budget != null &&
+      Number(plan.transport_budget) !== Number(plan.estimated_travel_cost ?? 0),
+  )
+
+  function onTravelCostChange(value: string) {
+    setTravelCost(value)
+    if (!transportEdited) setTransportBudget(value)
+  }
+
+  const transportShortfall =
+    Number(transportBudget || 0) < Number(travelCost || 0)
+
   const isTeamReady = teamConfirmed || (!!operationalPhase && operationalPhase !== 'team_preparation')
 
   // Execution Readiness Gate Evaluation (Phase 3)
@@ -386,6 +416,10 @@ export function ExecutionPlanPanel({
 
           <form action={subAction} className="space-y-4">
             <input type="hidden" name="school_id" value={schoolId} />
+            {/* Required by resubmitSchoolExecutionPlan when the plan is in a
+                *_changes_requested state — without it the action posts an empty
+                string to the RPC's uuid parameter. */}
+            {plan?.id && <input type="hidden" name="plan_id" value={plan.id} />}
 
             {/* Equipment Section */}
             <div className="space-y-2">
@@ -440,7 +474,7 @@ export function ExecutionPlanPanel({
                 </div>
                 <div>
                   <Label htmlFor="estimated_travel_cost" className="text-xs">Estimated Travel Cost (₹)</Label>
-                  <Input id="estimated_travel_cost" name="estimated_travel_cost" type="number" min={0} defaultValue={plan?.estimated_travel_cost ?? 200} className="mt-1 text-sm" />
+                  <Input id="estimated_travel_cost" name="estimated_travel_cost" type="number" min={0} value={travelCost} onChange={(e) => onTravelCostChange(e.target.value)} className="mt-1 text-sm" />
                 </div>
               </div>
               <div>
@@ -457,7 +491,20 @@ export function ExecutionPlanPanel({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
                   <Label htmlFor="transport_budget" className="text-xs">Transport Budget (₹)</Label>
-                  <Input id="transport_budget" name="transport_budget" type="number" min={0} defaultValue={plan?.transport_budget ?? plan?.estimated_travel_cost ?? 200} className="mt-1 text-sm" />
+                  <Input
+                    id="transport_budget"
+                    name="transport_budget"
+                    type="number"
+                    min={0}
+                    value={transportBudget}
+                    onChange={(e) => { setTransportEdited(true); setTransportBudget(e.target.value) }}
+                    className="mt-1 text-sm"
+                  />
+                  {transportShortfall && (
+                    <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                      Below the ₹{Number(travelCost || 0)} travel estimate — Finance reviews this figure.
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="materials_budget" className="text-xs">Materials Budget (₹)</Label>

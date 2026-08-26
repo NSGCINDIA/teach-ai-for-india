@@ -30,13 +30,21 @@ export const INVITABLE_ROLES: UserRole[] = [
 ]
 
 /**
- * Roles an applicant may request on public /signup — non-privileged team roles
- * only (an admin still approves). Mirrors the CHECK in 0019/0025. The
- * campus-management/finance roles are invite-only and can never be self-requested.
+ * Roles an applicant may request on public /signup — team roles only (an admin
+ * still reviews and approves every request). Mirrors the CHECK in 0019/0025/0068.
+ * campus_mgmt_admin stays invite-only and can never be self-requested.
  */
-export const SELF_SIGNUP_ROLES: UserRole[] = [
+export const SELF_SIGNUP_ROLES = [
   'volunteer', 'volunteer_lead', 'exec_lead', 'outreach_lead', 'campus_lead',
-]
+  'finance_lead',
+] as const satisfies readonly UserRole[]
+
+export type SelfSignupRole = (typeof SELF_SIGNUP_ROLES)[number]
+
+/** Runtime guard for a role string an applicant submitted — see approveSignup(). */
+export function isSelfSignupRole(role: string): role is SelfSignupRole {
+  return (SELF_SIGNUP_ROLES as readonly string[]).includes(role)
+}
 
 export function roleLabel(role: UserRole): string {
   return ROLE_LABELS[role] ?? role

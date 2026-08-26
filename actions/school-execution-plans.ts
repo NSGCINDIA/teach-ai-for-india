@@ -8,6 +8,8 @@ import {
   reviewSchoolExecutionPlanSchema,
 } from '@/lib/validations/school-execution-plans'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export type SchoolExecutionPlanActionState = {
   error?: string
   ok?: boolean
@@ -197,6 +199,12 @@ export async function resubmitSchoolExecutionPlan(
   const user = await requireUser('/dashboard/schools')
   const planId = String(formData.get('plan_id') ?? '')
   const raw = Object.fromEntries(formData)
+
+  // Guard before the RPC: an absent plan_id used to reach Postgres as '' and
+  // surface as the raw "invalid input syntax for type uuid" message.
+  if (!UUID_RE.test(planId)) {
+    return { error: 'Could not identify the plan to resubmit. Refresh the page and try again.' }
+  }
 
   const parsed = submitSchoolExecutionPlanSchema.safeParse(raw)
 

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { INVITABLE_ROLES } from '@/lib/auth/roles'
+import { INVITABLE_ROLES, SELF_SIGNUP_ROLES } from '@/lib/auth/roles'
 import { sanitizeText } from '@/lib/security/sanitize'
 
 /**
@@ -48,9 +48,11 @@ export const signupSchema = z
       .trim()
       .regex(/^[+\d][\d\s-]{6,14}$/, 'Enter a valid phone number'),
     campus_id: z.string().uuid('Select your campus'),
-    requested_role: z.enum([
-      'volunteer', 'volunteer_lead', 'exec_lead', 'outreach_lead', 'campus_lead',
-    ], { errorMap: () => ({ message: 'Select a role' }) }),
+    // Derived from SELF_SIGNUP_ROLES so the form, this schema, and the
+    // approval clamp in approveSignup() can never drift apart.
+    requested_role: z.enum(SELF_SIGNUP_ROLES, {
+      errorMap: () => ({ message: 'Select a role' }),
+    }),
     email: z.string().email('Enter a valid email'),
     password: z
       .string()
