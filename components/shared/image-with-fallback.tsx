@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { ImageOff, Image as ImageIcon } from 'lucide-react'
+import { Image as ImageIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NeuralDecoration } from './neural-network-background'
 

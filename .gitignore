@@ -11,6 +11,8 @@ next.user-config.*
 .env
 .env*.local
 .env.*
+# ...but the template is meant to be committed; it holds no real values.
+!.env.example
 
 # Common ignores
 node_modules

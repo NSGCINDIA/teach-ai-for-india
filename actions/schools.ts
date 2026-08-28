@@ -149,7 +149,7 @@ export async function initiateSchoolOnboarding(
   }
 
   const supabase = await createClient()
-  const { data, error } = await supabase.rpc('initiate_school_onboarding', {
+  const { error } = await supabase.rpc('initiate_school_onboarding', {
     p_school_id: schoolId,
   })
 
@@ -159,9 +159,4 @@ export async function initiateSchoolOnboarding(
   revalidatePath('/dashboard/schools')
   revalidatePath('/admin/schools')
   return { ok: true, message: 'Onboarding initiated! School is now Registered.' }
-}
-
-/** Turn raised RAISE EXCEPTION text into something a user can read. */
-function humanizeDbError(msg: string): string {
-  return sanitizeDbError(msg)
 }

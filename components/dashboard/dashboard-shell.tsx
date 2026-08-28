@@ -281,7 +281,7 @@ function UserMenu({ user }: { user: ShellUser }) {
         <DialogHeader>
           <DialogTitle>Sign out?</DialogTitle>
           <DialogDescription>
-            You'll need to log in again to get back into your dashboard.
+            You&apos;ll need to log in again to get back into your dashboard.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

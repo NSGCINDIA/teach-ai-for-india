@@ -114,7 +114,7 @@ export function EvidenceUploader({ entityType, entityId, campusId, schoolId, ses
             {busy ? 'Saving…' : 'Add link'}
           </Button>
         </div>
-        <p className="text-[11px] text-muted-foreground">Set sharing to "Anyone with the link can view" before pasting it here.</p>
+        <p className="text-[11px] text-muted-foreground">Set sharing to &quot;Anyone with the link can view&quot; before pasting it here.</p>
       </div>
     </div>
   )

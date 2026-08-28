@@ -4,15 +4,12 @@ import { useActionState, useRef, useState } from 'react'
 import { CheckCircle2, Loader2, AlertCircle, Pencil, Eye, ShieldCheck } from 'lucide-react'
 import { approvePlan, savePlan, type PlanActionState } from '@/actions/plans'
 import { fieldValue, fieldChecked } from '@/lib/actions/form-values'
-import { SESSION_TYPE_META } from '@/lib/constants/sessions'
-import type { SessionPlanRow, SessionType, SchoolStatus } from '@/types/database'
+import type { SessionPlanRow, SchoolStatus } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
-
-const SESSION_TYPES = Object.entries(SESSION_TYPE_META) as [SessionType, { label: string }][]
 
 import { validateSchoolOnboardingReadiness } from '@/lib/validations/readiness-gate'
 import { Badge } from '@/components/ui/badge'

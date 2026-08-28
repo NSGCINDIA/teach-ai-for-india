@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCircle2, Circle, Clock, Users, Wrench, Calendar, Award } from 'lucide-react'
+import { CheckCircle2, Circle, Clock, Users, Wrench, Calendar } from 'lucide-react'
 import type { OperationalPhase, SchoolStatus } from '@/types/database'
 import { getOperationalProgress, OPERATIONAL_PHASE_META } from '@/lib/constants/operational-phases'
 
@@ -76,7 +76,6 @@ export function OperationalProgress({
           const stepNum = idx + 1
           const isDone = isCompleted || (currentStep > stepNum)
           const isCurrent = !isCompleted && currentStep === stepNum
-          const Icon = s.icon
 
           return (
             <div

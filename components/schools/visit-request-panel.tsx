@@ -196,7 +196,7 @@ function ReviewLeg({
         <span className="text-sm font-medium">{label}</span>
         <StatusBadge kind="approval" status={decision} />
       </div>
-      {note && <p className="text-xs text-muted-foreground">"{note}"</p>}
+      {note && <p className="text-xs text-muted-foreground">&quot;{note}&quot;</p>}
       {children}
     </div>
   )

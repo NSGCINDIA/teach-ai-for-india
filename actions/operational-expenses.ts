@@ -28,7 +28,7 @@ export async function recordOperationalExpense(
   _prev: OperationalExpenseActionState,
   formData: FormData,
 ): Promise<OperationalExpenseActionState> {
-  const user = await requireUser('/dashboard/schools')
+  await requireUser('/dashboard/schools')
   const raw = Object.fromEntries(formData)
 
   const parsed = recordExpenseSchema.safeParse(raw)
@@ -65,7 +65,7 @@ export async function verifyOperationalExpense(
   _prev: OperationalExpenseActionState,
   formData: FormData,
 ): Promise<OperationalExpenseActionState> {
-  const user = await requireUser('/dashboard/finance')
+  await requireUser('/dashboard/finance')
   const expenseId = formData.get('expense_id') as string
   const schoolId = formData.get('school_id') as string
 

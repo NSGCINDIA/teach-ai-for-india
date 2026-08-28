@@ -2,7 +2,6 @@
 
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   AlertCircle,
   ArrowRight,

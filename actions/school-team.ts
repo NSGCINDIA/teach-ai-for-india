@@ -23,7 +23,7 @@ export async function requestSchoolTeamAvailability(
   _prev: SchoolTeamActionState,
   formData: FormData,
 ): Promise<SchoolTeamActionState> {
-  const user = await requireUser('/dashboard/schools')
+  await requireUser('/dashboard/schools')
 
   const volunteerIdsRaw = formData.getAll('volunteer_ids')
   const volunteer_ids = volunteerIdsRaw.map(String).filter(Boolean)
@@ -98,7 +98,7 @@ export async function respondSchoolTeamAvailability(
   _prev: SchoolTeamActionState,
   formData: FormData,
 ): Promise<SchoolTeamActionState> {
-  const user = await requireUser('/dashboard/assignments')
+  await requireUser('/dashboard/assignments')
 
   const parsed = respondTeamAvailabilitySchema.safeParse({
     member_id: formData.get('member_id'),
@@ -129,7 +129,7 @@ export async function confirmSchoolTeam(
   _prev: SchoolTeamActionState,
   formData: FormData,
 ): Promise<SchoolTeamActionState> {
-  const user = await requireUser('/dashboard/schools')
+  await requireUser('/dashboard/schools')
 
   const memberIdsRaw = formData.getAll('member_ids')
   const member_ids = memberIdsRaw.map(String).filter(Boolean)
@@ -161,7 +161,7 @@ export async function replaceSchoolTeamMember(
   _prev: SchoolTeamActionState,
   formData: FormData,
 ): Promise<SchoolTeamActionState> {
-  const user = await requireUser('/dashboard/schools')
+  await requireUser('/dashboard/schools')
 
   const parsed = replaceTeamMemberSchema.safeParse({
     member_id: formData.get('member_id'),

@@ -2,13 +2,12 @@ import Link from 'next/link'
 import {
   School, Users, CalendarDays, CalendarClock, FileClock, Wallet,
   Images, ClipboardList, TrendingUp, CheckCircle2, MapPin, Timer,
-  Wrench, Clock, Receipt, DollarSign, ArrowRight, Sparkles, Award,
+  Wrench, Clock, Receipt, DollarSign, ArrowRight, Award,
   type LucideIcon,
 } from 'lucide-react'
 import { MetricCard } from '@/components/shared/metric-card'
 import { StatusBadge } from '@/components/shared/status-badge'
-import { EmptyState, CompactEmpty } from '@/components/shared/states'
-import { Card } from '@/components/ui/card'
+import { EmptyState } from '@/components/shared/states'
 import { Badge } from '@/components/ui/badge'
 import { BudgetRequestReviewList } from '@/components/dashboard/budget-request-review-list'
 import { DashboardHero, SimpleHero, SectionHeader } from '@/components/dashboard/dashboard-hero'
@@ -16,7 +15,6 @@ import { QuickActions } from '@/components/shared/quick-actions'
 import { NeuralNetworkBackground } from '@/components/shared/neural-network-background'
 import { formatDate, formatCurrency, formatNumber } from '@/lib/format'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
-import { curriculumStageLabel } from '@/lib/constants/sessions'
 import type {
   CampusLeadData, OutreachData, VolunteerLeadData, ExecData, VolunteerData,
   FinanceLeadData, SessionLite, SchoolLite,
@@ -197,14 +195,6 @@ function Kpi({ label, value, icon, variant }: {
   return <MetricCard label={label} value={value} icon={icon} variant={variant} />
 }
 
-/** Inline action link styled consistently */
-function ViewAllLink({ href, label = 'View all' }: { href: string; label?: string }) {
-  return (
-    <Link href={href} className="inline-flex items-center gap-1 text-xs font-semibold text-brand hover:text-brand-deep transition-colors">
-      {label} <ArrowRight className="size-3" />
-    </Link>
-  )
-}
 
 /** Work-queue card used by Volunteer Lead, Exec Lead, Finance Lead */
 function WorkQueueCard({

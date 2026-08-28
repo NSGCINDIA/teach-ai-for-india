@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { DollarSign, Receipt, FileCheck, ExternalLink, Plus, Loader2 } from 'lucide-react'
+import { DollarSign, Receipt, ExternalLink, Plus, Loader2 } from 'lucide-react'
 import type { SessionFinanceSummary } from '@/lib/data/operational-expenses'
 import {
   recordOperationalExpense,
@@ -26,7 +26,7 @@ export function SessionFinanceCard({ sessionId, schoolId, finance, canManage }: 
     recordOperationalExpense,
     {},
   )
-  const [verState, verAction, verPending] = useActionState<OperationalExpenseActionState, FormData>(
+  const [, verAction, verPending] = useActionState<OperationalExpenseActionState, FormData>(
     verifyOperationalExpense,
     {},
   )
