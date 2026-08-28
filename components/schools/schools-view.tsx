@@ -29,7 +29,12 @@ interface SchoolsViewProps {
   campuses: Pick<CampusRow, 'id' | 'name'>[]
   /** Link base for rows: '/dashboard/schools' or '/admin/schools'. */
   basePath: string
-  /** Hide the campus filter for single-campus (own) views. */
+  /**
+   * Whether campus is a meaningful dimension here. False for a campus-scoped
+   * user, whose every row has the same campus — so both the filter and the
+   * column are dropped rather than showing a control that filters nothing and
+   * a column that repeats one value down the page.
+   */
   showCampusFilter?: boolean
   /**
    * Restrict to schools whose follow-up date has passed. Derived from `?view=`
@@ -236,15 +241,15 @@ export function SchoolsView({
               of sight. */}
           <Table
             containerClassName="hidden lg:block max-h-[calc(100dvh-18rem)] min-h-64"
-            className="min-w-[52rem]"
+            className={showCampusFilter ? 'min-w-[52rem]' : 'min-w-[44rem]'}
           >
             <TableHeader sticky>
               <TableRow>
-                <TableHead className="w-[34%] pl-5">School</TableHead>
-                <TableHead>Campus</TableHead>
+                <TableHead className={cn('pl-5', showCampusFilter ? 'w-[34%]' : 'w-[42%]')}>School</TableHead>
+                {showCampusFilter && <TableHead>Campus</TableHead>}
                 <TableHead>Session journey</TableHead>
                 <TableHead>Stage</TableHead>
-                <TableHead>Next action</TableHead>
+                <TableHead>Follow-up</TableHead>
                 <TableHead className="sr-only">Open</TableHead>
               </TableRow>
             </TableHeader>
@@ -276,7 +281,9 @@ export function SchoolsView({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{s.campus?.name ?? '—'}</TableCell>
+                  {showCampusFilter && (
+                    <TableCell className="text-muted-foreground">{s.campus?.name ?? '—'}</TableCell>
+                  )}
                   <TableCell>
                     <CurriculumProgress sessionNumber={s.latest_session_number} />
                   </TableCell>
@@ -323,7 +330,7 @@ export function SchoolsView({
                         <MapPin aria-hidden className="size-3 shrink-0" />
                         <span className="truncate">
                           {s.district}, {s.state}
-                          {s.campus?.name && ` · ${s.campus.name}`}
+                          {showCampusFilter && s.campus?.name && ` · ${s.campus.name}`}
                         </span>
                       </p>
                       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">

@@ -160,7 +160,7 @@ export async function getEvidenceUpdates(): Promise<UpdateItem[]> {
     .slice(0, TAKE)
     .map((m) => ({
       id: m.id,
-      title: `Evidence: ${m.file_name}`,
+      title: m.file_name,
       description: `Type: ${m.file_type}. School: ${one<SchoolEmbed>(m.school)?.name || 'Unknown'}`,
       date: m.created_at,
       badge: APPROVAL_STATUS_META[m.approval_status as ApprovalStatus],
@@ -189,7 +189,7 @@ export async function getVolunteerUpdates(): Promise<UpdateItem[]> {
       const session = one<SessionWithSchoolEmbed>(a.session)
       return {
         id: a.id,
-        title: `Assignment: ${one<VolunteerEmbed>(a.volunteer)?.full_name || 'Volunteer'}`,
+        title: one<VolunteerEmbed>(a.volunteer)?.full_name || 'Volunteer',
         description: `For ${session?.topic || 'Session'} at ${one<SchoolEmbed>(session?.school)?.name || 'School'}`,
         date: a.assigned_at,
         badge: ASSIGNMENT_STATUS_META[a.status as AssignmentStatus],
@@ -219,7 +219,7 @@ export async function getSchoolUpdates(): Promise<UpdateItem[]> {
       const school = one<SchoolEmbed>(h.school)
       return {
         id: h.id,
-        title: `School: ${school?.name || 'Unknown'}`,
+        title: school?.name || 'Unknown',
         // Humanised on both sides: this line used to read "Changed from
         // outreach_approved to sessions_active", which is the schema talking,
         // not the product.
