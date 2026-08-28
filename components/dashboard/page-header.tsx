@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
 export interface PageHeaderStat {
@@ -8,6 +9,17 @@ export interface PageHeaderStat {
   hint?: string
   /** Tints the value. `attention` is for counts the user should act on. */
   tone?: 'default' | 'brand' | 'attention' | 'success'
+  /**
+   * Makes the number a link — for a count the user can act on, pointing at the
+   * filtered view of exactly those records.
+   *
+   * A link rather than an `onClick` on purpose: this component is rendered by
+   * ~44 server-component pages, and an event handler would force `'use client'`
+   * on every one of them. A URL also survives a refresh and can be shared.
+   */
+  href?: string
+  /** Accessible name for that link — a generic component can't word it well. */
+  hrefLabel?: string
 }
 
 interface PageHeaderProps {
@@ -88,18 +100,30 @@ export function PageHeader({
       {stats && stats.length > 0 && (
         <dl className="flex flex-wrap items-stretch gap-x-8 gap-y-4 border-t border-border/60 pt-4">
           {stats.map((stat) => (
-            <div key={stat.label} className="min-w-24">
+            <div key={stat.label} className={cn('group min-w-24', stat.href && 'relative')}>
               <dt className="text-xs font-semibold text-muted-foreground">{stat.label}</dt>
               <dd
                 className={cn(
                   'mt-0.5 text-2xl font-bold leading-none tabular-nums',
                   STAT_TONE[stat.tone ?? 'default'],
+                  stat.href && 'underline-offset-4 decoration-2 group-hover:underline',
                 )}
               >
                 {stat.value}
               </dd>
               {stat.hint && (
                 <p className="mt-1 text-xs font-medium text-text-tertiary">{stat.hint}</p>
+              )}
+              {/* A stretched overlay rather than wrapping the block: `dl` only
+                  admits `dt`, `dd` and `div` as children, so an anchor around
+                  them would be invalid markup. The overlay also makes the whole
+                  stat — label, number and hint — one comfortable hit target. */}
+              {stat.href && (
+                <Link
+                  href={stat.href}
+                  aria-label={stat.hrefLabel ?? stat.label}
+                  className="absolute -inset-2 rounded-lg transition-colors hover:bg-brand/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
+                />
               )}
             </div>
           ))}

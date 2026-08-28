@@ -47,14 +47,14 @@ export function FilterChips<T extends string>({
       aria-label={label}
       className={cn('flex flex-wrap items-center gap-1.5', className)}
     >
-      <Chip
+      <FilterChip
         label={allLabel}
         count={allCount}
         selected={value === ''}
         onClick={() => onChange('')}
       />
       {options.map((option) => (
-        <Chip
+        <FilterChip
           key={option.value}
           label={option.label}
           count={option.count}
@@ -66,38 +66,56 @@ export function FilterChips<T extends string>({
   )
 }
 
-function Chip({
+/**
+ * One chip. Exported so a filter on a *different* axis — "Overdue follow-ups"
+ * on the schools pipeline — can sit beside a `FilterChips` group and look like
+ * it belongs, without being folded into that group's mutually-exclusive
+ * single-select model.
+ */
+export function FilterChip({
   label,
   count,
   selected,
   onClick,
+  tone = 'brand',
 }: {
   label: string
   count: number
   selected: boolean
   onClick: () => void
+  /** `attention` for a chip that surfaces work that is late. */
+  tone?: 'brand' | 'attention'
 }) {
+  // A zero-count stage still *renders* — the gap in the funnel is a finding,
+  // not noise — but there is nothing behind it, so clicking it only produced
+  // an empty list. It recedes and stops being a target.
+  const empty = !selected && count === 0
+
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={empty}
       aria-pressed={selected}
       className={cn(
         'group inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         selected
-          ? 'border-transparent bg-brand text-white shadow-sm'
-          : 'border-border/70 bg-card text-muted-foreground hover:border-brand/40 hover:bg-cream-light hover:text-brand',
-        // A zero-count stage still renders — the gap in the funnel is a finding,
-        // not noise — but it recedes so the eye lands on stages with work in them.
-        !selected && count === 0 && 'opacity-60',
+          ? tone === 'attention'
+            ? 'border-transparent bg-brand-orange text-white shadow-sm'
+            : 'border-transparent bg-brand text-white shadow-sm'
+          : 'border-border/70 bg-card text-muted-foreground',
+        !selected && !empty && 'hover:border-brand/40 hover:bg-cream-light hover:text-brand',
+        empty && 'cursor-default opacity-60',
       )}
     >
       {label}
       <span
         className={cn(
           'rounded-full px-1.5 py-px text-[11px] font-bold tabular-nums transition-colors',
-          selected ? 'bg-white/20 text-white' : 'bg-cream-light text-text-tertiary group-hover:bg-brand/10 group-hover:text-brand',
+          selected
+            ? 'bg-white/20 text-white'
+            : cn('bg-cream-light text-text-tertiary', !empty && 'group-hover:bg-brand/10 group-hover:text-brand'),
         )}
       >
         {count}

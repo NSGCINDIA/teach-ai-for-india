@@ -42,7 +42,11 @@ export function DataToolbar({
   return (
     <div className={cn('rounded-xl border border-border/60 bg-cream-light/60 p-3', className)}>
       <div className="flex flex-wrap items-center gap-2.5">
-        <div className="relative min-w-52 flex-1">
+        {/* Capped, not `flex-1` alone: on a list whose other filters are hidden
+            (a campus-scoped user sees no campus select) the field had nothing to
+            share the row with and stretched the full page width, which spent
+            vertical space the table below it needed for rows. */}
+        <div className="relative min-w-52 flex-1 sm:max-w-md">
           <Search
             aria-hidden
             className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-text-tertiary"

@@ -66,7 +66,7 @@ function CertificateList({
     <div className="grid gap-4 sm:grid-cols-2">
       {items.map((c) => (
         <Card key={c.id}>
-          <CardHeader className="flex-row items-start justify-between space-y-0 gap-2">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 gap-2">
             <div>
               <CardTitle className="text-base">{c.title}</CardTitle>
               <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

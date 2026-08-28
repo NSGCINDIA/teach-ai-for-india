@@ -1,13 +1,37 @@
 import { createClient } from '@/lib/supabase/server'
 import { getSessionUser } from '@/lib/auth/user'
 import { can } from '@/lib/auth/rbac'
+import {
+  SCHOOL_STATUS_META,
+  SESSION_STATUS_META,
+  REIMBURSEMENT_STATUS_META,
+  APPROVAL_STATUS_META,
+  ASSIGNMENT_STATUS_META,
+  type StatusTone,
+} from '@/lib/constants/status'
+import type {
+  SchoolStatus,
+  SessionStatus,
+  ReimbursementStatus,
+  ApprovalStatus,
+  AssignmentStatus,
+} from '@/types/database'
 
 export interface UpdateItem {
   id: string
   title: string
   description: string
   date: string
-  badgeText?: string
+  /**
+   * A resolved label and tone, not a raw enum.
+   *
+   * This used to be `badgeText: string` carrying the database value straight
+   * through, so the panel rendered `SESSIONS_ACTIVE` while the table directly
+   * above it said "Active School" — one concept, two vocabularies, on one
+   * screen. Carrying the tone as well means a cancelled item and a verified one
+   * no longer look identical.
+   */
+  badge?: { label: string; tone: StatusTone }
   href?: string
 }
 
@@ -54,6 +78,12 @@ function scopeToCampus<T>(
   return rows.filter((row) => campusOf(row) === campusId)
 }
 
+/** A school status as a person would say it; "Not set" for the first entry. */
+function statusLabel(status: string | null): string {
+  if (!status) return 'Not set'
+  return SCHOOL_STATUS_META[status as SchoolStatus]?.label ?? status
+}
+
 const TAKE = 5
 
 export async function getSessionUpdates(): Promise<UpdateItem[]> {
@@ -78,7 +108,7 @@ export async function getSessionUpdates(): Promise<UpdateItem[]> {
       title: `Session #${s.session_number}: ${s.topic || 'No topic'}`,
       description: `At ${one<SchoolEmbed>(s.school)?.name || 'School'}. Date: ${s.date}`,
       date: s.date,
-      badgeText: s.status,
+      badge: SESSION_STATUS_META[s.status as SessionStatus],
       href: `/dashboard/sessions/${s.id}`,
     }))
 }
@@ -105,7 +135,7 @@ export async function getFinanceUpdates(): Promise<UpdateItem[]> {
       title: `Claim for ₹${r.amount}`,
       description: `Session: ${one<SessionTopicEmbed>(r.session)?.topic || 'Travel'}. Mode: ${r.travel_mode}`,
       date: r.created_at,
-      badgeText: r.status,
+      badge: REIMBURSEMENT_STATUS_META[r.status as ReimbursementStatus],
       href: `/dashboard/reimbursements`,
     }))
 }
@@ -133,7 +163,7 @@ export async function getEvidenceUpdates(): Promise<UpdateItem[]> {
       title: `Evidence: ${m.file_name}`,
       description: `Type: ${m.file_type}. School: ${one<SchoolEmbed>(m.school)?.name || 'Unknown'}`,
       date: m.created_at,
-      badgeText: m.approval_status,
+      badge: APPROVAL_STATUS_META[m.approval_status as ApprovalStatus],
       href: `/dashboard/evidence`,
     }))
 }
@@ -162,7 +192,7 @@ export async function getVolunteerUpdates(): Promise<UpdateItem[]> {
         title: `Assignment: ${one<VolunteerEmbed>(a.volunteer)?.full_name || 'Volunteer'}`,
         description: `For ${session?.topic || 'Session'} at ${one<SchoolEmbed>(session?.school)?.name || 'School'}`,
         date: a.assigned_at,
-        badgeText: a.status,
+        badge: ASSIGNMENT_STATUS_META[a.status as AssignmentStatus],
         href: session ? `/dashboard/sessions/${session.id}` : `/dashboard/assignments`,
       }
     })
@@ -190,9 +220,12 @@ export async function getSchoolUpdates(): Promise<UpdateItem[]> {
       return {
         id: h.id,
         title: `School: ${school?.name || 'Unknown'}`,
-        description: `Changed from ${h.previous_status || 'none'} to ${h.new_status}.${h.note ? ` Note: ${h.note}` : ''}`,
+        // Humanised on both sides: this line used to read "Changed from
+        // outreach_approved to sessions_active", which is the schema talking,
+        // not the product.
+        description: `${statusLabel(h.previous_status)} → ${statusLabel(h.new_status)}.${h.note ? ` ${h.note}` : ''}`,
         date: h.created_at,
-        badgeText: h.new_status,
+        badge: SCHOOL_STATUS_META[h.new_status as SchoolStatus],
         href: school ? `/dashboard/schools/${school.id}` : `/dashboard/schools`,
       }
     })

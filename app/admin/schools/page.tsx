@@ -8,9 +8,16 @@ import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Schools · Admin' }
 
-export default async function AdminSchoolsPage() {
+export default async function AdminSchoolsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>
+}) {
   await requireAccess('/admin/schools')
   const [schools, campuses] = await Promise.all([listSchools(), listCampusOptions()])
+  // So the admin overview's "Schools with overdue follow-up" alert lands on the
+  // filtered list instead of an unfiltered 500-row page.
+  const { view } = await searchParams
 
   return (
     <div className="space-y-6">
@@ -23,7 +30,12 @@ export default async function AdminSchoolsPage() {
         </Button>}
       />
 
-      <SchoolsView schools={schools} campuses={campuses} basePath="/admin/schools" />
+      <SchoolsView
+        schools={schools}
+        campuses={campuses}
+        basePath="/admin/schools"
+        overdueOnly={view === 'overdue'}
+      />
     </div>
   )
 }

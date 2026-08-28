@@ -283,7 +283,7 @@ export function SchoolDetailView({
           </Card>
 
           <Card>
-            <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="flex items-center gap-2 text-base"><Users className="size-4" /> Contacts</CardTitle>
               {canEdit && <AddContact schoolId={school.id} />}
             </CardHeader>

@@ -64,7 +64,10 @@ export async function listSchools(filters: SchoolFilters = {}): Promise<SchoolLi
   if (filters.outreach_lead_id) query = query.eq('outreach_lead_id', filters.outreach_lead_id)
   if (filters.q) {
     const term = `%${filters.q.replace(/[%_]/g, '')}%`
-    query = query.or(`name.ilike.${term},district.ilike.${term},dise_code.ilike.${term}`)
+    // No dise_code: the field was retired from the UI and the school
+    // form no longer collects it (commit 4d3b639), so searching it can only match
+    // legacy rows against a code the user has no way to look up.
+    query = query.or(`name.ilike.${term},district.ilike.${term},state.ilike.${term}`)
   }
 
   const [{ data, error }, progress] = await Promise.all([query, listSchoolProgress()])

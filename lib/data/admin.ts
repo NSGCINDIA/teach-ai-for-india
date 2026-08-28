@@ -2,6 +2,7 @@ import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type { CampusRow, UserRow, UserRole, SignupRequestRow, VolunteerApplicationRow } from '@/types/database'
 import type { StatusTone } from '@/lib/constants/status'
+import { todayIso, OVERDUE_EXEMPT_STATUSES } from '@/lib/schools/overdue'
 
 // ─── Alert feed (PRD §7.9 — 6 always-on alert types) ─────────────────────────
 export interface AdminAlert {
@@ -15,7 +16,7 @@ export interface AdminAlert {
 /** The six operational alerts surfaced on the admin overview (PRD §7.9). */
 export async function getAdminAlerts(): Promise<AdminAlert[]> {
   const supabase = await createClient()
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayIso()
 
   const head = { count: 'exact' as const, head: true }
   const [claims, verify, anomalyRows, followups, applications, messages, signups] = await Promise.all([
@@ -23,8 +24,11 @@ export async function getAdminAlerts(): Promise<AdminAlert[]> {
     supabase.from('sessions').select('id', head).in('status', ['reported', 'campus_approved']),
     // Array-length filters are fragile over PostgREST — count non-empty flags in JS.
     supabase.from('reimbursements').select('anomaly_flags').eq('status', 'under_review'),
+    // Built from the shared rule so this count and the /dashboard/schools KPI
+    // cannot drift apart again. Postgres `date < 'YYYY-MM-DD'` has the same
+    // semantics as the string compare in isOverdue().
     supabase.from('schools').select('id', head).lt('next_action_date', today)
-      .not('status', 'in', '(completed,archived)'),
+      .not('status', 'in', `(${OVERDUE_EXEMPT_STATUSES.join(',')})`),
     supabase.from('volunteer_applications').select('id', head).eq('status', 'new'),
     supabase.from('contact_messages').select('id', head).eq('is_handled', false),
     supabase.from('signup_requests').select('id', head).eq('status', 'pending'),
@@ -43,7 +47,7 @@ export async function getAdminAlerts(): Promise<AdminAlert[]> {
     { key: 'claims', label: 'Reimbursement claims awaiting review', count: claims.count ?? 0, href: '/admin/finance', tone: 'pending' },
     { key: 'verify', label: 'Sessions awaiting verification', count: verify.count ?? 0, href: '/admin/sessions', tone: 'info' },
     { key: 'anomalies', label: 'Claims flagged for anomalies', count: anomalyCount, href: '/admin/finance', tone: 'danger' },
-    { key: 'followups', label: 'Schools with overdue follow-up', count: followups.count ?? 0, href: '/admin/schools', tone: 'pending' },
+    { key: 'followups', label: 'Schools with overdue follow-up', count: followups.count ?? 0, href: '/admin/schools?view=overdue', tone: 'pending' },
     { key: 'signups', label: 'Account signups awaiting approval', count: signups.count ?? 0, href: '/admin/volunteers', tone: 'pending' },
     { key: 'applications', label: 'New volunteer applications', count: applications.count ?? 0, href: '/admin/volunteers', tone: 'progress' },
     { key: 'messages', label: 'Unhandled contact messages', count: messages.count ?? 0, href: '/admin/settings', tone: 'neutral' },
