@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { roleHomePath } from '@/lib/auth/rbac'
-import type { UserRole } from '@/types/database'
 
 /**
  * Auth callback — exchanges the code from Supabase email links (invite,
@@ -16,15 +15,9 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { data: authData, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error && authData?.user) {
-      let dest = next
-      if (!dest || dest === '/dashboard') {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', authData.user.id)
-          .single()
-        dest = roleHomePath((profile?.role as UserRole) ?? 'volunteer')
-      }
+      // roleHomePath takes no role, so the profile lookup that used to feed it
+      // was a round-trip whose result was discarded.
+      const dest = next && next !== '/dashboard' ? next : roleHomePath()
       const finalDest = dest.startsWith('/') ? dest : '/dashboard'
       return NextResponse.redirect(`${origin}${finalDest}`)
     }

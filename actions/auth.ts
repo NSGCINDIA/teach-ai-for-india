@@ -92,7 +92,7 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
   await supabase.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', data.user.id)
 
   const next = safeNextPath((formData.get('next') as string) || '')
-  redirect(next ?? roleHomePath((profile?.role as UserRole) ?? 'volunteer'))
+  redirect(next ?? roleHomePath())
 }
 
 // ─── Sign out ────────────────────────────────────────────────────────────────
@@ -148,8 +148,7 @@ export async function updatePassword(_prev: ActionState, formData: FormData): Pr
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password })
   if (error) return { error: error.message }
 
-  const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-  redirect(roleHomePath((profile?.role as UserRole) ?? 'volunteer'))
+  redirect(roleHomePath())
 }
 
 // ─── Public self-signup — request an account (admin-approval gated, PRD §7.2) ─

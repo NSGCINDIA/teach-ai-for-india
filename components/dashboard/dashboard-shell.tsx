@@ -410,11 +410,6 @@ function NavLink({
         )}
       />
       {!collapsed && <span className="truncate">{item.label}</span>}
-      {!collapsed && item.soon && (
-        <span className="ml-auto rounded bg-cream-light px-1.5 py-0.5 text-[10px] font-bold text-text-tertiary">
-          Soon
-        </span>
-      )}
     </>
   )
 
@@ -425,18 +420,6 @@ function NavLink({
       ? 'bg-brand/8 font-bold text-brand'
       : 'font-medium text-text-secondary hover:bg-cream-light hover:text-brand',
   )
-
-  if (item.soon) {
-    const disabled = (
-      <span
-        aria-disabled
-        className={cn(shape, 'cursor-not-allowed text-text-tertiary/60 hover:bg-transparent hover:text-text-tertiary/60')}
-      >
-        {body}
-      </span>
-    )
-    return collapsed ? withTooltip(disabled, `${item.label} — coming soon`) : disabled
-  }
 
   const link = (
     <Link

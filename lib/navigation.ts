@@ -38,16 +38,13 @@ export interface NavItem {
   href: string
   icon: NavIconKey
   group: NavGroup
-  /** Built in a later phase — rendered disabled so the IA is visible. */
-  soon?: boolean
 }
 
 const OVERVIEW: NavItem = { label: 'Overview', href: '/dashboard', icon: 'overview', group: 'main' }
 
 /**
  * Per-role dashboard sidebars (Team Dashboard PRD). Each leadership role sees
- * only the modules its responsibility needs. Routes not yet built are marked
- * `soon` so the information architecture is visible today.
+ * only the modules its responsibility needs.
  */
 const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   campus_lead: [
@@ -158,8 +155,8 @@ export function groupNav(items: NavItem[]): { group: NavGroup; label: string | n
 
 export function dashboardNav(role: UserRole): NavItem[] {
   const items = NAV_BY_ROLE[role]?.length ? NAV_BY_ROLE[role] : NAV_BY_ROLE.campus_lead
-  // Defence-in-depth: never surface a real (non-soon) route the role can't open.
-  return items.filter((i) => i.soon || isAdmin(role) || canAccessPath(role, i.href))
+  // Defence-in-depth: never surface a route the role can't actually open.
+  return items.filter((i) => isAdmin(role) || canAccessPath(role, i.href))
 }
 
 export function adminNav(role: UserRole): NavItem[] {
