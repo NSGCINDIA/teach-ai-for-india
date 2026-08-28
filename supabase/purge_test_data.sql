@@ -15,7 +15,7 @@ BEGIN;
 
 -- 1. Purge transient test requests & logs
 DELETE FROM public.signup_requests;
-DELETE FROM public.signup_rate_limit;
+DELETE FROM public.signup_attempts;
 DELETE FROM public.reimbursements;
 DELETE FROM public.budget_increase_requests;
 DELETE FROM public.audit_log;

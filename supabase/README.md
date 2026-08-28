@@ -17,7 +17,8 @@ Open each file in order and run it:
 0004_storage.sql           evidence + public-assets buckets & policies
 0005_views.sql             public + operational analytics views
 0006_seed.sql              9 campuses + CMS content blocks
-0007_seed_admin.sql        bootstrap super admin (CHANGE THE PASSWORD)
+0007_seed_admin.sql        bootstrap super admin (no-op unless you supply a
+                           password — see docs/ADMIN_BOOTSTRAP.md)
 ```
 
 ### Option B — Supabase CLI
@@ -31,7 +32,9 @@ supabase db push        # applies supabase/migrations/*
 1. **Set env vars** — copy `.env.example` → `.env.local` and fill in
    `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
    `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`.
-2. **Log in** with the seeded admin (`admin@teachaiforindia.org`) and change the password.
+2. **Bootstrap the first super admin** — follow
+   [`docs/ADMIN_BOOTSTRAP.md`](../docs/ADMIN_BOOTSTRAP.md). `0007` deliberately
+   creates nothing on its own; no default password ships in this repository.
 3. **Create a 2nd super admin** (PRD §19.1 requires ≥2 at all times).
 
 ## Design notes

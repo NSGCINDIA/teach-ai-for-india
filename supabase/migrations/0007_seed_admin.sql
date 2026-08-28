@@ -1,12 +1,21 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- Teach AI for India — 0007 Seed: bootstrap Super Admin
+-- Teach AI for India — 0007 Bootstrap: first Super Admin
 --
--- ⚠ PRD §19.1 requires at least 2 Super Admins in production. This seeds ONE
---   bootstrap account so you can log in and invite the rest.
+-- ⚠ PRD §19.1 requires at least 2 Super Admins in production. This bootstraps
+--   ONE account so you can log in and invite the rest.
 --
--- ⚠ CHANGE THE PASSWORD IMMEDIATELY after first login. The default below is a
---   placeholder. Prefer creating the first admin via the Supabase Dashboard
---   (Authentication → Add user) if you'd rather not run this.
+-- SECURITY: this migration used to carry a hardcoded default password. Anyone
+-- who could read the repository could therefore read super-admin credentials
+-- for any environment where the migration ran and the password was never
+-- rotated. The password is now supplied by the operator at run time and is
+-- never committed:
+--
+--     set local app.bootstrap_admin_password = '<a strong, unique password>';
+--     -- then run this file
+--
+-- With no setting present the block is a documented no-op, so `supabase db push`
+-- stays safe to run unattended. See docs/ADMIN_BOOTSTRAP.md for the full
+-- procedure, including the preferred Supabase Dashboard route.
 --
 -- This relies on GoTrue's auth.users / auth.identities layout. If your Supabase
 -- version differs and this errors, create the user in the Dashboard instead and
@@ -16,12 +25,27 @@
 do $$
 declare
   v_uid uuid := gen_random_uuid();
-  v_email text := 'admin@teachaiforindia.org';
-  v_password text := 'ChangeMe!2026';   -- ⚠ change after first login
+  v_email text := coalesce(
+    nullif(current_setting('app.bootstrap_admin_email', true), ''),
+    'admin@teachaiforindia.org'
+  );
+  v_password text := nullif(current_setting('app.bootstrap_admin_password', true), '');
 begin
   if exists (select 1 from auth.users where email = v_email) then
     raise notice 'Admin % already exists — skipping.', v_email;
     return;
+  end if;
+
+  -- No password supplied: skip rather than invent one. A shipped default is a
+  -- credential in source control, which is exactly what this migration must not
+  -- reintroduce.
+  if v_password is null then
+    raise notice 'No app.bootstrap_admin_password set — skipping admin bootstrap. See docs/ADMIN_BOOTSTRAP.md.';
+    return;
+  end if;
+
+  if length(v_password) < 12 then
+    raise exception 'app.bootstrap_admin_password must be at least 12 characters.';
   end if;
 
   insert into auth.users (
@@ -52,5 +76,6 @@ begin
   update public.users set role = 'super_admin', full_name = 'Platform Admin', is_active = true
   where id = v_uid;
 
-  raise notice 'Seeded super admin % (password: %). CHANGE IT NOW.', v_email, v_password;
+  -- Deliberately does NOT echo the password into the server log.
+  raise notice 'Bootstrapped super admin %.', v_email;
 end $$;

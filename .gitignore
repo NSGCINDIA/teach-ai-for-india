@@ -19,3 +19,8 @@ node_modules
 
 # Supabase CLI local cache
 supabase/.temp/
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo
+
+# npm lockfile — this project uses pnpm (see pnpm-lock.yaml)
+package-lock.json

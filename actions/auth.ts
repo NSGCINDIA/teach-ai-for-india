@@ -120,35 +120,11 @@ export async function requestPasswordReset(_prev: ActionState, formData: FormDat
     return { error: 'Too many password reset requests. Please wait a few minutes and try again.', values }
   }
 
-  // Graceful degradation when Supabase is not configured (PRD §15 / README)
-  const isConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
-                       !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-ref') &&
-                       process.env.SUPABASE_SERVICE_ROLE_KEY && 
-                       !process.env.SUPABASE_SERVICE_ROLE_KEY.includes('your-service-role-key');
-
-  if (!isConfigured) {
-    const mockUsers = ['admin@teachaiforindia.org', 'hello@teachaiforindia.org'];
-    if (mockUsers.includes(email)) {
-      return { ok: true, message: 'If that email exists, a reset link is on its way.' }
-    }
-    return { error: "This email isn't registered. Please create an account first.", values }
-  }
-
-  const admin = createAdminClient()
-  const { data: userExists, error: checkError } = await admin
-    .from('users')
-    .select('id')
-    .ilike('email', email)
-    .maybeSingle()
-
-  if (checkError) {
-    return { error: 'Something went wrong. Please try again.', values }
-  }
-
-  if (!userExists) {
-    return { error: "This email isn't registered. Please create an account first.", values }
-  }
-
+  // Never branch the response on whether the address exists. Doing so turns this
+  // endpoint into an account-existence oracle, which the rate limits above slow
+  // down but cannot close. Supabase's resetPasswordForEmail is itself silent
+  // about unknown addresses, so we can call it unconditionally and always give
+  // the caller the same answer.
   const supabase = await createClient()
   await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${siteUrl()}/auth/callback?next=/reset-password`,
