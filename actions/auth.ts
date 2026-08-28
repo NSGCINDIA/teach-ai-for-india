@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getSessionUser } from '@/lib/auth/user'
 import { roleHomePath, isAdmin } from '@/lib/auth/rbac'
+import { safeNextPath } from '@/lib/security/safe-next-path'
 import { roleLabel } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
 import { clientIp, failureCount, recordFailure, clearFailures, rateLimit } from '@/lib/security/rate-limit'
@@ -26,17 +27,6 @@ const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000
 const LOGIN_WINDOW_MS = 15 * 60 * 1000
 const LOGIN_MAX_PER_ACCOUNT = 8 // this IP against one account
 const LOGIN_MAX_PER_IP = 30 // this IP across all accounts (spray protection)
-
-/**
- * Only allow same-origin relative paths as a post-login redirect (issue #10).
- * Rejects protocol-relative (`//evil.com`), backslash tricks, and absolute URLs
- * so the `next` param can't be turned into an open redirect.
- */
-function safeNextPath(next: string): string | null {
-  if (!next || !next.startsWith('/')) return null
-  if (next.startsWith('//') || next.startsWith('/\\') || next.startsWith('/%2f') || next.startsWith('/%5c')) return null
-  return next
-}
 
 // ─── Sign in (email + password) ──────────────────────────────────────────────
 export async function signIn(_prev: ActionState, formData: FormData): Promise<ActionState> {
