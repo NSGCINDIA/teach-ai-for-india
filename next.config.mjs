@@ -29,7 +29,11 @@ const contentSecurityPolicy = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   `connect-src 'self' ${supabaseHost ? `https://${supabaseHost} ${supabaseWs}` : ''} https://*.supabase.co wss://*.supabase.co`,
-  "frame-src 'none'",
+  // The contact page embeds a Google Maps iframe for the NIAT office. Scoped to
+  // that one origin rather than opened up: this only says which documents *we*
+  // may frame. `frame-ancestors 'none'` above is the separate, unrelaxed
+  // directive that stops anyone framing us, so clickjacking cover is unchanged.
+  'frame-src https://www.google.com',
 ]
   .filter(Boolean)
   .join('; ')

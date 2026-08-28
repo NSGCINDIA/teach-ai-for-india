@@ -74,7 +74,15 @@ export async function Footer() {
                 </a>
               </li>
               <li className="inline-flex items-start gap-2">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-white/30" aria-hidden /> {contact.address}
+                <MapPin className="mt-0.5 size-4 shrink-0 text-white/30" aria-hidden />
+                <a
+                  href="https://maps.google.com/?q=NxtWave+of+Innovation+in+Advanced+Technologies:+NIAT+Financial+District+Nanakramguda+Telangana+500032"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="transition-colors hover:text-white"
+                >
+                  {contact.address}
+                </a>
               </li>
             </ul>
             {contact.social.length > 0 && (

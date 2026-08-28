@@ -301,7 +301,7 @@ export const FAQ_FALLBACK: FaqContent = {
 export const CONTACT_INFO_FALLBACK: ContactInfo = {
   email: 'hello@teachaiforindia.org',
   phone: '+91 90000 00000',
-  address: 'Hyderabad, Telangana, India',
+  address: 'NxtWave of Innovation in Advanced Technologies: NIAT, Financial District, Nanakramguda, Telangana 500032',
   social: [
     { label: 'Instagram', href: 'https://www.instagram.com/teachai_for.india?igsh=Mnh2OGg2Mjd2ajdh' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/company/teach-ai-for-india-tai/' },
