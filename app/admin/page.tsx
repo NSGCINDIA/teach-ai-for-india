@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import {
-  Banknote, Building2, CalendarCheck, GraduationCap, Images, School, Users,
+  Banknote, Building2, CalendarCheck, GraduationCap, Images, LayoutDashboard, School, Users,
 } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { getProgramSummary } from '@/lib/data/analytics'
@@ -9,6 +9,7 @@ import { formatCurrency, formatNumber } from '@/lib/format'
 import { MetricCard } from '@/components/shared/metric-card'
 import { AlertFeed } from '@/components/admin/alert-feed'
 import { Card } from '@/components/ui/card'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Admin Overview' }
 
@@ -27,13 +28,12 @@ export default async function AdminOverview() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-sm text-muted-foreground">Admin</p>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Platform overview</h1>
-        <p className="mt-1 text-muted-foreground">
-          Live impact across every campus, and what needs your attention today.
-        </p>
-      </header>
+      <PageHeader
+        icon={LayoutDashboard}
+        eyebrow="Admin"
+        title="Platform overview"
+        description="Live impact across every campus, and what needs your attention today."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard label="Schools reached" value={formatNumber(summary.schools_reached)} icon={School} sublabel={`${formatNumber(summary.schools_total)} in pipeline`} />

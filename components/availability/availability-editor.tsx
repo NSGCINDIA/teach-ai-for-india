@@ -11,9 +11,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { AVAILABILITY_META } from '@/lib/constants/workspace'
+import { selectClass } from '@/components/ui/native-select'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 export function AvailabilityEditor({ entries }: { entries: AvailabilityRow[] }) {
   const [state, action, pending] = useActionState<AvailabilityActionState, FormData>(setAvailability, {})
@@ -27,7 +26,7 @@ export function AvailabilityEditor({ entries }: { entries: AvailabilityRow[] }) 
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="status">Availability</Label>
-          <select id="status" name="status" className={SELECT_CLASS} defaultValue={fieldValue(state, 'status', 'available')}>
+          <select id="status" name="status" className={selectClass} defaultValue={fieldValue(state, 'status', 'available')}>
             <option value="available">Available</option>
             <option value="tentative">Tentative</option>
             <option value="unavailable">Unavailable</option>

@@ -16,6 +16,7 @@ import { CampusPerformanceTable } from '@/components/analytics/campus-performanc
 import { StatusBreakdown, type BreakdownItem } from '@/components/analytics/status-breakdown'
 import { MonthlyActivityChart } from '@/components/analytics/monthly-activity-chart'
 import { ExportMenu } from '@/components/analytics/export-menu'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Analytics · Admin' }
 
@@ -57,15 +58,11 @@ export default async function AdminAnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Analytics</h1>
-          <p className="mt-1 text-muted-foreground">
-            Program-wide impact, campus performance vs target, and operational breakdowns.
-          </p>
-        </div>
-        {canExport && <ExportMenu />}
-      </header>
+      <PageHeader
+        title="Analytics"
+        description="Program-wide impact, campus performance vs target, and operational breakdowns."
+        actions={canExport && <ExportMenu />}
+      />
 
       {/* Tier 1 — management summary (PRD §7.8 / US-ANLT-01) */}
       <section aria-label="Program summary" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

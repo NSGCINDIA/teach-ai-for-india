@@ -1,7 +1,9 @@
+import { CalendarRange } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { isAdmin } from '@/lib/auth/rbac'
 import { listSessionsInRange } from '@/lib/data/calendar'
 import { MonthCalendar } from '@/components/calendar/month-calendar'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Calendar' }
 
@@ -37,10 +39,11 @@ export default async function CalendarPage({
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Calendar</h1>
-        <p className="mt-1 text-muted-foreground">Scheduled sessions across the month. Click a session to open it.</p>
-      </header>
+      <PageHeader
+        icon={CalendarRange}
+        title="Calendar"
+        description="Scheduled sessions across the month. Click a session to open it."
+      />
       <MonthCalendar year={year} month={month} sessions={sessions} basePath="/dashboard/calendar" todayIso={todayIso} />
     </div>
   )

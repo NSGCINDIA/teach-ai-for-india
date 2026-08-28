@@ -1,9 +1,11 @@
+import { BookOpen } from 'lucide-react'
 import { notFound, redirect } from 'next/navigation'
 import { requireUser } from '@/lib/auth/user'
 import { isAdmin } from '@/lib/auth/rbac'
 import { getBlogDetail } from '@/lib/data/blogs'
 import { BlogEditor } from '@/components/blogs/blog-editor'
 import { BlogReviewPanel } from '@/components/blogs/blog-review-panel'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Edit Article · Dashboard' }
 
@@ -31,16 +33,11 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
 
   return (
     <div className="space-y-6">
-      <header className="text-left">
-        <h1 className="font-display text-2xl font-bold tracking-tight">
-          {showReviewPanel ? 'Review Impact Story' : 'Edit Impact Story'}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {showReviewPanel 
-            ? 'Review the submitted draft below. You can make adjustments directly or decide on approval.'
-            : 'Modify the draft fields and click save. Don\'t forget to submit for approval when finished.'}
-        </p>
-      </header>
+      <PageHeader
+        icon={BookOpen}
+        title={showReviewPanel ? 'Review impact story' : 'Edit impact story'}
+        description={<>{showReviewPanel ? 'Review the submitted draft below. You can make adjustments directly or decide on approval.' : 'Modify the draft fields and click save. Don\'t forget to submit for approval when finished.'}</>}
+      />
 
       {showReviewPanel && <BlogReviewPanel blog={blog} />}
 

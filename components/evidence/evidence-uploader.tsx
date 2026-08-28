@@ -9,9 +9,8 @@ import type { MediaEntityType, MediaFileType } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { selectClass } from '@/components/ui/native-select'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 interface Props {
   entityType: MediaEntityType
@@ -90,7 +89,7 @@ export function EvidenceUploader({ entityType, entityId, campusId, schoolId, ses
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="ev-type">Category</Label>
-          <select id="ev-type" className={SELECT_CLASS} value={fileType} onChange={(e) => setFileType(e.target.value as MediaFileType)}>
+          <select id="ev-type" className={selectClass} value={fileType} onChange={(e) => setFileType(e.target.value as MediaFileType)}>
             {MEDIA_TYPES.map((t) => <option key={t} value={t}>{MEDIA_TYPE_META[t].label}</option>)}
           </select>
         </div>

@@ -23,6 +23,7 @@ export default async function AssignmentsPage() {
 }
 
 import { getVolunteerLeadQueue } from '@/lib/data/volunteer-lead-queue'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 /** Volunteer Lead / Campus Lead coordination board across the campus (Task 25). */
 async function CoordinatorBoard({ campusId }: { campusId: string | null }) {
@@ -30,12 +31,10 @@ async function CoordinatorBoard({ campusId }: { campusId: string | null }) {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">School Team Coordination</h1>
-          <p className="mt-1 text-muted-foreground">School-centric team building and volunteer availability tracking.</p>
-        </div>
-      </header>
+      <PageHeader
+        title="School Team Coordination"
+        description="School-centric team building and volunteer availability tracking."
+      />
 
       <div className="grid gap-4 sm:grid-cols-4">
         <MetricCard label="Schools Needing Teams" value={queue.schoolsNeedingTeamsCount} icon={School} />
@@ -117,10 +116,10 @@ async function MyAssignments({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">My assignments</h1>
-        <p className="mt-1 text-muted-foreground">School teams and sessions you’ve been asked to help run.</p>
-      </header>
+      <PageHeader
+        title="My assignments"
+        description="School teams and sessions you’ve been asked to help run."
+      />
 
       {/* School Team Assignments */}
       {schoolTeamAssignments.length > 0 && (

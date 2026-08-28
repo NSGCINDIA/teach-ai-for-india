@@ -14,9 +14,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useFormSuccess } from '@/hooks/use-form-success'
+import { selectClass } from '@/components/ui/native-select'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 const SCHOOL_TYPES = [
   { value: 'government', label: 'Government' },
@@ -104,12 +103,12 @@ export function SchoolForm({ school, campuses, lockedCampusId, cancelHref }: Sch
           <Input name="name" required defaultValue={fieldValue(state, 'name', school?.name ?? '')} placeholder="Zilla Parishad High School" />
         </Field>
         <Field label="School type" required>
-          <select name="school_type" className={SELECT_CLASS} defaultValue={fieldValue(state, 'school_type', school?.school_type ?? 'government')}>
+          <select name="school_type" className={selectClass} defaultValue={fieldValue(state, 'school_type', school?.school_type ?? 'government')}>
             {SCHOOL_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </Field>
         <Field label="Board" required>
-          <select name="board" className={SELECT_CLASS} defaultValue={fieldValue(state, 'board', school?.board ?? 'state')}>
+          <select name="board" className={selectClass} defaultValue={fieldValue(state, 'board', school?.board ?? 'state')}>
             {BOARDS.map((b) => <option key={b.value} value={b.value}>{b.label}</option>)}
           </select>
         </Field>
@@ -146,7 +145,7 @@ export function SchoolForm({ school, campuses, lockedCampusId, cancelHref }: Sch
         <Field label="How did you identify this school?" required className="sm:col-span-2">
           <select
             name="lead_source"
-            className={SELECT_CLASS}
+            className={selectClass}
             value={leadSource}
             onChange={(e) => setLeadSource(e.target.value as LeadSource | '')}
           >

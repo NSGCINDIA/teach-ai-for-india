@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { FileText, Plus, PenTool, ShieldAlert } from 'lucide-react'
+import { BookOpen, FileText, Plus, PenTool, ShieldAlert } from 'lucide-react'
 import { requireUser } from '@/lib/auth/user'
 import { isAdmin } from '@/lib/auth/rbac'
 import { listBlogsForDashboard } from '@/lib/data/blogs'
@@ -12,6 +12,7 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { SubmitButton } from '@/components/blogs/submit-button'
 import { formatDateTime } from '@/lib/format'
 import { ImageWithFallback } from '@/components/shared/image-with-fallback'
+import { PageHeader } from '@/components/dashboard/page-header'
 import type { BlogStatus } from '@/types/database'
 import type { StatusTone } from '@/lib/constants/status'
 
@@ -40,19 +41,18 @@ export default async function BlogsPage() {
 
   return (
     <div className="space-y-6 text-left">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Blogs & Stories</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Document school visits, success stories, and volunteer journeys to showcase on the public site.
-          </p>
-        </div>
-        <Link href="/dashboard/blogs/new">
-          <Button className="bg-brand hover:bg-brand/90 text-white font-bold rounded-xl flex items-center gap-1.5 shrink-0">
-            <Plus size={16} /> Write Article
+      <PageHeader
+        icon={BookOpen}
+        title="Stories & blogs"
+        description="Document school visits, success stories and volunteer journeys to showcase on the public site."
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/blogs/new">
+              <Plus className="size-4" /> Write a story
+            </Link>
           </Button>
-        </Link>
-      </div>
+        }
+      />
 
       {/* Admin Review Queue */}
       {admin && reviewQueue.length > 0 && (

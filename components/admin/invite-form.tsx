@@ -9,12 +9,11 @@ import { ROLE_LABELS, ROLE_DESCRIPTIONS, INVITABLE_ROLES } from '@/lib/auth/role
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { selectClass } from '@/components/ui/native-select'
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 /** Invite a new team member (PRD §7.2 / US-AUTH-01). Admin-only. */
 export function InviteForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'name'>[] }) {
@@ -54,14 +53,14 @@ export function InviteForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="role">Role</Label>
-            <select id="role" name="role" className={SELECT_CLASS} value={role} onChange={(e) => setRole(e.target.value as UserRole)}>
+            <select id="role" name="role" className={selectClass} value={role} onChange={(e) => setRole(e.target.value as UserRole)}>
               {(INVITABLE_ROLES as UserRole[]).map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
             </select>
             <p className="text-xs text-muted-foreground">{ROLE_DESCRIPTIONS[role]}</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="campus_id">Campus</Label>
-            <select id="campus_id" name="campus_id" className={SELECT_CLASS} required defaultValue={fieldValue(state, 'campus_id', '')}>
+            <select id="campus_id" name="campus_id" className={selectClass} required defaultValue={fieldValue(state, 'campus_id', '')}>
               <option value="">Select a campus…</option>
               {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>

@@ -1,6 +1,8 @@
+import { FileText } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { listContentBlocks } from '@/lib/data/admin'
 import { ContentEditor, type EditableBlock } from '@/components/admin/content-editor'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Content · Admin' }
 
@@ -40,12 +42,11 @@ export default async function AdminContentPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Content</h1>
-        <p className="mt-1 text-muted-foreground">
-          Edit the public website copy. Saving publishes immediately (revalidates the live pages).
-        </p>
-      </header>
+      <PageHeader
+        icon={FileText}
+        title="Content"
+        description="Edit the public website copy. Saving publishes immediately (revalidates the live pages)."
+      />
 
       <ContentEditor blocks={[...catalogBlocks, ...extraBlocks]} />
     </div>

@@ -8,6 +8,8 @@ export interface HeroContent {
   eyebrow: string
   headline: string
   subheadline: string
+  /** Verified current figures, e.g. "1,842 students addressed · 18 schools · 9 campuses" — never wired to live/unverified stats, so the hero can never show a figure that hasn't been confirmed. */
+  proofLine: string
 }
 
 export interface MissionItem {
@@ -73,13 +75,84 @@ export interface StoriesContent {
   items: StoryItem[]
 }
 
+// ─── About / origin story ────────────────────────────────────────────────────
+
+export interface OriginStoryIntro {
+  eyebrow: string
+  headline: string
+  body: string
+}
+
+export interface OriginMoment {
+  eyebrow: string
+  /** Exactly 3 items: "Giving back to society" → "What can we uniquely teach?" → "AI" */
+  progression: string[]
+  body: string
+}
+
+export interface FirstClassroom {
+  eyebrow: string
+  headline: string
+  metaLine: string
+  body: string
+}
+
+export interface HumanMoment {
+  leadIn: string
+  quote: string
+  attribution: string
+  tag: string
+  afterNote: string
+}
+
+export interface WhatWeBelieve {
+  notLine: string
+  believeLine: string
+}
+
+export interface OperatingLoopStep {
+  title: string
+  description: string
+}
+export interface OperatingLoopContent {
+  eyebrow: string
+  headline: string
+  supportingLine: string
+  steps: OperatingLoopStep[]
+}
+
+export interface VolunteerNote {
+  body: string
+}
+
+export interface WhyWeContinue {
+  eyebrow: string
+  headline: string
+  body: string
+  outcomes: string[]
+  ctaLabel: string
+  ctaNote: string
+}
+
+export interface OriginStoryContent {
+  intro: OriginStoryIntro
+  originMoment: OriginMoment
+  firstClassroom: FirstClassroom
+  humanMoment: HumanMoment
+  belief: WhatWeBelieve
+  operatingLoop: OperatingLoopContent
+  volunteerNote: VolunteerNote
+  whyWeContinue: WhyWeContinue
+}
+
 // ─── Fallbacks ───────────────────────────────────────────────────────────────
 
 export const HERO_FALLBACK: HeroContent = {
-  eyebrow: 'A student-led AI education movement',
-  headline: 'AI literacy for every Indian classroom.',
+  eyebrow: 'Student-led · AI education · India',
+  headline: "The future shouldn't\ndepend on what school\nyou go to.",
   subheadline:
-    "We're building India's first student-led movement bringing applied AI education to government schools — one campus, one classroom, one student at a time.",
+    'We bring practical AI literacy into government-school classrooms through student-led campus teams — helping students understand what AI is, how they can use it, and how to use it responsibly.',
+  proofLine: '1,842 students addressed · 18 schools · 9 campuses',
 }
 
 export const MISSION_FALLBACK: MissionContent = {
@@ -237,3 +310,72 @@ export const CONTACT_INFO_FALLBACK: ContactInfo = {
 }
 
 export const STORIES_FALLBACK: StoriesContent = { items: [] }
+
+export const ORIGIN_STORY_FALLBACK: OriginStoryContent = {
+  intro: {
+    eyebrow: 'Why we exist',
+    headline: 'We learned something valuable. We decided to give it back.',
+    body:
+      "Teach AI for India started in March 2026, inside a small group of NIAT students who wanted to give something back to their community. We weren't trying to build an organization. We were trying to answer one question: what do we actually know that's worth teaching someone else? This is the story of how we answered it, what happened in the first classroom, and why we kept going.",
+  },
+  originMoment: {
+    eyebrow: 'March 2026',
+    progression: ['Giving back to society', 'What can we uniquely teach?', 'AI'],
+    body:
+      "It started inside NSGC, a student group at NIAT looking for a real way to give back. The first instinct was the obvious one — teach mathematics, teach physics, the subjects we knew best. But plenty of people were already teaching those. So we asked a harder question: what could we teach that almost no one else was? We were already learning AI ourselves. No one was teaching it to the students who needed it most.",
+  },
+  firstClassroom: {
+    eyebrow: 'The first classroom',
+    headline: 'Our first classroom',
+    metaLine: 'MPPS Nandakramaguda · ~150 students · 1 hr 15 min · First session',
+    body:
+      "Our first pilot was MPPS Nandakramaguda, a government school a short distance from our own campus. About 150 students showed up. We had one hour and fifteen minutes, and one goal — show them what AI actually is. We expected to be introducing something unfamiliar. Instead we found students who already knew AI existed. They'd used image generators. They'd talked to chatbot apps. What they hadn't been shown was what else it could do, or how to use it well.",
+  },
+  humanMoment: {
+    leadIn: 'The session ended. The questions didn’t.',
+    quote: 'Anna, when are you coming again?',
+    attribution: '— A student, MPPS Nandakramaguda',
+    tag: 'Rangareddy · Class 7 · First session',
+    afterNote:
+      'That one question told us more than any survey could. There was curiosity. There was a connection. There was a reason to come back.',
+  },
+  belief: {
+    notLine: "We don't believe every student needs to become an AI expert.",
+    believeLine:
+      'We believe every student should understand what AI is, know how to use it, and use it responsibly.',
+  },
+  operatingLoop: {
+    eyebrow: 'How the movement runs',
+    headline: "Student-led isn't a tagline. It's how the work gets done.",
+    supportingLine:
+      'Finding schools, building the curriculum, running the session, improving it — every part of this is done by students, for students.',
+    steps: [
+      { title: 'Identify a school', description: 'Students map which government schools need this the most and make the first approach.' },
+      { title: 'Build the session', description: 'Content, fellows, and cohort plans come together before anyone sets foot in a classroom.' },
+      { title: 'Get the campus ready', description: 'Principal approvals, campus permissions, transport, funding — coordinated end to end by students.' },
+      { title: 'Enter the classroom', description: 'Volunteers run the session. No script — just the plan and the room.' },
+      { title: 'Listen to students', description: "What worked. What didn't. What they actually asked for." },
+      { title: 'Improve', description: 'The next session is built on what the last one taught us.' },
+      { title: 'Go again', description: 'Another school. Another classroom. The loop keeps running.' },
+    ],
+  },
+  volunteerNote: {
+    body:
+      "The volunteer program is still taking shape. But the idea behind it is simple: you don't join because you want NGO experience on a résumé. You join because there's something you've learned, and you want to give some of it back.",
+  },
+  whyWeContinue: {
+    eyebrow: 'Why we keep going',
+    headline: 'The number of students we reach is only the beginning.',
+    body: 'We want to see what they do with what they learned.',
+    outcomes: [
+      'Studying',
+      'Creating content',
+      'Building things',
+      'Improving their work',
+      'Starting something of their own',
+      'Discovering a new opportunity',
+    ],
+    ctaLabel: 'Register your interest',
+    ctaNote: "The volunteer program is still being planned. If you want to give some of what you've learned back, this is where to start.",
+  },
+}

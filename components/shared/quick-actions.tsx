@@ -19,15 +19,18 @@ interface QuickActionsProps {
 }
 
 /**
- * Quick Actions — Mission-driven, task-oriented CTAs with warm TAI styling.
- * Replaces generic icon+label links with friendly, purposeful interactions.
+ * QuickActions — the "what do you want to do?" block.
+ *
+ * Written as verbs the user recognises ("Add school", "Record visit") rather
+ * than the screens they happen to live on, so the block reads as a set of tasks
+ * instead of a second navigation menu.
  */
-export function QuickActions({ 
-  title = "What Do You Want To Do?",
+export function QuickActions({
+  title = 'What do you want to do?',
   description,
-  actions, 
+  actions,
   columns = 3,
-  className 
+  className,
 }: QuickActionsProps) {
   const gridCols = {
     2: 'sm:grid-cols-2',
@@ -37,26 +40,18 @@ export function QuickActions({
 
   return (
     <div className={className}>
-      {/* Header */}
       {(title || description) && (
-        <div className="mb-5">
-          {title && (
-            <h2 className="text-lg font-bold text-foreground mb-1">
-              {title}
-            </h2>
-          )}
+        <div className="mb-4">
+          {title && <h2 className="text-lg font-bold text-foreground">{title}</h2>}
           {description && (
-            <p className="text-sm text-muted-foreground font-medium">
-              {description}
-            </p>
+            <p className="mt-1 text-sm font-medium text-muted-foreground">{description}</p>
           )}
         </div>
       )}
 
-      {/* Actions Grid */}
       <div className={cn('grid gap-3', gridCols[columns])}>
-        {actions.map((action, index) => (
-          <QuickActionCard key={index} {...action} />
+        {actions.map((action) => (
+          <QuickActionCard key={action.href + action.label} {...action} />
         ))}
       </div>
     </div>
@@ -64,56 +59,49 @@ export function QuickActions({
 }
 
 /**
- * Individual Quick Action Card
+ * One task card. The hover is a colour change and a 4px arrow slide — no scale
+ * transform. A grid of cards that each jump forward under the cursor makes the
+ * whole block feel unsettled, and this is a screen people sit in front of.
  */
-function QuickActionCard({ 
-  label, 
-  description, 
-  href, 
-  icon: Icon, 
-  variant = 'default' 
-}: QuickAction) {
+function QuickActionCard({ label, description, href, icon: Icon, variant = 'default' }: QuickAction) {
   return (
     <Link
       href={href}
       className={cn(
-        'group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]',
+        'group flex items-start gap-3.5 rounded-xl border p-4 transition-colors duration-200',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         variant === 'highlight'
-          ? 'bg-gradient-to-br from-brand/5 via-brand-orange/5 to-brand-gold/5 border-brand/20 hover:border-brand/40 hover:shadow-warm'
-          : 'bg-card border-border/50 hover:border-brand-orange/40 hover:shadow-soft'
+          ? 'border-brand/20 bg-cream-light hover:border-brand/40 hover:bg-secondary'
+          : 'border-border/60 bg-card hover:border-brand/30 hover:bg-cream-light/60',
       )}
     >
-      {/* Background decoration for highlight variant */}
-      {variant === 'highlight' && (
-        <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-brand-orange/10 blur-2xl transition-all group-hover:bg-brand-orange/20" />
-      )}
-
-      <div className="relative p-5 flex items-start gap-4">
-        {/* Icon */}
-        <div className={cn(
-          "grid size-12 place-items-center rounded-xl shrink-0 transition-all duration-300",
+      <span
+        aria-hidden
+        className={cn(
+          'grid size-10 shrink-0 place-items-center rounded-lg transition-colors',
           variant === 'highlight'
-            ? 'bg-gradient-to-br from-brand-orange to-brand-gold text-white group-hover:scale-110'
-            : 'bg-cream-light text-brand-orange group-hover:bg-brand-orange/10 group-hover:scale-110'
-        )}>
-          <Icon className="size-6" strokeWidth={2} />
-        </div>
+            ? 'bg-brand text-white'
+            : 'bg-cream-light text-brand-orange group-hover:bg-brand/10 group-hover:text-brand',
+        )}
+      >
+        <Icon className="size-5" strokeWidth={2} />
+      </span>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="font-bold text-base text-foreground group-hover:text-brand transition-colors">
-              {label}
-            </h3>
-            <ArrowRight className="size-4 text-brand-orange opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 shrink-0 mt-1" />
-          </div>
-          
-          {description && (
-            <p className="text-xs text-muted-foreground font-medium leading-relaxed line-clamp-2">
-              {description}
-            </p>
-          )}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="truncate font-bold text-foreground transition-colors group-hover:text-brand">
+            {label}
+          </h3>
+          <ArrowRight
+            aria-hidden
+            className="size-4 shrink-0 text-text-tertiary transition-all group-hover:translate-x-0.5 group-hover:text-brand"
+          />
         </div>
+        {description && (
+          <p className="mt-0.5 line-clamp-2 text-xs font-medium leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+        )}
       </div>
     </Link>
   )
@@ -134,43 +122,13 @@ export function CompactQuickAction({ label, href, icon: Icon, className }: Compa
     <Link
       href={href}
       className={cn(
-        'inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-border/50 bg-card text-sm font-semibold text-foreground transition-all hover:border-brand-orange/40 hover:bg-cream-light hover:text-brand hover:shadow-soft',
-        className
+        'inline-flex items-center gap-2 rounded-lg border border-border/70 bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-brand/30 hover:bg-cream-light hover:text-brand',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50',
+        className,
       )}
     >
-      <Icon className="size-4" />
+      <Icon aria-hidden className="size-4" />
       {label}
     </Link>
   )
-}
-
-/**
- * Preset quick actions for common dashboard needs
- */
-export const COMMON_ACTIONS = {
-  addSchool: {
-    label: 'Add School',
-    description: 'Register a new school to the Teach AI For India network',
-    icon: 'School' as any, // Will need to pass actual icon component
-  },
-  createSession: {
-    label: 'Schedule Session',
-    description: 'Plan your next AI education workshop',
-    icon: 'CalendarPlus' as any,
-  },
-  recordVisit: {
-    label: 'Record Visit',
-    description: 'Document your school outreach visit',
-    icon: 'MapPin' as any,
-  },
-  updateImpact: {
-    label: 'Report Session',
-    description: 'Share what happened in your latest session',
-    icon: 'FileCheck' as any,
-  },
-  inviteVolunteer: {
-    label: 'Invite Volunteer',
-    description: 'Grow the Teach AI For India team',
-    icon: 'UserPlus' as any,
-  },
 }

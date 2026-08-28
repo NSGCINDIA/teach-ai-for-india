@@ -11,9 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { selectClass } from '@/components/ui/native-select'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 const KINDS = Object.entries(CERTIFICATE_KIND_META) as [CertificateKind, { label: string }][]
 
@@ -44,7 +43,7 @@ export function IssueCertificateForm({ volunteers }: { volunteers: TeamMember[] 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="volunteer_id">Volunteer</Label>
-          <select id="volunteer_id" name="volunteer_id" required className={SELECT_CLASS} defaultValue={fieldValue(state, 'volunteer_id', '')}>
+          <select id="volunteer_id" name="volunteer_id" required className={selectClass} defaultValue={fieldValue(state, 'volunteer_id', '')}>
             <option value="" disabled>— Select —</option>
             {volunteers.map((v) => (
               <option key={v.id} value={v.id}>{v.full_name}</option>
@@ -53,7 +52,7 @@ export function IssueCertificateForm({ volunteers }: { volunteers: TeamMember[] 
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="kind">Kind</Label>
-          <select id="kind" name="kind" className={SELECT_CLASS} defaultValue={fieldValue(state, 'kind', 'participation')}>
+          <select id="kind" name="kind" className={selectClass} defaultValue={fieldValue(state, 'kind', 'participation')}>
             {KINDS.map(([value, meta]) => (
               <option key={value} value={value}>{meta.label}</option>
             ))}

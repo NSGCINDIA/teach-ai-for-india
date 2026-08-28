@@ -11,14 +11,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 const SESSION_TYPES = Object.entries(SESSION_TYPE_META) as [SessionType, { label: string }][]
 
 import { validateSchoolOnboardingReadiness } from '@/lib/validations/readiness-gate'
 import { Badge } from '@/components/ui/badge'
 import { useFormSuccess } from '@/hooks/use-form-success'
+import { selectClass } from '@/components/ui/native-select'
 import { toast } from 'sonner'
 
 interface PlanningPanelProps {
@@ -362,7 +361,7 @@ function PlanForm({
           <select
             name="preferred_time_slot"
             defaultValue={fieldValue(state, 'preferred_time_slot', plan?.preferred_time_slot ?? '')}
-            className={SELECT_CLASS}
+            className={selectClass}
           >
             <option value="">-- Select Time Slot --</option>
             <option value="Morning">Morning</option>

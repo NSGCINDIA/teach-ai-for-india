@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { MetricCard } from '@/components/shared/metric-card'
 import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/shared/states'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'My Attendance' }
 
@@ -18,10 +19,10 @@ export default async function AttendancePage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">My attendance</h1>
-        <p className="mt-1 text-muted-foreground">Every session you were rostered on (PRD §7.5).</p>
-      </header>
+      <PageHeader
+        title="My attendance"
+        description="Every session you were rostered on (PRD §7.5)."
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <MetricCard label="Sessions rostered" value={records.length} icon={CalendarCheck} />

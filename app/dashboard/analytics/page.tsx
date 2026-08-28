@@ -13,6 +13,7 @@ import { MetricCard } from '@/components/shared/metric-card'
 import { StatusBreakdown, type BreakdownItem } from '@/components/analytics/status-breakdown'
 import { CampusSpendChart } from '@/components/analytics/campus-spend-chart'
 import { EmptyState } from '@/components/shared/states'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Analytics' }
 
@@ -56,12 +57,10 @@ export default async function DashboardAnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Analytics</h1>
-        <p className="mt-1 text-muted-foreground">
-          {rollup?.name ?? 'Your campus'}&rsquo;s impact vs. target and operational breakdowns.
-        </p>
-      </header>
+      <PageHeader
+        title="Analytics"
+        description={<>{rollup?.name ?? 'Your campus'}&rsquo;s impact vs. target and operational breakdowns.</>}
+      />
 
       <section aria-label="Campus summary" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard

@@ -1,9 +1,11 @@
+import { FileBarChart } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { getCampusSessionFunnel } from '@/lib/data/campus-analytics'
 import { SESSION_STATUS_META } from '@/lib/constants/status'
 import type { SessionStatus, StatusCount } from '@/types/database'
 import { StatusBreakdown, type BreakdownItem } from '@/components/analytics/status-breakdown'
 import { EmptyState } from '@/components/shared/states'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Reports' }
 
@@ -29,10 +31,11 @@ export default async function DashboardReportsPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Reports</h1>
-        <p className="mt-1 text-muted-foreground">Where your campus's sessions stand across the delivery lifecycle.</p>
-      </header>
+      <PageHeader
+        icon={FileBarChart}
+        title="Reports"
+        description="Where your campus's sessions stand across the delivery lifecycle."
+      />
 
       <StatusBreakdown title="Session funnel" items={orderedItems(funnel)} />
     </div>

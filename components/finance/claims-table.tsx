@@ -10,9 +10,9 @@ import { formatCurrency, formatDate } from '@/lib/format'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { EmptyState } from '@/components/shared/states'
+import { selectClass } from '@/components/ui/native-select'
+import { cn } from '@/lib/utils'
 
-const SELECT_CLASS =
-  'border-input h-9 rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 const STATUSES = Object.keys(REIMBURSEMENT_STATUS_META) as ReimbursementStatus[]
 
@@ -49,12 +49,12 @@ export function ClaimsTable({ claims, basePath, showClaimant = false, campuses =
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search ref, claimant, session…" className="pl-9" aria-label="Search claims" />
         </div>
-        <select className={SELECT_CLASS} value={status} onChange={(e) => setStatus(e.target.value as ReimbursementStatus | '')} aria-label="Filter by status">
+        <select className={cn(selectClass, 'h-9 w-auto min-w-40 text-xs')} value={status} onChange={(e) => setStatus(e.target.value as ReimbursementStatus | '')} aria-label="Filter by status">
           <option value="">All statuses</option>
           {STATUSES.map((s) => <option key={s} value={s}>{REIMBURSEMENT_STATUS_META[s].label}</option>)}
         </select>
         {showClaimant && campuses.length > 0 && (
-          <select className={SELECT_CLASS} value={campus} onChange={(e) => setCampus(e.target.value)} aria-label="Filter by campus">
+          <select className={cn(selectClass, 'h-9 w-auto min-w-40 text-xs')} value={campus} onChange={(e) => setCampus(e.target.value)} aria-label="Filter by campus">
             <option value="">All campuses</option>
             {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>

@@ -6,6 +6,7 @@ import { ExportMenu } from '@/components/analytics/export-menu'
 import { EmailSummaryButton } from '@/components/admin/email-summary-button'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Reports · Admin' }
 
@@ -14,10 +15,11 @@ export default async function AdminReportsPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Reports</h1>
-        <p className="mt-1 text-muted-foreground">Download operational data or open the live analytics dashboard.</p>
-      </header>
+      <PageHeader
+        icon={FileBarChart}
+        title="Reports"
+        description="Download operational data or open the live analytics dashboard."
+      />
 
       <Card>
         <CardHeader>

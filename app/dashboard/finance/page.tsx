@@ -7,6 +7,7 @@ import { formatCurrency, formatNumber } from '@/lib/format'
 import { MetricCard } from '@/components/shared/metric-card'
 import { EmptyState } from '@/components/shared/states'
 import { BudgetRequestPanel } from '@/components/finance/budget-request-panel'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Campus Finance' }
 
@@ -28,13 +29,10 @@ export default async function DashboardFinancePage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Campus Finance</h1>
-        <p className="mt-1 text-muted-foreground">
-          {summary?.campus_name ?? 'Your campus'}&rsquo;s budget and expenditure
-          {summary?.period ? ` for ${summary.period}` : ''}.
-        </p>
-      </header>
+      <PageHeader
+        title="Campus Finance"
+        description={<>{summary?.campus_name ?? 'Your campus'}&rsquo;s budget and expenditure {summary?.period ? ` for ${summary.period}` : ''}.</>}
+      />
 
       <BudgetRequestPanel
         campusId={user.campus_id}

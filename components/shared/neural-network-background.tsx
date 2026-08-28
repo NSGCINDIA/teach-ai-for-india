@@ -1,7 +1,16 @@
+import { cn } from '@/lib/utils'
+
 /**
- * Neural Network Background Component
- * Subtle TAI brand visual element inspired by the neural network concept
- * in the TAI logo. Used sparingly for hero sections and impact moments.
+ * The TAI mark is a neural network, and this is that motif used as a texture.
+ *
+ * It is deliberately static. The previous version ran an `<animate>` on every
+ * node — twelve to twenty infinite SVG animations that started at first paint,
+ * on every dashboard load, behind content people read for minutes at a time.
+ * Ambient looping motion in the periphery is exactly what makes a working screen
+ * tiring, and the brief asks for animation that communicates rather than
+ * decorates. The network says "this is TAI" perfectly well holding still.
+ *
+ * Use it once per screen, on the hero or a single impact moment — never on cards.
  */
 
 interface NeuralNetworkBackgroundProps {
@@ -9,120 +18,104 @@ interface NeuralNetworkBackgroundProps {
   className?: string
 }
 
-export function NeuralNetworkBackground({ 
+/** Fixed layout rather than a loop over `Math.sin(i)`: a real, legible graph. */
+const NODES: { x: number; y: number; r: number }[] = [
+  { x: 8, y: 68, r: 3 },
+  { x: 21, y: 30, r: 4 },
+  { x: 24, y: 82, r: 2.5 },
+  { x: 38, y: 54, r: 5 },
+  { x: 47, y: 18, r: 3 },
+  { x: 55, y: 86, r: 3 },
+  { x: 62, y: 44, r: 4 },
+  { x: 74, y: 72, r: 2.5 },
+  { x: 79, y: 26, r: 3.5 },
+  { x: 92, y: 58, r: 3 },
+]
+
+/** Index pairs into NODES — edges of the graph above. */
+const EDGES: [number, number][] = [
+  [0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [3, 5], [3, 6],
+  [4, 6], [6, 7], [6, 8], [7, 9], [8, 9],
+]
+
+export function NeuralNetworkBackground({
   variant = 'subtle',
-  className = '' 
+  className = '',
 }: NeuralNetworkBackgroundProps) {
-  const opacity = variant === 'subtle' ? 0.03 : 0.06
-  const nodeCount = variant === 'subtle' ? 12 : 20
-  
+  const nodeOpacity = variant === 'subtle' ? 0.1 : 0.22
+  const edgeOpacity = variant === 'subtle' ? 0.06 : 0.14
+
   return (
-    <div 
-      className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}
+    <div
+      className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
       aria-hidden="true"
     >
-      {/* Grid background */}
-      <div className="absolute inset-0 neural-grid opacity-40" />
-      
-      {/* Decorative gradient orbs */}
-      <div 
-        className="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-20 blur-3xl"
+      {/* One soft warm wash, anchored to a corner so it reads as light falling
+          across the panel rather than a pair of floating coloured blobs. */}
+      <div
+        className="absolute -right-32 -top-40 size-[28rem] rounded-full blur-3xl"
         style={{
-          background: 'radial-gradient(circle, rgba(168, 24, 34, 0.3) 0%, transparent 70%)'
+          background: 'radial-gradient(circle, color-mix(in srgb, var(--brand-orange) 14%, transparent) 0%, transparent 70%)',
         }}
       />
-      <div 
-        className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full opacity-15 blur-3xl"
-        style={{
-          background: 'radial-gradient(circle, rgba(244, 122, 32, 0.25) 0%, transparent 70%)'
-        }}
-      />
-      
-      {/* Animated nodes - represent neural network connections */}
+
       <svg
-        className="absolute inset-0 w-full h-full"
-        style={{ opacity }}
+        className="absolute inset-0 size-full"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        focusable="false"
       >
-        <defs>
-          <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#7A0E17" />
-            <stop offset="50%" stopColor="#A81822" />
-            <stop offset="100%" stopColor="#F47A20" />
-          </linearGradient>
-        </defs>
-        
-        {/* Connection lines - static for performance */}
-        {variant === 'prominent' && (
-          <g stroke="url(#nodeGradient)" strokeWidth="1" opacity="0.2">
-            <line x1="15%" y1="20%" x2="35%" y2="45%" />
-            <line x1="35%" y1="45%" x2="55%" y2="30%" />
-            <line x1="55%" y1="30%" x2="75%" y2="50%" />
-            <line x1="75%" y1="50%" x2="85%" y2="70%" />
-            <line x1="35%" y1="45%" x2="45%" y2="75%" />
-            <line x1="15%" y1="20%" x2="25%" y2="80%" />
-          </g>
-        )}
-        
-        {/* Network nodes */}
-        {Array.from({ length: nodeCount }).map((_, i) => {
-          const x = 10 + (i * 80 / nodeCount) + (Math.sin(i) * 15)
-          const y = 20 + (i % 3) * 30 + (Math.cos(i) * 10)
-          const delay = i * 0.15
-          
-          return (
-            <circle
-              key={i}
-              cx={`${x}%`}
-              cy={`${y}%`}
-              r={variant === 'subtle' ? '2' : '3'}
-              fill="url(#nodeGradient)"
-              opacity="0.4"
-            >
-              <animate
-                attributeName="opacity"
-                values="0.2;0.6;0.2"
-                dur="4s"
-                begin={`${delay}s`}
-                repeatCount="indefinite"
-              />
-            </circle>
-          )
-        })}
+        <g stroke="var(--brand-maroon)" strokeWidth="0.18" opacity={edgeOpacity}>
+          {EDGES.map(([a, b]) => (
+            <line
+              key={`${a}-${b}`}
+              x1={NODES[a].x} y1={NODES[a].y}
+              x2={NODES[b].x} y2={NODES[b].y}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+        </g>
+        <g fill="var(--brand-maroon)" opacity={nodeOpacity}>
+          {NODES.map((n, i) => (
+            // preserveAspectRatio="none" would squash circles, so nodes are
+            // ellipses pre-corrected for the panel's own aspect instead.
+            <ellipse key={i} cx={n.x} cy={n.y} rx={n.r * 0.35} ry={n.r * 0.9} />
+          ))}
+        </g>
       </svg>
     </div>
   )
 }
 
 /**
- * Simplified neural network decoration for smaller spaces
+ * Simplified neural decoration for smaller spaces — empty states, image
+ * fallbacks. Same motif, four nodes, sized by its container.
  */
 export function NeuralDecoration({ className = '' }: { className?: string }) {
+  // cn (tailwind-merge) so a caller passing its own `opacity-*` replaces the
+  // default instead of emitting two conflicting utilities.
   return (
-    <div className={`relative ${className}`} aria-hidden="true">
-      <svg
-        viewBox="0 0 120 120"
-        className="w-full h-full opacity-30"
-      >
-        <defs>
-          <linearGradient id="neuralGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#7A0E17" />
-            <stop offset="100%" stopColor="#F47A20" />
-          </linearGradient>
-        </defs>
-        
-        {/* Simplified connection pattern */}
-        <g stroke="url(#neuralGradient)" strokeWidth="1.5" fill="none">
-          <line x1="20" y1="30" x2="50" y2="60" />
-          <line x1="50" y1="60" x2="80" y2="45" />
-          <line x1="50" y1="60" x2="70" y2="90" />
-        </g>
-        
-        {/* Key nodes */}
-        <circle cx="20" cy="30" r="4" fill="url(#neuralGradient)" opacity="0.6" />
-        <circle cx="50" cy="60" r="5" fill="url(#neuralGradient)" opacity="0.8" />
-        <circle cx="80" cy="45" r="4" fill="url(#neuralGradient)" opacity="0.6" />
-        <circle cx="70" cy="90" r="4" fill="url(#neuralGradient)" opacity="0.6" />
-      </svg>
-    </div>
+    <svg
+      viewBox="0 0 120 120"
+      className={cn('opacity-30', className)}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="tai-neural-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="var(--brand-deep-maroon)" />
+          <stop offset="100%" stopColor="var(--brand-orange)" />
+        </linearGradient>
+      </defs>
+      <g stroke="url(#tai-neural-gradient)" strokeWidth="1.5" fill="none">
+        <line x1="20" y1="30" x2="50" y2="60" />
+        <line x1="50" y1="60" x2="80" y2="45" />
+        <line x1="50" y1="60" x2="70" y2="90" />
+      </g>
+      <circle cx="20" cy="30" r="4" fill="url(#tai-neural-gradient)" opacity="0.6" />
+      <circle cx="50" cy="60" r="5" fill="url(#tai-neural-gradient)" opacity="0.85" />
+      <circle cx="80" cy="45" r="4" fill="url(#tai-neural-gradient)" opacity="0.6" />
+      <circle cx="70" cy="90" r="4" fill="url(#tai-neural-gradient)" opacity="0.6" />
+    </svg>
   )
 }
