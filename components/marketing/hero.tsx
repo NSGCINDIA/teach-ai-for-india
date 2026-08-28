@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { MaskHeading } from '@/components/marketing/mask-heading'
 import { HeroPhotoSequence, type HeroMoment } from '@/components/marketing/hero-photo-sequence'
-import { StampBadge } from '@/components/marketing/stamp-badge'
 import type { HeroContent } from '@/app/(public)/content'
 
 const CLOUDINARY = 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1400'
@@ -95,7 +94,6 @@ export function Hero({ content }: { content: HeroContent }) {
           </div>
 
           <div className="relative lg:col-span-5">
-            <StampBadge className="absolute -left-5 -top-5 z-10 hidden lg:block" />
             <div className="border border-foreground/20 bg-background p-2">
               <HeroPhotoSequence moments={MOMENTS} aspectClassName="aspect-[4/5] lg:aspect-[16/12]" />
             </div>
