@@ -16,7 +16,9 @@ const CATALOG: { key: string; label: string; description: string }[] = [
   { key: 'faq', label: 'FAQ', description: 'Questions & answers' },
   { key: 'stories', label: 'Impact stories', description: 'Featured stories list' },
   { key: 'contact_info', label: 'Contact info', description: 'Footer email, phone, address, socials' },
-  { key: 'announcements', label: 'Announcements', description: 'Site-wide announcement banner' },
+  // 'announcements' was listed here but nothing on the public site renders that
+  // block, so the editor offered a field whose content could never appear. The
+  // table row is left alone; only the orphaned editor entry is gone.
 ]
 
 export default async function AdminContentPage() {
