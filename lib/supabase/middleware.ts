@@ -140,7 +140,7 @@ export async function updateSession(request: NextRequest) {
     // Logged-in users hitting /login go to their role home.
     if (path === '/login' && role) {
       const url = request.nextUrl.clone()
-      url.pathname = roleHomePath(role)
+      url.pathname = roleHomePath()
       return NextResponse.redirect(url)
     }
 

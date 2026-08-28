@@ -11,9 +11,9 @@ import { changeUserRole, setUserActive, type AdminActionState } from '@/actions/
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/shared/states'
+import { selectClass } from '@/components/ui/native-select'
+import { cn } from '@/lib/utils'
 
-const SELECT_CLASS =
-  'border-input h-9 rounded-md border bg-transparent px-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 interface Props {
   users: AdminUser[]
@@ -51,13 +51,13 @@ export function UsersTable({ users, campuses, canManage, currentUserId, canViewD
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or email…" className="pl-9" aria-label="Search users" />
         </div>
         {!scoped && (
-          <select className={SELECT_CLASS} value={role} onChange={(e) => setRole(e.target.value as UserRole | '')} aria-label="Filter by role">
+          <select className={cn(selectClass, 'h-9 w-auto min-w-40 text-xs')} value={role} onChange={(e) => setRole(e.target.value as UserRole | '')} aria-label="Filter by role">
             <option value="">All roles</option>
             {(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
           </select>
         )}
         {!scoped && campuses.length > 0 && (
-          <select className={SELECT_CLASS} value={campus} onChange={(e) => setCampus(e.target.value)} aria-label="Filter by campus">
+          <select className={cn(selectClass, 'h-9 w-auto min-w-40 text-xs')} value={campus} onChange={(e) => setCampus(e.target.value)} aria-label="Filter by campus">
             <option value="">All campuses</option>
             {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
@@ -230,7 +230,7 @@ function UserRowItem({
                 <input type="hidden" name="user_id" value={user.id} />
                 <select
                   key={`${user.role}:${roleState.error ?? ''}`}
-                  name="role" defaultValue={user.role} className={SELECT_CLASS}
+                  name="role" defaultValue={user.role} className={cn(selectClass, 'h-9 w-auto min-w-40 text-xs')}
                   onChange={(e) => e.currentTarget.form?.requestSubmit()} aria-label={`Role for ${user.full_name}`}
                 >
                   {(INVITABLE_ROLES as UserRole[]).map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}

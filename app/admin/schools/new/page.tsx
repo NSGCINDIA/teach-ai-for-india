@@ -1,6 +1,8 @@
+import { School } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { listCampusOptions } from '@/lib/data/schools'
 import { SchoolForm } from '@/components/schools/school-form'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Add School · Admin' }
 
@@ -10,10 +12,11 @@ export default async function AdminNewSchoolPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Add a school</h1>
-        <p className="mt-1 text-muted-foreground">We’ll check for duplicates in the same district before creating it.</p>
-      </header>
+      <PageHeader
+        icon={School}
+        title="Add a school"
+        description="We’ll check for duplicates in the same district before creating it."
+      />
       <SchoolForm campuses={campuses} cancelHref="/admin/schools" />
     </div>
   )

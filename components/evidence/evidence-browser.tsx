@@ -15,9 +15,9 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { EmptyState } from '@/components/shared/states'
+import { selectClass } from '@/components/ui/native-select'
+import { cn } from '@/lib/utils'
 
-const SELECT_CLASS =
-  'border-input h-9 rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 const ICON: Partial<Record<MediaFileType, typeof FileText>> = {
   photo: ImageIcon, video: Film, document: FileText, presentation: FileText, receipt: Receipt, letter: ScrollText,
@@ -82,23 +82,23 @@ export function EvidenceBrowser({ items, options, canModerate, showCampusFilter 
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search filename, caption…" className="pl-9" aria-label="Search evidence" />
         </div>
-        <select className={SELECT_CLASS} value={type} onChange={(e) => setType(e.target.value as MediaFileType | '')} aria-label="Filter by type">
+        <select className={cn(selectClass, 'h-9 w-auto min-w-40 text-xs')} value={type} onChange={(e) => setType(e.target.value as MediaFileType | '')} aria-label="Filter by type">
           <option value="">All types</option>
           {MEDIA_TYPES.map((t) => <option key={t} value={t}>{MEDIA_TYPE_META[t].label}</option>)}
         </select>
-        <select className={SELECT_CLASS} value={status} onChange={(e) => setStatus(e.target.value as ApprovalStatus | '')} aria-label="Filter by approval">
+        <select className={cn(selectClass, 'h-9 w-auto min-w-40 text-xs')} value={status} onChange={(e) => setStatus(e.target.value as ApprovalStatus | '')} aria-label="Filter by approval">
           <option value="">All approval</option>
           <option value="pending">Pending</option>
           <option value="approved">Approved</option>
           <option value="rejected">Rejected</option>
         </select>
         {showCampusFilter && (
-          <select className={SELECT_CLASS} value={campus} onChange={(e) => setCampus(e.target.value)} aria-label="Filter by campus">
+          <select className={cn(selectClass, 'h-9 w-auto min-w-40 text-xs')} value={campus} onChange={(e) => setCampus(e.target.value)} aria-label="Filter by campus">
             <option value="">All campuses</option>
             {options.campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         )}
-        <select className={SELECT_CLASS} value={session} onChange={(e) => setSession(e.target.value)} aria-label="Filter by session">
+        <select className={cn(selectClass, 'h-9 w-auto min-w-40 text-xs')} value={session} onChange={(e) => setSession(e.target.value)} aria-label="Filter by session">
           <option value="">All sessions</option>
           {options.sessions.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
         </select>

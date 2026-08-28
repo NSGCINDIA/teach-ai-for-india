@@ -199,7 +199,7 @@ export function FAQList({ items = [] }: FaqListProps) {
               <Sparkles className="size-3" /> Still have questions?
             </span>
             <h3 className="font-display text-xl font-bold tracking-tight text-foreground">
-              Can't find the answer you are looking for?
+              Can&apos;t find the answer you are looking for?
             </h3>
             <p className="text-sm text-muted-foreground max-w-md">
               Whether you are a potential volunteer, local government official, or corporate sponsor, our team is here to help.

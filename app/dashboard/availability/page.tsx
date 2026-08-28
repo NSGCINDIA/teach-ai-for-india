@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/shared/states'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { AvailabilityEditor } from '@/components/availability/availability-editor'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Availability' }
 
@@ -34,10 +35,10 @@ async function CampusBoard({ campusId }: { campusId: string | null }) {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Team availability</h1>
-        <p className="mt-1 text-muted-foreground">Who’s free on upcoming dates — use it to plan assignments.</p>
-      </header>
+      <PageHeader
+        title="Team availability"
+        description="Who’s free on upcoming dates — use it to plan assignments."
+      />
 
       {byDate.size === 0 ? (
         <EmptyState icon={CalendarClock} title="No availability yet" description="Volunteers haven’t marked upcoming dates yet." />
@@ -69,10 +70,10 @@ async function MyEditor({ userId }: { userId: string }) {
   const entries = await listMyAvailability(userId, today())
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">My availability</h1>
-        <p className="mt-1 text-muted-foreground">Mark the dates you can help so leads can plan around you.</p>
-      </header>
+      <PageHeader
+        title="My availability"
+        description="Mark the dates you can help so leads can plan around you."
+      />
       <Card>
         <CardContent className="pt-6">
           <AvailabilityEditor entries={entries} />

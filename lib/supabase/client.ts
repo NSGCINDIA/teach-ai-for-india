@@ -60,7 +60,7 @@ export function createCustomFetch(
           newInit.headers = newHeaders
 
           return await fetch(input, newInit)
-        } catch (e) {
+        } catch {
           // Sign out and clear local session state
           await client.auth.signOut()
           if (onSessionExpired) {

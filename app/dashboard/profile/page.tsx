@@ -12,14 +12,21 @@ export default async function DashboardProfilePage() {
 
   return (
     <div className="max-w-xl space-y-6">
+      {/* Kept as a bespoke header rather than PageHeader: on your own profile the
+          avatar *is* the page's subject, and PageHeader's icon plate is a
+          category mark, not an identity. Type scale matches it exactly. */}
       <header className="flex items-center gap-4">
         <Avatar className="size-14">
-          <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
-          <AvatarFallback className="text-lg">{user.full_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarImage src={user.avatar_url ?? undefined} alt="" />
+          <AvatarFallback className="bg-gradient-to-br from-brand to-brand-orange text-lg font-bold text-white">
+            {user.full_name.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">{user.full_name}</h1>
-          <p className="mt-0.5 text-muted-foreground">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold leading-tight tracking-tight text-foreground md:text-3xl">
+            {user.full_name}
+          </h1>
+          <p className="mt-1 text-sm font-medium text-muted-foreground">
             {roleLabel(user.role)}{campus ? ` · ${campus.name}` : ''}
           </p>
         </div>

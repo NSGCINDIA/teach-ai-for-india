@@ -3,11 +3,7 @@
 import { useActionState, useRef, useState } from 'react'
 import {
   DollarSign,
-  TrendingDown,
-  TrendingUp,
   Receipt,
-  CheckCircle2,
-  AlertTriangle,
   Plus,
   Loader2,
   FileCheck,

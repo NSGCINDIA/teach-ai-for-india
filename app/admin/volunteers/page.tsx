@@ -1,3 +1,4 @@
+import { Users } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { can, isAdmin } from '@/lib/auth/rbac'
 import { listAdminUsers, listPendingSignups, listVolunteerApplications } from '@/lib/data/admin'
@@ -6,6 +7,7 @@ import { UsersTable } from '@/components/admin/users-table'
 import { InviteForm } from '@/components/admin/invite-form'
 import { SignupRequests } from '@/components/admin/signup-requests'
 import { VolunteerApplications } from '@/components/admin/volunteer-applications'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Volunteers · Admin' }
 
@@ -21,15 +23,12 @@ export default async function AdminVolunteersPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Volunteers &amp; team</h1>
-          <p className="mt-1 text-muted-foreground">
-            {users.length} member{users.length === 1 ? '' : 's'} across every campus. Invite, assign roles, and manage access.
-          </p>
-        </div>
-        <InviteForm campuses={campuses} />
-      </header>
+      <PageHeader
+        icon={Users}
+        title="Volunteers &amp; team"
+        description={<>{users.length} member{users.length === 1 ? '' : 's'} across every campus. Invite, assign roles, and manage access.</>}
+        actions={<InviteForm campuses={campuses} />}
+      />
 
       <SignupRequests requests={signups} />
       <VolunteerApplications applications={applications} />

@@ -8,11 +8,18 @@ import { cn } from '@/lib/utils'
  * Table — warm TAI visual treatment.
  * Stronger header hierarchy, warm hover states, sticky-header support.
  */
-function Table({ className, ...props }: React.ComponentProps<'table'>) {
+function Table({
+  className,
+  containerClassName,
+  ...props
+}: React.ComponentProps<'table'> & { containerClassName?: string }) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto rounded-xl border border-border/50 bg-card shadow-soft"
+      className={cn(
+        'relative w-full overflow-auto rounded-xl border border-border/50 bg-card shadow-soft',
+        containerClassName,
+      )}
     >
       <table
         data-slot="table"
@@ -23,12 +30,24 @@ function Table({ className, ...props }: React.ComponentProps<'table'>) {
   )
 }
 
-function TableHeader({ className, ...props }: React.ComponentProps<'thead'>) {
+/**
+ * `sticky` pins the header while the body scrolls. It sticks to the *container*,
+ * not the viewport — `overflow: auto` on the wrapper makes it the scroll box —
+ * so it only does anything when the caller also caps the container's height
+ * (see `containerClassName` on Table). The opaque `bg-cream-light` is what keeps
+ * rows from showing through as they pass underneath.
+ */
+function TableHeader({
+  className,
+  sticky = false,
+  ...props
+}: React.ComponentProps<'thead'> & { sticky?: boolean }) {
   return (
     <thead
       data-slot="table-header"
       className={cn(
         'bg-cream-light border-b border-border/50 [&_tr]:border-b-0',
+        sticky && 'sticky top-0 z-10',
         className,
       )}
       {...props}
@@ -79,7 +98,11 @@ function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
     <th
       data-slot="table-head"
       className={cn(
-        'text-muted-foreground h-11 px-4 text-left align-middle text-xs font-bold uppercase tracking-wide whitespace-nowrap',
+        // Sentence case, not uppercase. All-caps headers are the reflex of every
+        // admin template, and they cost real legibility: caps strip the word
+        // shapes the eye uses to skim a header row. Weight and colour separate
+        // the header from the body here instead.
+        'text-muted-foreground h-11 px-4 text-left align-middle text-xs font-bold whitespace-nowrap',
         '[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className,
       )}

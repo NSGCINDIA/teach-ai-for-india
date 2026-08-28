@@ -1,8 +1,10 @@
+import { Settings } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { getFinanceConfig, listContactMessages } from '@/lib/data/admin'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FinanceConfigForm } from '@/components/admin/finance-config-form'
 import { MessagesInbox } from '@/components/admin/messages-inbox'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Settings · Admin' }
 
@@ -12,10 +14,11 @@ export default async function AdminSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="mt-1 text-muted-foreground">Finance thresholds, contact inbox, and platform configuration.</p>
-      </header>
+      <PageHeader
+        icon={Settings}
+        title="Settings"
+        description="Finance thresholds, contact inbox, and platform configuration."
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

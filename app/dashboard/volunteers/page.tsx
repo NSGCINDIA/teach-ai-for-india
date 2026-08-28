@@ -6,6 +6,8 @@ import { UsersTable } from '@/components/admin/users-table'
 import { SignupRequests } from '@/components/admin/signup-requests'
 import { EmptyState } from '@/components/shared/states'
 import { ContextualUpdates } from '@/components/shared/contextual-updates'
+import { PageHeader } from '@/components/dashboard/page-header'
+import { Users } from 'lucide-react'
 
 export const metadata = { title: 'Volunteers' }
 
@@ -20,9 +22,7 @@ export default async function DashboardVolunteersPage() {
   if (scoped && !user.campus_id) {
     return (
       <div className="space-y-6">
-        <header>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Volunteers</h1>
-        </header>
+        <PageHeader icon={Users} title="Volunteers" />
         <EmptyState
           title="No campus assigned"
           description="You're not linked to a campus yet, so there's no roster to show. Ask an admin to assign your campus."
@@ -42,13 +42,16 @@ export default async function DashboardVolunteersPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Volunteers</h1>
-        <p className="mt-1 text-muted-foreground">
-          {users.length} volunteer{users.length === 1 ? '' : 's'}{' '}
-          {scoped ? 'on your campus team.' : 'across every campus.'}
-        </p>
-      </header>
+      <PageHeader
+        icon={Users}
+        title="Volunteers"
+        description={
+          <>
+            {users.length} volunteer{users.length === 1 ? '' : 's'}{' '}
+            {scoped ? 'on your campus team.' : 'across every campus.'}
+          </>
+        }
+      />
 
       <div className="space-y-6">
         <div className="space-y-6">

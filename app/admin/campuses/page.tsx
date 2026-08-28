@@ -1,10 +1,11 @@
-import { MapPin } from 'lucide-react'
+import { MapPin, Building2 } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { listCampusesFull, listAdminUsers } from '@/lib/data/admin'
 import { formatNumber } from '@/lib/format'
 import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/shared/states'
 import { CampusForm } from '@/components/admin/campus-form'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Campuses · Admin' }
 
@@ -20,15 +21,12 @@ export default async function AdminCampusesPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Campuses</h1>
-          <p className="mt-1 text-muted-foreground">
-            {campuses.length} campus{campuses.length === 1 ? '' : 'es'}. Configure targets, leads, and visibility.
-          </p>
-        </div>
-        <CampusForm leads={leads} />
-      </header>
+      <PageHeader
+        icon={Building2}
+        title="Campuses"
+        description={<>{campuses.length} campus{campuses.length === 1 ? '' : 'es'}. Configure targets, leads, and visibility.</>}
+        actions={<CampusForm leads={leads} />}
+      />
 
       {campuses.length === 0 ? (
         <EmptyState title="No campuses yet" description="Add your first campus to get started." />

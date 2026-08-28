@@ -14,14 +14,21 @@ import type {
 export type StatusTone =
   | 'neutral' | 'info' | 'pending' | 'progress' | 'success' | 'danger' | 'muted'
 
+/**
+ * Tinted fill + accessible ink. Each tone previously used its brand colour for
+ * both the background tint and the label, which measured 1.65:1–2.78:1 — every
+ * status badge in the product failed WCAG AA. The fills are unchanged; the text
+ * now uses the matching `--ink-*` token (see the note in globals.css), each
+ * verified at ≥4.5:1 against its own tint.
+ */
 export const TONE_CLASS: Record<StatusTone, string> = {
-  neutral:  'bg-status-lead/20 text-text-secondary border border-status-lead/30',
-  info:     'bg-status-contacted/20 text-brand-warm-gold border border-status-contacted/40',
-  pending:  'bg-brand-orange/15 text-brand-orange border border-brand-orange/40',
-  progress: 'bg-brand-gold/20 text-brand-gold border border-brand-gold/40',
-  success:  'bg-success/15 text-success border border-success/35',
-  danger:   'bg-error/15 text-error border border-error/35',
-  muted:    'bg-status-archived/30 text-text-tertiary border border-status-archived/50',
+  neutral:  'bg-status-lead/20 text-ink-neutral border border-status-lead/30',
+  info:     'bg-status-contacted/20 text-ink-amber border border-status-contacted/40',
+  pending:  'bg-brand-orange/15 text-ink-orange border border-brand-orange/40',
+  progress: 'bg-brand-gold/20 text-ink-gold border border-brand-gold/40',
+  success:  'bg-success/15 text-ink-green border border-success/35',
+  danger:   'bg-error/15 text-ink-red border border-error/35',
+  muted:    'bg-status-archived/30 text-ink-neutral border border-status-archived/50',
 }
 
 export const SCHOOL_STATUS_META: Record<SchoolStatus, { label: string; tone: StatusTone }> = {

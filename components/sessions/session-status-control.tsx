@@ -10,9 +10,8 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { StatusBadge } from '@/components/shared/status-badge'
+import { selectClass } from '@/components/ui/native-select'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 interface Props {
   sessionId: string
@@ -49,7 +48,7 @@ export function SessionStatusControl({ sessionId, current, canEdit }: Props) {
 
           <div className="space-y-1.5">
             <Label htmlFor="s-status">Move to</Label>
-            <select id="s-status" name="new_status" required className={SELECT_CLASS} value={target} onChange={(e) => setTarget(e.target.value as SessionStatus)}>
+            <select id="s-status" name="new_status" required className={selectClass} value={target} onChange={(e) => setTarget(e.target.value as SessionStatus)}>
               <option value="">— Select —</option>
               {options.map((s) => <option key={s} value={s}>{SESSION_STATUS_META[s].label}</option>)}
             </select>

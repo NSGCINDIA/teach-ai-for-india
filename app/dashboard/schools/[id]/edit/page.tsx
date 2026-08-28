@@ -1,8 +1,10 @@
+import { School } from 'lucide-react'
 import { notFound, redirect } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
 import { canForEntity, can } from '@/lib/auth/rbac'
 import { getSchool, listCampusOptions } from '@/lib/data/schools'
 import { SchoolForm } from '@/components/schools/school-form'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Edit School' }
 
@@ -18,10 +20,11 @@ export default async function EditSchoolPage({ params }: { params: Promise<{ id:
   const campuses = await listCampusOptions()
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Edit school</h1>
-        <p className="mt-1 text-muted-foreground">{school.name}</p>
-      </header>
+      <PageHeader
+        icon={School}
+        title="Edit school"
+        description={<>{school.name}</>}
+      />
       <SchoolForm
         school={school}
         campuses={campuses}

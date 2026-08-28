@@ -8,7 +8,6 @@ import {
   SCHOOL_STATUS_META,
   SCHOOL_TRANSITIONS,
   SCHOOL_PIPELINE,
-  schoolTransitionNeedsNote,
 } from '@/lib/constants/status'
 import type { SchoolStatus } from '@/types/database'
 import { Button } from '@/components/ui/button'
@@ -28,6 +27,10 @@ interface StatusControlProps {
 }
 
 export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin = false }: StatusControlProps) {
+  // Declared before the reducer that closes over it: the reducer only runs on
+  // submit, so the old ordering worked, but it read as a use-before-declare.
+  const [target, setTarget] = useState<SchoolStatus | ''>('')
+
   const [state, action, pending] = useActionState<SchoolActionState, FormData>(async (prev, formData) => {
     const res = await changeSchoolStatus(prev, formData)
     if (res.ok) {
@@ -35,11 +38,8 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
     }
     return res
   }, {})
-
-  const [target, setTarget] = useState<SchoolStatus | ''>('')
   const formRef = useRef<HTMLFormElement>(null)
   useFormSuccess(state, { formRef })
-  const needsNote = target ? schoolTransitionNeedsNote(current, target) : false
 
   // Manual stage override is Super Admin ONLY (Phase 1 Task 5)
   const options = useMemo(() => {
@@ -71,7 +71,6 @@ export function StatusControl({ schoolId, current, canEdit, restrictTo, isAdmin 
           const isCompleted = currentIndex >= 0 && idx < currentIndex
           const isCurrent = step === current
           const isClickable = isAdmin && options.includes(step)
-          const isLocked = !isCurrent && !isCompleted && !isClickable
 
           let boxStyle = 'border-muted bg-muted/20 text-muted-foreground/50 cursor-default'
           let labelStyle = 'text-muted-foreground/60'

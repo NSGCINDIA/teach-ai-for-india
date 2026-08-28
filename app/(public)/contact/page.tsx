@@ -98,29 +98,35 @@ export default async function ContactPage() {
                   </span>
                   <div className="space-y-0.5">
                     <p className="font-display font-bold text-sm text-foreground">Based in</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{contact.address}</p>
+                    <a
+                      href="https://maps.google.com/?q=NxtWave+of+Innovation+in+Advanced+Technologies:+NIAT+Financial+District+Nanakramguda+Telangana+500032"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="text-sm text-muted-foreground leading-relaxed hover:text-brand transition-colors"
+                    >
+                      {contact.address}
+                    </a>
                   </div>
                 </div>
 
               </div>
             </Reveal>
 
-            {/* Stylized Vector Map Mockup */}
+            {/* Interactive Google Map */}
             <Reveal>
-              <div className="relative overflow-hidden rounded-2xl border border-border bg-muted/40 h-44 flex items-center justify-center shadow-inner group">
-                <svg className="absolute inset-0 size-full stroke-muted-foreground/15 stroke-1" fill="none">
-                  <path d="M-100 40h400M-100 80h400M-100 120h400M20-20v200M120-20v200M220-20v200M-20 0l160 160M160-20l-160 160" />
-                  <circle cx="120" cy="70" r="50" className="fill-none stroke-brand/5 stroke-1" />
-                  <circle cx="120" cy="70" r="20" className="fill-brand/5 stroke-brand/10 stroke-1" />
-                </svg>
-                <div className="relative z-10 flex flex-col items-center">
-                  <span className="relative flex size-6 items-center justify-center">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand/30 opacity-75"></span>
-                    <span className="relative inline-flex size-3.5 rounded-full bg-brand shadow-soft"></span>
-                  </span>
-                  <span className="mt-2 text-xs font-bold text-foreground">Hyderabad HQ</span>
-                  <span className="text-[10px] text-muted-foreground">Telangana, India</span>
-                </div>
+              {/* The iframe fills the frame via absolute inset rather than
+                  width/height="100%": a percentage height only resolves when
+                  every ancestor has a definite height, which is what left the
+                  map collapsed to a sliver. */}
+              <div className="relative h-56 overflow-hidden rounded-2xl border border-border bg-muted/40 shadow-inner">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7613.607161857467!2d78.3476931!3d17.4212114!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93000e069dbb%3A0x88d2dc94312138f!2sNxtWave%20of%20Innovation%20in%20Advanced%20Technologies%3A%20NIAT!5e0!3m2!1sen!2sin!4v1787910740533!5m2!1sen!2sin"
+                  className="absolute inset-0 size-full border-0"
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  title="Map showing the NIAT office in Nanakramguda, Telangana"
+                />
               </div>
             </Reveal>
 

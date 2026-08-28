@@ -11,6 +11,8 @@ next.user-config.*
 .env
 .env*.local
 .env.*
+# ...but the template is meant to be committed; it holds no real values.
+!.env.example
 
 # Common ignores
 node_modules
@@ -19,3 +21,8 @@ node_modules
 
 # Supabase CLI local cache
 supabase/.temp/
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo
+
+# npm lockfile — this project uses pnpm (see pnpm-lock.yaml)
+package-lock.json

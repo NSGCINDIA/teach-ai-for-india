@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
-import { School, MapPin, CheckCircle2, XCircle, Clock, Loader2 } from 'lucide-react'
+import { School, MapPin, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
 import { respondSchoolTeamAvailability, type SchoolTeamActionState } from '@/actions/school-team'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -79,7 +79,7 @@ export function VolunteerSessionCard({
               className="bg-brand text-white text-xs h-8"
             >
               {pending ? <Loader2 className="size-3 animate-spin mr-1" /> : <CheckCircle2 className="size-3 mr-1" />}
-              I'm Available
+              I&apos;m Available
             </Button>
 
             <Button

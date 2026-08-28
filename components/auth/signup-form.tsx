@@ -2,7 +2,6 @@
 
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   AlertCircle,
   ArrowRight,
@@ -29,9 +28,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { BrandLogo } from '@/components/ui/brand-logo'
 import { PasswordMatch, PasswordStrength } from '@/components/auth/password-feedback'
+import { selectClass } from '@/components/ui/native-select'
 
-const SELECT_CLASS =
-  'h-11 w-full rounded-xl border border-neutral-200 dark:border-zinc-800 bg-transparent pl-10 pr-10 text-sm outline-none focus-visible:border-brand dark:focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand/50 text-foreground dark:text-zinc-50 appearance-none'
 
 export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'name'>[] }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(requestSignup, {})
@@ -137,7 +135,7 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
             name="campus_id"
             required
             defaultValue={fieldValue(state, 'campus_id', '')}
-            className={SELECT_CLASS}
+            className={selectClass}
             onChange={(e) => setCampusId(e.target.value)}
           >
             <option value="" disabled className="dark:bg-zinc-900">Select your campus</option>
@@ -146,7 +144,7 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
         </Field>
 
         <Field label="Role" htmlFor="requested_role" icon={<UserCog className="size-4" />} isSelect>
-          <select id="requested_role" name="requested_role" required defaultValue={fieldValue(state, 'requested_role', 'volunteer')} className={SELECT_CLASS}>
+          <select id="requested_role" name="requested_role" required defaultValue={fieldValue(state, 'requested_role', 'volunteer')} className={selectClass}>
             {SELF_SIGNUP_ROLES.map((r) => (
               <option key={r} value={r} className="dark:bg-zinc-900">
                 {roleLabel(r)}

@@ -1,7 +1,9 @@
+import { Receipt } from 'lucide-react'
 import { notFound, redirect } from 'next/navigation'
 import { requireAccess } from '@/lib/auth/user'
 import { getReimbursement, listClaimableSessions } from '@/lib/data/finance'
 import { ClaimForm } from '@/components/finance/claim-form'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Edit Claim' }
 
@@ -18,10 +20,11 @@ export default async function EditClaimPage({ params }: { params: Promise<{ id: 
   const sessions = await listClaimableSessions(user.id)
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Edit claim</h1>
-        <p className="mt-1 text-muted-foreground font-mono text-sm">{claim.reference_number}</p>
-      </header>
+      <PageHeader
+        icon={Receipt}
+        title="Edit claim"
+        description={<>{claim.reference_number}</>}
+      />
       <ClaimForm claim={claim} sessions={sessions} cancelHref={`/dashboard/reimbursements/${id}`} />
     </div>
   )

@@ -13,6 +13,7 @@ import { BudgetRequestReviewList } from '@/components/dashboard/budget-request-r
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { formatCurrency, formatNumber } from '@/lib/format'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Finance' }
 
@@ -54,13 +55,10 @@ export default async function DashboardReimbursementsPage() {
 
     return (
       <div className="space-y-6">
-        <header>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Finance Analysis & Budget Verification</h1>
-          <p className="mt-1 text-muted-foreground">
-            Analyze spend metrics and verify additional budget requests for {summary?.campus_name ?? 'your campus'}
-            {summary?.period ? ` for ${summary.period}` : ''}.
-          </p>
-        </header>
+        <PageHeader
+          title="Finance Analysis & Budget Verification"
+          description={<>Analyze spend metrics and verify additional budget requests for {summary?.campus_name ?? 'your campus'} {summary?.period ? ` for ${summary.period}` : ''}.</>}
+        />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
@@ -144,23 +142,17 @@ export default async function DashboardReimbursementsPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Reimbursements</h1>
-          <p className="mt-1 text-muted-foreground">
-            {isFinanceQueue
-              ? 'Review and process reimbursement claims for your campus.'
-              : 'Claim travel for sessions you attended and track payment.'}
-          </p>
-        </div>
-        {canCreate && (
+      <PageHeader
+        title="Reimbursements"
+        description={<>{isFinanceQueue ? 'Review and process reimbursement claims for your campus.' : 'Claim travel for sessions you attended and track payment.'}</>}
+        actions={canCreate && (
           <Button asChild>
             <Link href="/dashboard/reimbursements/new">
               <Plus className="size-4" /> New claim
             </Link>
           </Button>
         )}
-      </header>
+      />
 
       <div className="space-y-6">
         <ClaimsTable claims={claims} basePath="/dashboard/reimbursements" showClaimant={isFinanceQueue} />

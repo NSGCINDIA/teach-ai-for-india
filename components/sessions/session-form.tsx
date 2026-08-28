@@ -12,9 +12,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
+import { selectClass } from '@/components/ui/native-select'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 const TYPES = Object.entries(SESSION_TYPE_META) as [SessionType, { label: string; blurb: string }][]
 
@@ -50,13 +49,13 @@ export function SessionForm({ mode, session, schools, cancelHref }: SessionFormP
 
       <Section title="Plan">
         <Field label="School" required className="sm:col-span-2">
-          <select name="school_id" required className={SELECT_CLASS} defaultValue={fieldValue(state, 'school_id', session?.school_id ?? '')}>
+          <select name="school_id" required className={selectClass} defaultValue={fieldValue(state, 'school_id', session?.school_id ?? '')}>
             <option value="">— Select school —</option>
             {schools.map((s) => <option key={s.id} value={s.id}>{s.name} · {s.district}</option>)}
           </select>
         </Field>
         <Field label="Session type" required>
-          <select name="session_type" required className={SELECT_CLASS} value={type} onChange={(e) => setType(e.target.value as SessionType)}>
+          <select name="session_type" required className={selectClass} value={type} onChange={(e) => setType(e.target.value as SessionType)}>
             {TYPES.map(([v, m]) => <option key={v} value={v}>{m.label}</option>)}
           </select>
           <p className="mt-1 text-xs text-muted-foreground">{SESSION_TYPE_META[type].blurb}</p>

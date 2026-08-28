@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users, Wrench, Calendar, DollarSign, Activity } from 'lucide-react'
+import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users, Wrench, Calendar, Activity } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
 import type { SchoolStatusAccess, OutreachVisitRequestAccess, ExecutionPlanAccess, SchoolTeamAccess } from '@/lib/auth/rbac'
 import type { OutreachVisitRequestRow, CampusBudgetRow, SessionRow } from '@/types/database'
@@ -8,7 +8,7 @@ import type { SchoolTeamMemberDetail } from '@/lib/data/school-team'
 import type { SchoolExecutionPlanDetail } from '@/lib/data/school-execution-plans'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
-import { formatDate, formatDateTime } from '@/lib/format'
+import { formatDateTime } from '@/lib/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/status-badge'
@@ -283,7 +283,7 @@ export function SchoolDetailView({
           </Card>
 
           <Card>
-            <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="flex items-center gap-2 text-base"><Users className="size-4" /> Contacts</CardTitle>
               {canEdit && <AddContact schoolId={school.id} />}
             </CardHeader>

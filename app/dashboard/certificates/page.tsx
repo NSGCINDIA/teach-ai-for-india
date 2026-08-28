@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/shared/states'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { DeleteButton } from '@/components/shared/delete-button'
 import { IssueCertificateForm } from '@/components/certificates/issue-form'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Certificates' }
 
@@ -46,10 +47,10 @@ export default async function CertificatesPage() {
 function Layout({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">{title}</h1>
-        <p className="mt-1 text-muted-foreground">{subtitle}</p>
-      </header>
+      <PageHeader
+        title={title}
+        description={subtitle}
+      />
       {children}
     </div>
   )
@@ -65,7 +66,7 @@ function CertificateList({
     <div className="grid gap-4 sm:grid-cols-2">
       {items.map((c) => (
         <Card key={c.id}>
-          <CardHeader className="flex-row items-start justify-between space-y-0 gap-2">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 gap-2">
             <div>
               <CardTitle className="text-base">{c.title}</CardTitle>
               <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

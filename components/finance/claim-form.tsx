@@ -16,9 +16,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { EmptyState } from '@/components/shared/states'
 import { Receipt } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { selectClass } from '@/components/ui/native-select'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 interface Props {
   claim?: ReimbursementRow
@@ -64,7 +63,7 @@ export function ClaimForm({ claim, sessions, cancelHref }: Props) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Session" required className="sm:col-span-2">
-          <select name="session_id" required className={SELECT_CLASS} defaultValue={fieldValue(state, 'session_id', claim?.session_id ?? '')}>
+          <select name="session_id" required className={selectClass} defaultValue={fieldValue(state, 'session_id', claim?.session_id ?? '')}>
             <option value="">— Select session —</option>
             {options.map((s) => (
               <option key={s.id} value={s.id}>
@@ -77,7 +76,7 @@ export function ClaimForm({ claim, sessions, cancelHref }: Props) {
           <Input type="number" name="amount" min={1} step="0.01" required defaultValue={fieldValue(state, 'amount', String(claim?.amount ?? ''))} placeholder="e.g. 120" />
         </Field>
         <Field label="Travel mode" required>
-          <select name="travel_mode" required className={SELECT_CLASS} defaultValue={fieldValue(state, 'travel_mode', claim?.travel_mode ?? 'auto')}>
+          <select name="travel_mode" required className={selectClass} defaultValue={fieldValue(state, 'travel_mode', claim?.travel_mode ?? 'auto')}>
             {TRAVEL_MODES.map((m) => <option key={m} value={m}>{TRAVEL_MODE_META[m].label}</option>)}
           </select>
         </Field>

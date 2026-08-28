@@ -1,7 +1,9 @@
+import { BarChart3 } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { getProgramSummary, listCampusPerformance } from '@/lib/data/analytics'
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format'
 import { PrintButton } from '@/components/analytics/print-button'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Management Summary · Admin' }
 
@@ -26,13 +28,12 @@ export default async function ManagementSummaryPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 print:max-w-none">
-      <header className="flex items-start justify-between gap-4 border-b border-border pb-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Management summary</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Teach AI for India · Generated {generated}</p>
-        </div>
-        <PrintButton />
-      </header>
+      <PageHeader
+        icon={BarChart3}
+        title="Management summary"
+        description={<>Teach AI for India · Generated {generated}</>}
+        actions={<PrintButton />}
+      />
 
       <section>
         <h2 className="mb-3 font-display text-lg font-semibold">Program at a glance</h2>

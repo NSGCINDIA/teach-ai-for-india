@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import type { PublicCampusCard } from '@/types/database'
 import { CampusCard } from '@/components/shared/campus-card'
 import { formatNumber } from '@/lib/format'
-import { Search, LayoutGrid, List, MapPin, Trophy, BarChart3, Users, Landmark, BookOpen } from 'lucide-react'
+import { Search, LayoutGrid, List, MapPin, Trophy, BarChart3 } from 'lucide-react'
 import { m, AnimatePresence } from 'framer-motion'
 
 interface ImpactDashboardProps {
@@ -133,7 +133,7 @@ export function ImpactDashboard({ campuses }: ImpactDashboardProps) {
               <MapPin className="size-10 text-muted-foreground/60 mb-3 animate-bounce" />
               <h4 className="font-display font-bold text-base text-foreground">No campuses found</h4>
               <p className="text-sm text-muted-foreground mt-1 max-w-xs">
-                We couldn't match "{searchQuery}" in our records. Try searching for city name or select a different state filter.
+                We couldn&apos;t match &quot;{searchQuery}&quot; in our records. Try searching for city name or select a different state filter.
               </p>
             </div>
           ) : (

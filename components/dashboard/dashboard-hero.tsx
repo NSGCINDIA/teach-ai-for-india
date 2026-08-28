@@ -1,73 +1,82 @@
 import { NeuralNetworkBackground } from '@/components/shared/neural-network-background'
-import { MetricCard } from '@/components/shared/metric-card'
-import { School, Users, CalendarDays, Sparkles, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { LucideIcon } from 'lucide-react'
+
+interface HeroMetric {
+  label: string
+  value: string | number
+  icon: LucideIcon
+  trend?: number
+}
 
 interface DashboardHeroProps {
   greeting: string
   userName: string
   role: string
-  impact?: {
-    label: string
-    value: string | number
-    icon: LucideIcon
-    trend?: number
-  }[]
+  impact?: HeroMetric[]
   className?: string
 }
 
 /**
- * Dashboard Hero — TAI brand moment with warm welcome and impact visibility.
- * Creates emotional connection and makes the user feel part of the movement.
+ * DashboardHero — the one identity moment on a dashboard screen.
+ *
+ * The impact numbers sit directly on the hero surface, divided by hairlines,
+ * rather than in four nested cards. A card inside a card is the clearest signal
+ * that a layout has stopped making decisions: the hero is already a container,
+ * so the numbers only need separating, not re-boxing. Openly-set figures also
+ * let them run much larger, which is the actual brief — impact first.
  */
-export function DashboardHero({ 
-  greeting, 
-  userName, 
-  role, 
-  impact,
-  className 
-}: DashboardHeroProps) {
+export function DashboardHero({ greeting, userName, role, impact, className }: DashboardHeroProps) {
   return (
-    <div className={cn('relative overflow-hidden rounded-2xl bg-gradient-to-br from-cream-light via-cream-warm to-secondary/20 border-2 border-brand/10', className)}>
-      {/* Neural network background decoration */}
+    <section
+      className={cn(
+        'relative overflow-hidden rounded-2xl border border-brand/12 bg-cream-light',
+        className,
+      )}
+    >
       <NeuralNetworkBackground variant="subtle" />
-      
-      <div className="relative px-6 py-8 md:px-10 md:py-12 lg:px-12 lg:py-14">
-        {/* Greeting Section */}
-        <div className="mb-8 space-y-2">
-          <p className="text-sm font-semibold text-brand-orange uppercase tracking-wide">
-            {role}
-          </p>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-            {greeting}, {userName} 👋
-          </h1>
-          <p className="text-base md:text-lg text-muted-foreground font-medium max-w-2xl">
-            Here's the impact you're creating across Teach AI For India
-          </p>
-        </div>
 
-        {/* Impact Metrics - Only show if provided */}
+      <div className="relative px-6 py-8 md:px-9 md:py-10">
+        <p className="text-xs font-bold tracking-wide text-brand-orange">{role}</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          {greeting}, {userName} <span aria-hidden>👋</span>
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm font-medium text-muted-foreground md:text-base">
+          Here&rsquo;s the impact you&rsquo;re creating across Teach AI For India.
+        </p>
+
         {impact && impact.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {impact.map((metric, index) => (
-              <MetricCard
-                key={index}
-                label={metric.label}
-                value={metric.value}
-                icon={metric.icon}
-                trend={metric.trend}
-                variant={index === 0 ? 'highlight' : 'default'}
-              />
+          <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-brand/12 pt-6 lg:grid-cols-4 lg:gap-x-0">
+            {impact.map((metric, i) => (
+              <div
+                key={metric.label}
+                className={cn(
+                  'lg:px-6',
+                  // Hairlines between columns only — never a leading rule on the
+                  // first item in a row, which would read as a stray mark.
+                  i > 0 && 'lg:border-l lg:border-brand/12',
+                  i === 0 && 'lg:pl-0',
+                )}
+              >
+                <dt className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                  <metric.icon aria-hidden className="size-3.5 shrink-0 text-brand-orange" />
+                  <span className="truncate">{metric.label}</span>
+                </dt>
+                <dd className="mt-1.5 text-3xl font-bold leading-none tracking-tight tabular-nums text-brand-deep md:text-4xl">
+                  {metric.value}
+                </dd>
+              </div>
             ))}
-          </div>
+          </dl>
         )}
       </div>
-    </div>
+    </section>
   )
 }
 
 /**
- * Simplified hero for roles without aggregate metrics
+ * Hero for roles that have no aggregate numbers to show yet — same surface and
+ * type scale, so the two never look like different products.
  */
 interface SimpleHeroProps {
   greeting: string
@@ -77,29 +86,25 @@ interface SimpleHeroProps {
   className?: string
 }
 
-export function SimpleHero({ 
-  greeting, 
-  userName, 
-  description, 
-  role,
-  className 
-}: SimpleHeroProps) {
+export function SimpleHero({ greeting, userName, description, role, className }: SimpleHeroProps) {
   return (
-    <div className={cn('relative overflow-hidden rounded-2xl bg-gradient-to-br from-cream-light to-cream-warm border border-brand/10', className)}>
+    <section
+      className={cn(
+        'relative overflow-hidden rounded-2xl border border-brand/12 bg-cream-light',
+        className,
+      )}
+    >
       <NeuralNetworkBackground variant="subtle" />
-      
-      <div className="relative px-6 py-10 md:px-10 md:py-12">
-        <p className="text-xs font-bold text-brand-orange uppercase tracking-wider mb-3">
-          {role}
-        </p>
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-3">
-          {greeting}, {userName} 👋
+      <div className="relative px-6 py-8 md:px-9 md:py-10">
+        <p className="text-xs font-bold tracking-wide text-brand-orange">{role}</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          {greeting}, {userName} <span aria-hidden>👋</span>
         </h1>
-        <p className="text-base text-muted-foreground font-medium max-w-2xl">
+        <p className="mt-2 max-w-2xl text-sm font-medium text-muted-foreground md:text-base">
           {description}
         </p>
       </div>
-    </div>
+    </section>
   )
 }
 
@@ -115,15 +120,11 @@ interface SectionHeaderProps {
 
 export function SectionHeader({ title, description, action, className }: SectionHeaderProps) {
   return (
-    <div className={cn('flex items-start justify-between gap-4', className)}>
-      <div>
-        <h2 className="text-xl md:text-2xl font-bold tracking-tight text-foreground mb-1">
-          {title}
-        </h2>
+    <div className={cn('flex items-end justify-between gap-4', className)}>
+      <div className="min-w-0">
+        <h2 className="text-lg font-bold tracking-tight text-foreground md:text-xl">{title}</h2>
         {description && (
-          <p className="text-sm text-muted-foreground font-medium">
-            {description}
-          </p>
+          <p className="mt-0.5 text-sm font-medium text-muted-foreground">{description}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -134,20 +135,11 @@ export function SectionHeader({ title, description, action, className }: Section
 /**
  * "At a Glance" section wrapper for KPIs
  */
-interface AtAGlanceProps {
-  children: React.ReactNode
-  className?: string
-}
-
-export function AtAGlance({ children, className }: AtAGlanceProps) {
+export function AtAGlance({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={cn('space-y-4', className)}>
-      <h2 className="text-lg font-bold text-foreground">
-        At a Glance
-      </h2>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {children}
-      </div>
+      <h2 className="text-lg font-bold text-foreground">At a glance</h2>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{children}</div>
     </div>
   )
 }

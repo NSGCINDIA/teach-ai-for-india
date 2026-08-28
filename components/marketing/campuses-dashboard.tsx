@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import type { PublicCampusCard } from '@/types/database'
 import { CampusCard } from '@/components/shared/campus-card'
-import { Search, MapPin, Sparkles, GraduationCap, Users, Landmark, ZoomIn, ZoomOut } from 'lucide-react'
+import { Search, MapPin, ZoomIn, ZoomOut } from 'lucide-react'
 import { m, AnimatePresence } from 'framer-motion'
 
 interface CampusesDashboardProps {

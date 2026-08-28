@@ -12,7 +12,7 @@ export function AlertFeed({ alerts }: { alerts: AdminAlert[] }) {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-center gap-2">
+      <CardHeader className="flex flex-row items-center gap-2">
         <BellRing className="size-4 text-brand" aria-hidden />
         <CardTitle className="text-base">Needs attention</CardTitle>
         {active.length > 0 && (

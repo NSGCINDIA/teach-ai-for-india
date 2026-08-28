@@ -9,12 +9,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { selectClass } from '@/components/ui/native-select'
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
 
-const SELECT_CLASS =
-  'border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30'
 
 type LeadOption = { id: string; full_name: string }
 
@@ -85,7 +84,7 @@ export function CampusForm({ campus, leads }: Props) {
 
           <div className="space-y-1.5">
             <Label htmlFor="lead_user_id">Campus lead</Label>
-            <select id="lead_user_id" name="lead_user_id" className={SELECT_CLASS} defaultValue={fieldValue(state, 'lead_user_id', campus?.lead_user_id ?? '')}>
+            <select id="lead_user_id" name="lead_user_id" className={selectClass} defaultValue={fieldValue(state, 'lead_user_id', campus?.lead_user_id ?? '')}>
               <option value="">Unassigned</option>
               {leads.map((l) => <option key={l.id} value={l.id}>{l.full_name}</option>)}
             </select>

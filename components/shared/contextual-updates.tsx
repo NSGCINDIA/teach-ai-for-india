@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { CalendarDays, Wallet, Images, Users, School } from 'lucide-react'
 import Link from 'next/link'
 import { relativeTime } from '@/lib/format'
+import { StatusBadge } from '@/components/shared/status-badge'
 
 const ICONS = {
   sessions: CalendarDays,
@@ -42,7 +43,7 @@ export async function ContextualUpdates({ module }: ContextualUpdatesProps) {
 
   return (
     <Card className="border border-border/60 bg-gradient-to-br from-card to-muted/20 shadow-soft backdrop-blur-xs transition-all duration-300 hover:shadow-medium">
-      <CardHeader className="flex-row items-center gap-2 pb-3">
+      <CardHeader className="flex flex-row items-center gap-2 pb-3">
         <div className="rounded-lg bg-brand/10 p-1.5 text-brand">
           <Icon className="size-4" />
         </div>
@@ -67,11 +68,17 @@ export async function ContextualUpdates({ module }: ContextualUpdatesProps) {
                   <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{item.description}</p>
                   <p className="mt-2 text-[10px] font-medium text-muted-foreground/80">{relativeTime(item.date)}</p>
                 </div>
-                {item.badgeText && (
+                {item.badge && (
                   <div className="shrink-0">
-                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-brand/10 text-brand uppercase tracking-wider">
-                      {item.badgeText}
-                    </span>
+                    {/* The same badge the tables use, so a status reads the same
+                        wherever it appears. StatusBadge's label/tone form takes
+                        an already-resolved pair, which also means this needs no
+                        `kind` variant for assignments. */}
+                    <StatusBadge
+                      label={item.badge.label}
+                      tone={item.badge.tone}
+                      className="px-2 py-0.5 text-[10px]"
+                    />
                   </div>
                 )}
               </div>

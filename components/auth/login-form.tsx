@@ -2,7 +2,6 @@
 
 import { useActionState, useState, type KeyboardEvent } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { AlertCircle, Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { signIn, type ActionState } from '@/actions/auth'
 import { Button } from '@/components/ui/button'

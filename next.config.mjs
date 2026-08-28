@@ -29,7 +29,11 @@ const contentSecurityPolicy = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   `connect-src 'self' ${supabaseHost ? `https://${supabaseHost} ${supabaseWs}` : ''} https://*.supabase.co wss://*.supabase.co`,
-  "frame-src 'none'",
+  // The contact page embeds a Google Maps iframe for the NIAT office. Scoped to
+  // that one origin rather than opened up: this only says which documents *we*
+  // may frame. `frame-ancestors 'none'` above is the separate, unrelaxed
+  // directive that stops anyone framing us, so clickjacking cover is unchanged.
+  'frame-src https://www.google.com',
 ]
   .filter(Boolean)
   .join('; ')
@@ -46,10 +50,11 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  // Strict TypeScript is enforced in CI via `tsc --noEmit`. Build errors are
-  // surfaced (no longer silently ignored) now that the codebase is typed.
+  // Strict TypeScript is enforced at build time and again in CI via
+  // `tsc --noEmit` (.github/workflows/ci.yml). The codebase is fully typed and
+  // passes cleanly, so a type error should fail the build rather than ship.
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   images: {
     // AVIF first, WebP as the fallback: AVIF is typically 25-40% smaller than
@@ -94,7 +99,7 @@ const nextConfig = {
       // repeat visits and client-side route changes cost zero requests for
       // them; bump the filename if one ever needs to change.
       {
-        source: '/:file(icon.svg|apple-icon.png|icon-dark-32x32.png|icon-light-32x32.png|india_map_outline.png)',
+        source: '/:file(icon.svg|apple-icon.png|icon-dark-32x32.png|icon-light-32x32.png|india_map_outline.webp)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],

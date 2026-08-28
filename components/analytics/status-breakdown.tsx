@@ -17,7 +17,7 @@ export function StatusBreakdown({ title, items }: { title: string; items: Breakd
 
   return (
     <Card>
-      <CardHeader className="flex-row items-baseline justify-between">
+      <CardHeader className="flex flex-row items-baseline justify-between">
         <CardTitle className="text-base">{title}</CardTitle>
         <span className="text-sm text-muted-foreground tabular-nums">{formatNumber(total)} total</span>
       </CardHeader>

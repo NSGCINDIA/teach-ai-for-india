@@ -401,7 +401,7 @@ export function StoriesDashboard({ initialBlogs = [] }: { initialBlogs?: any[] }
                   <div className="relative border-l-4 border-brand bg-brand/5 p-4 rounded-r-xl">
                     <Quote className="absolute right-4 top-2 size-8 text-brand/10" />
                     <p className="text-sm font-semibold italic text-foreground leading-relaxed pr-8">
-                      "{activeStory.quote}"
+                      &quot;{activeStory.quote}&quot;
                     </p>
                   </div>
                 )}
@@ -467,7 +467,7 @@ export function StoriesDashboard({ initialBlogs = [] }: { initialBlogs?: any[] }
                   key={idx}
                   className="inline-block px-5 py-3 rounded-2xl bg-card border border-border/60 shadow-soft text-xs font-semibold text-foreground"
                 >
-                  ✨ "{prompt}"
+                  ✨ &quot;{prompt}&quot;
                 </div>
               ))}
             </div>

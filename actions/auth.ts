@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getSessionUser } from '@/lib/auth/user'
 import { roleHomePath, isAdmin } from '@/lib/auth/rbac'
+import { safeNextPath } from '@/lib/security/safe-next-path'
 import { roleLabel } from '@/lib/auth/roles'
 import { sendEmail } from '@/lib/email/resend'
 import { clientIp, failureCount, recordFailure, clearFailures, rateLimit } from '@/lib/security/rate-limit'
@@ -26,17 +27,6 @@ const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000
 const LOGIN_WINDOW_MS = 15 * 60 * 1000
 const LOGIN_MAX_PER_ACCOUNT = 8 // this IP against one account
 const LOGIN_MAX_PER_IP = 30 // this IP across all accounts (spray protection)
-
-/**
- * Only allow same-origin relative paths as a post-login redirect (issue #10).
- * Rejects protocol-relative (`//evil.com`), backslash tricks, and absolute URLs
- * so the `next` param can't be turned into an open redirect.
- */
-function safeNextPath(next: string): string | null {
-  if (!next || !next.startsWith('/')) return null
-  if (next.startsWith('//') || next.startsWith('/\\') || next.startsWith('/%2f') || next.startsWith('/%5c')) return null
-  return next
-}
 
 // ─── Sign in (email + password) ──────────────────────────────────────────────
 export async function signIn(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -92,7 +82,7 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
   await supabase.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', data.user.id)
 
   const next = safeNextPath((formData.get('next') as string) || '')
-  redirect(next ?? roleHomePath((profile?.role as UserRole) ?? 'volunteer'))
+  redirect(next ?? roleHomePath())
 }
 
 // ─── Sign out ────────────────────────────────────────────────────────────────
@@ -120,35 +110,11 @@ export async function requestPasswordReset(_prev: ActionState, formData: FormDat
     return { error: 'Too many password reset requests. Please wait a few minutes and try again.', values }
   }
 
-  // Graceful degradation when Supabase is not configured (PRD §15 / README)
-  const isConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
-                       !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-ref') &&
-                       process.env.SUPABASE_SERVICE_ROLE_KEY && 
-                       !process.env.SUPABASE_SERVICE_ROLE_KEY.includes('your-service-role-key');
-
-  if (!isConfigured) {
-    const mockUsers = ['admin@teachaiforindia.org', 'hello@teachaiforindia.org'];
-    if (mockUsers.includes(email)) {
-      return { ok: true, message: 'If that email exists, a reset link is on its way.' }
-    }
-    return { error: "This email isn't registered. Please create an account first.", values }
-  }
-
-  const admin = createAdminClient()
-  const { data: userExists, error: checkError } = await admin
-    .from('users')
-    .select('id')
-    .ilike('email', email)
-    .maybeSingle()
-
-  if (checkError) {
-    return { error: 'Something went wrong. Please try again.', values }
-  }
-
-  if (!userExists) {
-    return { error: "This email isn't registered. Please create an account first.", values }
-  }
-
+  // Never branch the response on whether the address exists. Doing so turns this
+  // endpoint into an account-existence oracle, which the rate limits above slow
+  // down but cannot close. Supabase's resetPasswordForEmail is itself silent
+  // about unknown addresses, so we can call it unconditionally and always give
+  // the caller the same answer.
   const supabase = await createClient()
   await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${siteUrl()}/auth/callback?next=/reset-password`,
@@ -172,8 +138,7 @@ export async function updatePassword(_prev: ActionState, formData: FormData): Pr
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password })
   if (error) return { error: error.message }
 
-  const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-  redirect(roleHomePath((profile?.role as UserRole) ?? 'volunteer'))
+  redirect(roleHomePath())
 }
 
 // ─── Public self-signup — request an account (admin-approval gated, PRD §7.2) ─

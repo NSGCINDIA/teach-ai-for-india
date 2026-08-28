@@ -26,7 +26,29 @@
   /* Warm Charcoal Text Hierarchy */
   --text-primary: #2B1810;          /* Deep warm charcoal for body text */
   --text-secondary: #5C4A3E;        /* Supporting text, captions */
-  --text-tertiary: #8B7461;         /* Muted text, placeholders */
+  --text-tertiary: #856F5D;         /* Muted text, placeholders — 4.53:1 on cream */
+
+  /* ── Ink tokens ─────────────────────────────────────────────────────────────
+     A brand colour that works as a *fill* almost never works as *text* on a
+     tint of itself. Every status badge in this product used one value for both
+     and measured between 1.65:1 and 2.78:1 against a 4.5:1 requirement — the
+     labels a campus lead reads all day were the least legible text on screen.
+     `text-brand-orange` was 2.74:1 even on plain white.
+
+     Each ink keeps its source colour's hue and saturation and drops only
+     lightness until it passes. The fills are untouched, so the palette still
+     reads as maroon + light — only the lettering got darker.
+
+     Named by hue rather than by status, because the same ink serves a badge
+     label, a standalone number and an icon drawn in that colour. Every value
+     below clears 4.5:1 on its colour's /10, /15 and /20 tints AND on white and
+     cream, so it is safe anywhere that colour is used as text. */
+  --ink-neutral: #756151;
+  --ink-orange: #B05009;            /* for #F47A20 surfaces + orange text */
+  --ink-gold: #916100;              /* for #F6A500 surfaces */
+  --ink-amber: #866A0F;             /* for #E7B823 surfaces (warning, contacted) */
+  --ink-green: #107736;             /* for #16a34a surfaces */
+  --ink-red: #991B1B;               /* already passing; named for symmetry */
   
   /* Semantic Colors (maintain accessibility) */
   --success: #16a34a;               /* Keep semantic green */
@@ -103,6 +125,15 @@
   --color-brand-orange: var(--brand-orange);
   --color-brand-gold: var(--brand-gold);
   --color-brand-warm-gold: var(--brand-warm-gold);
+
+  /* Accessible text colours for brand-tinted surfaces — see :root above. */
+  --color-ink-neutral: var(--ink-neutral);
+  --color-ink-orange: var(--ink-orange);
+  --color-ink-gold: var(--ink-gold);
+  --color-ink-amber: var(--ink-amber);
+  --color-ink-green: var(--ink-green);
+  --color-ink-red: var(--ink-red);
+  --color-forest: var(--tai-forest, #2D6A4F);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
@@ -156,6 +187,66 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Utilities
    ═══════════════════════════════════════════════════════════════════════════ */
+/* ── Native <select> field ────────────────────────────────────────────────────
+   Fourteen components had each pasted their own SELECT_CLASS string, all of them
+   descended from a shadcn default (h-9, 1px border, transparent fill, 3px ring)
+   that Input had since moved away from (h-10, 2px border, warm card fill, 2px
+   brand ring) — so a search box and the filter beside it never lined up.
+
+   This is the one definition, and it matches Input property for property.
+
+   The chevron is a background-image rather than an icon element so a bare
+   <select> can adopt the whole treatment by class name alone, with no wrapper
+   div: that is what let every existing form switch over without touching its
+   markup. It is drawn in --text-tertiary because `appearance: none` removes the
+   OS triangle, which on Windows paints as a grey system glyph that ignores the
+   warm palette entirely. `padding-right` reserves the space so a long option
+   label never runs underneath it.
+
+   It sits in @layer base, not unlayered, and that placement is load-bearing in
+   both directions: base still beats @layer base's own `* { border-color }` on
+   specificity (a class outranks the universal selector), while @layer utilities
+   beats base — so `w-auto`, `h-9` or `text-xs` on an individual <select> still
+   override the defaults below. Unlayered, the width here would win and every
+   filter dropdown in the app would stretch to fill its toolbar. */
+@layer base {
+.select-field {
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  height: 2.5rem;
+  padding: 0.5rem 2.25rem 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--input);
+  background-color: var(--card);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238B7461' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+.select-field:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--brand-maroon) 50%, transparent);
+}
+.select-field:focus {
+  border-color: var(--brand-maroon);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-maroon) 20%, transparent);
+}
+.select-field[aria-invalid='true'] {
+  border-color: var(--error);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--error) 20%, transparent);
+}
+.select-field:disabled {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+}
+
 @layer utilities {
   .section-padding {
     @apply py-20 md:py-28 px-5 md:px-8 lg:px-16;
@@ -409,5 +500,153 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE LIVING CLASSROOM — public marketing site design tokens
+   ═══════════════════════════════════════════════════════════════════════════
+   Scoped entirely under `.tai-public` (the wrapper in app/(public)/layout.tsx).
+   CSS custom properties resolve by inheritance at the point of use, not where
+   a design-token alias like `--brand-maroon` or `--font-display` was declared —
+   so redefining them here cascades into every existing component that already
+   reads those tokens (Button, SectionHeading, card.tsx, etc.) for anything
+   rendered inside `.tai-public`, while the admin dashboard and volunteer portal
+   — which render outside it — keep the original TAI brand palette from :root
+   untouched. This is the same scoping technique this file already uses for
+   `.dark-mode-disabled-permanent` and `.deco-layer`. */
+.tai-public {
+  /* raw palette */
+  --tai-ink: #1C1917;
+  --tai-charcoal: #2C2825;
+  --tai-warm-gray: #5A524F;
+  --tai-muted: #8C8380;
+  --tai-linen: #F7F3EE;
+  --tai-clay: #EDE5DA;
+  --tai-paper: #FEFCF9;
+  --tai-deep: #1C1917;
+  --tai-crimson: #9B2335;
+  --tai-crimson-hover: #7A1C2A;
+  --tai-crimson-subtle: #F3D9D7;
+  --tai-terracotta: #C4653A;
+  --tai-saffron: #E09F3E;
+  --tai-forest: #2D6A4F;
+  --tai-border: #E8D8CD;
+  --tai-border-hover: #D4C4B8;
+
+  /* map onto the semantic tokens the rest of the app already consumes */
+  --background: var(--tai-linen);
+  --foreground: var(--tai-ink);
+  --card: var(--tai-paper);
+  --card-foreground: var(--tai-ink);
+  --popover: var(--tai-paper);
+  --popover-foreground: var(--tai-ink);
+  --primary: var(--tai-crimson);
+  --primary-foreground: #ffffff;
+  --secondary: var(--tai-crimson-subtle);
+  --secondary-foreground: var(--tai-crimson-hover);
+  --muted: var(--tai-clay);
+  --muted-foreground: var(--tai-warm-gray);
+  --accent: var(--tai-clay);
+  --accent-foreground: var(--tai-crimson-hover);
+  --border: var(--tai-border);
+  --input: var(--tai-border);
+  --ring: var(--tai-crimson);
+  --placeholder: var(--tai-muted);
+
+  --brand-deep-maroon: var(--tai-crimson-hover);
+  --brand-maroon: var(--tai-crimson);
+  --brand-orange: var(--tai-terracotta);
+  --brand-gold: var(--tai-saffron);
+  --brand-warm-gold: var(--tai-saffron);
+
+  --cream-lightest: var(--tai-linen);
+  --cream-light: var(--tai-clay);
+  --cream-warm: var(--tai-clay);
+  --surface-elevated: var(--tai-paper);
+
+  --text-primary: var(--tai-ink);
+  --text-secondary: var(--tai-warm-gray);
+  --text-tertiary: var(--tai-muted);
+
+  --font-body: var(--font-dm-sans), 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument-serif), 'Instrument Serif', Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius: 12px;
+
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Unlayered on purpose: Tailwind v4 doesn't emit a `.font-display` utility
+   for an arbitrary `--font-display` theme key the way it does for the fixed
+   `sans`/`serif`/`mono` names, so `font-display` classes throughout this
+   codebase were silently falling through to `@layer base`'s `h1..h6 {
+   font-family: var(--font-sans) }` rule — invisible before this rebuild only
+   because --font-sans and --font-display both pointed at Manrope. Cascade
+   layers make any layered rule (base, utilities, ...) lose to an unlayered
+   one regardless of specificity, so declaring these here — outside every
+   @layer — is what actually lets them win. */
+.tai-public h1, .tai-public h2, .tai-public h3, .tai-public h4, .tai-public h5, .tai-public h6 {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+.tai-public .font-display {
+  font-family: var(--font-display);
+}
+
+@layer utilities {
+  /* ── Typography scale ── */
+  .tai-text-display-xl { font-size: clamp(3rem, 5.5vw, 5.5rem); line-height: 0.95; letter-spacing: -0.02em; }
+  .tai-text-display     { font-size: clamp(2.5rem, 4.5vw, 4.5rem); line-height: 0.95; letter-spacing: -0.02em; }
+  .tai-text-h1           { font-size: clamp(2rem, 3.5vw, 3.5rem); line-height: 1.1; letter-spacing: -0.02em; }
+  .tai-text-h2           { font-size: clamp(1.75rem, 2.75vw, 2.75rem); line-height: 1.1; letter-spacing: -0.02em; }
+  .tai-text-h3           { font-size: clamp(1.25rem, 1.75vw, 1.75rem); line-height: 1.1; }
+  .tai-text-body-lg      { font-size: clamp(1.125rem, 1.25vw, 1.25rem); line-height: 1.65; }
+  .tai-text-metric       { font-size: clamp(3rem, 4.5vw, 4.5rem); line-height: 1; font-variant-numeric: tabular-nums; }
+  .tai-eyebrow {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── Layout ── */
+  .tai-container      { margin-inline: auto; width: 100%; max-width: 1200px; }
+  .tai-container-wide { margin-inline: auto; width: 100%; max-width: 1400px; }
+  .tai-prose           { max-width: 680px; }
+  .tai-reading         { max-width: 800px; }
+  .tai-section         { padding-block: clamp(4rem, 8vw, 7rem); }
+  .tai-section-lg      { padding-block: clamp(5rem, 10vw, 10rem); }
+
+  /* ── Motion primitives ──
+     `.tai-mask` is the clipping box for the line-mask headline reveal (see
+     MaskHeading). The inner `.tai-mask-line` span's transform is set entirely
+     inline by that component (fail-open: visible by default, briefly hidden
+     then transitioned back in), so this class only needs to provide the
+     clipping box and the `inline-block` display transforms require. */
+  .tai-mask { overflow: hidden; display: block; }
+  .tai-mask-line { display: inline-block; }
+
+  /* Restrained scroll cue — a thin line that quietly grows and fades, never a
+     bouncing arrow. Loops slowly; visible line length only, no layout shift. */
+  @keyframes tai-scroll-line {
+    0%   { transform: scaleY(0); opacity: 0; }
+    35%  { transform: scaleY(1); opacity: 1; }
+    75%  { transform: scaleY(1); opacity: 0.4; }
+    100% { transform: scaleY(0); opacity: 0; }
+  }
+  .tai-scroll-line {
+    transform-origin: top;
+    animation: tai-scroll-line 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tai-scroll-line { animation: none; transform: scaleY(1); opacity: 0.5; }
   }
 }

@@ -16,7 +16,7 @@ import {
   Lock,
   Link2,
 } from 'lucide-react'
-import type { SessionRow, MediaAssetRow, SessionParticipantRow, UserRow } from '@/types/database'
+import type { SessionRow } from '@/types/database'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
 import { getInitialScheduleDefaults } from '@/lib/validations/schedule'
 import {

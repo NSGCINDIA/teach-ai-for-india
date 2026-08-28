@@ -6,6 +6,7 @@ import { formatCurrency, formatNumber } from '@/lib/format'
 import { MetricCard } from '@/components/shared/metric-card'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ClaimsTable } from '@/components/finance/claims-table'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Finance · Admin' }
 
@@ -21,10 +22,10 @@ export default async function AdminFinancePage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Finance</h1>
-        <p className="mt-1 text-muted-foreground">Review reimbursement claims, approve, and record payments.</p>
-      </header>
+      <PageHeader
+        title="Finance"
+        description="Review reimbursement claims, approve, and record payments."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard label="Pending review" value={formatNumber(summary.pending_count)} icon={Clock} />

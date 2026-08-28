@@ -1,0 +1,57 @@
+name: CI
+
+# The repository had no gate of any kind: sonar.yml and codeql.yml were the only
+# workflows, and neither runs a typecheck, a lint, a test or a build. Combined
+# with `ignoreBuildErrors: true` in next.config.mjs, that meant a type error
+# could reach production unnoticed. This is that gate.
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck · Lint · Test · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Node 24 strips TypeScript types natively, which is what lets
+          # `pnpm test` run the .ts test files with no transpiler.
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+        env:
+          # The public site degrades gracefully without Supabase, and the
+          # dashboard routes are all dynamic, so a build needs no live project.
+          # These placeholders only satisfy the client constructors at build
+          # time; nothing is fetched.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          NEXT_PUBLIC_SITE_URL: https://teachaiforindia.org

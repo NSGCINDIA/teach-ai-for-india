@@ -17,7 +17,6 @@ export function validateSchoolTeamReadiness(
     (m) => m.status === 'available' || m.status === 'confirmed' || m.status === 'completed',
   ).length
   const requested = teamMembers.length
-  const unavailable = teamMembers.filter((m) => m.status === 'unavailable').length
 
   const items: ReadinessItem[] = [
     {

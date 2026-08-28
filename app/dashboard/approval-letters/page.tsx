@@ -1,11 +1,12 @@
 import Link from 'next/link'
-import { FileText } from 'lucide-react'
+import { FileText, FileCheck } from 'lucide-react'
 import { requireAccess } from '@/lib/auth/user'
 import { listPlansForCampus } from '@/lib/data/plans'
 import { formatDate } from '@/lib/format'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { EmptyState } from '@/components/shared/states'
 import type { SessionPlanStatus } from '@/types/database'
+import { PageHeader } from '@/components/dashboard/page-header'
 
 export const metadata = { title: 'Approval Letters' }
 
@@ -26,13 +27,11 @@ export default async function DashboardApprovalLettersPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Approval letters</h1>
-        <p className="mt-1 text-muted-foreground">
-          Every school's planning record, its visit dates, and its approval-letter status. Edit a letter path from the
-          school's planning panel.
-        </p>
-      </header>
+      <PageHeader
+        icon={FileCheck}
+        title="Approval letters"
+        description="Every school's planning record, its visit dates, and its approval-letter status. Edit a letter path from the school's planning panel."
+      />
 
       {plans.length === 0 ? (
         <EmptyState title="No planning records yet" description="Start planning a school visit to see it listed here." />

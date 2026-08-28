@@ -22,7 +22,7 @@ export async function submitSchoolExecutionPlan(
   _prev: SchoolExecutionPlanActionState,
   formData: FormData,
 ): Promise<SchoolExecutionPlanActionState> {
-  const user = await requireUser('/dashboard/schools')
+  await requireUser('/dashboard/schools')
   const raw = Object.fromEntries(formData)
 
   const parsed = submitSchoolExecutionPlanSchema.safeParse(raw)
@@ -68,7 +68,7 @@ export async function reviewSchoolExecutionPlanCampus(
   _prev: SchoolExecutionPlanActionState,
   formData: FormData,
 ): Promise<SchoolExecutionPlanActionState> {
-  const user = await requireUser('/dashboard/schools')
+  await requireUser('/dashboard/schools')
 
   const parsed = reviewSchoolExecutionPlanSchema.safeParse({
     plan_id: formData.get('plan_id'),
@@ -200,7 +200,7 @@ export async function resubmitSchoolExecutionPlan(
   _prev: SchoolExecutionPlanActionState,
   formData: FormData,
 ): Promise<SchoolExecutionPlanActionState> {
-  const user = await requireUser('/dashboard/schools')
+  await requireUser('/dashboard/schools')
   const planId = String(formData.get('plan_id') ?? '')
   const raw = Object.fromEntries(formData)
 
