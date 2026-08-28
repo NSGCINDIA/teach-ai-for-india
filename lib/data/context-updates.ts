@@ -11,6 +11,51 @@ export interface UpdateItem {
   href?: string
 }
 
+// ─── Embedded-relation shapes ────────────────────────────────────────────────
+// Declared by hand because they cannot currently be inferred: every table in
+// types/database.ts carries `Relationships: []`, so supabase-js resolves any
+// embedded select to `SelectQueryError<"could not find the relation…">`. That
+// is why this module previously used `any` at ten call sites.
+//
+// The real fix is `supabase gen types typescript`, which emits the foreign-key
+// metadata that makes embeds infer on their own. It needs live project access,
+// which was unavailable — see the implementation report. Until then these types
+// describe exactly the columns each select below asks for, so the module is
+// type-checked against its own queries rather than opted out of checking.
+
+interface SchoolEmbed { id?: string; name: string; campus_id: string | null }
+interface SessionTopicEmbed { topic: string | null }
+interface SessionWithSchoolEmbed { id: string; topic: string | null; school: SchoolEmbed | SchoolEmbed[] | null }
+interface VolunteerEmbed { full_name: string }
+
+/**
+ * Normalise an embedded to-one relation and give it its declared shape.
+ *
+ * PostgREST returns a single object for a to-one join and an array for a
+ * to-many, so both are handled. This is the module's single narrowing point:
+ * one documented assertion instead of an `any` at every call site.
+ */
+function one<T>(rel: unknown): T | null {
+  const value = Array.isArray(rel) ? rel[0] : rel
+  return (value ?? null) as T | null
+}
+
+/**
+ * Narrow a result set to the caller's campus unless their role sees all
+ * campuses. Purely a UI convenience — RLS has already scoped the rows.
+ */
+function scopeToCampus<T>(
+  rows: T[],
+  isAll: boolean,
+  campusId: string | null,
+  campusOf: (row: T) => string | null | undefined,
+): T[] {
+  if (isAll) return rows
+  return rows.filter((row) => campusOf(row) === campusId)
+}
+
+const TAKE = 5
+
 export async function getSessionUpdates(): Promise<UpdateItem[]> {
   const user = await getSessionUser()
   if (!user) return []
@@ -26,16 +71,16 @@ export async function getSessionUpdates(): Promise<UpdateItem[]> {
 
   if (!data) return []
 
-  const filtered = isAll ? data : data.filter((s: any) => s.school?.campus_id === user.campus_id)
-
-  return (filtered as any[]).slice(0, 5).map((s) => ({
-    id: s.id,
-    title: `Session #${s.session_number}: ${s.topic || 'No topic'}`,
-    description: `At ${s.school?.name || 'School'}. Date: ${s.date}`,
-    date: s.date,
-    badgeText: s.status,
-    href: `/dashboard/sessions/${s.id}`,
-  }))
+  return scopeToCampus(data, isAll, user.campus_id, (s) => one<SchoolEmbed>(s.school)?.campus_id)
+    .slice(0, TAKE)
+    .map((s) => ({
+      id: s.id,
+      title: `Session #${s.session_number}: ${s.topic || 'No topic'}`,
+      description: `At ${one<SchoolEmbed>(s.school)?.name || 'School'}. Date: ${s.date}`,
+      date: s.date,
+      badgeText: s.status,
+      href: `/dashboard/sessions/${s.id}`,
+    }))
 }
 
 export async function getFinanceUpdates(): Promise<UpdateItem[]> {
@@ -53,16 +98,16 @@ export async function getFinanceUpdates(): Promise<UpdateItem[]> {
 
   if (!data) return []
 
-  const filtered = isAll ? data : data.filter((r: any) => r.campus_id === user.campus_id)
-
-  return (filtered as any[]).slice(0, 5).map((r) => ({
-    id: r.id,
-    title: `Claim for ₹${r.amount}`,
-    description: `Session: ${r.session?.topic || 'Travel'}. Mode: ${r.travel_mode}`,
-    date: r.created_at,
-    badgeText: r.status,
-    href: `/dashboard/reimbursements`,
-  }))
+  return scopeToCampus(data, isAll, user.campus_id, (r) => r.campus_id)
+    .slice(0, TAKE)
+    .map((r) => ({
+      id: r.id,
+      title: `Claim for ₹${r.amount}`,
+      description: `Session: ${one<SessionTopicEmbed>(r.session)?.topic || 'Travel'}. Mode: ${r.travel_mode}`,
+      date: r.created_at,
+      badgeText: r.status,
+      href: `/dashboard/reimbursements`,
+    }))
 }
 
 export async function getEvidenceUpdates(): Promise<UpdateItem[]> {
@@ -81,16 +126,16 @@ export async function getEvidenceUpdates(): Promise<UpdateItem[]> {
 
   if (!data) return []
 
-  const filtered = isAll ? data : data.filter((m: any) => m.school?.campus_id === user.campus_id)
-
-  return (filtered as any[]).slice(0, 5).map((m) => ({
-    id: m.id,
-    title: `Evidence: ${m.file_name}`,
-    description: `Type: ${m.file_type}. School: ${m.school?.name || 'Unknown'}`,
-    date: m.created_at,
-    badgeText: m.approval_status,
-    href: `/dashboard/evidence`,
-  }))
+  return scopeToCampus(data, isAll, user.campus_id, (m) => one<SchoolEmbed>(m.school)?.campus_id)
+    .slice(0, TAKE)
+    .map((m) => ({
+      id: m.id,
+      title: `Evidence: ${m.file_name}`,
+      description: `Type: ${m.file_type}. School: ${one<SchoolEmbed>(m.school)?.name || 'Unknown'}`,
+      date: m.created_at,
+      badgeText: m.approval_status,
+      href: `/dashboard/evidence`,
+    }))
 }
 
 export async function getVolunteerUpdates(): Promise<UpdateItem[]> {
@@ -108,16 +153,19 @@ export async function getVolunteerUpdates(): Promise<UpdateItem[]> {
 
   if (!data) return []
 
-  const filtered = isAll ? data : data.filter((a: any) => a.session?.school?.campus_id === user.campus_id)
-
-  return (filtered as any[]).slice(0, 5).map((a) => ({
-    id: a.id,
-    title: `Assignment: ${a.volunteer?.full_name || 'Volunteer'}`,
-    description: `For ${a.session?.topic || 'Session'} at ${a.session?.school?.name || 'School'}`,
-    date: a.assigned_at,
-    badgeText: a.status,
-    href: a.session ? `/dashboard/sessions/${a.session.id}` : `/dashboard/assignments`,
-  }))
+  return scopeToCampus(data, isAll, user.campus_id, (a) => one<SchoolEmbed>(one<SessionWithSchoolEmbed>(a.session)?.school)?.campus_id)
+    .slice(0, TAKE)
+    .map((a) => {
+      const session = one<SessionWithSchoolEmbed>(a.session)
+      return {
+        id: a.id,
+        title: `Assignment: ${one<VolunteerEmbed>(a.volunteer)?.full_name || 'Volunteer'}`,
+        description: `For ${session?.topic || 'Session'} at ${one<SchoolEmbed>(session?.school)?.name || 'School'}`,
+        date: a.assigned_at,
+        badgeText: a.status,
+        href: session ? `/dashboard/sessions/${session.id}` : `/dashboard/assignments`,
+      }
+    })
 }
 
 export async function getSchoolUpdates(): Promise<UpdateItem[]> {
@@ -135,14 +183,17 @@ export async function getSchoolUpdates(): Promise<UpdateItem[]> {
 
   if (!data) return []
 
-  const filtered = isAll ? data : data.filter((h: any) => h.school?.campus_id === user.campus_id)
-
-  return (filtered as any[]).slice(0, 5).map((h) => ({
-    id: h.id,
-    title: `School: ${h.school?.name || 'Unknown'}`,
-    description: `Changed from ${h.previous_status || 'none'} to ${h.new_status}.${h.note ? ` Note: ${h.note}` : ''}`,
-    date: h.created_at,
-    badgeText: h.new_status,
-    href: h.school ? `/dashboard/schools/${h.school.id}` : `/dashboard/schools`,
-  }))
+  return scopeToCampus(data, isAll, user.campus_id, (h) => one<SchoolEmbed>(h.school)?.campus_id)
+    .slice(0, TAKE)
+    .map((h) => {
+      const school = one<SchoolEmbed>(h.school)
+      return {
+        id: h.id,
+        title: `School: ${school?.name || 'Unknown'}`,
+        description: `Changed from ${h.previous_status || 'none'} to ${h.new_status}.${h.note ? ` Note: ${h.note}` : ''}`,
+        date: h.created_at,
+        badgeText: h.new_status,
+        href: school ? `/dashboard/schools/${school.id}` : `/dashboard/schools`,
+      }
+    })
 }
