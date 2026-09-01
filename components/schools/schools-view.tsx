@@ -170,7 +170,7 @@ export function SchoolsView({
                 why the list is short. The other filters are already legible in
                 their own controls. */}
             {overdueOnly && (
-              <> · <span className="text-brand-orange">overdue follow-ups only</span></>
+              <> · <span className="text-ink-orange">overdue follow-ups only</span></>
             )}
           </>
         }

@@ -29,12 +29,14 @@ export function EmptyState({ icon: Icon = Inbox, title, description, action, cla
         </div>
         
         {/* Icon */}
-        <span className="relative grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-brand-orange/20 to-brand-gold/20 text-brand-orange border border-brand-orange/30">
+        <span className="relative grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-brand-orange/20 to-brand-gold/20 text-ink-orange border border-brand-orange/30">
           <Icon className="size-8" strokeWidth={1.5} aria-hidden />
         </span>
       </div>
       
-      <h3 className="font-bold text-lg text-foreground mb-2">{title}</h3>
+      {/* Bumped from text-lg: an empty state is an arrival moment, and the
+          gradient needs large text to stay above the 3:1 it owes. */}
+      <h3 className="font-poster text-poster-brand mb-2 text-2xl">{title}</h3>
       
       {description && (
         <p className="max-w-sm text-sm text-muted-foreground font-medium leading-relaxed">
@@ -91,7 +93,9 @@ export function ErrorState({
         </span>
       </div>
       
-      <h3 className="font-bold text-lg text-foreground mb-2">{title}</h3>
+      {/* Bumped from text-lg: an empty state is an arrival moment, and the
+          gradient needs large text to stay above the 3:1 it owes. */}
+      <h3 className="font-poster text-poster-brand mb-2 text-2xl">{title}</h3>
       <p className="max-w-sm text-sm text-muted-foreground font-medium leading-relaxed mb-6">
         {description}
       </p>
@@ -116,7 +120,7 @@ interface CompactEmptyProps {
 export function CompactEmpty({ message, icon: Icon = Inbox }: CompactEmptyProps) {
   return (
     <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
-      <span className="grid size-12 place-items-center rounded-xl bg-cream-light text-brand-orange/60 mb-3">
+      <span className="grid size-12 place-items-center rounded-xl bg-cream-light text-ink-orange/60 mb-3">
         <Icon className="size-6" strokeWidth={1.5} aria-hidden />
       </span>
       <p className="text-sm text-muted-foreground font-medium">{message}</p>

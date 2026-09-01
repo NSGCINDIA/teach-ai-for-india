@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useRef, useState } from 'react'
-import { AlertCircle, CheckCircle2, Loader2, Send } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Loader2, MapPinned, Send } from 'lucide-react'
 import {
   createOutreachVisitRequest,
   reviewOutreachVisitRequestCampus,
@@ -24,6 +24,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { StatusBadge } from '@/components/shared/status-badge'
+import {
+  Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle,
+} from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 import { useFormSuccess } from '@/hooks/use-form-success'
 
@@ -56,7 +59,7 @@ export function VisitRequestPanel({ schoolId, schoolStatus, requests, roster, bu
           access={access}
         />
       ) : canFileNew ? (
-        <RequestForm schoolId={schoolId} roster={roster} />
+        <NewRequest schoolId={schoolId} roster={roster} />
       ) : mostRecent?.status === 'approved' ? (
         <p className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
           <CheckCircle2 className="size-4 shrink-0" /> Both approvals are in — the visit may proceed.
@@ -72,9 +75,9 @@ export function VisitRequestPanel({ schoolId, schoolStatus, requests, roster, bu
       {history.length > 0 && (
         <div className="space-y-2 border-t border-border pt-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Past requests</p>
-          <ul className="space-y-2 text-sm">
+          <ul className="divide-y divide-border/60 rounded-xl border border-border/60 bg-paper text-sm">
             {history.map((r) => (
-              <li key={r.id} className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
+              <li key={r.id} className="flex items-center justify-between gap-2 px-3 py-2">
                 <span className="truncate text-muted-foreground">
                   {r.expected_outcomes?.length > 0 ? r.expected_outcomes.join(', ') : '—'}
                 </span>
@@ -259,7 +262,51 @@ function ReviewForm({
   )
 }
 
-function RequestForm({ schoolId, roster }: { schoolId: string; roster: TeamMember[] }) {
+/**
+ * Filing a visit request is a deliberate, one-off act with fifteen controls
+ * behind it. It used to render expanded in the page for every fresh lead, which
+ * made the default view of an untouched school a long empty form. The school's
+ * state comes first now; the form opens over it.
+ */
+function NewRequest({ schoolId, roster }: { schoolId: string; roster: TeamMember[] }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand/25 bg-brand/5 p-4">
+        <div>
+          <h4 className="flex items-center gap-2 text-sm font-semibold text-brand">
+            <MapPinned className="size-4" /> No open visit request
+          </h4>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            An outreach visit request is the first gate: it needs a Campus Lead and a Finance Lead
+            approval before the visit can go ahead.
+          </p>
+        </div>
+        <Button size="sm" onClick={() => setOpen(true)}>
+          <Send className="size-4" /> File visit request
+        </Button>
+      </div>
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
+          <SheetHeader>
+            <SheetTitle>Outreach visit request</SheetTitle>
+            <SheetDescription>
+              Goes to the Campus Lead and the Finance Lead. Both must approve before the visit
+              may proceed.
+            </SheetDescription>
+          </SheetHeader>
+          <RequestForm schoolId={schoolId} roster={roster} onDone={() => setOpen(false)} />
+        </SheetContent>
+      </Sheet>
+    </>
+  )
+}
+
+function RequestForm({
+  schoolId, roster, onDone,
+}: { schoolId: string; roster: TeamMember[]; onDone: () => void }) {
   const [state, action, pending] = useActionState<OutreachVisitRequestActionState, FormData>(
     createOutreachVisitRequest,
     {},
@@ -280,6 +327,7 @@ function RequestForm({ schoolId, roster }: { schoolId: string; roster: TeamMembe
       setSelectedOutcomes([])
       setPriority('High')
       setTransportation('')
+      onDone()
     },
   })
 
@@ -290,7 +338,7 @@ function RequestForm({ schoolId, roster }: { schoolId: string; roster: TeamMembe
     setSelectedOutcomes((s) => (s.includes(outcome) ? s.filter((x) => x !== outcome) : [...s, outcome]))
 
   return (
-    <form ref={requestFormRef} action={action} className="space-y-4" noValidate>
+    <form ref={requestFormRef} action={action} className="space-y-4 px-4 pb-6" noValidate>
       <input type="hidden" name="school_id" value={schoolId} />
       <input type="hidden" name="team_member_ids" value={JSON.stringify(selected)} />
       <input type="hidden" name="expected_outcomes" value={JSON.stringify(selectedOutcomes)} />

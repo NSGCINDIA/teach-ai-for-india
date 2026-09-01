@@ -147,29 +147,6 @@ function GlobeDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function CodeBracesDoodle(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M 35 20 C 25 20, 28 40, 20 45 C 28 50, 25 70, 35 70" />
-      <path d="M 65 20 C 75 20, 72 40, 80 45 C 72 50, 75 70, 65 70" />
-      <path d="M 45 42 L 58 55 L 52 57 L 57 66 L 53 68 L 48 59 L 43 61 Z" fill="currentColor" />
-    </svg>
-  )
-}
-
-function BrainGearDoodle(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M 50 25 C 35 25, 25 35, 25 48 C 25 55, 30 62, 38 65 C 38 72, 45 78, 53 78 C 65 78, 72 70, 75 62 C 82 58, 85 50, 81 40 C 78 30, 68 25, 50 25 Z" />
-      <path d="M 45 35 C 40 38, 38 45, 42 50 C 45 55, 52 50, 50 45" />
-      <path d="M 55 35 C 60 38, 62 45, 58 50 C 55 55, 48 50, 50 45" strokeDasharray="2 2" />
-      <path d="M 33 48 C 36 52, 44 52, 46 58" />
-      <path d="M 67 48 C 64 52, 56 52, 54 58" />
-      <circle cx="50" cy="62" r="5" />
-      <path d="M 50 54 L 50 56 M 50 68 L 50 70 M 42 62 L 44 62 M 56 62 L 58 62" />
-    </svg>
-  )
-}
 
 // ==========================================
 // Main Background Component
@@ -370,25 +347,6 @@ export function Background3D() {
           </div>
         </div>
 
-        {/* 11. Code Curly Braces & Cursor (Top Center) */}
-        <div 
-          className="absolute top-[6%] left-[45%] lg:left-[48%] hidden lg:block"
-          style={depth(-15)}
-        >
-          <div className="animate-float">
-            <CodeBracesDoodle className="size-10 sm:size-12 md:size-16 text-brand dark:text-blue-400/80" />
-          </div>
-        </div>
-
-        {/* 12. Brain Profile with Gear (Middle Center-Right) */}
-        <div 
-          className="absolute top-[38%] right-[30%] lg:right-[26%] hidden lg:block"
-          style={depth(-5)}
-        >
-          <div className="animate-pulse-slow">
-            <BrainGearDoodle className="size-10 sm:size-14 md:size-18 text-brand dark:text-indigo-400/80" />
-          </div>
-        </div>
 
       </div>
 

@@ -17,6 +17,7 @@ export function CampusLeadOverview({
   canReviewBudgetRequests: boolean
 }) {
   const k = data.kpis
+  const needsAttention = k.pendingEvidenceReviews + k.schoolsAwaitingApproval + k.budgetRequestsPendingReview
   return (
     <div className="space-y-8 animate-fade-up">
       {/* Hero */}
@@ -25,10 +26,17 @@ export function CampusLeadOverview({
         userName={name}
         role="Campus Governance Lead"
         impact={[
-          { label: 'Schools Reached', value: formatNumber(k.schoolsActive), icon: School },
+          { label: 'Schools Reached', value: formatNumber(k.schoolsActive), icon: School, tone: 'brand' },
           { label: 'Active Volunteers', value: formatNumber(k.volunteersActive), icon: Users },
           { label: 'Sessions This Week', value: formatNumber(k.sessionsScheduledThisWeek), icon: CalendarClock },
-          { label: 'Needs Your Attention', value: formatNumber(k.pendingEvidenceReviews + k.schoolsAwaitingApproval + k.budgetRequestsPendingReview), icon: ClipboardList },
+          {
+            label: 'Needs Your Attention',
+            // amber only when it's actually true — a zero here is good news
+            // and shouldn't be styled like a warning.
+            value: formatNumber(needsAttention),
+            icon: ClipboardList,
+            tone: needsAttention > 0 ? 'attention' : 'default',
+          },
         ]}
       />
 

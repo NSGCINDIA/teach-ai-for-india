@@ -188,7 +188,7 @@ export function SessionsView({ sessions, campuses, basePath, showCampusFilter = 
                   <TableCell>
                     {s.volunteer_count ? (
                       <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                        <Users aria-hidden className="size-3.5 text-brand-orange" />
+                        <Users aria-hidden className="size-3.5 text-ink-orange" />
                         {s.volunteer_count}
                       </span>
                     ) : (

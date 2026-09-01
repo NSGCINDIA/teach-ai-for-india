@@ -20,7 +20,7 @@ const badgeVariants = cva(
         success:
           'border-transparent bg-success/15 text-success border-success/30',
         warning:
-          'border-transparent bg-brand-orange/15 text-brand-orange border-brand-orange/30',
+          'border-transparent bg-brand-orange/15 text-ink-orange border-brand-orange/30',
       },
     },
     defaultVariants: {

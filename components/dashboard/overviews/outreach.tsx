@@ -16,7 +16,7 @@ export function OutreachOverview({ name, data }: { name: string; data: OutreachD
         userName={name}
         role="Outreach Lead"
         impact={[
-          { label: 'Schools Reached', value: formatNumber(k.totalSchools), icon: School, variant: 'highlight' } as any,
+          { label: 'Schools Reached', value: formatNumber(k.totalSchools), icon: School, tone: 'brand' },
           { label: 'Active Leads', value: formatNumber(k.leads), icon: TrendingUp },
           { label: 'Registered', value: formatNumber(k.approved), icon: CheckCircle2 },
           { label: 'Sessions Active', value: formatNumber(k.sessionsScheduled), icon: CalendarClock },

@@ -12,7 +12,7 @@ export default function ForbiddenPage() {
         <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-error/10 text-error">
           <ShieldX className="size-7" aria-hidden />
         </span>
-        <h1 className="mt-6 font-display text-2xl font-bold">Access denied</h1>
+        <h1 className="mt-6 font-poster text-poster-brand text-3xl">Access denied</h1>
         <p className="mt-2 text-muted-foreground">
           You don’t have permission to view this page. If you think this is a mistake,
           contact your campus lead or an admin.

@@ -44,3 +44,33 @@ export function relativeTime(date: string | Date | null | undefined): string {
   if (days < 7) return `${days}d ago`
   return formatDate(d)
 }
+
+/**
+ * How long something has been sitting, as a plain duration rather than a
+ * timestamp: "3 days", "6 weeks". `relativeTime` above answers "when did this
+ * happen" and gives up on anything older than a week; this answers "how long has
+ * this been like that", which is the question a stalled school raises and which
+ * only gets more interesting the larger it grows.
+ *
+ * `now` is injectable so the rule is testable without freezing the clock.
+ */
+export function formatElapsed(
+  date: string | Date | null | undefined,
+  now: Date = new Date(),
+): string | null {
+  if (!date) return null
+  const d = typeof date === 'string' ? new Date(date) : date
+  if (Number.isNaN(d.getTime())) return null
+
+  const days = Math.floor((now.getTime() - d.getTime()) / 86_400_000)
+  if (days < 0) return null
+  if (days === 0) return 'today'
+  if (days === 1) return '1 day'
+  if (days < 14) return `${days} days`
+
+  const weeks = Math.floor(days / 7)
+  if (weeks < 9) return `${weeks} weeks`
+
+  const months = Math.floor(days / 30)
+  return months === 1 ? '1 month' : `${months} months`
+}

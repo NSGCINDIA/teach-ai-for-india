@@ -3,13 +3,11 @@
 import { useActionState, useRef, useState } from 'react'
 import {
   Wrench,
-  Laptop,
   CheckCircle2,
   AlertCircle,
   Clock,
   Send,
   Loader2,
-  Truck,
   FileCheck,
   DollarSign,
 } from 'lucide-react'
@@ -19,6 +17,7 @@ import {
   submitSchoolExecutionPlan,
   reviewSchoolExecutionPlanCampus,
   reviewSchoolExecutionPlanFinance,
+  resubmitSchoolExecutionPlan,
   type SchoolExecutionPlanActionState,
 } from '@/actions/school-execution-plans'
 import { Button } from '@/components/ui/button'
@@ -26,9 +25,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import {
+  Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle,
+} from '@/components/ui/sheet'
+import { ReadinessStrip } from '@/components/schools/readiness-strip'
 
 import { validateSchoolExecutionReadiness } from '@/lib/validations/execution-readiness'
-import { resubmitSchoolExecutionPlan } from '@/actions/school-execution-plans'
 import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface ExecutionPlanPanelProps {
@@ -41,19 +43,30 @@ interface ExecutionPlanPanelProps {
   operationalPhase?: string | null
 }
 
+const STATUS_META = {
+  draft: { label: 'Draft', style: 'border-border text-muted-foreground', icon: Clock },
+  submitted: { label: 'Awaiting Campus Review', style: 'border-warning/30 bg-warning/10 text-ink-orange', icon: Clock },
+  campus_changes_requested: { label: 'Campus Lead Changes Requested', style: 'border-error/30 bg-error/10 text-ink-red', icon: AlertCircle },
+  campus_approved: { label: 'Awaiting Finance Review', style: 'border-brand/30 bg-brand/10 text-brand', icon: Clock },
+  finance_changes_requested: { label: 'Finance Lead Changes Requested', style: 'border-error/30 bg-error/10 text-ink-red', icon: AlertCircle },
+  approved: { label: 'Execution Plan Approved', style: 'border-success/30 bg-success/10 text-ink-green', icon: CheckCircle2 },
+} as const
+
+const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`
+
 export function ExecutionPlanPanel({
   schoolId,
   plan,
   onboardingPlan,
   teamConfirmed = false,
   access,
-  schoolStatus,
   operationalPhase,
 }: ExecutionPlanPanelProps) {
-  const [subState, subAction, subPending] = useActionState<SchoolExecutionPlanActionState, FormData>(
+  const needsResubmit =
     plan?.status === 'campus_changes_requested' || plan?.status === 'finance_changes_requested'
-      ? resubmitSchoolExecutionPlan
-      : submitSchoolExecutionPlan,
+
+  const [subState, subAction, subPending] = useActionState<SchoolExecutionPlanActionState, FormData>(
+    needsResubmit ? resubmitSchoolExecutionPlan : submitSchoolExecutionPlan,
     {},
   )
   const [campState, campAction, campPending] = useActionState<SchoolExecutionPlanActionState, FormData>(
@@ -100,11 +113,8 @@ export function ExecutionPlanPanel({
     if (!transportEdited) setTransportBudget(value)
   }
 
-  const transportShortfall =
-    Number(transportBudget || 0) < Number(travelCost || 0)
+  const transportShortfall = Number(transportBudget || 0) < Number(travelCost || 0)
 
-  // Success toast + clear the form. The submit form also closes: once the plan
-  // moves to 'submitted' the panel renders the read-only summary instead.
   useFormSuccess(subState, {
     formRef: submitFormRef,
     onSuccess: () => {
@@ -116,23 +126,14 @@ export function ExecutionPlanPanel({
   useFormSuccess(finState, { formRef: financeFormRef, onSuccess: () => setFinanceComments('') })
 
   const isTeamReady = teamConfirmed || (!!operationalPhase && operationalPhase !== 'team_preparation')
-
-  // Execution Readiness Gate Evaluation (Phase 3)
   const execReadiness = validateSchoolExecutionReadiness(plan, isTeamReady)
 
   // Pre-fill equipment values derived from onboarding session_plans
   const defaultProjectors = onboardingPlan?.has_projector ? 0 : 1
   const defaultLaptops = onboardingPlan?.digital_classrooms ? Math.max(1, onboardingPlan.digital_classrooms * 2) : 2
 
-  const statusMeta = {
-    draft: { label: 'Draft', style: 'border-border text-muted-foreground', icon: Clock },
-    submitted: { label: 'Awaiting Campus Review', style: 'border-warning/30 bg-warning/10 text-warning', icon: Clock },
-    campus_changes_requested: { label: 'Campus Lead Changes Requested', style: 'border-destructive/30 bg-destructive/10 text-destructive', icon: AlertCircle },
-    campus_approved: { label: 'Awaiting Finance Review', style: 'border-brand/30 bg-brand/10 text-brand', icon: Clock },
-    finance_changes_requested: { label: 'Finance Lead Changes Requested', style: 'border-destructive/30 bg-destructive/10 text-destructive', icon: AlertCircle },
-    approved: { label: 'Execution Plan Approved', style: 'border-success/30 bg-success/10 text-success', icon: CheckCircle2 },
-  }[plan?.status ?? 'draft'] ?? { label: plan?.status ?? 'Draft', style: 'border-border text-muted-foreground', icon: Clock }
-
+  const statusMeta = STATUS_META[(plan?.status ?? 'draft') as keyof typeof STATUS_META]
+    ?? { label: plan?.status ?? 'Draft', style: 'border-border text-muted-foreground', icon: Clock }
   const StatusIcon = statusMeta.icon
 
   // Number() everywhere: PostgREST can return numerics as strings, and `a + b`
@@ -148,67 +149,19 @@ export function ExecutionPlanPanel({
       ]
     : []
   const totalBudget = budgetLines.reduce((sum, line) => sum + line.value, 0)
-  const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`
 
   return (
-    <div className="space-y-6">
-      {/* Execution Readiness Gate Card */}
-      <div className={`rounded-xl p-4 border space-y-3 ${execReadiness.ready ? 'bg-success/5 border-success/30' : 'bg-warning/5 border-warning/30'}`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-semibold flex items-center gap-2">
-              {execReadiness.ready ? (
-                <CheckCircle2 className="size-4 text-success" />
-              ) : (
-                <AlertCircle className="size-4 text-warning" />
-              )}
-              Execution Readiness Gate
-            </h4>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {execReadiness.completed} / {execReadiness.total} requirements satisfied
-            </p>
-          </div>
+    <div className="space-y-5">
+      <ReadinessStrip title="Execution readiness" gate={execReadiness} />
 
-          <Badge
-            variant="outline"
-            className={
-              execReadiness.ready
-                ? 'border-success/30 bg-success/10 text-success font-bold'
-                : 'border-warning/30 bg-warning/10 text-warning font-bold'
-            }
-          >
-            {execReadiness.ready ? 'EXECUTION READY' : 'BLOCKED'}
-          </Badge>
-        </div>
-
-        {/* Checklist Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
-          {execReadiness.items.map((item) => (
-            <div key={item.key} className="flex items-center gap-1.5">
-              {item.satisfied ? (
-                <CheckCircle2 className="size-3.5 text-success shrink-0" />
-              ) : (
-                <AlertCircle className="size-3.5 text-destructive shrink-0" />
-              )}
-              <span className={item.satisfied ? 'text-foreground font-medium' : 'text-destructive font-semibold'}>
-                {item.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* Active Plan Header */}
       {plan ? (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 p-4">
-            <div className="flex items-center gap-3">
-              <Wrench className="size-5 text-brand" />
-              <div>
-                <h4 className="text-sm font-semibold">School Execution & Budget Plan</h4>
-                <p className="text-xs text-muted-foreground">
-                  Submitted by {plan.submitted_by_user?.full_name ?? 'Execution Lead'}
-                </p>
-              </div>
+        <div className="space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h4 className="text-sm font-semibold">School execution &amp; budget plan</h4>
+              <p className="text-xs text-muted-foreground">
+                Submitted by {plan.submitted_by_user?.full_name ?? 'Execution Lead'}
+              </p>
             </div>
 
             <Badge variant="outline" className={`flex items-center gap-1 ${statusMeta.style}`}>
@@ -216,330 +169,239 @@ export function ExecutionPlanPanel({
             </Badge>
           </div>
 
-          {/* Plan Breakdown */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Equipment Breakdown */}
-            <div className="rounded-lg border border-border p-3 space-y-2 bg-card">
-              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <Laptop className="size-3.5 text-brand" /> Campus Equipment
+          {/* One bordered container with three groups, where there used to be
+              three nested cards inside a fourth. */}
+          <div className="divide-y divide-border/60 rounded-xl border border-border/60 bg-paper">
+            <div className="p-3">
+              <h5 className="field-label">
+                Campus equipment
               </h5>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>Laptops: <strong className="font-medium">{plan.laptops_count}</strong></div>
-                <div>Projectors: <strong className="font-medium">{plan.projectors_count}</strong></div>
-                <div>HDMI Cables: <strong className="font-medium">{plan.hdmi_cables_count}</strong></div>
-                <div>Extension Boards: <strong className="font-medium">{plan.extension_boards_count}</strong></div>
-                <div>Teaching Kits: <strong className="font-medium">{plan.teaching_kits_count}</strong></div>
-                <div>Speakers: <strong className="font-medium">{plan.speakers_count}</strong></div>
-              </div>
+              <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
+                <Stat label="Laptops" value={plan.laptops_count} />
+                <Stat label="Projectors" value={plan.projectors_count} />
+                <Stat label="HDMI cables" value={plan.hdmi_cables_count} />
+                <Stat label="Extension boards" value={plan.extension_boards_count} />
+                <Stat label="Teaching kits" value={plan.teaching_kits_count} />
+                <Stat label="Speakers" value={plan.speakers_count} />
+              </dl>
               {plan.other_equipment && (
-                <p className="text-xs text-muted-foreground pt-1 border-t border-border/50">
-                  Other: {plan.other_equipment}
-                </p>
+                <p className="mt-2 text-xs text-muted-foreground">Other: {plan.other_equipment}</p>
               )}
             </div>
 
-            {/* Travel & Logistics Breakdown */}
-            <div className="rounded-lg border border-border p-3 space-y-2 bg-card">
-              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <Truck className="size-3.5 text-brand" /> Travel & Logistics
+            <div className="p-3">
+              <h5 className="field-label">
+                Travel &amp; logistics
               </h5>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>Distance: <strong className="font-medium">{plan.distance_km ?? '—'} km</strong></div>
-                <div>Mode: <strong className="font-medium">{plan.transport_mode ?? '—'}</strong></div>
-                <div className="col-span-2">Estimated Travel Cost: <strong className="font-medium">{inr(Number(plan.estimated_travel_cost ?? 0))}</strong></div>
-              </div>
+              <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
+                <Stat label="Distance" value={`${plan.distance_km ?? '—'} km`} />
+                <Stat label="Mode" value={plan.transport_mode ?? '—'} />
+                <Stat label="Estimated travel cost" value={inr(Number(plan.estimated_travel_cost ?? 0))} />
+              </dl>
             </div>
 
             {/* Budget the reviewers act on: the total they approve AND every
                 category it is made of. Showing only the total was what made a
                 part-filled allocation look like a transport-only figure. */}
-            <div className="rounded-lg border border-border p-3 space-y-2 bg-card sm:col-span-2">
-              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <DollarSign className="size-3.5 text-brand" /> Budget Allocation
-              </h5>
-              <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+            <div className="p-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h5 className="field-label">
+                  Budget allocation
+                </h5>
+                <p className="text-sm">
+                  <span className="text-xs text-muted-foreground">Total requested </span>
+                  <strong className="font-display text-base font-bold text-brand tabular-nums">{inr(totalBudget)}</strong>
+                </p>
+              </div>
+              <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
                 {budgetLines.map((line) => (
-                  <div key={line.label}>
-                    {line.label}: <strong className="font-medium">{inr(line.value)}</strong>
-                  </div>
+                  <Stat key={line.label} label={line.label} value={inr(line.value)} />
                 ))}
-              </div>
-              <div className="flex items-center justify-between border-t border-border/50 pt-2 text-xs">
-                <span className="font-semibold text-foreground">Total Budget Requested</span>
-                <strong className="text-sm text-brand">{inr(totalBudget)}</strong>
-              </div>
+              </dl>
               {Number(plan.transport_budget ?? 0) < Number(plan.estimated_travel_cost ?? 0) && (
-                <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                <p className="mt-2 text-[11px] font-medium text-ink-orange">
                   Transport budget is below the {inr(Number(plan.estimated_travel_cost ?? 0))} travel
                   estimate — confirm this is intended before approving.
                 </p>
               )}
             </div>
+
+            {(plan.meeting_departure_notes || plan.campus_comments || plan.finance_comments) && (
+              <div className="space-y-2 p-3 text-xs">
+                {plan.meeting_departure_notes && (
+                  <div>
+                    <strong className="text-foreground">Logistics &amp; departure notes:</strong>
+                    <p className="mt-0.5 text-muted-foreground">{plan.meeting_departure_notes}</p>
+                  </div>
+                )}
+                {plan.campus_comments && (
+                  <div>
+                    <strong className="text-foreground">
+                      Campus Lead comments ({plan.campus_reviewer?.full_name}):
+                    </strong>
+                    <p className="mt-0.5 text-muted-foreground">{plan.campus_comments}</p>
+                  </div>
+                )}
+                {plan.finance_comments && (
+                  <div>
+                    <strong className="text-foreground">
+                      Finance Lead comments ({plan.finance_reviewer?.full_name}):
+                    </strong>
+                    <p className="mt-0.5 text-muted-foreground">{plan.finance_comments}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Notes & Comments */}
-          {(plan.meeting_departure_notes || plan.campus_comments || plan.finance_comments) && (
-            <div className="rounded-lg border border-border p-3 space-y-2 text-xs bg-muted/20">
-              {plan.meeting_departure_notes && (
-                <div>
-                  <strong className="text-foreground">Logistics & Departure Notes:</strong>
-                  <p className="text-muted-foreground mt-0.5">{plan.meeting_departure_notes}</p>
-                </div>
-              )}
-              {plan.campus_comments && (
-                <div>
-                  <strong className="text-foreground">Campus Lead Comments ({plan.campus_reviewer?.full_name}):</strong>
-                  <p className="text-muted-foreground mt-0.5">{plan.campus_comments}</p>
-                </div>
-              )}
-              {plan.finance_comments && (
-                <div>
-                  <strong className="text-foreground">Finance Lead Comments ({plan.finance_reviewer?.full_name}):</strong>
-                  <p className="text-muted-foreground mt-0.5">{plan.finance_comments}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Campus Lead Review Controls */}
-          {access.canReviewCampus && plan.status === 'submitted' && (
-            <div className="rounded-lg border border-brand/30 bg-brand/5 p-4 space-y-3">
-              <h4 className="text-sm font-semibold text-brand flex items-center gap-2">
-                <FileCheck className="size-4" /> Campus Lead Review
-              </h4>
-              {campState.ok ? (
-                <div className="bg-success/10 border border-success/30 rounded-lg p-3">
-                  <p className="text-sm text-success font-medium flex items-center gap-1.5">
-                    <CheckCircle2 className="size-4" />
-                    {campState.message}
-                  </p>
-                </div>
-              ) : (
-                <form ref={campusFormRef} action={campAction} className="space-y-3">
-                  <input type="hidden" name="plan_id" value={plan.id} />
-                  <div>
-                    <Label htmlFor="campus_comments" className="text-xs">
-                      Comments / Feedback (Required if requesting changes)
-                    </Label>
-                    <Textarea
-                      id="campus_comments"
-                      name="comments"
-                      rows={2}
-                      placeholder="Enter review comments..."
-                      value={campusComments}
-                      onChange={(e) => setCampusComments(e.target.value)}
-                      className="mt-1 text-sm bg-background"
-                    />
-                  </div>
-                  {campState.error && <p className="text-xs text-error">{campState.error}</p>}
-                  <div className="flex gap-2">
-                    <Button
-                      type="submit"
-                      name="decision"
-                      value="approved"
-                      size="sm"
-                      disabled={campPending}
-                      className="bg-brand text-white"
-                    >
-                      {campPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <CheckCircle2 className="size-3.5 mr-1" />}
-                      Approve & Forward to Finance
-                    </Button>
-                    <Button
-                      type="submit"
-                      name="decision"
-                      value="changes_requested"
-                      variant="outline"
-                      size="sm"
-                      disabled={campPending}
-                      className="border-error/30 text-error hover:bg-error/10"
-                    >
-                      Request Changes
-                    </Button>
-                  </div>
-                </form>
-              )}
-            </div>
-          )}
-
-          {/* Finance Lead Review Controls */}
-          {access.canReviewFinance && plan.status === 'campus_approved' && (
-            <div className="rounded-lg border border-brand/30 bg-brand/5 p-4 space-y-3">
-              <h4 className="text-sm font-semibold text-brand flex items-center gap-2">
-                <DollarSign className="size-4" /> Finance Lead Budget Review
-              </h4>
-              <p className="text-xs text-muted-foreground">
-                Total Budget Requested: <strong>{inr(totalBudget)}</strong>
+          {access.canSubmit && needsResubmit && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-error/30 bg-error/5 p-3">
+              <p className="text-sm">
+                <strong className="font-semibold text-ink-red">Changes requested.</strong>{' '}
+                <span className="text-muted-foreground">
+                  Address the reviewer comments above and send the plan back.
+                </span>
               </p>
-              {finState.ok ? (
-                <div className="bg-success/10 border border-success/30 rounded-lg p-3">
-                  <p className="text-sm text-success font-medium flex items-center gap-1.5">
-                    <CheckCircle2 className="size-4" />
-                    {finState.message}
-                  </p>
-                </div>
-              ) : (
-                <form ref={financeFormRef} action={finAction} className="space-y-3">
-                  <input type="hidden" name="plan_id" value={plan.id} />
-                  <div>
-                    <Label htmlFor="finance_comments" className="text-xs">
-                      Budget Comments (Required if requesting changes)
-                    </Label>
-                    <Textarea
-                      id="finance_comments"
-                      name="comments"
-                      rows={2}
-                      placeholder="Enter budget review comments..."
-                      value={financeComments}
-                      onChange={(e) => setFinanceComments(e.target.value)}
-                      className="mt-1 text-sm bg-background"
-                    />
-                  </div>
-                  {finState.error && <p className="text-xs text-error">{finState.error}</p>}
-                  <div className="flex gap-2">
-                    <Button
-                      type="submit"
-                      name="decision"
-                      value="approved"
-                      size="sm"
-                      disabled={finPending}
-                      className="bg-brand text-white"
-                    >
-                      {finPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <CheckCircle2 className="size-3.5 mr-1" />}
-                      Approve Budget ({inr(totalBudget)})
-                    </Button>
-                    <Button
-                      type="submit"
-                      name="decision"
-                      value="changes_requested"
-                      variant="outline"
-                      size="sm"
-                      disabled={finPending}
-                      className="border-error/30 text-error hover:bg-error/10"
-                    >
-                      Request Changes
-                    </Button>
-                  </div>
-                </form>
-              )}
+              <Button size="sm" onClick={() => setIsFormOpen(true)}>
+                <Send className="size-4" /> Revise &amp; resubmit
+              </Button>
             </div>
+          )}
+
+          {/* Review controls stay inline: a reviewer opened this tab to make
+              exactly this decision, so it should not be behind another click. */}
+          {access.canReviewCampus && plan.status === 'submitted' && (
+            <ReviewBlock
+              title="Campus Lead review"
+              icon={FileCheck}
+              formRef={campusFormRef}
+              action={campAction}
+              planId={plan.id}
+              pending={campPending}
+              state={campState}
+              comments={campusComments}
+              setComments={setCampusComments}
+              commentLabel="Comments / feedback (required if requesting changes)"
+              approveLabel="Approve & forward to Finance"
+            />
+          )}
+
+          {access.canReviewFinance && plan.status === 'campus_approved' && (
+            <ReviewBlock
+              title="Finance Lead budget review"
+              icon={DollarSign}
+              formRef={financeFormRef}
+              action={finAction}
+              planId={plan.id}
+              pending={finPending}
+              state={finState}
+              comments={financeComments}
+              setComments={setFinanceComments}
+              commentLabel="Budget comments (required if requesting changes)"
+              approveLabel={`Approve budget (${inr(totalBudget)})`}
+              note={`Total budget requested: ${inr(totalBudget)}`}
+            />
           )}
         </div>
       ) : (
-        /* No plan submitted yet */
-        !isFormOpen && (
-          <div className="rounded-lg border border-dashed p-6 text-center space-y-3">
-            <Wrench className="size-8 text-muted-foreground mx-auto" />
-            <div>
-              <h4 className="text-sm font-semibold">No Execution Plan Submitted</h4>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1">
-                The Execution Lead creates a school-level plan detailing equipment needs, travel logistics, and budget allocation for dual approval.
-              </p>
-            </div>
-
-            {access.canSubmit && (
-              isTeamReady ? (
-                <Button size="sm" onClick={() => setIsFormOpen(true)}>
-                  Create School Execution Plan
-                </Button>
-              ) : (
-                <div className="space-y-2 pt-1">
-                  <Button size="sm" disabled>
-                    Create School Execution Plan
-                  </Button>
-                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                    ⚠️ School team must be confirmed by the Volunteer Lead before creating an execution plan.
-                  </p>
-                </div>
-              )
-            )}
+        <div className="space-y-3 rounded-xl border border-dashed border-border bg-paper/60 p-6 text-center">
+          <Wrench aria-hidden className="mx-auto size-8 text-muted-foreground" />
+          <div>
+            <h4 className="text-sm font-semibold">No execution plan submitted</h4>
+            <p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
+              The Execution Lead creates a school-level plan detailing equipment needs, travel
+              logistics, and budget allocation for dual approval.
+            </p>
           </div>
-        )
+
+          {access.canSubmit && (
+            isTeamReady ? (
+              <Button size="sm" onClick={() => setIsFormOpen(true)}>
+                Create school execution plan
+              </Button>
+            ) : (
+              <div className="space-y-2 pt-1">
+                <Button size="sm" disabled>Create school execution plan</Button>
+                <p className="text-xs font-medium text-ink-orange">
+                  The school team must be confirmed by the Volunteer Lead before creating an
+                  execution plan.
+                </p>
+              </div>
+            )
+          )}
+        </div>
       )}
 
-      {/* Submission / Edit Form */}
-      {access.canSubmit && (isFormOpen || plan?.status === 'campus_changes_requested' || plan?.status === 'finance_changes_requested') && (
-        <div className="rounded-lg border border-border p-4 bg-muted/10 space-y-4">
-          <h4 className="text-sm font-semibold flex items-center gap-2">
-            <Send className="size-4 text-brand" /> Submit School Execution Plan
-          </h4>
+      {/* The form itself — a 20-field, three-section entry form that used to sit
+          expanded in the page. It belongs in a drawer over the plan it edits. */}
+      {access.canSubmit && (
+      <Sheet open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
+          <SheetHeader>
+            <SheetTitle>
+              {needsResubmit ? 'Resubmit execution plan' : 'Submit school execution plan'}
+            </SheetTitle>
+            <SheetDescription>
+              Equipment, travel and budget go to the Campus Lead first, then the Finance Lead.
+            </SheetDescription>
+          </SheetHeader>
 
-          <form ref={submitFormRef} action={subAction} className="space-y-4">
+          <form ref={submitFormRef} action={subAction} className="space-y-5 px-4 pb-6">
             <input type="hidden" name="school_id" value={schoolId} />
             {/* Required by resubmitSchoolExecutionPlan when the plan is in a
                 *_changes_requested state — without it the action posts an empty
                 string to the RPC's uuid parameter. */}
             {plan?.id && <input type="hidden" name="plan_id" value={plan.id} />}
 
-            {/* Equipment Section */}
-            <div className="space-y-2">
-              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Equipment Needed
-              </h5>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <div>
-                  <Label htmlFor="laptops_count" className="text-xs">Laptops</Label>
-                  <Input id="laptops_count" name="laptops_count" type="number" min={0} defaultValue={plan?.laptops_count ?? defaultLaptops} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="projectors_count" className="text-xs">Projectors</Label>
-                  <Input id="projectors_count" name="projectors_count" type="number" min={0} defaultValue={plan?.projectors_count ?? defaultProjectors} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="hdmi_cables_count" className="text-xs">HDMI Cables</Label>
-                  <Input id="hdmi_cables_count" name="hdmi_cables_count" type="number" min={0} defaultValue={plan?.hdmi_cables_count ?? 1} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="extension_boards_count" className="text-xs">Extension Boards</Label>
-                  <Input id="extension_boards_count" name="extension_boards_count" type="number" min={0} defaultValue={plan?.extension_boards_count ?? 1} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="teaching_kits_count" className="text-xs">Teaching Kits</Label>
-                  <Input id="teaching_kits_count" name="teaching_kits_count" type="number" min={0} defaultValue={plan?.teaching_kits_count ?? 1} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="speakers_count" className="text-xs">Speakers</Label>
-                  <Input id="speakers_count" name="speakers_count" type="number" min={0} defaultValue={plan?.speakers_count ?? 1} className="mt-1 text-sm" />
-                </div>
+            <fieldset className="space-y-2">
+              <legend className="field-label">
+                Equipment needed
+              </legend>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <NumField id="laptops_count" label="Laptops" defaultValue={plan?.laptops_count ?? defaultLaptops} />
+                <NumField id="projectors_count" label="Projectors" defaultValue={plan?.projectors_count ?? defaultProjectors} />
+                <NumField id="hdmi_cables_count" label="HDMI cables" defaultValue={plan?.hdmi_cables_count ?? 1} />
+                <NumField id="extension_boards_count" label="Extension boards" defaultValue={plan?.extension_boards_count ?? 1} />
+                <NumField id="teaching_kits_count" label="Teaching kits" defaultValue={plan?.teaching_kits_count ?? 1} />
+                <NumField id="speakers_count" label="Speakers" defaultValue={plan?.speakers_count ?? 1} />
               </div>
               <div>
-                <Label htmlFor="other_equipment" className="text-xs">Other Equipment Notes</Label>
+                <Label htmlFor="other_equipment" className="text-xs">Other equipment notes</Label>
                 <Input id="other_equipment" name="other_equipment" placeholder="Any extra devices or supplies" defaultValue={plan?.other_equipment ?? ''} className="mt-1 text-sm" />
               </div>
-            </div>
+            </fieldset>
 
-            {/* Travel Section */}
-            <div className="space-y-2 pt-2 border-t border-border">
-              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Travel & Logistics
-              </h5>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <fieldset className="space-y-2 border-t border-border pt-4">
+              <legend className="field-label">
+                Travel &amp; logistics
+              </legend>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <div>
                   <Label htmlFor="distance_km" className="text-xs">Distance (km)</Label>
                   <Input id="distance_km" name="distance_km" type="number" step="0.1" min={0} defaultValue={plan?.distance_km ?? ''} className="mt-1 text-sm" />
                 </div>
                 <div>
-                  <Label htmlFor="transport_mode" className="text-xs">Transport Mode</Label>
+                  <Label htmlFor="transport_mode" className="text-xs">Transport mode</Label>
                   <Input id="transport_mode" name="transport_mode" placeholder="Auto / Bus / Cab" defaultValue={plan?.transport_mode ?? ''} className="mt-1 text-sm" />
                 </div>
                 <div>
-                  <Label htmlFor="estimated_travel_cost" className="text-xs">Estimated Travel Cost (₹)</Label>
+                  <Label htmlFor="estimated_travel_cost" className="text-xs">Estimated travel cost (₹)</Label>
                   <Input id="estimated_travel_cost" name="estimated_travel_cost" type="number" min={0} value={travelCost} onChange={(e) => onTravelCostChange(e.target.value)} className="mt-1 text-sm" />
                 </div>
               </div>
               <div>
-                <Label htmlFor="meeting_departure_notes" className="text-xs">Meeting & Departure Notes</Label>
+                <Label htmlFor="meeting_departure_notes" className="text-xs">Meeting &amp; departure notes</Label>
                 <Textarea id="meeting_departure_notes" name="meeting_departure_notes" rows={2} placeholder="Departure place, meetup time, contact details" defaultValue={plan?.meeting_departure_notes ?? ''} className="mt-1 text-sm" />
               </div>
-            </div>
+            </fieldset>
 
-            {/* Budget Breakdown Section */}
-            <div className="space-y-2 pt-2 border-t border-border">
-              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Budget Allocation (₹)
-              </h5>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <fieldset className="space-y-2 border-t border-border pt-4">
+              <legend className="field-label">
+                Budget allocation (₹)
+              </legend>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div>
-                  <Label htmlFor="transport_budget" className="text-xs">Transport Budget (₹)</Label>
+                  <Label htmlFor="transport_budget" className="text-xs">Transport</Label>
                   <Input
                     id="transport_budget"
                     name="transport_budget"
@@ -550,40 +412,120 @@ export function ExecutionPlanPanel({
                     className="mt-1 text-sm"
                   />
                   {transportShortfall && (
-                    <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                    <p className="mt-1 text-xs text-ink-orange">
                       Below the ₹{Number(travelCost || 0)} travel estimate — Finance reviews this figure.
                     </p>
                   )}
                 </div>
-                <div>
-                  <Label htmlFor="materials_budget" className="text-xs">Materials Budget (₹)</Label>
-                  <Input id="materials_budget" name="materials_budget" type="number" min={0} defaultValue={plan?.materials_budget ?? 0} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="equipment_budget" className="text-xs">Equipment Budget (₹)</Label>
-                  <Input id="equipment_budget" name="equipment_budget" type="number" min={0} defaultValue={plan?.equipment_budget ?? 0} className="mt-1 text-sm" />
-                </div>
-                <div>
-                  <Label htmlFor="other_budget" className="text-xs">Other Budget (₹)</Label>
-                  <Input id="other_budget" name="other_budget" type="number" min={0} defaultValue={plan?.other_budget ?? 0} className="mt-1 text-sm" />
-                </div>
+                <NumField id="materials_budget" label="Materials" defaultValue={plan?.materials_budget ?? 0} />
+                <NumField id="equipment_budget" label="Equipment" defaultValue={plan?.equipment_budget ?? 0} />
+                <NumField id="other_budget" label="Other" defaultValue={plan?.other_budget ?? 0} />
               </div>
-            </div>
+            </fieldset>
 
             {subState.error && <p className="text-xs text-error">{subState.error}</p>}
-            {subState.ok && <p className="text-xs text-success">{subState.message}</p>}
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-1">
               <Button type="submit" size="sm" disabled={subPending}>
-                {subPending ? <Loader2 className="size-4 animate-spin mr-1" /> : <Send className="size-4 mr-1" />}
-                Submit Execution Plan
+                {subPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                Submit execution plan
               </Button>
               <Button type="button" variant="ghost" size="sm" onClick={() => setIsFormOpen(false)}>
                 Cancel
               </Button>
             </div>
           </form>
-        </div>
+        </SheetContent>
+      </Sheet>
+      )}
+    </div>
+  )
+}
+
+function Stat({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline gap-1.5">
+      <dt className="text-muted-foreground">{label}:</dt>
+      <dd className="font-semibold text-foreground tabular-nums">{value}</dd>
+    </div>
+  )
+}
+
+function NumField({ id, label, defaultValue }: { id: string; label: string; defaultValue: number }) {
+  return (
+    <div>
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <Input id={id} name={id} type="number" min={0} defaultValue={defaultValue} className="mt-1 text-sm" />
+    </div>
+  )
+}
+
+/**
+ * The two review legs are the same form with different labels and a different
+ * action — they were duplicated ~60 lines apart before.
+ */
+function ReviewBlock({
+  title, icon: Icon, formRef, action, planId, pending, state,
+  comments, setComments, commentLabel, approveLabel, note,
+}: {
+  title: string
+  icon: typeof FileCheck
+  formRef: React.RefObject<HTMLFormElement | null>
+  action: (formData: FormData) => void
+  planId: string
+  pending: boolean
+  state: SchoolExecutionPlanActionState
+  comments: string
+  setComments: (v: string) => void
+  commentLabel: string
+  approveLabel: string
+  note?: string
+}) {
+  return (
+    <div className="space-y-3 rounded-xl border border-brand/30 bg-brand/5 p-4">
+      <h4 className="flex items-center gap-2 text-sm font-semibold text-brand">
+        <Icon className="size-4" /> {title}
+      </h4>
+      {note && <p className="text-xs text-muted-foreground">{note}</p>}
+
+      {state.ok ? (
+        <p className="flex items-center gap-1.5 rounded-lg border border-success/30 bg-success/10 p-3 text-sm font-medium text-ink-green">
+          <CheckCircle2 className="size-4" /> {state.message}
+        </p>
+      ) : (
+        <form ref={formRef} action={action} className="space-y-3">
+          <input type="hidden" name="plan_id" value={planId} />
+          <div>
+            <Label htmlFor={`${planId}-comments`} className="text-xs">{commentLabel}</Label>
+            <Textarea
+              id={`${planId}-comments`}
+              name="comments"
+              rows={2}
+              placeholder="Enter review comments..."
+              value={comments}
+              onChange={(e) => setComments(e.target.value)}
+              className="mt-1 bg-background text-sm"
+            />
+          </div>
+          {state.error && <p className="text-xs text-error">{state.error}</p>}
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" name="decision" value="approved" size="sm" disabled={pending}>
+              {pending ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
+              {approveLabel}
+            </Button>
+            <Button
+              type="submit"
+              name="decision"
+              value="changes_requested"
+              variant="outline"
+              size="sm"
+              disabled={pending}
+              className="border-error/30 text-error hover:bg-error/10"
+            >
+              Request changes
+            </Button>
+          </div>
+        </form>
       )}
     </div>
   )

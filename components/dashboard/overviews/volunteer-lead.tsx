@@ -58,7 +58,7 @@ export function VolunteerLeadOverview({
                     className={
                       isReady
                         ? 'border-success/40 bg-success/15 text-success font-bold shrink-0'
-                        : 'border-brand-orange/40 bg-brand-orange/15 text-brand-orange font-bold shrink-0'
+                        : 'border-brand-orange/40 bg-brand-orange/15 text-ink-orange font-bold shrink-0'
                     }
                   >
                     {isReady ? 'Team Ready' : 'Building'}

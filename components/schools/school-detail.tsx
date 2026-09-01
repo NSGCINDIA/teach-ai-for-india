@@ -1,25 +1,30 @@
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, ClipboardList, History, Mail, MapPin, MapPinned, Pencil, Phone, Star, Users, Wrench, Calendar, Activity } from 'lucide-react'
+import { ArrowLeft, BookOpen, History, Mail, MapPin, Pencil, Phone, Star, Users } from 'lucide-react'
 import type { SchoolDetail } from '@/lib/data/schools'
 import type { SchoolStatusAccess, OutreachVisitRequestAccess, ExecutionPlanAccess, SchoolTeamAccess } from '@/lib/auth/rbac'
 import type { OutreachVisitRequestRow, CampusBudgetRow, SessionRow } from '@/types/database'
 import type { TeamMember } from '@/lib/data/sessions'
 import type { SchoolTeamMemberDetail } from '@/lib/data/school-team'
 import type { SchoolExecutionPlanDetail } from '@/lib/data/school-execution-plans'
+import type { EvidenceListItem } from '@/lib/data/evidence'
+import type { ActivityTimelineItem } from '@/lib/data/operational-expenses'
 import { SCHOOL_STATUS_META } from '@/lib/constants/status'
 import { curriculumStageLabel } from '@/lib/constants/sessions'
 import { formatDateTime } from '@/lib/format'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { deriveSchoolNextAction, type SchoolTabId } from '@/lib/schools/next-action'
 import { Button } from '@/components/ui/button'
+import { Tabs, type TabDef } from '@/components/ui/tabs'
 import { StatusBadge } from '@/components/shared/status-badge'
-import { StatusControl } from '@/components/schools/status-control'
+import { EntityMonogram } from '@/components/shared/entity-monogram'
+import { SchoolCommandBar, TAB_LABELS } from '@/components/schools/school-command-bar'
+import { LifecycleRail } from '@/components/schools/lifecycle-rail'
 import { PlanningPanel } from '@/components/schools/planning-panel'
 import { VisitRequestPanel } from '@/components/schools/visit-request-panel'
 import { AddContact } from '@/components/schools/add-contact'
-import { OperationalProgress } from '@/components/schools/operational-progress'
 import { TeamPanel } from '@/components/schools/team-panel'
 import { ExecutionPlanPanel } from '@/components/schools/execution-plan-panel'
 import { SessionHub } from '@/components/schools/session-hub'
+import { ActivityTimeline } from '@/components/schools/activity-timeline'
 
 /** Planning becomes relevant once outreach is approved (or registered / running sessions). */
 const PLANNING_STATUSES = new Set<SchoolDetail['status']>([
@@ -32,9 +37,6 @@ const PLANNING_STATUSES = new Set<SchoolDetail['status']>([
 const VISIT_REQUEST_STATUSES = new Set<SchoolDetail['status']>([
   'lead_identified', 'outreach_requested',
 ])
-
-import { ActivityTimeline } from '@/components/schools/activity-timeline'
-import type { EvidenceListItem } from '@/lib/data/evidence'
 
 interface SchoolDetailProps {
   school: SchoolDetail
@@ -55,8 +57,7 @@ interface SchoolDetailProps {
   execPlanAccess?: ExecutionPlanAccess
   teamAccess?: SchoolTeamAccess
   canVerifySession?: boolean
-  financeSummary?: any
-  activityTimeline?: any[]
+  activityTimeline?: ActivityTimelineItem[]
   /** Evidence (Drive/Docs links + uploads) for every session at this school. */
   sessionEvidence?: EvidenceListItem[]
 }
@@ -65,6 +66,22 @@ const TYPE_LABEL: Record<string, string> = {
   government: 'Government', government_aided: 'Government Aided', private: 'Private',
 }
 
+/**
+ * The School workspace.
+ *
+ * This page used to be one column containing every operational area at once —
+ * pipeline, mission, details, visit request, onboarding, team, execution plan,
+ * sessions, activity and contacts, each in its own card, all expanded, always.
+ * The four questions someone actually opens a school to answer (where is it,
+ * what is happening, what is blocked, what is next) were spread over several
+ * screens of scrolling and three separate progress visualisations.
+ *
+ * The shape now is: header → command bar → lifecycle rail → tabs. The first two
+ * screenfuls answer the four questions; the tabs hold the work. Nothing was
+ * removed and no permission changed: every panel below is the same component
+ * receiving the same props under the same condition it had before, and the tab
+ * that holds it appears exactly when that section used to.
+ */
 export function SchoolDetailView({
   school, basePath, canEdit, statusAccess, visitRequests, roster, budget, visitAccess,
   canApproveOnboarding, isAdmin,
@@ -72,7 +89,6 @@ export function SchoolDetailView({
   execPlanAccess = { canSubmit: false, canReviewCampus: false, canReviewFinance: false },
   teamAccess = { canManage: false },
   canVerifySession = false,
-  financeSummary,
   activityTimeline = [],
   sessionEvidence = [],
 }: SchoolDetailProps) {
@@ -83,32 +99,141 @@ export function SchoolDetailView({
     (t) => t.is_active && (t.status === 'confirmed' || t.status === 'completed'),
   ).length
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-2 text-muted-foreground">
-          <Link href={basePath}><ArrowLeft className="size-4" /> All schools</Link>
-        </Button>
-      </div>
+  const next = deriveSchoolNextAction({ school, team, confirmedVolunteers, execPlan })
 
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="font-display text-2xl font-bold tracking-tight">{school.name}</h1>
-            <StatusBadge kind="school" status={school.status} />
-          </div>
-          <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <MapPin className="size-3.5" />
-            {[school.mandal, school.district, school.state].filter(Boolean).join(', ')}
-            {' · '}{TYPE_LABEL[school.school_type] ?? school.school_type} · {school.board?.toUpperCase() ?? '—'}
-          </p>
-          {school.progress && (
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-              <BookOpen className="size-3.5" />
-              Session {school.progress.latest_session_number} — {curriculumStageLabel(school.progress.latest_session_number)}
+  // Every condition below is the one that gated the same section before the
+  // rework — see the note on the component. The single addition is the
+  // permission clause on Onboarding, which is *stricter*: PlanningPanel already
+  // refused to render for those users and printed a "no permission" message
+  // where a working section should have been.
+  const showOutreach = VISIT_REQUEST_STATUSES.has(school.status) || visitRequests.length > 0
+  const showOnboarding =
+    (PLANNING_STATUSES.has(school.status) || !!school.plan) && (canEdit || canApproveOnboarding)
+
+  // Overview is where a school with nothing outstanding points — a finished or
+  // archived one. It is never where work happens, so it gets neither the
+  // attention dot nor a "go to the work" button: both would be pointing at the
+  // page you are already looking at.
+  const hasOpenWork = next.tab !== 'overview'
+
+  const tabs: TabDef[] = []
+  const push = (id: SchoolTabId, content: React.ReactNode, extra?: Partial<TabDef>) => {
+    tabs.push({ id, label: TAB_LABELS[id], content, attention: hasOpenWork && next.tab === id, ...extra })
+  }
+
+  push('overview', (
+    <OverviewTab school={school} canEdit={canEdit} />
+  ))
+
+  if (showOutreach) {
+    push('outreach', (
+      <VisitRequestPanel
+        schoolId={school.id}
+        schoolStatus={school.status}
+        requests={visitRequests}
+        roster={roster}
+        budget={budget}
+        quarter={school.campus?.quarter ?? null}
+        access={visitAccess}
+      />
+    ))
+  }
+
+  if (showOnboarding) {
+    push('onboarding', (
+      <PlanningPanel
+        schoolId={school.id}
+        schoolStatus={school.status}
+        schoolDetail={school}
+        plan={school.plan}
+        hasPriorSession={!!school.progress}
+        canEdit={canEdit}
+        canApprove={canApproveOnboarding}
+      />
+    ))
+  }
+
+  if (isSessionsActiveOrDone) {
+    push('team', (
+      <TeamPanel
+        schoolId={school.id}
+        team={team}
+        roster={roster}
+        requiredVolunteers={school.required_volunteers ?? 0}
+        canManage={teamAccess.canManage}
+        schoolStatus={school.status}
+      />
+    ), { hint: `${confirmedVolunteers}/${school.required_volunteers ?? 2}` })
+
+    push('execution', (
+      <ExecutionPlanPanel
+        schoolId={school.id}
+        plan={execPlan}
+        onboardingPlan={school.plan}
+        teamConfirmed={confirmedVolunteers >= (school.required_volunteers ?? 2)}
+        access={execPlanAccess}
+        schoolStatus={school.status}
+        operationalPhase={school.operational_phase ?? null}
+      />
+    ))
+
+    const verifiedSessions = sessions.filter((x) => x.status === 'verified').length
+    push('sessions', (
+      <SessionHub
+        schoolId={school.id}
+        sessions={sessions}
+        evidence={sessionEvidence}
+        team={team}
+        canManage={statusAccess.canEdit || teamAccess.canManage}
+        canVerify={canVerifySession}
+        schoolStatus={school.status}
+        operationalPhase={school.operational_phase ?? null}
+        isExecPlanApproved={execPlan?.status === 'approved' || school.status === 'completed' || school.operational_phase === 'execution_ready' || (!!school.operational_phase && school.operational_phase.startsWith('session_'))}
+      />
+    ), { hint: `${verifiedSessions}/4` })
+  }
+
+  push('activity', <ActivityTimeline items={activityTimeline} />, {
+    hint: activityTimeline.length > 0 ? String(activityTimeline.length) : undefined,
+  })
+
+  const availableTabs = tabs.map((t) => t.id as SchoolTabId)
+  const canOpenActionTab = availableTabs.includes(next.tab)
+  // Land on the work, not on the summary — unless this viewer has no tab for it.
+  const defaultTab: SchoolTabId = canOpenActionTab ? next.tab : 'overview'
+
+  return (
+    <div className="space-y-5">
+      <Button asChild variant="ghost" size="sm" className="-ml-2 text-muted-foreground">
+        <Link href={basePath}><ArrowLeft className="size-4" /> All schools</Link>
+      </Button>
+
+      <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <EntityMonogram name={school.name} size="lg" className="mt-0.5" />
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+              <h1 className="font-display text-2xl font-bold tracking-tight">{school.name}</h1>
+              <StatusBadge kind="school" status={school.status} />
+            </div>
+            <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
+              <MapPin aria-hidden className="size-3.5 shrink-0" />
+              <span>
+                {[school.mandal, school.district, school.state].filter(Boolean).join(', ')}
+                {' · '}{TYPE_LABEL[school.school_type] ?? school.school_type}
+                {' · '}{school.board?.toUpperCase() ?? '—'}
+                {school.campus?.name && <> · {school.campus.name}</>}
+              </span>
             </p>
-          )}
+            {school.progress && (
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <BookOpen aria-hidden className="size-3.5 shrink-0" />
+                Session {school.progress.latest_session_number} — {curriculumStageLabel(school.progress.latest_session_number)}
+              </p>
+            )}
+          </div>
         </div>
+
         {canEdit && (
           <Button asChild variant="outline" size="sm">
             <Link href={`${basePath}/${school.id}/edit`}><Pencil className="size-4" /> Edit</Link>
@@ -116,227 +241,109 @@ export function SchoolDetailView({
         )}
       </header>
 
-      {/* Full-width Pipeline Stepper */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Pipeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <StatusControl
-            schoolId={school.id}
-            current={school.status}
-            canEdit={statusAccess.canEdit}
-            restrictTo={statusAccess.restrictTo}
-            isAdmin={isAdmin}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Operational Mission & Next Action Card */}
-      <OperationalMissionCard
-        school={school}
-        confirmedVolunteers={confirmedVolunteers}
-        execPlan={execPlan}
-        sessions={sessions}
+      <SchoolCommandBar
+        status={school.status}
+        operationalPhase={school.operational_phase ?? null}
+        next={next}
+        actionTabLabel={hasOpenWork && canOpenActionTab ? TAB_LABELS[next.tab] : null}
+        stageSince={school.history[0]?.created_at ?? null}
       />
 
-      {/* Operational Phase Sub-Workflow Progress */}
-      {isSessionsActiveOrDone && (
-        <OperationalProgress
-          status={school.status}
-          operationalPhase={school.operational_phase ?? null}
-          requiredVolunteers={school.required_volunteers ?? 0}
-          confirmedVolunteers={confirmedVolunteers}
-        />
-      )}
+      <LifecycleRail
+        schoolId={school.id}
+        status={school.status}
+        operationalPhase={school.operational_phase ?? null}
+        requiredVolunteers={school.required_volunteers ?? 0}
+        confirmedVolunteers={confirmedVolunteers}
+        isAdmin={isAdmin}
+        availableTabs={availableTabs}
+      />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <CardHeader><CardTitle className="text-base">Details</CardTitle></CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-              <Detail label="Cluster" value={school.cluster} />
-              <Detail label="Sessions" value={String(school.total_sessions)} />
-              <Detail label="Students reached" value={String(school.total_students)} />
-            </CardContent>
-          </Card>
+      <Tabs tabs={tabs} defaultTab={defaultTab} sticky />
+    </div>
+  )
+}
 
-          {(VISIT_REQUEST_STATUSES.has(school.status) || visitRequests.length > 0) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <MapPinned className="size-4" /> Outreach visit request
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <VisitRequestPanel
-                  schoolId={school.id}
-                  schoolStatus={school.status}
-                  requests={visitRequests}
-                  roster={roster}
-                  budget={budget}
-                  quarter={school.campus?.quarter ?? null}
-                  access={visitAccess}
-                />
-              </CardContent>
-            </Card>
-          )}
+/**
+ * Overview — the school itself rather than the work on it: its record, who to
+ * call, and how it got to where it is. The stage history used to sit in a right
+ * rail, which on a phone put it below every operational panel on the page.
+ */
+function OverviewTab({ school, canEdit }: { school: SchoolDetail; canEdit: boolean }) {
+  return (
+    <div className="space-y-6">
+      {/* The programme's numbers, at the size they deserve. These were four
+          identical small key/value pairs in a row — the same treatment the page
+          gave a phone number — even though on a finished school they are the
+          whole outcome. Set in the display face with tabular figures so the
+          column reads as a result rather than as metadata. */}
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
+        <Metric label="Students reached" value={school.total_students} />
+        <Metric label="Sessions delivered" value={school.total_sessions} />
+        <Metric label="Volunteers required" value={school.required_volunteers ?? 2} />
+        <Detail label="Cluster" value={school.cluster} />
+      </dl>
 
-          {(PLANNING_STATUSES.has(school.status) || school.plan) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <ClipboardList className="size-4" /> School onboarding
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <PlanningPanel
-                  schoolId={school.id}
-                  schoolStatus={school.status}
-                  schoolDetail={school}
-                  plan={school.plan}
-                  hasPriorSession={!!school.progress}
-                  canEdit={canEdit}
-                  canApprove={canApproveOnboarding}
-                />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* School Volunteer Team Panel */}
-          {isSessionsActiveOrDone && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Users className="size-4" /> School Volunteer Team
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TeamPanel
-                  schoolId={school.id}
-                  team={team}
-                  roster={roster}
-                  requiredVolunteers={school.required_volunteers ?? 0}
-                  canManage={teamAccess.canManage}
-                  schoolStatus={school.status}
-                />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* School Execution & Budget Plan Panel */}
-          {isSessionsActiveOrDone && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Wrench className="size-4" /> Execution & Budget Plan
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ExecutionPlanPanel
-                  schoolId={school.id}
-                  plan={execPlan}
-                  onboardingPlan={school.plan}
-                  teamConfirmed={confirmedVolunteers >= (school.required_volunteers ?? 2)}
-                  access={execPlanAccess}
-                  schoolStatus={school.status}
-                  operationalPhase={school.operational_phase ?? null}
-                />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Sessions 1–4 Delivery Hub */}
-          {isSessionsActiveOrDone && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Calendar className="size-4" /> Bounded 4-Session Program
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SessionHub
-                  schoolId={school.id}
-                  sessions={sessions}
-                  evidence={sessionEvidence}
-                  team={team}
-                  canManage={statusAccess.canEdit || teamAccess.canManage}
-                  canVerify={canVerifySession}
-                  schoolStatus={school.status}
-                  operationalPhase={school.operational_phase ?? null}
-                  isExecPlanApproved={execPlan?.status === 'approved' || school.status === 'completed' || school.operational_phase === 'execution_ready' || (!!school.operational_phase && school.operational_phase.startsWith('session_'))}
-                />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* School Activity Feed (Phase 4) */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Activity className="size-4 text-brand" /> Activity Feed
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ActivityTimeline items={activityTimeline} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="flex items-center gap-2 text-base"><Users className="size-4" /> Contacts</CardTitle>
-              {canEdit && <AddContact schoolId={school.id} />}
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {school.contacts.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No contacts recorded yet.</p>
-              ) : (
-                school.contacts.map((c) => (
-                  <div key={c.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
-                    <div>
-                      <p className="flex items-center gap-1.5 font-medium">
-                        {c.is_primary && <Star className="size-3.5 fill-warning text-warning" />}
-                        {c.name}
-                        <span className="font-normal text-muted-foreground">· {c.designation}</span>
-                      </p>
-                      <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
-                        {c.phone && <span className="flex items-center gap-1"><Phone className="size-3" /> {c.phone}</span>}
-                        {c.email && <span className="flex items-center gap-1"><Mail className="size-3" /> {c.email}</span>}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
+      <section className="space-y-3 border-t border-border/60 pt-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
+            <Users aria-hidden className="size-4 text-muted-foreground" /> Contacts
+          </h3>
+          {canEdit && <AddContact schoolId={school.id} />}
         </div>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2 text-base"><History className="size-4" /> Visit log</CardTitle></CardHeader>
-            <CardContent>
-              {school.history.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No status changes yet.</p>
-              ) : (
-                <ol className="relative space-y-4 border-l border-border pl-4">
-                  {school.history.map((h) => (
-                    <li key={h.id} className="relative">
-                      <span className="absolute -left-[1.4rem] top-1 size-2.5 rounded-full bg-brand ring-4 ring-background" aria-hidden />
-                      <p className="text-sm">
-                        {h.previous_status
-                          ? <>Moved to <strong>{statusLabel(h.new_status)}</strong></>
-                          : <>Created as <strong>{statusLabel(h.new_status)}</strong></>}
-                      </p>
-                      {h.note && <p className="mt-0.5 text-xs text-muted-foreground">“{h.note}”</p>}
-                      <p className="mt-0.5 text-xs text-muted-foreground">{formatDateTime(h.created_at)}</p>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+        {school.contacts.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No contacts recorded yet.</p>
+        ) : (
+          <ul className="divide-y divide-border/60 rounded-xl border border-border/60 bg-paper">
+            {school.contacts.map((c) => (
+              <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5">
+                <p className="flex items-center gap-1.5 text-sm font-medium">
+                  {c.is_primary && <Star aria-hidden className="size-3.5 fill-warning text-warning" />}
+                  {c.name}
+                  <span className="font-normal text-muted-foreground">· {c.designation}</span>
+                </p>
+                <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                  {c.phone && (
+                    <a href={`tel:${c.phone}`} className="flex items-center gap-1 hover:text-brand">
+                      <Phone aria-hidden className="size-3" /> {c.phone}
+                    </a>
+                  )}
+                  {c.email && (
+                    <a href={`mailto:${c.email}`} className="flex items-center gap-1 hover:text-brand">
+                      <Mail aria-hidden className="size-3" /> {c.email}
+                    </a>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="space-y-3 border-t border-border/60 pt-5">
+        <h3 className="flex items-center gap-2 text-sm font-semibold">
+          <History aria-hidden className="size-4 text-muted-foreground" /> Stage history
+        </h3>
+        {school.history.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No status changes yet.</p>
+        ) : (
+          <ol className="relative space-y-4 border-l border-border pl-4">
+            {school.history.map((h) => (
+              <li key={h.id} className="relative">
+                <span className="absolute -left-[1.4rem] top-1 size-2.5 rounded-full bg-brand ring-4 ring-background" aria-hidden />
+                <p className="text-sm">
+                  {h.previous_status
+                    ? <>Moved to <strong>{statusLabel(h.new_status)}</strong></>
+                    : <>Created as <strong>{statusLabel(h.new_status)}</strong></>}
+                </p>
+                {h.note && <p className="mt-0.5 text-xs text-muted-foreground">&ldquo;{h.note}&rdquo;</p>}
+                <p className="mt-0.5 text-xs text-muted-foreground">{formatDateTime(h.created_at)}</p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </div>
   )
 }
@@ -345,108 +352,22 @@ function statusLabel(raw: string): string {
   return SCHOOL_STATUS_META[raw as keyof typeof SCHOOL_STATUS_META]?.label ?? raw
 }
 
-function Detail({ label, value, className }: { label: string; value?: string | null; className?: string }) {
+function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className={className}>
-      <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 font-medium">{value || '—'}</dd>
+    <div>
+      <dt className="field-label">{label}</dt>
+      <dd className="mt-1 font-display text-2xl font-bold leading-none tabular-nums text-foreground">
+        {value.toLocaleString('en-IN')}
+      </dd>
     </div>
   )
 }
 
-function OperationalMissionCard({
-  school,
-  confirmedVolunteers,
-  execPlan,
-  sessions,
-}: {
-  school: SchoolDetail
-  confirmedVolunteers: number
-  execPlan: any
-  sessions: SessionRow[]
-}) {
-  let owner = 'Outreach Lead'
-  let nextAction = 'Submit Outreach Visit Request'
-
-  if (school.status === 'outreach_requested') {
-    owner = 'Campus Lead & Finance Lead'
-    nextAction = 'Awaiting Outreach Visit Approval'
-  } else if (school.status === 'outreach_approved') {
-    owner = 'Outreach Lead / Campus Lead'
-    nextAction = 'Initiate School Onboarding'
-  } else if (school.status === 'registered') {
-    owner = 'Campus Lead / Outreach Lead'
-    nextAction = 'Complete Onboarding Details & Approval Letter'
-  } else if (school.status === 'sessions_active') {
-    const phase = school.operational_phase ?? 'team_preparation'
-    if (phase === 'team_preparation') {
-      owner = 'Volunteer Lead'
-      nextAction = `Build Volunteer Team (${confirmedVolunteers}/${school.required_volunteers ?? 2} confirmed)`
-    } else if (phase === 'team_ready' || phase === 'execution_planning') {
-      if (execPlan?.status === 'submitted') {
-        owner = 'Campus Lead'
-        nextAction = 'Awaiting Campus Lead Execution Plan Review'
-      } else if (execPlan?.status === 'campus_approved') {
-        owner = 'Finance Lead'
-        nextAction = 'Awaiting Finance Lead Budget Approval'
-      } else if (execPlan?.status === 'campus_changes_requested' || execPlan?.status === 'finance_changes_requested') {
-        owner = 'Execution Lead'
-        nextAction = 'Resubmit Execution Plan (Changes Requested)'
-      } else {
-        owner = 'Execution Lead'
-        nextAction = 'Submit School Execution & Budget Plan'
-      }
-    } else if (phase === 'execution_ready') {
-      owner = 'Execution Lead'
-      nextAction = 'Schedule Session 1 Delivery'
-    } else if (phase.endsWith('_planning') || phase.endsWith('_ready')) {
-      owner = 'Execution Lead'
-      nextAction = 'Deliver Scheduled Session'
-    } else if (phase.endsWith('_submitted') || phase.endsWith('_report_required')) {
-      owner = 'Campus Lead'
-      nextAction = 'Review & Verify Session Delivery Report'
-    } else if (phase.endsWith('_verified')) {
-      // A verified session either unlocks the next one or closes the program
-      // out. Never fall through to the outreach default here.
-      const verifiedNumber = Number(phase.match(/^session_(\d)_verified$/)?.[1] ?? 0)
-      if (verifiedNumber > 0 && verifiedNumber < 4) {
-        owner = 'Execution Lead'
-        nextAction = `Schedule Session ${verifiedNumber + 1} Delivery`
-      } else {
-        owner = 'Campus Lead'
-        nextAction = 'All 4 Sessions Verified — Closing Out School Program'
-      }
-    }
-  } else if (school.status === 'completed') {
-    owner = 'All Teams'
-    nextAction = 'School Program Successfully Completed! 🎓'
-  }
-
+function Detail({ label, value }: { label: string; value?: string | null }) {
   return (
-    <div className="rounded-xl border border-brand/20 bg-brand/5 p-4 shadow-sm space-y-2">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <span className="text-[10px] uppercase tracking-wider font-bold text-brand">Current Operational Mission</span>
-          <h3 className="text-base font-bold text-foreground leading-tight mt-0.5">
-            {SCHOOL_STATUS_META[school.status]?.label ?? school.status}
-            {school.operational_phase ? ` · ${school.operational_phase.replace(/_/g, ' ')}` : ''}
-          </h3>
-        </div>
-
-        <div className="flex items-center gap-4 text-xs">
-          <div>
-            <span className="text-muted-foreground block text-[10px] uppercase font-medium">Owner</span>
-            <strong className="font-semibold text-foreground">{owner}</strong>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-brand/10 pt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div>
-          <span className="text-muted-foreground font-medium">Next Required Action:</span>{' '}
-          <strong className="text-brand font-bold">{nextAction}</strong>
-        </div>
-      </div>
+    <div>
+      <dt className="field-label">{label}</dt>
+      <dd className="mt-1 font-medium">{value || '—'}</dd>
     </div>
   )
 }

@@ -11,6 +11,7 @@ import { getSchoolTeam } from '@/lib/data/school-team'
 import { getSchoolExecutionPlan } from '@/lib/data/school-execution-plans'
 import { getSchoolSessions } from '@/lib/data/session-delivery'
 import { listEvidence } from '@/lib/data/evidence'
+import { getSchoolActivityTimeline } from '@/lib/data/operational-expenses'
 import { SchoolDetailView } from '@/components/schools/school-detail'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -30,7 +31,7 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
   const execPlanAccess = executionPlanAccess(user.role, user.campus_id, school.campus_id)
   const teamAccess = schoolTeamAccess(user.role, user.campus_id, school.campus_id)
 
-  const [visitRequests, roster, budget, team, execPlan, sessions, sessionEvidence] = await Promise.all([
+  const [visitRequests, roster, budget, team, execPlan, sessions, sessionEvidence, activityTimeline] = await Promise.all([
     listOutreachVisitRequestsForSchool(school.id),
     listTeamMembers(school.campus_id),
     school.campus_id && school.campus?.quarter
@@ -40,6 +41,9 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
     getSchoolExecutionPlan(school.id),
     getSchoolSessions(school.id),
     listEvidence({ school_id: school.id }).catch(() => [] as Awaited<ReturnType<typeof listEvidence>>),
+    // Same feed the team dashboard shows. Admin rendered the section with no
+    // data behind it, so it could only ever say "no recent activity".
+    getSchoolActivityTimeline(school.id).catch(() => [] as Awaited<ReturnType<typeof getSchoolActivityTimeline>>),
   ])
 
   const canApproveOnboarding = canForEntity(user.role, 'approve_school_onboarding', user.campus_id, school.campus_id)
@@ -64,6 +68,7 @@ export default async function AdminSchoolPage({ params }: { params: Promise<{ id
       teamAccess={teamAccess}
       canVerifySession={canVerifySession}
       sessionEvidence={sessionEvidence}
+      activityTimeline={activityTimeline}
     />
   )
 }

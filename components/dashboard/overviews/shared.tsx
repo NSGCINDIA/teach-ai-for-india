@@ -133,7 +133,7 @@ export function SchoolRows({
               </p>
             </div>
             {s.latest_session_number ? (
-              <span className="shrink-0 text-xs font-semibold text-brand-orange bg-brand-orange/10 rounded-full px-2.5 py-1 border border-brand-orange/20">
+              <span className="shrink-0 text-xs font-semibold text-ink-orange bg-brand-orange/10 rounded-full px-2.5 py-1 border border-brand-orange/20">
                 Session {s.latest_session_number}
               </span>
             ) : (

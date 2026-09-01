@@ -84,7 +84,7 @@ function renderMarkdown(md: string): string {
   html = html.replace(/!\[([^\]]*)\]\(([^)]*)\)/g, (_, alt, src) => `<img src="${sanitizeUrl(src)}" alt="${alt}" class="my-6 rounded-2xl max-h-[360px] w-full object-cover shadow-soft" />`)
 
   // Links
-  html = html.replace(/\[([^\]]*)\]\(([^)]*)\)/g, (_, text, href) => `<a href="${sanitizeUrl(href)}" class="text-brand hover:text-brand-orange hover:underline font-semibold" target="_blank" rel="noopener noreferrer">${text}</a>`)
+  html = html.replace(/\[([^\]]*)\]\(([^)]*)\)/g, (_, text, href) => `<a href="${sanitizeUrl(href)}" class="text-brand hover:text-ink-orange hover:underline font-semibold" target="_blank" rel="noopener noreferrer">${text}</a>`)
 
   // Code
   html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-muted p-4 rounded-xl overflow-x-auto my-4 font-mono text-xs text-foreground shadow-inner">$1</pre>')
