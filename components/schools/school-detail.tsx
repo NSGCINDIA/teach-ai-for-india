@@ -39,27 +39,27 @@ const VISIT_REQUEST_STATUSES = new Set<SchoolDetail['status']>([
 ])
 
 interface SchoolDetailProps {
-  school: SchoolDetail
-  basePath: string
+  readonly school: SchoolDetail
+  readonly basePath: string
   /** May the signed-in user edit the profile / contacts / planning (campus-scoped)? */
-  canEdit: boolean
+  readonly canEdit: boolean
   /** Separate, possibly-narrower access to the pipeline status control (e.g. exec_lead). */
-  statusAccess: SchoolStatusAccess
-  visitRequests: OutreachVisitRequestRow[]
-  roster: TeamMember[]
-  budget: CampusBudgetRow | null
-  visitAccess: OutreachVisitRequestAccess
-  canApproveOnboarding: boolean
-  isAdmin: boolean
-  team?: SchoolTeamMemberDetail[]
-  execPlan?: SchoolExecutionPlanDetail | null
-  sessions?: SessionRow[]
-  execPlanAccess?: ExecutionPlanAccess
-  teamAccess?: SchoolTeamAccess
-  canVerifySession?: boolean
-  activityTimeline?: ActivityTimelineItem[]
+  readonly statusAccess: SchoolStatusAccess
+  readonly visitRequests: readonly OutreachVisitRequestRow[]
+  readonly roster: readonly TeamMember[]
+  readonly budget: CampusBudgetRow | null
+  readonly visitAccess: OutreachVisitRequestAccess
+  readonly canApproveOnboarding: boolean
+  readonly isAdmin: boolean
+  readonly team?: readonly SchoolTeamMemberDetail[]
+  readonly execPlan?: SchoolExecutionPlanDetail | null
+  readonly sessions?: readonly SessionRow[]
+  readonly execPlanAccess?: ExecutionPlanAccess
+  readonly teamAccess?: SchoolTeamAccess
+  readonly canVerifySession?: boolean
+  readonly activityTimeline?: readonly ActivityTimelineItem[]
   /** Evidence (Drive/Docs links + uploads) for every session at this school. */
-  sessionEvidence?: EvidenceListItem[]
+  readonly sessionEvidence?: readonly EvidenceListItem[]
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -146,7 +146,6 @@ export function SchoolDetailView({
         schoolStatus={school.status}
         schoolDetail={school}
         plan={school.plan}
-        hasPriorSession={!!school.progress}
         canEdit={canEdit}
         canApprove={canApproveOnboarding}
       />
@@ -161,7 +160,6 @@ export function SchoolDetailView({
         roster={roster}
         requiredVolunteers={school.required_volunteers ?? 0}
         canManage={teamAccess.canManage}
-        schoolStatus={school.status}
       />
     ), { hint: `${confirmedVolunteers}/${school.required_volunteers ?? 2}` })
 
@@ -172,7 +170,6 @@ export function SchoolDetailView({
         onboardingPlan={school.plan}
         teamConfirmed={confirmedVolunteers >= (school.required_volunteers ?? 2)}
         access={execPlanAccess}
-        schoolStatus={school.status}
         operationalPhase={school.operational_phase ?? null}
       />
     ))
@@ -186,7 +183,6 @@ export function SchoolDetailView({
         team={team}
         canManage={statusAccess.canEdit || teamAccess.canManage}
         canVerify={canVerifySession}
-        schoolStatus={school.status}
         operationalPhase={school.operational_phase ?? null}
         isExecPlanApproved={execPlan?.status === 'approved' || school.status === 'completed' || school.operational_phase === 'execution_ready' || (!!school.operational_phase && school.operational_phase.startsWith('session_'))}
       />
@@ -269,7 +265,7 @@ export function SchoolDetailView({
  * call, and how it got to where it is. The stage history used to sit in a right
  * rail, which on a phone put it below every operational panel on the page.
  */
-function OverviewTab({ school, canEdit }: { school: SchoolDetail; canEdit: boolean }) {
+function OverviewTab({ school, canEdit }: Readonly<{ school: SchoolDetail; canEdit: boolean }>) {
   return (
     <div className="space-y-6">
       {/* The programme's numbers, at the size they deserve. These were four
@@ -352,7 +348,7 @@ function statusLabel(raw: string): string {
   return SCHOOL_STATUS_META[raw as keyof typeof SCHOOL_STATUS_META]?.label ?? raw
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+function Metric({ label, value }: Readonly<{ label: string; value: number }>) {
   return (
     <div>
       <dt className="field-label">{label}</dt>
@@ -363,7 +359,7 @@ function Metric({ label, value }: { label: string; value: number }) {
   )
 }
 
-function Detail({ label, value }: { label: string; value?: string | null }) {
+function Detail({ label, value }: Readonly<{ label: string; value?: string | null }>) {
   return (
     <div>
       <dt className="field-label">{label}</dt>

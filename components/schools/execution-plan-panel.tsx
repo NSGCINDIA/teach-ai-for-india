@@ -34,13 +34,12 @@ import { validateSchoolExecutionReadiness } from '@/lib/validations/execution-re
 import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface ExecutionPlanPanelProps {
-  schoolId: string
-  plan: SchoolExecutionPlanDetail | null
-  onboardingPlan?: any
-  teamConfirmed?: boolean
-  access: ExecutionPlanAccess
-  schoolStatus?: string
-  operationalPhase?: string | null
+  readonly schoolId: string
+  readonly plan: SchoolExecutionPlanDetail | null
+  readonly onboardingPlan?: any
+  readonly teamConfirmed?: boolean
+  readonly access: ExecutionPlanAccess
+  readonly operationalPhase?: string | null
 }
 
 const STATUS_META = {
@@ -61,7 +60,7 @@ export function ExecutionPlanPanel({
   teamConfirmed = false,
   access,
   operationalPhase,
-}: ExecutionPlanPanelProps) {
+}: Readonly<ExecutionPlanPanelProps>) {
   const needsResubmit =
     plan?.status === 'campus_changes_requested' || plan?.status === 'finance_changes_requested'
 
@@ -442,7 +441,7 @@ export function ExecutionPlanPanel({
   )
 }
 
-function Stat({ label, value }: { label: string; value: React.ReactNode }) {
+function Stat({ label, value }: Readonly<{ label: string; value: React.ReactNode }>) {
   return (
     <div className="flex items-baseline gap-1.5">
       <dt className="text-muted-foreground">{label}:</dt>
@@ -451,7 +450,7 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   )
 }
 
-function NumField({ id, label, defaultValue }: { id: string; label: string; defaultValue: number }) {
+function NumField({ id, label, defaultValue }: Readonly<{ id: string; label: string; defaultValue: number }>) {
   return (
     <div>
       <Label htmlFor={id} className="text-xs">{label}</Label>
@@ -467,7 +466,7 @@ function NumField({ id, label, defaultValue }: { id: string; label: string; defa
 function ReviewBlock({
   title, icon: Icon, formRef, action, planId, pending, state,
   comments, setComments, commentLabel, approveLabel, note,
-}: {
+}: Readonly<{
   title: string
   icon: typeof FileCheck
   formRef: React.RefObject<HTMLFormElement | null>
@@ -480,7 +479,7 @@ function ReviewBlock({
   commentLabel: string
   approveLabel: string
   note?: string
-}) {
+}>) {
   return (
     <div className="space-y-3 rounded-xl border border-brand/30 bg-brand/5 p-4">
       <h4 className="flex items-center gap-2 text-sm font-semibold text-brand">

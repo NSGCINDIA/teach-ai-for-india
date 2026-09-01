@@ -17,21 +17,18 @@ import { selectClass } from '@/components/ui/native-select'
 import { toast } from 'sonner'
 
 interface PlanningPanelProps {
-  schoolId: string
-  schoolStatus: SchoolStatus
-  schoolDetail?: any
+  readonly schoolId: string
+  readonly schoolStatus: SchoolStatus
+  readonly schoolDetail?: any
   /** The current OPEN (draft) plan, if one is in progress — null between sessions. */
-  plan: SessionPlanRow | null
-  /** Whether this school has already run at least one session — labels the
-   *  empty-state form as "Plan next session" instead of "Start planning". */
-  hasPriorSession: boolean
+  readonly plan: SessionPlanRow | null
   /** Campus-scoped edit right (campus_lead / outreach_lead / admin). */
-  canEdit: boolean
+  readonly canEdit: boolean
   /** Campus-scoped approval right (campus_lead / super_admin). */
-  canApprove: boolean
+  readonly canApprove: boolean
 }
 
-export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, canEdit, canApprove }: PlanningPanelProps) {
+export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, canEdit, canApprove }: Readonly<PlanningPanelProps>) {
   const mockSchool = schoolDetail ?? { id: schoolId, status: schoolStatus, dise_code: 'EXAMP123', campus_id: 'campus-1' }
   const readiness = plan ? validateSchoolOnboardingReadiness(mockSchool, plan) : null
   // An approved school opens on the summary — its details are already complete,
@@ -47,20 +44,7 @@ export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, canE
 
   // Task 4: If school is at outreach_approved and onboarding hasn't been initiated yet, render Initiate Onboarding Banner
   if (schoolStatus === 'outreach_approved' && !plan) {
-    return (
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand/30 bg-brand/5 p-4">
-        <div>
-          <h4 className="flex items-center gap-2 text-sm font-semibold text-brand">
-            <CheckCircle2 className="size-4" /> Outreach approved
-          </h4>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            The visit request is fully approved. Initiate onboarding to move this school to
-            Registered and start collecting logistics details.
-          </p>
-        </div>
-        {canEdit && <InitiateOnboardingBtn schoolId={schoolId} />}
-      </div>
-    )
+    return <OutreachApprovedBanner schoolId={schoolId} canEdit={canEdit} />
   }
 
   const isDraft = plan?.status === 'draft'
@@ -77,68 +61,124 @@ export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, canE
           readiness && <ReadinessStrip title="Onboarding readiness" gate={readiness} />
         )}
 
-        {/* One heading, one border. This section used to render a bordered
-            "Deployment Overview" wrapper whose summary child was itself a
-            bordered card with the same heading — the title appeared twice,
-            nested, on every approved school. */}
-        <section className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
-            <h3 className="text-base font-semibold tracking-tight">
-              {canEdit && (isEditing || !plan.coordinator_name)
-                ? 'Deployment & onboarding details'
-                : 'Deployment overview'}
-            </h3>
-            {canEdit && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing((prev) => !prev)}
-                className="h-8 gap-1.5 text-xs font-semibold"
-              >
-                {isEditing ? (
-                  <><Eye className="size-3.5" /> View summary</>
-                ) : (
-                  <><Pencil className="size-3.5" /> Edit details</>
-                )}
-              </Button>
-            )}
-          </div>
-
-          {canEdit && (isEditing || !plan.coordinator_name) ? (
-            <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
-          ) : (
-            <OnboardingSummary plan={plan} />
-          )}
-        </section>
+        <DeploymentSection
+          schoolId={schoolId}
+          schoolStatus={schoolStatus}
+          plan={plan}
+          canEdit={canEdit}
+          isEditing={isEditing}
+          onToggleEditing={() => setIsEditing((prev) => !prev)}
+        />
 
         {isDraft && (
-          canApprove ? (
-            <div className="space-y-3 rounded-xl border border-brand/40 bg-brand/5 p-4">
-              <div>
-                <h4 className="flex items-center gap-2 text-sm font-bold text-brand">
-                  <ShieldCheck className="size-4" /> Campus Lead verification &amp; activation
-                </h4>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Review the onboarding &amp; deployment details submitted by the Outreach Lead.
-                  Verify that the official approval letter is valid to activate this school.
-                </p>
-              </div>
-              <ApproveForm schoolId={schoolId} planId={plan.id} isReady={readiness?.ready ?? false} />
-            </div>
-          ) : (
-            <p className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground">
-              <ShieldCheck className="size-4 shrink-0" />
-              Submitted for Campus Lead verification &amp; approval. Only the assigned Campus Lead
-              can approve onboarding and activate the school.
-            </p>
-          )
+          <DraftApprovalGate
+            canApprove={canApprove}
+            schoolId={schoolId}
+            planId={plan.id}
+            isReady={readiness?.ready ?? false}
+          />
         )}
       </div>
     )
   }
 
   return <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
+}
+
+function OutreachApprovedBanner({ schoolId, canEdit }: Readonly<{ schoolId: string; canEdit: boolean }>) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand/30 bg-brand/5 p-4">
+      <div>
+        <h4 className="flex items-center gap-2 text-sm font-semibold text-brand">
+          <CheckCircle2 className="size-4" /> Outreach approved
+        </h4>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          The visit request is fully approved. Initiate onboarding to move this school to
+          Registered and start collecting logistics details.
+        </p>
+      </div>
+      {canEdit && <InitiateOnboardingBtn schoolId={schoolId} />}
+    </div>
+  )
+}
+
+/**
+ * One heading, one border. This section used to render a bordered
+ * "Deployment Overview" wrapper whose summary child was itself a bordered
+ * card with the same heading — the title appeared twice, nested, on every
+ * approved school.
+ */
+function DeploymentSection({
+  schoolId, schoolStatus, plan, canEdit, isEditing, onToggleEditing,
+}: Readonly<{
+  schoolId: string
+  schoolStatus: SchoolStatus
+  plan: SessionPlanRow
+  canEdit: boolean
+  isEditing: boolean
+  onToggleEditing: () => void
+}>) {
+  const showForm = canEdit && (isEditing || !plan.coordinator_name)
+
+  return (
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+        <h3 className="text-base font-semibold tracking-tight">
+          {showForm ? 'Deployment & onboarding details' : 'Deployment overview'}
+        </h3>
+        {canEdit && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onToggleEditing}
+            className="h-8 gap-1.5 text-xs font-semibold"
+          >
+            {isEditing ? (
+              <><Eye className="size-3.5" /> View summary</>
+            ) : (
+              <><Pencil className="size-3.5" /> Edit details</>
+            )}
+          </Button>
+        )}
+      </div>
+
+      {showForm ? (
+        <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
+      ) : (
+        <OnboardingSummary plan={plan} />
+      )}
+    </section>
+  )
+}
+
+function DraftApprovalGate({
+  canApprove, schoolId, planId, isReady,
+}: Readonly<{ canApprove: boolean; schoolId: string; planId: string; isReady: boolean }>) {
+  if (!canApprove) {
+    return (
+      <p className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground">
+        <ShieldCheck className="size-4 shrink-0" />
+        Submitted for Campus Lead verification &amp; approval. Only the assigned Campus Lead
+        can approve onboarding and activate the school.
+      </p>
+    )
+  }
+
+  return (
+    <div className="space-y-3 rounded-xl border border-brand/40 bg-brand/5 p-4">
+      <div>
+        <h4 className="flex items-center gap-2 text-sm font-bold text-brand">
+          <ShieldCheck className="size-4" /> Campus Lead verification &amp; activation
+        </h4>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Review the onboarding &amp; deployment details submitted by the Outreach Lead.
+          Verify that the official approval letter is valid to activate this school.
+        </p>
+      </div>
+      <ApproveForm schoolId={schoolId} planId={planId} isReady={isReady} />
+    </div>
+  )
 }
 
 function PlanForm({
@@ -456,7 +496,7 @@ function OnboardingSummary({ plan }: { plan: SessionPlanRow }) {
   )
 }
 
-function SummaryField({ label, value }: { label: string; value?: string | number | null }) {
+function SummaryField({ label, value }: Readonly<{ label: string; value?: string | number | null }>) {
   return (
     <div>
       <dt className="field-label">{label}</dt>
@@ -467,7 +507,7 @@ function SummaryField({ label, value }: { label: string; value?: string | number
 
 function ChipRow({
   label, values, empty, tone,
-}: { label: string; values: string[]; empty: string; tone?: 'brand' }) {
+}: Readonly<{ label: string; values: string[]; empty: string; tone?: 'brand' }>) {
   return (
     <div>
       <dt className="field-label">{label}</dt>
@@ -493,7 +533,7 @@ function ChipRow({
   )
 }
 
-function Infra({ label, available }: { label: string; available?: boolean }) {
+function Infra({ label, available }: Readonly<{ label: string; available?: boolean }>) {
   return (
     <span className="flex items-center gap-1.5">
       <span className={`size-2 rounded-full ${available ? 'bg-success' : 'bg-muted-foreground/30'}`} />
@@ -503,7 +543,7 @@ function Infra({ label, available }: { label: string; available?: boolean }) {
   )
 }
 
-function ApproveForm({ schoolId, planId, isReady = true }: { schoolId: string; planId: string; isReady?: boolean }) {
+function ApproveForm({ schoolId, planId, isReady = true }: Readonly<{ schoolId: string; planId: string; isReady?: boolean }>) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(approvePlan, {})
   const formRef = useRef<HTMLFormElement>(null)
   useFormSuccess(state, { formRef })
@@ -538,7 +578,7 @@ function ApproveForm({ schoolId, planId, isReady = true }: { schoolId: string; p
   )
 }
 
-function InitiateOnboardingBtn({ schoolId }: { schoolId: string }) {
+function InitiateOnboardingBtn({ schoolId }: Readonly<{ schoolId: string }>) {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

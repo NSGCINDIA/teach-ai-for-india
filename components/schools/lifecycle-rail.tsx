@@ -7,15 +7,22 @@ import { StageOverrideDialog } from '@/components/schools/stage-override-dialog'
 import { cn } from '@/lib/utils'
 
 interface LifecycleRailProps {
-  schoolId: string
-  status: SchoolStatus
-  operationalPhase: OperationalPhase | null
-  requiredVolunteers: number
-  confirmedVolunteers: number
+  readonly schoolId: string
+  readonly status: SchoolStatus
+  readonly operationalPhase: OperationalPhase | null
+  readonly requiredVolunteers: number
+  readonly confirmedVolunteers: number
   /** Super admin — the only role that may override the stage manually. */
-  isAdmin: boolean
+  readonly isAdmin: boolean
   /** Which tabs exist for this viewer, so a milestone never links into nothing. */
-  availableTabs: readonly SchoolTabId[]
+  readonly availableTabs: readonly SchoolTabId[]
+}
+
+/** Three-way tone for a pipeline step: active > done > upcoming. */
+function stepTone(current: boolean, done: boolean, activeClass: string, doneClass: string, restClass: string): string {
+  if (current) return activeClass
+  if (done) return doneClass
+  return restClass
 }
 
 /**
@@ -50,7 +57,7 @@ export function LifecycleRail({
   confirmedVolunteers,
   isAdmin,
   availableTabs,
-}: LifecycleRailProps) {
+}: Readonly<LifecycleRailProps>) {
   const currentIndex = SCHOOL_PIPELINE.indexOf(status)
   const isArchived = status === 'archived'
   const isLive = status === 'sessions_active' || status === 'completed'
@@ -99,7 +106,7 @@ export function LifecycleRail({
                   <span
                     className={cn(
                       'text-[10px] font-bold uppercase tracking-wider tabular-nums',
-                      current ? 'text-white/70' : done ? 'text-ink-green' : 'text-muted-foreground/70',
+                      stepTone(current, done, 'text-white/70', 'text-ink-green', 'text-muted-foreground/70'),
                     )}
                   >
                     {idx + 1}
@@ -110,7 +117,7 @@ export function LifecycleRail({
                 <span
                   className={cn(
                     'text-xs leading-tight',
-                    current ? 'font-bold text-white' : done ? 'font-medium text-ink-green' : 'text-muted-foreground',
+                    stepTone(current, done, 'font-bold text-white', 'font-medium text-ink-green', 'text-muted-foreground'),
                   )}
                 >
                   {SCHOOL_STATUS_META[step].label}

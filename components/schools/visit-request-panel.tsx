@@ -31,16 +31,16 @@ import { cn } from '@/lib/utils'
 import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface VisitRequestPanelProps {
-  schoolId: string
-  schoolStatus: SchoolStatus
-  requests: OutreachVisitRequestRow[]
-  roster: TeamMember[]
-  budget: CampusBudgetRow | null
-  quarter: string | null
-  access: OutreachVisitRequestAccess
+  readonly schoolId: string
+  readonly schoolStatus: SchoolStatus
+  readonly requests: readonly OutreachVisitRequestRow[]
+  readonly roster: readonly TeamMember[]
+  readonly budget: CampusBudgetRow | null
+  readonly quarter: string | null
+  readonly access: OutreachVisitRequestAccess
 }
 
-export function VisitRequestPanel({ schoolId, schoolStatus, requests, roster, budget, quarter, access }: VisitRequestPanelProps) {
+export function VisitRequestPanel({ schoolId, schoolStatus, requests, roster, budget, quarter, access }: Readonly<VisitRequestPanelProps>) {
   const active = requests.find((r) => r.status === 'pending')
   const mostRecent = requests[0]
   const history = requests.filter((r) => r.id !== active?.id)
@@ -268,7 +268,7 @@ function ReviewForm({
  * made the default view of an untouched school a long empty form. The school's
  * state comes first now; the form opens over it.
  */
-function NewRequest({ schoolId, roster }: { schoolId: string; roster: TeamMember[] }) {
+function NewRequest({ schoolId, roster }: Readonly<{ schoolId: string; roster: readonly TeamMember[] }>) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -306,7 +306,7 @@ function NewRequest({ schoolId, roster }: { schoolId: string; roster: TeamMember
 
 function RequestForm({
   schoolId, roster, onDone,
-}: { schoolId: string; roster: TeamMember[]; onDone: () => void }) {
+}: Readonly<{ schoolId: string; roster: readonly TeamMember[]; onDone: () => void }>) {
   const [state, action, pending] = useActionState<OutreachVisitRequestActionState, FormData>(
     createOutreachVisitRequest,
     {},

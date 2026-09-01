@@ -16,8 +16,8 @@ import {
 import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface StageOverrideDialogProps {
-  schoolId: string
-  current: SchoolStatus
+  readonly schoolId: string
+  readonly current: SchoolStatus
 }
 
 /**
@@ -34,7 +34,7 @@ interface StageOverrideDialogProps {
  * the trigger — the rail decides that, mirroring the old component's `isAdmin`
  * gate — and `change_school_status()` in the database remains the real check.
  */
-export function StageOverrideDialog({ schoolId, current }: StageOverrideDialogProps) {
+export function StageOverrideDialog({ schoolId, current }: Readonly<StageOverrideDialogProps>) {
   const [open, setOpen] = useState(false)
   const options = SCHOOL_TRANSITIONS[current] ?? []
   const [target, setTarget] = useState<SchoolStatus | ''>(options[0] ?? '')

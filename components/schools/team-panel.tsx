@@ -35,12 +35,11 @@ import { validateSchoolTeamReadiness } from '@/lib/validations/team-readiness'
 import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface TeamPanelProps {
-  schoolId: string
-  team: SchoolTeamMemberDetail[]
-  roster: TeamMember[]
-  requiredVolunteers: number
-  canManage: boolean
-  schoolStatus: string
+  readonly schoolId: string
+  readonly team: readonly SchoolTeamMemberDetail[]
+  readonly roster: readonly TeamMember[]
+  readonly requiredVolunteers: number
+  readonly canManage: boolean
 }
 
 const MEMBER_STATUS_META = {
@@ -58,7 +57,7 @@ export function TeamPanel({
   roster,
   requiredVolunteers,
   canManage,
-}: TeamPanelProps) {
+}: Readonly<TeamPanelProps>) {
   const [reqState, reqAction, reqPending] = useActionState<SchoolTeamActionState, FormData>(
     requestSchoolTeamAvailability,
     {},

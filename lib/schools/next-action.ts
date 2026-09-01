@@ -29,12 +29,12 @@ export interface SchoolNextAction {
 }
 
 export interface SchoolNextActionInput {
-  school: SchoolDetail
+  readonly school: SchoolDetail
   /** Every school_team_members row for this school (active and inactive). */
-  team: SchoolTeamMemberDetail[]
+  readonly team: readonly SchoolTeamMemberDetail[]
   /** Active members counted as confirmed — 'confirmed' or the post-program 'completed'. */
-  confirmedVolunteers: number
-  execPlan: SchoolExecutionPlanDetail | null
+  readonly confirmedVolunteers: number
+  readonly execPlan: SchoolExecutionPlanDetail | null
 }
 
 /**
@@ -51,117 +51,132 @@ export function deriveSchoolNextAction({
   team,
   confirmedVolunteers,
   execPlan,
-}: SchoolNextActionInput): SchoolNextAction {
+}: Readonly<SchoolNextActionInput>): SchoolNextAction {
   const activeMembers = team.filter((m) => m.is_active)
   const requiredVolunteers = school.required_volunteers ?? 2
 
   const onboardingGate = () =>
     school.plan ? validateSchoolOnboardingReadiness(school, school.plan) : null
   const teamGate = () => validateSchoolTeamReadiness(requiredVolunteers, activeMembers)
-  const executionGate = (teamConfirmed: boolean) =>
-    validateSchoolExecutionReadiness(execPlan, teamConfirmed)
 
-  if (school.status === 'outreach_requested') {
-    return {
-      owner: 'Campus Lead & Finance Lead',
-      action: 'Awaiting Outreach Visit Approval',
-      tab: 'outreach',
-      gate: null,
-    }
-  }
-
-  if (school.status === 'outreach_approved') {
-    return {
-      owner: 'Outreach Lead / Campus Lead',
-      action: 'Initiate School Onboarding',
-      tab: 'onboarding',
-      gate: onboardingGate(),
-    }
-  }
-
-  if (school.status === 'registered') {
-    return {
-      owner: 'Campus Lead / Outreach Lead',
-      action: 'Complete Onboarding Details & Approval Letter',
-      tab: 'onboarding',
-      gate: onboardingGate(),
-    }
-  }
-
-  if (school.status === 'sessions_active') {
-    const phase = school.operational_phase ?? 'team_preparation'
-
-    if (phase === 'team_preparation') {
+  switch (school.status) {
+    case 'outreach_requested':
       return {
-        owner: 'Volunteer Lead',
-        action: `Build Volunteer Team (${confirmedVolunteers}/${school.required_volunteers ?? 2} confirmed)`,
-        tab: 'team',
-        gate: teamGate(),
-      }
-    }
-
-    if (phase === 'team_ready' || phase === 'execution_planning') {
-      // The team is past its own gate by definition here, which is what
-      // ExecutionPlanPanel itself assumes (isTeamReady).
-      const gate = executionGate(true)
-      if (execPlan?.status === 'submitted') {
-        return { owner: 'Campus Lead', action: 'Awaiting Campus Lead Execution Plan Review', tab: 'execution', gate }
-      }
-      if (execPlan?.status === 'campus_approved') {
-        return { owner: 'Finance Lead', action: 'Awaiting Finance Lead Budget Approval', tab: 'execution', gate }
-      }
-      if (execPlan?.status === 'campus_changes_requested' || execPlan?.status === 'finance_changes_requested') {
-        return { owner: 'Execution Lead', action: 'Resubmit Execution Plan (Changes Requested)', tab: 'execution', gate }
-      }
-      return { owner: 'Execution Lead', action: 'Submit School Execution & Budget Plan', tab: 'execution', gate }
-    }
-
-    if (phase === 'execution_ready') {
-      return { owner: 'Execution Lead', action: 'Schedule Session 1 Delivery', tab: 'sessions', gate: null }
-    }
-
-    if (phase.endsWith('_planning') || phase.endsWith('_ready')) {
-      return { owner: 'Execution Lead', action: 'Deliver Scheduled Session', tab: 'sessions', gate: null }
-    }
-
-    if (phase.endsWith('_submitted') || phase.endsWith('_report_required')) {
-      return { owner: 'Campus Lead', action: 'Review & Verify Session Delivery Report', tab: 'sessions', gate: null }
-    }
-
-    if (phase.endsWith('_verified')) {
-      // A verified session either unlocks the next one or closes the program
-      // out. Never fall through to the outreach default here.
-      const verifiedNumber = Number(/^session_(\d)_verified$/.exec(phase)?.[1] ?? 0)
-      if (verifiedNumber > 0 && verifiedNumber < 4) {
-        return {
-          owner: 'Execution Lead',
-          action: `Schedule Session ${verifiedNumber + 1} Delivery`,
-          tab: 'sessions',
-          gate: null,
-        }
-      }
-      return {
-        owner: 'Campus Lead',
-        action: 'All 4 Sessions Verified — Closing Out School Program',
-        tab: 'sessions',
+        owner: 'Campus Lead & Finance Lead',
+        action: 'Awaiting Outreach Visit Approval',
+        tab: 'outreach',
         gate: null,
       }
-    }
 
-    // Any phase the four families above do not cover keeps the sessions_active
-    // default rather than falling through to the fresh-lead copy.
+    case 'outreach_approved':
+      return {
+        owner: 'Outreach Lead / Campus Lead',
+        action: 'Initiate School Onboarding',
+        tab: 'onboarding',
+        gate: onboardingGate(),
+      }
+
+    case 'registered':
+      return {
+        owner: 'Campus Lead / Outreach Lead',
+        action: 'Complete Onboarding Details & Approval Letter',
+        tab: 'onboarding',
+        gate: onboardingGate(),
+      }
+
+    case 'sessions_active':
+      return deriveSessionsActiveNextAction(school, confirmedVolunteers, execPlan, teamGate)
+
+    case 'completed':
+      return {
+        owner: 'All Teams',
+        action: 'School Program Successfully Completed! 🎓',
+        tab: 'overview',
+        gate: null,
+      }
+
+    // lead_identified, archived, and anything else: the pipeline starts at outreach.
+    default:
+      return { owner: 'Outreach Lead', action: 'Submit Outreach Visit Request', tab: 'outreach', gate: null }
+  }
+}
+
+function deriveSessionsActiveNextAction(
+  school: SchoolDetail,
+  confirmedVolunteers: number,
+  execPlan: SchoolExecutionPlanDetail | null,
+  teamGate: () => GateResult,
+): SchoolNextAction {
+  const phase = school.operational_phase ?? 'team_preparation'
+
+  if (phase === 'team_preparation') {
+    return {
+      owner: 'Volunteer Lead',
+      action: `Build Volunteer Team (${confirmedVolunteers}/${school.required_volunteers ?? 2} confirmed)`,
+      tab: 'team',
+      gate: teamGate(),
+    }
+  }
+
+  if (phase === 'team_ready' || phase === 'execution_planning') {
+    // The team is past its own gate by definition here, which is what
+    // ExecutionPlanPanel itself assumes (isTeamReady).
+    return deriveExecutionPlanNextAction(execPlan, validateSchoolExecutionReadiness(execPlan, true))
+  }
+
+  if (phase === 'execution_ready') {
+    return { owner: 'Execution Lead', action: 'Schedule Session 1 Delivery', tab: 'sessions', gate: null }
+  }
+
+  if (phase.endsWith('_planning') || phase.endsWith('_ready')) {
     return { owner: 'Execution Lead', action: 'Deliver Scheduled Session', tab: 'sessions', gate: null }
   }
 
-  if (school.status === 'completed') {
+  if (phase.endsWith('_submitted') || phase.endsWith('_report_required')) {
+    return { owner: 'Campus Lead', action: 'Review & Verify Session Delivery Report', tab: 'sessions', gate: null }
+  }
+
+  if (phase.endsWith('_verified')) {
+    return deriveVerifiedSessionNextAction(phase)
+  }
+
+  // Any phase the five families above do not cover keeps the sessions_active
+  // default rather than falling through to the fresh-lead copy.
+  return { owner: 'Execution Lead', action: 'Deliver Scheduled Session', tab: 'sessions', gate: null }
+}
+
+function deriveExecutionPlanNextAction(
+  execPlan: SchoolExecutionPlanDetail | null,
+  gate: GateResult,
+): SchoolNextAction {
+  if (execPlan?.status === 'submitted') {
+    return { owner: 'Campus Lead', action: 'Awaiting Campus Lead Execution Plan Review', tab: 'execution', gate }
+  }
+  if (execPlan?.status === 'campus_approved') {
+    return { owner: 'Finance Lead', action: 'Awaiting Finance Lead Budget Approval', tab: 'execution', gate }
+  }
+  if (execPlan?.status === 'campus_changes_requested' || execPlan?.status === 'finance_changes_requested') {
+    return { owner: 'Execution Lead', action: 'Resubmit Execution Plan (Changes Requested)', tab: 'execution', gate }
+  }
+  return { owner: 'Execution Lead', action: 'Submit School Execution & Budget Plan', tab: 'execution', gate }
+}
+
+// A verified session either unlocks the next one or closes the program out.
+// Never fall through to the outreach default here.
+function deriveVerifiedSessionNextAction(phase: string): SchoolNextAction {
+  const verifiedNumber = Number(/^session_(\d)_verified$/.exec(phase)?.[1] ?? 0)
+  if (verifiedNumber > 0 && verifiedNumber < 4) {
     return {
-      owner: 'All Teams',
-      action: 'School Program Successfully Completed! 🎓',
-      tab: 'overview',
+      owner: 'Execution Lead',
+      action: `Schedule Session ${verifiedNumber + 1} Delivery`,
+      tab: 'sessions',
       gate: null,
     }
   }
-
-  // lead_identified, archived, and anything else: the pipeline starts at outreach.
-  return { owner: 'Outreach Lead', action: 'Submit Outreach Visit Request', tab: 'outreach', gate: null }
+  return {
+    owner: 'Campus Lead',
+    action: 'All 4 Sessions Verified — Closing Out School Program',
+    tab: 'sessions',
+    gate: null,
+  }
 }

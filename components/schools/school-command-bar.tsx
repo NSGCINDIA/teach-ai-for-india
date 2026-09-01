@@ -7,17 +7,17 @@ import { formatElapsed } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 interface SchoolCommandBarProps {
-  status: SchoolStatus
-  operationalPhase: OperationalPhase | null
-  next: SchoolNextAction
+  readonly status: SchoolStatus
+  readonly operationalPhase: OperationalPhase | null
+  readonly next: SchoolNextAction
   /**
    * Label for the button that jumps to the tab owning the next action, or null
    * when there is nowhere to send this viewer — the tab is not rendered for
    * their role, or the school has no outstanding work.
    */
-  actionTabLabel: string | null
+  readonly actionTabLabel: string | null
   /** When the school last changed stage — the newest school_status_history row. */
-  stageSince?: string | null
+  readonly stageSince?: string | null
 }
 
 /** The most a chip row can carry before it stops being scannable. */
@@ -41,7 +41,7 @@ export function SchoolCommandBar({
   next,
   actionTabLabel,
   stageSince,
-}: SchoolCommandBarProps) {
+}: Readonly<SchoolCommandBarProps>) {
   const stage = SCHOOL_STATUS_META[status]?.label ?? status
   const phase = operationalPhase ? OPERATIONAL_PHASE_META[operationalPhase]?.label : null
   const blockers = next.gate && !next.gate.ready ? next.gate.items.filter((i) => !i.satisfied) : []

@@ -3,7 +3,7 @@ import type { ActivityTimelineItem } from '@/lib/data/operational-expenses'
 import { formatDate } from '@/lib/format'
 
 interface ActivityTimelineProps {
-  items: ActivityTimelineItem[]
+  readonly items: readonly ActivityTimelineItem[]
 }
 
 /** How much history is worth showing before it stops being a feed and becomes a log. */
@@ -18,7 +18,7 @@ const PREVIEW_COUNT = 8
  * one border around the whole thing, dividers between rows, and everything past
  * the most recent handful behind a disclosure.
  */
-export function ActivityTimeline({ items }: ActivityTimelineProps) {
+export function ActivityTimeline({ items }: Readonly<ActivityTimelineProps>) {
   if (!items || items.length === 0) {
     return (
       <p className="rounded-lg border border-dashed border-border bg-paper/60 py-6 text-center text-sm text-muted-foreground">
@@ -51,7 +51,7 @@ export function ActivityTimeline({ items }: ActivityTimelineProps) {
   )
 }
 
-function ActivityRow({ item }: { item: ActivityTimelineItem }) {
+function ActivityRow({ item }: Readonly<{ item: ActivityTimelineItem }>) {
   return (
     <li className="flex items-start gap-2.5 px-3 py-2.5 text-xs">
       <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-brand/10 text-brand">

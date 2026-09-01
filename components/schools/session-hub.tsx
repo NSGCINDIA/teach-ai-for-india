@@ -38,19 +38,28 @@ import type { EvidenceListItem } from '@/lib/data/evidence'
 import { useFormSuccess } from '@/hooks/use-form-success'
 
 interface SessionHubProps {
-  schoolId: string
-  sessions: SessionRow[]
+  readonly schoolId: string
+  readonly sessions: readonly SessionRow[]
   /** Drive/Docs links and uploads recorded against this school's sessions. */
-  evidence?: EvidenceListItem[]
-  team: SchoolTeamMemberDetail[]
-  canManage: boolean
-  canVerify: boolean
-  schoolStatus: string
-  operationalPhase: string | null
-  isExecPlanApproved?: boolean
+  readonly evidence?: readonly EvidenceListItem[]
+  readonly team: readonly SchoolTeamMemberDetail[]
+  readonly canManage: boolean
+  readonly canVerify: boolean
+  readonly operationalPhase: string | null
+  readonly isExecPlanApproved?: boolean
 }
 
 const TOTAL_SESSIONS = 4
+
+function getSessionDeliverySubtitle(
+  selectedSession: SessionRow | undefined,
+  activeSessionNum: number,
+  nextSchedulableNum: number,
+): string {
+  if (selectedSession) return `Scheduled for ${selectedSession.date}`
+  if (activeSessionNum <= nextSchedulableNum) return 'Ready to plan and schedule'
+  return `Complete Session ${activeSessionNum - 1} first to unlock`
+}
 
 export function SessionHub({
   schoolId,
@@ -61,7 +70,7 @@ export function SessionHub({
   canVerify,
   operationalPhase,
   isExecPlanApproved,
-}: SessionHubProps) {
+}: Readonly<SessionHubProps>) {
   const [createState, createAction, createPending] = useActionState<SessionDeliveryActionState, FormData>(
     createSessionDeliveryPlan,
     {},
@@ -111,6 +120,10 @@ export function SessionHub({
     selectedSession?.status === 'reported' || selectedSession?.status === 'campus_approved'
   const hasDelivered = isReviewable || selectedSession?.status === 'verified'
 
+  let statusBadgeClass = 'border-brand/30 bg-brand/10 text-brand'
+  if (selectedSession?.status === 'verified') statusBadgeClass = 'border-success/30 bg-success/10 text-ink-green'
+  else if (isReviewable) statusBadgeClass = 'border-warning/30 bg-warning/10 text-ink-orange'
+
   // Evidence the Exec Lead attached to this session. The Campus Lead has to be
   // able to open these before verifying — that review IS the verification.
   const sessionEvidence = selectedSession
@@ -128,6 +141,9 @@ export function SessionHub({
           const isPlanned = sess?.status === 'planned' || sess?.status === 'in_progress'
           const isUnlocked = isPlanCompleted && num <= nextSchedulableNum
           const isSelected = activeSessionNum === num
+          let slotStatusLabel: string = 'Locked'
+          if (sess) slotStatusLabel = sess.status
+          else if (isUnlocked) slotStatusLabel = 'Ready to plan'
 
           return (
             <button
@@ -163,7 +179,7 @@ export function SessionHub({
                 {curriculumStageLabel(num)}
               </span>
               <span className="mt-1 rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider">
-                {sess ? sess.status : isUnlocked ? 'Ready to plan' : 'Locked'}
+                {slotStatusLabel}
               </span>
             </button>
           )
@@ -179,25 +195,12 @@ export function SessionHub({
               <Badge variant="outline">{curriculumStageLabel(activeSessionNum)}</Badge>
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {selectedSession
-                ? `Scheduled for ${selectedSession.date}`
-                : activeSessionNum <= nextSchedulableNum
-                  ? 'Ready to plan and schedule'
-                  : `Complete Session ${activeSessionNum - 1} first to unlock`}
+              {getSessionDeliverySubtitle(selectedSession, activeSessionNum, nextSchedulableNum)}
             </p>
           </div>
 
           {selectedSession && (
-            <Badge
-              variant="outline"
-              className={
-                selectedSession.status === 'verified'
-                  ? 'border-success/30 bg-success/10 text-ink-green'
-                  : isReviewable
-                    ? 'border-warning/30 bg-warning/10 text-ink-orange'
-                    : 'border-brand/30 bg-brand/10 text-brand'
-              }
-            >
+            <Badge variant="outline" className={statusBadgeClass}>
               {selectedSession.status}
             </Badge>
           )}

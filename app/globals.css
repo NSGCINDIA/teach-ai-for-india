@@ -364,15 +364,12 @@
      orange whose lightest stop still clears the 3:1 that large text needs, on
      the white page and on the warm hero band alike. */
   .text-poster-brand {
-    background: linear-gradient(100deg, #7A0E17 0%, #A81822 42%, #C4590D 100%);
+    color: #7A0E17;
+    background: linear-gradient(100deg, #7A0E17 0%, #8A121A 50%, #A81822 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: #A81822; /* fallback wherever background-clip:text is unsupported */
   }
-  /* Same hazard as the certificate above: background-clip:text renders as
-     nothing when a browser prints with background graphics disabled, which is
-     the default. Any poster heading that reaches paper falls back to solid. */
   @media print {
     .text-poster-brand {
       background: none;

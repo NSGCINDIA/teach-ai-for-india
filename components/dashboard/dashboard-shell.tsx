@@ -242,7 +242,7 @@ function UserMenu({ user }: { user: ShellUser }) {
           className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors hover:bg-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
         >
           <Avatar className="size-8">
-            <AvatarImage src={user.avatar_url ?? undefined} alt="" />
+            <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
             <AvatarFallback className="bg-gradient-to-br from-brand to-brand-orange text-xs font-bold text-white">
               {user.full_name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
@@ -367,7 +367,6 @@ function SidebarContent({
                 <div
                   aria-hidden
                   className="mx-auto mb-2 h-px w-6 bg-white/25"
-                  role="presentation"
                 />
               ) : (
                 // Deliberately quieter than a nav label (white/65, 3.22:1)

@@ -5,11 +5,11 @@ import type { GateResult } from '@/lib/validations/readiness-gate'
 import { cn } from '@/lib/utils'
 
 interface ReadinessStripProps {
-  title: string
-  gate: GateResult
+  readonly title: string
+  readonly gate: GateResult
   /** Extra content shown inside the expanded detail — e.g. an over-size warning. */
-  children?: React.ReactNode
-  className?: string
+  readonly children?: React.ReactNode
+  readonly className?: string
 }
 
 /**
@@ -25,7 +25,7 @@ interface ReadinessStripProps {
  * one section, it needs no shared state, and <details> costs no JavaScript and
  * stays open/closed without a hydration round trip.
  */
-export function ReadinessStrip({ title, gate, children, className }: ReadinessStripProps) {
+export function ReadinessStrip({ title, gate, children, className }: Readonly<ReadinessStripProps>) {
   const { ready, completed, total, items, missing } = gate
 
   return (

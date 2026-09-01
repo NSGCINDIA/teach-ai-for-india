@@ -4,26 +4,26 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import { cn } from '@/lib/utils'
 
 export interface TabDef {
-  id: string
-  label: string
+  readonly id: string
+  readonly label: string
   /** Small dot on the trigger — used to mark "this is where the work is". */
-  attention?: boolean
+  readonly attention?: boolean
   /** Optional count/badge rendered after the label. */
-  hint?: string
-  content: React.ReactNode
+  readonly hint?: string
+  readonly content: React.ReactNode
 }
 
 interface TabsProps {
-  tabs: TabDef[]
+  readonly tabs: readonly TabDef[]
   /** Chosen on the server so the SSR markup matches the first client render. */
-  defaultTab: string
+  readonly defaultTab: string
   /**
    * Pin the strip below the dashboard app bar (h-14) while the panel scrolls
    * under it. Worth it when panels are long — the section switcher stays a
    * thumb's reach away instead of a scroll back to the top of the page.
    */
-  sticky?: boolean
-  className?: string
+  readonly sticky?: boolean
+  readonly className?: string
 }
 
 // ── The URL hash, treated as what it is: state owned outside React ───────────
@@ -61,7 +61,7 @@ function goToHash(id: string) {
  *  - **No Radix.** @radix-ui/react-tabs is not a dependency of this project and
  *    the roving-focus behaviour needed here is a dozen lines.
  */
-export function Tabs({ tabs, defaultTab, sticky = false, className }: TabsProps) {
+export function Tabs({ tabs, defaultTab, sticky = false, className }: Readonly<TabsProps>) {
   const baseId = useId()
   const listRef = useRef<HTMLDivElement>(null)
 
@@ -102,6 +102,7 @@ export function Tabs({ tabs, defaultTab, sticky = false, className }: TabsProps)
         ref={listRef}
         role="tablist"
         aria-label="School workspace sections"
+        tabIndex={0}
         onKeyDown={onKeyDown}
         className={cn(
           'scroll-strip -mx-4 flex gap-1 border-b border-border px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8',
