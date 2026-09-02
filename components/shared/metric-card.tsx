@@ -47,7 +47,7 @@ export function MetricCard({
             aria-hidden
             className={cn(
               'size-4 shrink-0',
-              variant === 'highlight' ? 'text-brand' : 'text-brand-orange',
+              variant === 'highlight' ? 'text-brand' : 'text-ink-orange',
             )}
           />
         )}
@@ -94,7 +94,7 @@ export function CompactMetric({ label, value, icon: Icon, className }: CompactMe
   return (
     <div className={cn('flex items-center gap-3', className)}>
       {Icon && (
-        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-cream-light text-brand-orange">
+        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-cream-light text-ink-orange">
           <Icon aria-hidden className="size-4" />
         </span>
       )}

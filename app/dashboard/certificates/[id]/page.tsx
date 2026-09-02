@@ -32,7 +32,11 @@ export default async function CertificatePage({ params }: { params: Promise<{ id
           <BrandLogo size="lg" />
         </div>
         <p className="mt-8 text-sm uppercase tracking-widest text-muted-foreground">Certificate of {CERTIFICATE_KIND_META[cert.kind].label}</p>
-        <h1 className="mt-6 font-display text-3xl font-bold tracking-tight">{cert.volunteer?.full_name ?? 'Volunteer'}</h1>
+        {/* Poster face, solid colour — deliberately not text-poster-brand. The
+            gradient paints through background-clip:text, and a browser printing
+            with background graphics off would put a blank space where the
+            volunteer's name should be. This is the one page built to be printed. */}
+        <h1 className="mt-6 font-poster text-4xl text-brand-deep">{cert.volunteer?.full_name ?? 'Volunteer'}</h1>
         <p className="mx-auto mt-6 max-w-xl text-base">
           {cert.description || `In recognition of your contribution to the AI-literacy movement — "${cert.title}".`}
         </p>

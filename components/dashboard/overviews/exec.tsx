@@ -54,7 +54,7 @@ export function ExecOverview({
               ? 'border-success/40 bg-success/15 text-success font-bold shrink-0'
               : isPending
               ? 'border-brand/40 bg-brand/15 text-brand font-bold shrink-0'
-              : 'border-brand-orange/40 bg-brand-orange/15 text-brand-orange font-bold shrink-0'
+              : 'border-brand-orange/40 bg-brand-orange/15 text-ink-orange font-bold shrink-0'
             const badgeLabel = isApproved ? 'Plan Approved' : isPending ? 'In Review' : 'Needs Plan'
 
             return (

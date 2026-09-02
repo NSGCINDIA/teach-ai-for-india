@@ -13,7 +13,7 @@ import { getSchoolSessions } from '@/lib/data/session-delivery'
 import { listEvidence } from '@/lib/data/evidence'
 import { SchoolDetailView } from '@/components/schools/school-detail'
 
-import { getSchoolFinanceSummary, getSchoolActivityTimeline } from '@/lib/data/operational-expenses'
+import { getSchoolActivityTimeline } from '@/lib/data/operational-expenses'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -34,7 +34,7 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
 
   // Each fetch is individually guarded so that an RLS gap or network blip
   // for one data source never crashes the entire school-detail page.
-  const [visitRequests, roster, budget, team, execPlan, sessions, financeSummary, activityTimeline, sessionEvidence] = await Promise.all([
+  const [visitRequests, roster, budget, team, execPlan, sessions, activityTimeline, sessionEvidence] = await Promise.all([
     listOutreachVisitRequestsForSchool(school.id).catch(() => [] as Awaited<ReturnType<typeof listOutreachVisitRequestsForSchool>>),
     listTeamMembers(school.campus_id).catch(() => [] as Awaited<ReturnType<typeof listTeamMembers>>),
     (school.campus_id && school.campus?.quarter
@@ -43,7 +43,6 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
     getSchoolTeam(school.id).catch(() => [] as Awaited<ReturnType<typeof getSchoolTeam>>),
     getSchoolExecutionPlan(school.id).catch(() => null),
     getSchoolSessions(school.id).catch(() => [] as Awaited<ReturnType<typeof getSchoolSessions>>),
-    getSchoolFinanceSummary(school.id).catch(() => undefined),
     getSchoolActivityTimeline(school.id).catch(() => [] as Awaited<ReturnType<typeof getSchoolActivityTimeline>>),
     listEvidence({ school_id: school.id }).catch(() => [] as Awaited<ReturnType<typeof listEvidence>>),
   ])
@@ -69,7 +68,6 @@ export default async function DashboardSchoolPage({ params }: { params: Promise<
       execPlanAccess={execPlanAccess}
       teamAccess={teamAccess}
       canVerifySession={canVerifySession}
-      financeSummary={financeSummary}
       activityTimeline={activityTimeline}
       sessionEvidence={sessionEvidence}
     />

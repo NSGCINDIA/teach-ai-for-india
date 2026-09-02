@@ -10,29 +10,25 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
-
 import { validateSchoolOnboardingReadiness } from '@/lib/validations/readiness-gate'
-import { Badge } from '@/components/ui/badge'
+import { ReadinessStrip } from '@/components/schools/readiness-strip'
 import { useFormSuccess } from '@/hooks/use-form-success'
 import { selectClass } from '@/components/ui/native-select'
 import { toast } from 'sonner'
 
 interface PlanningPanelProps {
-  schoolId: string
-  schoolStatus: SchoolStatus
-  schoolDetail?: any
+  readonly schoolId: string
+  readonly schoolStatus: SchoolStatus
+  readonly schoolDetail?: any
   /** The current OPEN (draft) plan, if one is in progress — null between sessions. */
-  plan: SessionPlanRow | null
-  /** Whether this school has already run at least one session — labels the
-   *  empty-state form as "Plan next session" instead of "Start planning". */
-  hasPriorSession: boolean
+  readonly plan: SessionPlanRow | null
   /** Campus-scoped edit right (campus_lead / outreach_lead / admin). */
-  canEdit: boolean
+  readonly canEdit: boolean
   /** Campus-scoped approval right (campus_lead / super_admin). */
-  canApprove: boolean
+  readonly canApprove: boolean
 }
 
-export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasPriorSession, canEdit, canApprove }: PlanningPanelProps) {
+export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, canEdit, canApprove }: Readonly<PlanningPanelProps>) {
   const mockSchool = schoolDetail ?? { id: schoolId, status: schoolStatus, dise_code: 'EXAMP123', campus_id: 'campus-1' }
   const readiness = plan ? validateSchoolOnboardingReadiness(mockSchool, plan) : null
   // An approved school opens on the summary — its details are already complete,
@@ -48,181 +44,139 @@ export function PlanningPanel({ schoolId, schoolStatus, schoolDetail, plan, hasP
 
   // Task 4: If school is at outreach_approved and onboarding hasn't been initiated yet, render Initiate Onboarding Banner
   if (schoolStatus === 'outreach_approved' && !plan) {
-    return (
-      <div className="rounded-lg border border-brand/30 bg-brand/5 p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-semibold text-brand flex items-center gap-2">
-              <CheckCircle2 className="size-4" /> Outreach Approved!
-            </h4>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Outreach visit request fully approved. Initiate school onboarding to move to Registered and begin collecting logistics details.
-            </p>
-          </div>
-          {canEdit && <InitiateOnboardingBtn schoolId={schoolId} />}
-        </div>
-      </div>
-    )
+    return <OutreachApprovedBanner schoolId={schoolId} canEdit={canEdit} />
   }
 
-  if (plan && plan.status === 'draft') {
+  const isDraft = plan?.status === 'draft'
+  const isApproved = plan?.status === 'approved'
+
+  if (plan && (isDraft || isApproved)) {
     return (
-      <div className="space-y-4">
-        {/* Onboarding Readiness Gate Card */}
-        {readiness && (
-          <div className={`rounded-lg p-4 border space-y-3 ${readiness.ready ? 'bg-success/5 border-success/30' : 'bg-warning/5 border-warning/30'}`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  {readiness.ready ? (
-                    <CheckCircle2 className="size-4 text-success" />
-                  ) : (
-                    <AlertCircle className="size-4 text-warning" />
-                  )}
-                  Onboarding Readiness
-                </h4>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {readiness.completed} / {readiness.total} requirements completed
-                </p>
-              </div>
-              <Badge variant="outline" className={readiness.ready ? 'border-success/30 bg-success/10 text-success font-bold' : 'border-warning/30 bg-warning/10 text-warning font-bold'}>
-                {readiness.ready ? 'READY FOR ACTIVATION' : 'INCOMPLETE'}
-              </Badge>
-            </div>
-
-            {/* Checklist */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
-              {readiness.items.map((item) => (
-                <div key={item.key} className="flex items-center gap-1.5">
-                  {item.satisfied ? (
-                    <CheckCircle2 className="size-3.5 text-success shrink-0" />
-                  ) : (
-                    <AlertCircle className="size-3.5 text-destructive shrink-0" />
-                  )}
-                  <span className={item.satisfied ? 'text-foreground font-medium' : 'text-destructive font-semibold'}>
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {!readiness.ready && (
-              <p className="text-xs text-destructive font-medium border-t border-warning/20 pt-2">
-                Missing: {readiness.missing.join(', ')}. Complete missing fields below before activation.
-              </p>
-            )}
-          </div>
-        )}
-
-        <div className="space-y-4 rounded-xl border border-border p-5 bg-card">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
-            <h3 className="font-semibold text-base tracking-tight">
-              {isEditing || !plan.coordinator_name ? 'Fill / Edit Deployment & Onboarding Details' : 'Deployment Overview'}
-            </h3>
-            {canEdit && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing((prev) => !prev)}
-                className="h-8 gap-1.5 text-xs font-semibold"
-              >
-                {isEditing ? (
-                  <>
-                    <Eye className="size-3.5" /> View Summary
-                  </>
-                ) : (
-                  <>
-                    <Pencil className="size-3.5" /> Edit Onboarding Details
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
-
-          {canEdit && (isEditing || !plan.coordinator_name) ? (
-            <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
-          ) : (
-            <OnboardingSummary plan={plan} />
-          )}
-        </div>
-
-        {canApprove ? (
-          <div className="rounded-xl border border-brand/40 bg-brand/5 p-4 space-y-3">
-            <div>
-              <h4 className="text-sm font-bold text-brand flex items-center gap-2">
-                <ShieldCheck className="size-4" /> Campus Lead Verification &amp; Activation
-              </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Review the onboarding &amp; deployment details submitted by the Outreach Lead. Verify that the official approval letter is valid to activate this school.
-              </p>
-            </div>
-            <ApproveForm schoolId={schoolId} planId={plan.id} isReady={readiness?.ready ?? false} />
-          </div>
-        ) : (
-          <div className="rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground flex items-center gap-2">
-            <ShieldCheck className="size-4 text-muted-foreground shrink-0" />
-            <span>Submitted for Campus Lead verification &amp; approval. Only the assigned Campus Lead can approve onboarding and activate the school.</span>
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  if (plan && plan.status === 'approved') {
-    return (
-      <div className="space-y-4">
-        <div className="rounded-lg bg-success/10 p-4 border border-success/20">
-          <p className="text-sm font-medium text-success flex items-center gap-1.5">
-            <CheckCircle2 className="size-4 shrink-0" /> Onboarding approved. School is Active!
+      <div className="space-y-5">
+        {isApproved ? (
+          <p className="flex items-center gap-1.5 rounded-xl border border-success/30 bg-success/10 px-3 py-2.5 text-sm font-medium text-ink-green">
+            <CheckCircle2 className="size-4 shrink-0" /> Onboarding approved. School is active.
           </p>
-        </div>
+        ) : (
+          readiness && <ReadinessStrip title="Onboarding readiness" gate={readiness} />
+        )}
 
-        {/* Approval is not the end of edits. Coordinators change, a projector
-            arrives, fellow counts get revised — an active school still needs its
-            deployment details corrected. This branch previously rendered the
-            summary alone, with no edit control anywhere, which left the details
-            permanently read-only once a Campus Lead approved onboarding.
-            Saving here keeps the plan approved (see savePlan). */}
-        <div className="space-y-4 rounded-xl border border-border p-5 bg-card">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
-            <h3 className="font-semibold text-base tracking-tight">
-              {isEditing ? 'Edit Deployment & Onboarding Details' : 'Deployment Overview'}
-            </h3>
-            {canEdit && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing((prev) => !prev)}
-                className="h-8 gap-1.5 text-xs font-semibold"
-              >
-                {isEditing ? (
-                  <>
-                    <Eye className="size-3.5" /> View Summary
-                  </>
-                ) : (
-                  <>
-                    <Pencil className="size-3.5" /> Edit Onboarding Details
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
+        <DeploymentSection
+          schoolId={schoolId}
+          schoolStatus={schoolStatus}
+          plan={plan}
+          canEdit={canEdit}
+          isEditing={isEditing}
+          onToggleEditing={() => setIsEditing((prev) => !prev)}
+        />
 
-          {canEdit && isEditing ? (
-            <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
-          ) : (
-            <OnboardingSummary plan={plan} />
-          )}
-        </div>
+        {isDraft && (
+          <DraftApprovalGate
+            canApprove={canApprove}
+            schoolId={schoolId}
+            planId={plan.id}
+            isReady={readiness?.ready ?? false}
+          />
+        )}
       </div>
+    )
+  }
+
+  return <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
+}
+
+function OutreachApprovedBanner({ schoolId, canEdit }: Readonly<{ schoolId: string; canEdit: boolean }>) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand/30 bg-brand/5 p-4">
+      <div>
+        <h4 className="flex items-center gap-2 text-sm font-semibold text-brand">
+          <CheckCircle2 className="size-4" /> Outreach approved
+        </h4>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          The visit request is fully approved. Initiate onboarding to move this school to
+          Registered and start collecting logistics details.
+        </p>
+      </div>
+      {canEdit && <InitiateOnboardingBtn schoolId={schoolId} />}
+    </div>
+  )
+}
+
+/**
+ * One heading, one border. This section used to render a bordered
+ * "Deployment Overview" wrapper whose summary child was itself a bordered
+ * card with the same heading — the title appeared twice, nested, on every
+ * approved school.
+ */
+function DeploymentSection({
+  schoolId, schoolStatus, plan, canEdit, isEditing, onToggleEditing,
+}: Readonly<{
+  schoolId: string
+  schoolStatus: SchoolStatus
+  plan: SessionPlanRow
+  canEdit: boolean
+  isEditing: boolean
+  onToggleEditing: () => void
+}>) {
+  const showForm = canEdit && (isEditing || !plan.coordinator_name)
+
+  return (
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+        <h3 className="text-base font-semibold tracking-tight">
+          {showForm ? 'Deployment & onboarding details' : 'Deployment overview'}
+        </h3>
+        {canEdit && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onToggleEditing}
+            className="h-8 gap-1.5 text-xs font-semibold"
+          >
+            {isEditing ? (
+              <><Eye className="size-3.5" /> View summary</>
+            ) : (
+              <><Pencil className="size-3.5" /> Edit details</>
+            )}
+          </Button>
+        )}
+      </div>
+
+      {showForm ? (
+        <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
+      ) : (
+        <OnboardingSummary plan={plan} />
+      )}
+    </section>
+  )
+}
+
+function DraftApprovalGate({
+  canApprove, schoolId, planId, isReady,
+}: Readonly<{ canApprove: boolean; schoolId: string; planId: string; isReady: boolean }>) {
+  if (!canApprove) {
+    return (
+      <p className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground">
+        <ShieldCheck className="size-4 shrink-0" />
+        Submitted for Campus Lead verification &amp; approval. Only the assigned Campus Lead
+        can approve onboarding and activate the school.
+      </p>
     )
   }
 
   return (
-    <div className="space-y-5">
-      <PlanForm schoolId={schoolId} plan={plan} schoolStatus={schoolStatus} />
+    <div className="space-y-3 rounded-xl border border-brand/40 bg-brand/5 p-4">
+      <div>
+        <h4 className="flex items-center gap-2 text-sm font-bold text-brand">
+          <ShieldCheck className="size-4" /> Campus Lead verification &amp; activation
+        </h4>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Review the onboarding &amp; deployment details submitted by the Outreach Lead.
+          Verify that the official approval letter is valid to activate this school.
+        </p>
+      </div>
+      <ApproveForm schoolId={schoolId} planId={planId} isReady={isReady} />
     </div>
   )
 }
@@ -297,9 +251,6 @@ function PlanForm({
           <AlertCircle className="mt-0.5 size-4 shrink-0" /> {state.error}
         </p>
       )}
-      {state.ok && state.message && (
-        <p role="status" className="rounded-lg bg-success/10 px-3 py-2 text-sm text-success">{state.message}</p>
-      )}
 
       <Section title="School coordinator">
         <Field label="Name">
@@ -322,7 +273,7 @@ function PlanForm({
           <Label>Classes Covered</Label>
           <div className="flex flex-wrap gap-3 rounded-lg border border-border bg-card p-3">
             {AVAILABLE_CLASSES.map((cls) => (
-              <label key={cls} className="flex items-center gap-2 text-sm cursor-pointer select-none">
+              <label key={cls} className="flex cursor-pointer select-none items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={selectedClasses.includes(cls)}
@@ -341,7 +292,7 @@ function PlanForm({
           <Label>Preferred Training Days</Label>
           <div className="flex flex-wrap gap-3 rounded-lg border border-border bg-card p-3">
             {WEEK_DAYS.map((day) => (
-              <label key={day} className="flex items-center gap-2 text-sm cursor-pointer select-none">
+              <label key={day} className="flex cursor-pointer select-none items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={selectedDays.includes(day)}
@@ -382,7 +333,7 @@ function PlanForm({
         </Field>
 
         <div className="col-span-2 space-y-2.5">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Infrastructure Checklist</Label>
+          <Label className="field-label">Infrastructure Checklist</Label>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <Check name="has_lab" label="Computer lab" defaultChecked={fieldChecked(state, 'has_lab', plan?.has_lab)} />
             <Check name="has_internet" label="Internet" defaultChecked={fieldChecked(state, 'has_internet', plan?.has_internet)} />
@@ -394,12 +345,12 @@ function PlanForm({
       </Section>
 
       {/* Auto-calculated Recommendation Card */}
-      <div className="rounded-xl border border-brand/20 bg-brand/5 p-4 space-y-3">
+      <div className="space-y-3 rounded-xl border border-brand/20 bg-brand/5 p-4">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-brand">Deployment Recommendation</h4>
+          <h4 className="field-label text-brand">Deployment Recommendation</h4>
           <span className="text-xs text-muted-foreground">Rule: Digital Classrooms × 2</span>
         </div>
-        <div className="grid grid-cols-2 gap-4 items-center">
+        <div className="grid grid-cols-2 items-center gap-4">
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">Recommended Fellows</p>
             <p className="text-2xl font-bold text-foreground">{recommendedFellows}</p>
@@ -452,7 +403,7 @@ function numVal(n: number | null | undefined): string {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <fieldset className="space-y-3">
-      <legend className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</legend>
+      <legend className="field-label">{title}</legend>
       <div className="grid grid-cols-2 gap-3">{children}</div>
     </fieldset>
   )
@@ -479,146 +430,120 @@ function Check({ name, label, defaultChecked }: { name: string; label: string; d
   )
 }
 
+/**
+ * The read-only view of the onboarding record. It no longer draws its own card
+ * or repeats the section heading — the section above provides both.
+ */
 function OnboardingSummary({ plan }: { plan: SessionPlanRow }) {
   const classesList = plan.classes_covered && Array.isArray(plan.classes_covered) ? plan.classes_covered : []
+  const trainingDays =
+    plan.preferred_training_days && Array.isArray(plan.preferred_training_days)
+      ? plan.preferred_training_days
+      : []
 
   return (
-    <div className="rounded-xl border border-border p-5 space-y-5 bg-card text-sm shadow-2xs">
-      <div className="flex items-center justify-between border-b border-border pb-3">
-        <h3 className="font-semibold text-base tracking-tight">Deployment Overview</h3>
-        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-brand/10 text-brand">
-          Operational Planning
-        </span>
+    <div className="space-y-5 text-sm">
+      <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <SummaryField label="Coordinator" value={plan.coordinator_name} />
+        <SummaryField label="Phone" value={plan.coordinator_phone} />
+        <SummaryField label="Designation" value={plan.coordinator_designation} />
+        <SummaryField label="Student strength" value={plan.student_strength} />
+        <SummaryField label="Digital classrooms" value={plan.digital_classrooms ?? 1} />
+        <SummaryField label="Preferred time slot" value={plan.preferred_time_slot} />
+        <SummaryField
+          label="Recommended fellows"
+          value={`${plan.recommended_fellows ?? ((plan.digital_classrooms ?? 1) * 2)} (${plan.digital_classrooms ?? 1} rooms × 2)`}
+        />
+        <SummaryField
+          label="Assigned fellows"
+          value={plan.assigned_fellows ?? plan.recommended_fellows ?? 2}
+        />
+      </dl>
+
+      <div className="grid gap-4 border-t border-border/60 pt-4 sm:grid-cols-2">
+        <ChipRow label="Classes covered" values={classesList} empty="None specified" />
+        <ChipRow label="Preferred training days" values={trainingDays} empty="None selected" tone="brand" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Coordinator Name</dt>
-          <dd className="mt-0.5 font-medium">{plan.coordinator_name || '—'}</dd>
-        </div>
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Coordinator Phone</dt>
-          <dd className="mt-0.5 font-medium">{plan.coordinator_phone || '—'}</dd>
-        </div>
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Designation</dt>
-          <dd className="mt-0.5 font-medium">{plan.coordinator_designation || '—'}</dd>
-        </div>
-      </div>
-
-      {/* Scale & Classes */}
-      <div className="border-t border-border pt-3 space-y-2">
-        <dt className="text-xs uppercase tracking-wide text-muted-foreground">Scale & Coverage</dt>
-        <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-2">
-          <div className="rounded-lg border border-border p-2.5 bg-muted/20">
-            <span className="text-muted-foreground block text-[10px] uppercase">Student Strength</span>
-            <span className="text-sm font-semibold text-foreground">{plan.student_strength ?? '—'}</span>
-          </div>
-          <div className="rounded-lg border border-border p-2.5 bg-muted/20">
-            <span className="text-muted-foreground block text-[10px] uppercase">Digital Classrooms</span>
-            <span className="text-sm font-semibold text-foreground">{plan.digital_classrooms ?? 1}</span>
-          </div>
-        </div>
-
-        <div>
-          <span className="text-xs text-muted-foreground block mb-1">Classes Covered:</span>
-          <div className="flex flex-wrap gap-1.5">
-            {classesList.length > 0 ? (
-              classesList.map((cls) => (
-                <span key={cls} className="rounded-md border border-border bg-muted/50 px-2 py-0.5 text-xs font-medium">
-                  {cls}
-                </span>
-              ))
-            ) : (
-              <span className="text-xs text-muted-foreground italic">None specified</span>
-            )}
-          </div>
+      <div className="space-y-2 border-t border-border/60 pt-4">
+        <dt className="field-label">Infrastructure</dt>
+        <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+          <Infra label="Computer lab" available={plan.has_lab} />
+          <Infra label="Internet" available={plan.has_internet} />
+          <Infra label="Projector" available={plan.has_projector} />
+          <Infra label="Smart TV" available={plan.smart_tv} />
+          <Infra label="UPS / power backup" available={plan.ups_backup} />
         </div>
       </div>
 
-      {/* Training Preferences */}
-      <div className="border-t border-border pt-3 space-y-2">
-        <dt className="text-xs uppercase tracking-wide text-muted-foreground">Training Schedule Preferences</dt>
-        <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
-          <div>
-            <span className="text-xs text-muted-foreground block mb-1">Preferred Days:</span>
-            <div className="flex flex-wrap gap-1.5">
-              {plan.preferred_training_days && Array.isArray(plan.preferred_training_days) && plan.preferred_training_days.length > 0 ? (
-                plan.preferred_training_days.map((day) => (
-                  <span key={day} className="rounded-md border border-brand/20 bg-brand/10 text-brand px-2 py-0.5 text-xs font-medium">
-                    {day}
-                  </span>
-                ))
-              ) : (
-                <span className="text-xs text-muted-foreground italic">None selected</span>
-              )}
+      {(plan.approval_letter_path || plan.logistics_notes) && (
+        <div className="space-y-3 border-t border-border/60 pt-4">
+          {plan.approval_letter_path && (
+            <div>
+              <dt className="field-label">Approval letter</dt>
+              <dd className="mt-0.5 truncate font-mono text-xs text-muted-foreground">{plan.approval_letter_path}</dd>
             </div>
-          </div>
-          <div>
-            <span className="text-xs text-muted-foreground block mb-1">Preferred Time Slot:</span>
-            <span className="inline-block rounded-md border border-border bg-muted/50 px-2.5 py-0.5 text-xs font-medium">
-              {plan.preferred_time_slot || 'Not specified'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Deployment & Fellow Recommendation */}
-      <div className="border-t border-border pt-3">
-        <dt className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Fellow Deployment</dt>
-        <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-2">
-          <div className="rounded-lg border border-brand/30 bg-brand/5 p-3">
-            <span className="text-muted-foreground block text-[10px] uppercase font-medium">Recommended Fellows</span>
-            <span className="text-lg font-bold text-brand">{plan.recommended_fellows ?? ((plan.digital_classrooms ?? 1) * 2)}</span>
-            <span className="text-[10px] text-muted-foreground block">({plan.digital_classrooms ?? 1} rooms × 2)</span>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-3">
-            <span className="text-muted-foreground block text-[10px] uppercase font-medium">Assigned Fellows</span>
-            <span className="text-lg font-bold text-foreground">{plan.assigned_fellows ?? plan.recommended_fellows ?? 2}</span>
-            <span className="text-[10px] text-muted-foreground block">Operations Assigned</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Infrastructure Checklist */}
-      <div className="border-t border-border pt-3 space-y-2">
-        <dt className="text-xs uppercase tracking-wide text-muted-foreground">Infrastructure Summary</dt>
-        <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
-          <InfraBadge label="Computer Lab" available={plan.has_lab} />
-          <InfraBadge label="Internet" available={plan.has_internet} />
-          <InfraBadge label="Projector" available={plan.has_projector} />
-          <InfraBadge label="Smart TV" available={plan.smart_tv} />
-          <InfraBadge label="UPS / Power Backup" available={plan.ups_backup} />
-        </div>
-      </div>
-
-      {plan.approval_letter_path && (
-        <div className="border-t border-border pt-3">
-          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Approval Letter Path</dt>
-          <dd className="mt-0.5 font-mono text-xs text-muted-foreground truncate">{plan.approval_letter_path}</dd>
-        </div>
-      )}
-
-      {plan.logistics_notes && (
-        <div className="border-t border-border pt-3">
-          <dt className="text-xs uppercase tracking-wide text-muted-foreground">Logistics Notes</dt>
-          <dd className="mt-0.5 text-muted-foreground whitespace-pre-line italic">“{plan.logistics_notes}”</dd>
+          )}
+          {plan.logistics_notes && (
+            <div>
+              <dt className="field-label">Logistics notes</dt>
+              <dd className="mt-0.5 whitespace-pre-line text-muted-foreground">{plan.logistics_notes}</dd>
+            </div>
+          )}
         </div>
       )}
     </div>
   )
 }
 
-function InfraBadge({ label, available }: { label: string; available?: boolean }) {
+function SummaryField({ label, value }: Readonly<{ label: string; value?: string | number | null }>) {
   return (
-    <div className="flex items-center gap-2 rounded-md border border-border p-2 bg-muted/20">
-      <span className={`size-2 rounded-full ${available ? 'bg-success' : 'bg-muted-foreground/30'}`} />
-      <span className="font-medium text-xs">{label}: <strong>{available ? 'Yes' : 'No'}</strong></span>
+    <div>
+      <dt className="field-label">{label}</dt>
+      <dd className="mt-0.5 font-medium">{value === null || value === undefined || value === '' ? '—' : value}</dd>
     </div>
   )
 }
 
-function ApproveForm({ schoolId, planId, isReady = true }: { schoolId: string; planId: string; isReady?: boolean }) {
+function ChipRow({
+  label, values, empty, tone,
+}: Readonly<{ label: string; values: string[]; empty: string; tone?: 'brand' }>) {
+  return (
+    <div>
+      <dt className="field-label">{label}</dt>
+      <dd className="mt-1.5 flex flex-wrap gap-1.5">
+        {values.length > 0 ? (
+          values.map((v) => (
+            <span
+              key={v}
+              className={
+                tone === 'brand'
+                  ? 'rounded-md border border-brand/20 bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand'
+                  : 'rounded-md border border-border bg-muted/50 px-2 py-0.5 text-xs font-medium'
+              }
+            >
+              {v}
+            </span>
+          ))
+        ) : (
+          <span className="text-xs italic text-muted-foreground">{empty}</span>
+        )}
+      </dd>
+    </div>
+  )
+}
+
+function Infra({ label, available }: Readonly<{ label: string; available?: boolean }>) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className={`size-2 rounded-full ${available ? 'bg-success' : 'bg-muted-foreground/30'}`} />
+      <span className="font-medium">{label}</span>
+      <span className="text-muted-foreground">{available ? 'Yes' : 'No'}</span>
+    </span>
+  )
+}
+
+function ApproveForm({ schoolId, planId, isReady = true }: Readonly<{ schoolId: string; planId: string; isReady?: boolean }>) {
   const [state, action, pending] = useActionState<PlanActionState, FormData>(approvePlan, {})
   const formRef = useRef<HTMLFormElement>(null)
   useFormSuccess(state, { formRef })
@@ -645,15 +570,15 @@ function ApproveForm({ schoolId, planId, isReady = true }: { schoolId: string; p
         </p>
       )}
 
-      <Button type="submit" size="sm" className="bg-brand text-white hover:bg-brand/90" disabled={pending || !isReady}>
+      <Button type="submit" size="sm" disabled={pending || !isReady}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
-        Verify, Approve & Activate School
+        Verify, approve &amp; activate school
       </Button>
     </form>
   )
 }
 
-function InitiateOnboardingBtn({ schoolId }: { schoolId: string }) {
+function InitiateOnboardingBtn({ schoolId }: Readonly<{ schoolId: string }>) {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -673,17 +598,10 @@ function InitiateOnboardingBtn({ schoolId }: { schoolId: string }) {
   return (
     <div className="space-y-1">
       {error && <p className="text-xs text-error">{error}</p>}
-      <Button
-        type="button"
-        size="sm"
-        disabled={pending}
-        onClick={handleInitiate}
-        className="bg-brand text-white hover:bg-brand/90"
-      >
-        {pending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : null}
-        Initiate School Onboarding
+      <Button type="button" size="sm" disabled={pending} onClick={handleInitiate}>
+        {pending ? <Loader2 className="size-3.5 animate-spin" /> : null}
+        Initiate school onboarding
       </Button>
     </div>
   )
 }
-

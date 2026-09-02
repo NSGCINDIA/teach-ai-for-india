@@ -1,4 +1,3 @@
-import { NeuralNetworkBackground } from '@/components/shared/neural-network-background'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
 
@@ -7,6 +6,21 @@ interface HeroMetric {
   value: string | number
   icon: LucideIcon
   trend?: number
+  /**
+   * Visual weight for the number itself. Defaults to dark ink — every metric
+   * used to render in --brand-deep regardless of what it meant, which is what
+   * made a page of four numbers read as one undifferentiated block of red.
+   * Mirrors PageHeaderStat's own `tone`/STAT_TONE, the same distinction this
+   * component just didn't have yet.
+   */
+  tone?: 'default' | 'brand' | 'attention'
+}
+
+/** Kept in step with PageHeader's STAT_TONE — same three meanings, same colours. */
+const HERO_METRIC_TONE: Record<NonNullable<HeroMetric['tone']>, string> = {
+  default: 'text-foreground',
+  brand: 'text-brand-deep',
+  attention: 'text-ink-orange',
 }
 
 interface DashboardHeroProps {
@@ -34,12 +48,17 @@ export function DashboardHero({ greeting, userName, role, impact, className }: D
         className,
       )}
     >
-      <NeuralNetworkBackground variant="subtle" />
-
-      <div className="relative px-6 py-8 md:px-9 md:py-10">
-        <p className="text-xs font-bold tracking-wide text-brand-orange">{role}</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          {greeting}, {userName} <span aria-hidden>👋</span>
+      <div className="px-6 py-8 md:px-9 md:py-10">
+        {/* Ink, not the fill: --brand-orange measures 2.74:1 as lettering,
+            which is the failure the ink tokens exist to fix. */}
+        <p className="section-label text-ink-orange">{role}</p>
+        {/* The one poster moment in the product. Anton, caps, brand gradient —
+            loud on purpose, and confined to this line: the metrics below it and
+            every operational heading elsewhere stay quiet so this can be the
+            thing you look at first. */}
+        <h1 className="mt-2 font-poster text-poster-brand text-4xl md:text-5xl lg:text-6xl">
+          {greeting}, {userName}{' '}
+          <span aria-hidden className="align-middle text-3xl md:text-4xl">👋</span>
         </h1>
         <p className="mt-2 max-w-2xl text-sm font-medium text-muted-foreground md:text-base">
           Here&rsquo;s the impact you&rsquo;re creating across Teach AI For India.
@@ -59,10 +78,15 @@ export function DashboardHero({ greeting, userName, role, impact, className }: D
                 )}
               >
                 <dt className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                  <metric.icon aria-hidden className="size-3.5 shrink-0 text-brand-orange" />
+                  <metric.icon aria-hidden className="size-3.5 shrink-0 text-ink-orange" />
                   <span className="truncate">{metric.label}</span>
                 </dt>
-                <dd className="mt-1.5 text-3xl font-bold leading-none tracking-tight tabular-nums text-brand-deep md:text-4xl">
+                <dd
+                  className={cn(
+                    'mt-1.5 font-display text-3xl font-bold leading-none tabular-nums md:text-4xl',
+                    HERO_METRIC_TONE[metric.tone ?? 'default'],
+                  )}
+                >
                   {metric.value}
                 </dd>
               </div>
@@ -94,11 +118,17 @@ export function SimpleHero({ greeting, userName, description, role, className }:
         className,
       )}
     >
-      <NeuralNetworkBackground variant="subtle" />
-      <div className="relative px-6 py-8 md:px-9 md:py-10">
-        <p className="text-xs font-bold tracking-wide text-brand-orange">{role}</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          {greeting}, {userName} <span aria-hidden>👋</span>
+      <div className="px-6 py-8 md:px-9 md:py-10">
+        {/* Ink, not the fill: --brand-orange measures 2.74:1 as lettering,
+            which is the failure the ink tokens exist to fix. */}
+        <p className="section-label text-ink-orange">{role}</p>
+        {/* The one poster moment in the product. Anton, caps, brand gradient —
+            loud on purpose, and confined to this line: the metrics below it and
+            every operational heading elsewhere stay quiet so this can be the
+            thing you look at first. */}
+        <h1 className="mt-2 font-poster text-poster-brand text-4xl md:text-5xl lg:text-6xl">
+          {greeting}, {userName}{' '}
+          <span aria-hidden className="align-middle text-3xl md:text-4xl">👋</span>
         </h1>
         <p className="mt-2 max-w-2xl text-sm font-medium text-muted-foreground md:text-base">
           {description}

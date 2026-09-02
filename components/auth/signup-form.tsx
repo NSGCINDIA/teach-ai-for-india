@@ -135,7 +135,7 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
             name="campus_id"
             required
             defaultValue={fieldValue(state, 'campus_id', '')}
-            className={selectClass}
+            className={`${selectClass} pl-10`}
             onChange={(e) => setCampusId(e.target.value)}
           >
             <option value="" disabled className="dark:bg-zinc-900">Select your campus</option>
@@ -144,7 +144,7 @@ export function SignupForm({ campuses }: { campuses: Pick<CampusRow, 'id' | 'nam
         </Field>
 
         <Field label="Role" htmlFor="requested_role" icon={<UserCog className="size-4" />} isSelect>
-          <select id="requested_role" name="requested_role" required defaultValue={fieldValue(state, 'requested_role', 'volunteer')} className={selectClass}>
+          <select id="requested_role" name="requested_role" required defaultValue={fieldValue(state, 'requested_role', 'volunteer')} className={`${selectClass} pl-10`}>
             {SELF_SIGNUP_ROLES.map((r) => (
               <option key={r} value={r} className="dark:bg-zinc-900">
                 {roleLabel(r)}

@@ -5,7 +5,7 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    TAI Brand Design System — Warm, human, mission-driven visual identity
-   "Students Teaching Students" | "AI Education for Every Child"
+   "By NIAT Students, for every classroom in India."
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
   --radius: 1rem;
@@ -17,16 +17,71 @@
   --brand-gold: #F6A500;            /* Highlights, achievement */
   --brand-warm-gold: #E7B823;       /* Secondary accent */
   
-  /* Warm Cream Surface System */
-  --cream-lightest: #FFF9F2;        /* Page background, breathable */
-  --cream-light: #F8F2E8;           /* Secondary background, elevated sections */
-  --cream-warm: #F5EBD9;            /* Subtle tint for cards */
-  --surface-elevated: #FFFFFF;      /* Primary cards, highest elevation */
-  
+  /* ── Surface ladder ───────────────────────────────────────────────────────
+     The page is white, by choice. That settles how depth has to be built: a
+     white card on a white page cannot separate itself by tone, so the work
+     moves onto the border and the shadow, and the ladder runs *downward* from
+     the page instead of upward from it.
+
+     What this fixes from the original palette is the flatness underneath. That
+     version ran a #FFF9F2 page under #FFFFFF cards — four percent of lightness
+     between the ground and the things standing on it — with borders at 1.35:1
+     and shadows drawn in maroon at 4% alpha, invisible on cream. Neither the
+     tone, the edge, nor the elevation was doing any separating, which is what
+     made the whole product read as one flat sheet.
+
+     So: the page and cards share pure white, the border is a hairline you can
+     actually see, the shadow is warm and real, and `sunken` is a genuine tint
+     below the page — the rung that gives progress tracks, wells and inset rows
+     an existence of their own without needing a box drawn around them. */
+  /* A hair off pure white — 0.958 luminance, a 0.04 step below --paper. Warm
+     enough that a card is still a perceptibly distinct surface from the page
+     behind it (the previous pass had both at #FFFFFF, flat), subtle enough
+     that no text pairing below moves by more than 0.3 of a contrast ratio. */
+  --canvas: #FCFAF7;                /* The page itself */
+  --paper: #FFFFFF;                 /* Cards, the nav rail, popovers */
+  --sunken: #EFE5D5;                /* Wells, tracks, inset rows — 1.25:1 below the page */
+
+  /* Kept as aliases so every existing cream-* consumer moves with the ladder
+     rather than being left behind on the old flat values. */
+  /* The sidebar's surface — a solid burnt-orange-maroon, not a tint. A calmer
+     step down from an earlier #BB4413: it sits well below white in luminance
+     (0.14 vs 1.0), so it is the one part of the ladder where dark-on-light
+     text does not apply — everything drawn on it below is a light colour,
+     chosen and measured against THIS value specifically, not inherited from
+     the rest of the palette. */
+  --sidebar-surface: #B93F12;
+  /* The active row's own fill — a third, darker step, so "selected" is a
+     different surface rather than a lighter wash of the same one. White text
+     clears 8.66:1 on it. */
+  --sidebar-surface-active: #8F240D;
+  /* The active row's edge marker — a thin vertical accent, not a fill. Lifted
+     ~20% toward white from a suggested #E45A35: at full strength that value
+     measured 2.40:1 against --sidebar-surface-active, under the 3:1 a 3px
+     UI-state marker should clear to actually read as present rather than as a
+     rounding error at the row's edge. This is the lightest step that clears
+     it (3.07:1) while staying the same coral rather than drifting toward peach. */
+  --sidebar-active-indicator: #E97B5D;
+  /* Primary text/icons on the sidebar surface — 5.55:1. */
+  --sidebar-foreground: #FFFFFF;
+  /* Secondary text/icons on the sidebar surface — inactive nav labels, the
+     footer's second line. #FFFFFF at 90% over --sidebar-surface, resolved to a
+     literal value (rather than color-mix) so the ratio below is exact and
+     checkable: 4.80:1. */
+  --sidebar-foreground-muted: #F8ECE7;
+
+  --cream-lightest: var(--canvas);
+  --cream-light: var(--sunken);
+  --cream-warm: var(--sunken);
+  --surface-elevated: var(--paper);
+
   /* Warm Charcoal Text Hierarchy */
-  --text-primary: #2B1810;          /* Deep warm charcoal for body text */
-  --text-secondary: #5C4A3E;        /* Supporting text, captions */
-  --text-tertiary: #856F5D;         /* Muted text, placeholders — 4.53:1 on cream */
+  --text-primary: #2B1810;          /* Deep warm charcoal for body text — 14.8:1 on white */
+  --text-secondary: #5C4A3E;        /* Supporting text, captions — 7.3:1 on white */
+  /* Deepened from #856F5D, which sat at the 4.5:1 line. The quietest tier of
+     text is where a palette reads as washed out, and buying it another 1.2
+     points of contrast costs nothing. */
+  --text-tertiary: #6F5A49;         /* Muted text, placeholders — 5.7:1 on white */
 
   /* ── Ink tokens ─────────────────────────────────────────────────────────────
      A brand colour that works as a *fill* almost never works as *text* on a
@@ -41,17 +96,27 @@
 
      Named by hue rather than by status, because the same ink serves a badge
      label, a standalone number and an icon drawn in that colour. Every value
-     below clears 4.5:1 on its colour's /10, /15 and /20 tints AND on white and
-     cream, so it is safe anywhere that colour is used as text. */
-  --ink-neutral: #756151;
-  --ink-orange: #B05009;            /* for #F47A20 surfaces + orange text */
-  --ink-gold: #916100;              /* for #F6A500 surfaces */
-  --ink-amber: #866A0F;             /* for #E7B823 surfaces (warning, contacted) */
-  --ink-green: #107736;             /* for #16a34a surfaces */
+     below clears 4.5:1 on its colour's /10, /15, /20 and /30 tints AND on both
+     the page and the sunken rung, so it is safe anywhere that colour is used as
+     text. Four were deepened past the bare minimum for the same reason as
+     text-tertiary above: at 4.2-4.4:1 they were technically legible and
+     visually thin. The worst pairing in the set now measures 4.86:1. */
+  --ink-neutral: #685648;
+  --ink-orange: #9B4608;            /* for #F47A20 surfaces + orange text */
+  --ink-gold: #815600;              /* for #F6A500 surfaces */
+  --ink-amber: #745C0D;             /* for #E7B823 surfaces (warning, contacted) */
+  --ink-green: #1B5E43;             /* for --success surfaces — 7.7:1 on white */
   --ink-red: #991B1B;               /* already passing; named for symmetry */
   
   /* Semantic Colors (maintain accessibility) */
-  --success: #16a34a;               /* Keep semantic green */
+  /* Forest, not the stock Tailwind green this used to be (#16a34a). Two reasons.
+     It was the only colour in the product drawn from outside the brand, and a
+     cool emerald is the one hue that will not sit beside maroon, gold and cream
+     — every "verified" badge read as borrowed from another design system. And it
+     failed: white on #16a34a measures 3.30:1, so the white-on-green "Verify
+     session delivery" button was below AA. This value is already in the
+     vocabulary as --tai-forest, and white on it measures 6.39:1. */
+  --success: #2D6A4F;               /* Forest green — brand-native, AA with white */
   --warning: #E7B823;               /* Warm gold for warnings */
   --error: #991b1b;                 /* Semantic red for errors */
   --info: #7A0E17;                  /* Deep maroon for info */
@@ -65,16 +130,18 @@
   --popover-foreground: var(--text-primary);
   --primary: var(--brand-maroon);
   --primary-foreground: #ffffff;
-  --secondary: #FFF4E6;             /* Warm peach tint */
+  --secondary: #FAE7D0;             /* Warm peach tint — deepened to stay visible on sand */
   --secondary-foreground: var(--brand-deep-maroon);
   --muted: var(--cream-light);
   --muted-foreground: var(--text-secondary);
-  --accent: #FFF4E6;                /* Warm accent background */
+  --accent: #FAE7D0;                /* Warm accent background */
   --accent-foreground: var(--brand-deep-maroon);
   --destructive: var(--error);
   --destructive-foreground: #ffffff;
-  --border: #E8D7C3;                /* Warm border, subtle */
-  --input: #E8D7C3;
+  /* 1.77:1 on white. The old #E8D7C3 measured 1.41:1 — on a page that is also
+     white, that is the difference between a card having an edge and not. */
+  --border: #D5C0A3;                /* Warm hairline — the main edge cue on a white page */
+  --input: #D5C0A3;
   --ring: var(--brand-maroon);
   --placeholder: var(--text-tertiary);
 
@@ -96,7 +163,8 @@
 
 @theme inline {
   --font-sans: var(--font-body), 'Manrope', ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-body), 'Manrope', ui-sans-serif, sans-serif;
+  --font-display: var(--font-fraunces), 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-poster: var(--font-anton), 'Anton', 'Arial Narrow', ui-sans-serif, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
   --color-background: var(--background);
@@ -118,6 +186,23 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  /* Surface ladder — usable as bg-canvas / bg-paper / bg-sunken where a
+     component needs a rung explicitly rather than via background/card/muted. */
+  --color-canvas: var(--canvas);
+  --color-paper: var(--paper);
+  --color-sunken: var(--sunken);
+
+  /* The sidebar's own surface, its active-row fill and indicator, and its
+     two-tier light foreground — bg/text-sidebar-surface(-active),
+     bg-sidebar-active-indicator, text-sidebar-foreground(-muted). Everything
+     else on the rail (icon washes, hover fills, the focus ring) is plain white
+     at some opacity, which needs no token of its own. */
+  --color-sidebar-surface: var(--sidebar-surface);
+  --color-sidebar-surface-active: var(--sidebar-surface-active);
+  --color-sidebar-active-indicator: var(--sidebar-active-indicator);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-foreground-muted: var(--sidebar-foreground-muted);
 
   /* TAI Brand utilities */
   --color-brand: var(--brand-maroon);
@@ -248,6 +333,19 @@
 }
 
 @layer utilities {
+  /* A row that scrolls sideways rather than wrapping — the School Detail tab
+     strip and lifecycle rail on a phone. The scrollbar is hidden because the
+     row is short and the overflow is already signalled by a clipped item;
+     keyboard and wheel scrolling are unaffected. */
+  .scroll-strip {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+  }
+  .scroll-strip::-webkit-scrollbar {
+    display: none;
+  }
   .section-padding {
     @apply py-20 md:py-28 px-5 md:px-8 lg:px-16;
   }
@@ -260,6 +358,26 @@
   .section-label {
     @apply text-xs font-bold uppercase tracking-[0.18em];
   }
+  /* The poster heading's fill. It is deliberately not .text-gradient-brand:
+     that ramp ends on #F6A500, which measures 2.04:1 on white — a headline you
+     cannot read at the end of the word. This one runs deep maroon to a burnt
+     orange whose lightest stop still clears the 3:1 that large text needs, on
+     the white page and on the warm hero band alike. */
+  .text-poster-brand {
+    color: #7A0E17;
+    background: linear-gradient(100deg, #7A0E17 0%, #8A121A 50%, #A81822 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  @media print {
+    .text-poster-brand {
+      background: none;
+      -webkit-text-fill-color: #7A0E17;
+      color: #7A0E17;
+    }
+  }
+
   .text-gradient-brand {
     background: linear-gradient(135deg, #7A0E17 0%, #A81822 40%, #F47A20 80%, #F6A500 100%);
     -webkit-background-clip: text;
@@ -281,7 +399,15 @@
     -webkit-backdrop-filter: blur(16px) saturate(140%);
   }
   .glass-warm {
-    background: color-mix(in srgb, var(--cream-light) 90%, transparent);
+    /* Was color-mix(... var(--cream-light) ...) — the old sand tint (#EFE5D5),
+       a leftover from before the surface ladder moved to near-white. Every
+       other surface in the app followed that move; this one didn't, so the
+       app bar and the tabs strip below it kept rendering a tan wash that no
+       longer matches any card, page background, or the rest of the chrome
+       around it. --paper is what `.glass` already uses for the same kind of
+       frosted panel — this now differs from it only in its own blur/saturate
+       tuning, not in which surface it's a wash of. */
+    background: color-mix(in srgb, var(--paper) 90%, transparent);
     backdrop-filter: blur(12px) saturate(120%);
     -webkit-backdrop-filter: blur(12px) saturate(120%);
   }
@@ -330,20 +456,22 @@
        grew 9714px -> 12398px on first pass; at 950px that is largely gone. */
     contain-intrinsic-size: auto 950px;
   }
+  /* Warm-tinted, and now actually visible: on the old near-white page a maroon
+     shadow at 4% alpha was doing nothing at all. */
   .shadow-soft {
-    box-shadow: 
-      0 1px 2px rgba(122, 14, 23, 0.04),
-      0 8px 20px -10px rgba(122, 14, 23, 0.08);
+    box-shadow:
+      0 1px 2px rgba(122, 14, 23, 0.06),
+      0 8px 20px -10px rgba(122, 14, 23, 0.14);
   }
   .shadow-soft-lg {
-    box-shadow: 
-      0 2px 4px rgba(122, 14, 23, 0.05),
-      0 20px 40px -16px rgba(122, 14, 23, 0.12);
+    box-shadow:
+      0 2px 6px rgba(122, 14, 23, 0.08),
+      0 20px 40px -16px rgba(122, 14, 23, 0.20);
   }
   .shadow-warm {
-    box-shadow: 
-      0 2px 8px rgba(122, 14, 23, 0.06),
-      0 12px 32px -12px rgba(244, 122, 32, 0.10);
+    box-shadow:
+      0 2px 8px rgba(122, 14, 23, 0.10),
+      0 12px 32px -12px rgba(244, 122, 32, 0.18);
   }
 
   @keyframes fade-up {
@@ -592,12 +720,38 @@
    layers make any layered rule (base, utilities, ...) lose to an unlayered
    one regardless of specificity, so declaring these here — outside every
    @layer — is what actually lets them win. */
+/* The workspace half of that same problem: `.font-display` was only ever
+   declared *inside* `.tai-public`, so the fifteen dashboard and admin headings
+   that ask for it — page titles, the school command bar, the analytics section
+   heads — silently rendered in the body font. Nobody noticed for the same reason
+   as above: the two variables pointed at one typeface. Declaring it globally is
+   what gives the operational side of the product its display voice; the
+   `.tai-public` rules below still win there on specificity. */
+/* The poster face. Caps and tight tracking are part of the treatment, not a
+   choice left to each call site — Anton is drawn for exactly this. */
+.font-poster {
+  font-family: var(--font-poster);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  line-height: 0.95;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  /* Fraunces reads best with a touch of negative tracking at heading sizes, and
+     its lining figures should align in a product this full of counts. */
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
 .tai-public h1, .tai-public h2, .tai-public h3, .tai-public h4, .tai-public h5, .tai-public h6 {
   font-family: var(--font-display);
   font-weight: 400;
 }
 .tai-public .font-display {
   font-family: var(--font-display);
+  letter-spacing: normal;
 }
 
 @layer utilities {
@@ -609,6 +763,20 @@
   .tai-text-h3           { font-size: clamp(1.25rem, 1.75vw, 1.75rem); line-height: 1.1; }
   .tai-text-body-lg      { font-size: clamp(1.125rem, 1.25vw, 1.25rem); line-height: 1.65; }
   .tai-text-metric       { font-size: clamp(3rem, 4.5vw, 4.5rem); line-height: 1; font-variant-numeric: tabular-nums; }
+  /* The small uppercase key above a value — "Students reached", "Coordinator",
+     "Total requested". The school workspace had spelled this four different ways
+     (text-xs / text-[10px] / text-[11px], tracking-wide / tracking-wider,
+     with and without font-semibold), which is why columns of labels never quite
+     lined up with each other. */
+  .field-label {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
   .tai-eyebrow {
     font-family: var(--font-body);
     font-weight: 500;

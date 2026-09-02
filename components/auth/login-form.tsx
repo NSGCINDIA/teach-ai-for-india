@@ -36,7 +36,11 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
         {/* Logo / Header */}
         <div className="flex flex-col items-center mb-6">
           <Link href="/" className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none mb-3" aria-label="TEACHAIFORINDIA home">
-            <BrandLogo size="xl" lightOnly />
+            {/* Not lightOnly: this card is bg-white/95. That prop existed as dead code
+                before this pass — both its branches rendered the same dark text — so it
+                was a no-op here by accident, not by design; making it a real light
+                variant meant fixing this call site rather than silently going invisible. */}
+            <BrandLogo size="xl" />
           </Link>
           <h1 className="text-xl font-extrabold tracking-tight text-slate-900">Welcome back</h1>
           <p className="text-xs text-muted-foreground mt-1">Sign in to your volunteer portal</p>

@@ -1,4 +1,3 @@
-import { NeuralNetworkBackground } from '@/components/shared/neural-network-background'
 import { EmptyState } from '@/components/shared/states'
 import { Badge } from '@/components/ui/badge'
 import type { VolunteerData } from '@/lib/data/dashboard'
@@ -25,7 +24,6 @@ export function VolunteerOverview({
     <div className="space-y-6 animate-fade-up">
       {/* Journey Hero */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-deep/90 via-brand/80 to-brand-orange/70 text-white border border-brand/30">
-        <NeuralNetworkBackground variant="prominent" />
         <div className="relative px-6 py-10 md:px-10 md:py-12">
           <p className="text-xs font-bold text-brand-gold uppercase tracking-widest mb-3">
             My Teach AI Journey
@@ -60,7 +58,7 @@ export function VolunteerOverview({
         <div className="rounded-xl border border-brand/20 bg-gradient-to-br from-cream-light to-secondary/20 shadow-soft overflow-hidden">
           <div className="px-6 py-5 border-b border-brand/10 flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-bold text-brand-orange uppercase tracking-wide mb-1">Your Assigned School</p>
+              <p className="text-xs font-bold text-ink-orange uppercase tracking-wide mb-1">Your Assigned School</p>
               <h2 className="text-xl font-bold text-foreground">{school.name}</h2>
               <p className="text-sm text-muted-foreground font-medium mt-0.5">{school.district} · Team Member</p>
             </div>
@@ -71,7 +69,7 @@ export function VolunteerOverview({
           <div className="px-6 py-5">
             <div className="flex items-center justify-between text-sm font-semibold mb-2">
               <span className="text-foreground">School Program Progress</span>
-              <span className="text-brand-orange">{prog?.completedSessions ?? 0} of 4 sessions verified</span>
+              <span className="text-ink-orange">{prog?.completedSessions ?? 0} of 4 sessions verified</span>
             </div>
             <div className="h-3 w-full overflow-hidden rounded-full bg-cream-warm border border-border/50">
               <div
@@ -98,7 +96,7 @@ export function VolunteerOverview({
                 <CalendarClock className="size-5" />
               </span>
               <div>
-                <p className="text-xs font-bold text-brand-orange uppercase tracking-wide">Coming Up</p>
+                <p className="text-xs font-bold text-ink-orange uppercase tracking-wide">Coming Up</p>
                 <h3 className="font-bold text-base text-foreground">Next Scheduled Session</h3>
               </div>
             </div>
@@ -163,7 +161,7 @@ export function VolunteerOverview({
               <p className="text-sm text-muted-foreground font-medium">
                 Complete all 4 sessions in your school fellowship to unlock your official certificate.
               </p>
-              <p className="text-sm font-bold text-brand-orange">
+              <p className="text-sm font-bold text-ink-orange">
                 {prog?.certificate?.missingSessions ?? 4} session{(prog?.certificate?.missingSessions ?? 4) !== 1 ? 's' : ''} remaining
               </p>
               <div className="h-2 w-full overflow-hidden rounded-full bg-cream-light border border-border/50 mt-3">
@@ -180,7 +178,7 @@ export function VolunteerOverview({
         {history.length > 0 && (
           <div className="rounded-xl border border-border/50 bg-card shadow-soft p-5 space-y-4">
             <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-              <Timer className="size-5 text-brand-orange" /> My Teaching History
+              <Timer className="size-5 text-ink-orange" /> My Teaching History
             </h3>
             <div className="grid grid-cols-2 gap-2.5">
               {history.map((h: any) => {

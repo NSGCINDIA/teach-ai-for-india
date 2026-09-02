@@ -81,7 +81,7 @@ function QuickActionCard({ label, description, href, icon: Icon, variant = 'defa
           'grid size-10 shrink-0 place-items-center rounded-lg transition-colors',
           variant === 'highlight'
             ? 'bg-brand text-white'
-            : 'bg-cream-light text-brand-orange group-hover:bg-brand/10 group-hover:text-brand',
+            : 'bg-cream-light text-ink-orange group-hover:bg-brand/10 group-hover:text-brand',
         )}
       >
         <Icon className="size-5" strokeWidth={2} />

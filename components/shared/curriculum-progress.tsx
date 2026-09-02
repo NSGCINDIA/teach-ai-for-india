@@ -61,7 +61,7 @@ export function CurriculumProgress({
 
       <span className="text-xs font-bold tabular-nums text-foreground">
         {filled}/{CORE_SESSIONS}
-        {bonus > 0 && <span className="ml-1 font-semibold text-brand-orange">+{bonus}</span>}
+        {bonus > 0 && <span className="ml-1 font-semibold text-ink-orange">+{bonus}</span>}
       </span>
 
       {variant === 'full' && (

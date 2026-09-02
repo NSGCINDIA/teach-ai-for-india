@@ -75,11 +75,12 @@ interface DashboardShellProps {
 /**
  * DashboardShell — the frame every dashboard and admin screen renders inside.
  *
- * The chrome is deliberately quiet. A command centre is somewhere people sit for
- * an hour at a time, so the parts that never change (nav, app bar) stay low
- * contrast on the warm ground and let the record they came to read hold the
- * only strong colour on screen. Everything with a brand fill in here is either
- * the active route or a primary action — nothing else earns it.
+ * The chrome carries exactly one strong colour: the nav rail, solid at
+ * --sidebar-surface (#B93F12) rather than tinted. Because it never changes and
+ * is never the thing being read, a fixed saturated surface there works as an
+ * anchor a command centre can sit inside for an hour at a time — the app bar
+ * and every page underneath stay on the light, low-contrast ground so the
+ * record someone came to read still holds the only colour that changes.
  */
 export function DashboardShell({ items, user, panelLabel, children }: DashboardShellProps) {
   const [open, setOpen] = useState(false)
@@ -117,9 +118,14 @@ export function DashboardShell({ items, user, panelLabel, children }: DashboardS
     <TooltipProvider delayDuration={200}>
       <div className="min-h-dvh bg-background">
         {/* Desktop rail */}
+        {/* No border-r any more: a colour boundary against the white content
+            area (luminance 0.15 vs 1.0) is already a stronger edge than any
+            hairline could draw, and --border was tuned for a white-on-white
+            seam that no longer exists here. A soft directional shadow instead,
+            for a touch of depth rather than a flat cutout. */}
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-border/60 bg-card lg:flex',
+            'fixed inset-y-0 left-0 z-30 hidden flex-col bg-sidebar-surface shadow-[3px_0_16px_-4px_rgba(0,0,0,0.18)] lg:flex',
             'transition-[width] duration-200 ease-out motion-reduce:transition-none',
             isCollapsed ? 'w-[4.75rem]' : 'w-64',
           )}
@@ -145,7 +151,10 @@ export function DashboardShell({ items, user, panelLabel, children }: DashboardS
                     <Menu className="size-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-72 p-0">
+                {/* border-r-0: the Sheet's default border is a light-mode
+                    hairline, and it would sit right on top of the colour
+                    boundary the dark rail already draws against the overlay. */}
+                <SheetContent side="left" className="w-72 border-r-0 p-0">
                   <SheetTitle className="sr-only">Navigation</SheetTitle>
                   <SidebarContent items={items} collapsed={false} onNavigate={() => setOpen(false)} />
                 </SheetContent>
@@ -233,7 +242,7 @@ function UserMenu({ user }: { user: ShellUser }) {
           className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors hover:bg-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
         >
           <Avatar className="size-8">
-            <AvatarImage src={user.avatar_url ?? undefined} alt="" />
+            <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
             <AvatarFallback className="bg-gradient-to-br from-brand to-brand-orange text-xs font-bold text-white">
               {user.full_name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
@@ -250,7 +259,7 @@ function UserMenu({ user }: { user: ShellUser }) {
         <DropdownMenuLabel className="font-normal">
           <p className="truncate text-sm font-bold text-foreground">{user.full_name}</p>
           <p className="truncate text-xs font-medium text-muted-foreground">{user.email}</p>
-          <p className="mt-1 text-xs font-semibold text-brand-orange">{roleLabel(user.role)}</p>
+          <p className="mt-1 text-xs font-semibold text-ink-orange">{roleLabel(user.role)}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
@@ -309,21 +318,36 @@ function SidebarContent({
   const sections = groupNav(items)
 
   return (
-    <div className="flex h-full flex-col bg-card">
-      {/* Brand */}
+    // --sidebar-surface, solid — see the token comment in globals.css. This is
+    // a colour flip, not a tint: every foreground element below is a light
+    // colour chosen and measured against this exact background, none of it
+    // inherited from the rest of the (light-on-white) palette. Same background
+    // whether this renders in the desktop rail or the mobile Sheet, since both
+    // mount this component.
+    <div className="flex h-full flex-col bg-sidebar-surface">
+      {/* Brand. h-14, matching the app bar exactly, so the seam where the rail
+          meets it reads as one line rather than a step. No hairline under this
+          row any more — the gradient that used to sit here was measured for a
+          white background and is invisible on this one (its darkest stop is
+          barely 1.4:1 from this fill); a solid colour separates the header
+          from the nav by being a colour, not by drawing a line under itself. */}
       <div
         className={cn(
-          'flex h-14 shrink-0 items-center border-b border-border/60',
+          'flex h-14 shrink-0 items-center',
           collapsed ? 'justify-center px-2' : 'gap-2 px-5',
         )}
       >
         <Link href="/" className="inline-flex min-w-0 items-center" aria-label="Teach AI For India home">
           {collapsed ? (
-            <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-brand-deep to-brand text-sm font-black text-white">
+            // Inverted to a white chip rather than the maroon-on-maroon plate
+            // this used to be: a brand-coloured badge on a brand-coloured rail
+            // would have measured 1.4-2.1:1 against its own background and all
+            // but vanished. White reads as a crisp mark instead.
+            <span className="grid size-9 place-items-center rounded-xl bg-white text-sm font-black text-brand-deep shadow-soft">
               AI
             </span>
           ) : (
-            <BrandLogo size="sm" />
+            <BrandLogo size="md" lightOnly />
           )}
         </Link>
         {/* The panel badge lives in the app bar, not here — it was rendering in
@@ -337,10 +361,20 @@ function SidebarContent({
             {section.label &&
               (collapsed ? (
                 // A heading would not fit the rail; a hairline still says
-                // "new group starts here", which is the part that matters.
-                <div className="mx-auto mb-2 h-px w-6 bg-border" role="presentation" />
+                // "new group starts here". White at low opacity, since it only
+                // needs to be a visible mark on this background, not readable
+                // text — WCAG's object-contrast floor (3:1), not text's (4.5:1).
+                <div
+                  aria-hidden
+                  className="mx-auto mb-2 h-px w-6 bg-white/25"
+                />
               ) : (
-                <h2 className="mb-1.5 px-3 text-[11px] font-bold tracking-wider text-text-tertiary">
+                // Deliberately quieter than a nav label (white/65, 3.22:1)
+                // rather than the muted-foreground token used for running text
+                // (4.80:1): a section head is wayfinding, read once per glance,
+                // not something scanned line by line — it should recede behind
+                // the items it introduces, not compete with them.
+                <h2 className="mb-1.5 px-3 text-[10px] font-semibold tracking-widest text-white/65">
                   {section.label}
                 </h2>
               ))}
@@ -361,13 +395,14 @@ function SidebarContent({
         ))}
       </nav>
 
-      {/* Mission footer — the reason the rest of this screen exists. */}
+      {/* Mission footer — the reason the rest of this screen exists. No top
+          hairline for the same reason the header dropped its bottom one. */}
       {!collapsed && (
-        <div className="shrink-0 border-t border-border/60 px-5 py-4">
-          <p className="text-[11px] font-semibold leading-relaxed text-text-tertiary">
-            <span className="text-brand-orange">Students teaching students.</span>
+        <div className="shrink-0 px-5 py-4">
+          <p className="text-[11px] font-semibold leading-relaxed text-sidebar-foreground-muted">
+            <span className="text-white">By NIAT Students,</span>
             <br />
-            AI education for every child.
+            for every classroom in India.
           </p>
         </div>
       )}
@@ -376,13 +411,18 @@ function SidebarContent({
 }
 
 /**
- * A nav row, not a button. The inactive state carries no fill and no border at
- * all, so a sidebar of eleven routes reads as a list of eleven words rather than
- * eleven competing controls; only the current route gets a surface.
+ * A nav row, not a button. Three distinct states, none of them borrowed from
+ * another: DEFAULT is transparent with muted-white text and icon; HOVER is a
+ * flat 10% white wash (`rgba(255,255,255,0.10)`, exactly) with both turning
+ * full white; ACTIVE is its own solid fill — `--sidebar-surface-active`, a
+ * genuinely darker surface, not a lighter wash of the rail's own colour — so
+ * hovering a row can never be mistaken for the row that is actually current.
  *
- * The active treatment is a warm plate plus a maroon-to-orange rail flush with
- * the sidebar's own edge — the brand gradient used structurally, as a position
- * marker, rather than as decoration applied on top of a filled pill.
+ * Colour is chosen against the sidebar's own solid background rather than
+ * inherited from the app's light-surface palette: `--sidebar-foreground(-muted)`
+ * for the two text tiers (5.55:1 / 4.80:1, verified), plain white washes for
+ * the hover fill and the icon plate, where the requirement is only to be
+ * visibly lighter than the base, not to pass text contrast.
  */
 function NavLink({
   item, active, collapsed, onNavigate,
@@ -397,28 +437,47 @@ function NavLink({
   const body = (
     <>
       {active && (
+        // Flush with the row's own inner edge (not the rail's outer edge, as
+        // before) and clipped by the row's overflow-hidden, so this reads
+        // against --sidebar-surface-active rather than the plain rail colour
+        // — see the indicator token's comment in globals.css for why that
+        // distinction is what keeps a 3px mark actually visible.
         <span
           aria-hidden
-          className="absolute inset-y-1.5 -left-3 w-[3px] rounded-r-full bg-gradient-to-b from-brand to-brand-orange"
+          className="absolute inset-y-1.5 left-0 w-[3px] rounded-r-full bg-sidebar-active-indicator"
         />
       )}
-      <Icon
-        aria-hidden
+      {/* A fixed-size plate around every icon, not just active ones, so the row
+          never shifts width when a route becomes current. Only the active
+          plate gets a fill — a frosted white wash, the dark-surface analogue
+          of the low-opacity brand-gradient chip this used on a white rail. The
+          icon itself carries the hover micro-interaction: a 1px nudge, not a
+          scale or a bounce — see the brief this implements. */}
+      <span
         className={cn(
-          'size-[18px] shrink-0 transition-colors',
-          active ? 'text-brand' : 'text-text-tertiary group-hover:text-brand',
+          'grid shrink-0 place-items-center rounded-md',
+          collapsed ? 'size-8' : 'size-7',
+          active && 'bg-white/15 ring-1 ring-white/25',
         )}
-      />
+      >
+        <Icon
+          aria-hidden
+          className={cn(
+            'size-[18px] transition duration-200 ease-out group-hover:translate-x-px',
+            active ? 'text-white' : 'text-white/65 group-hover:text-white',
+          )}
+        />
+      </span>
       {!collapsed && <span className="truncate">{item.label}</span>}
     </>
   )
 
   const shape = cn(
-    'group relative flex items-center rounded-lg text-sm transition-colors',
-    collapsed ? 'h-10 justify-center px-0' : 'gap-3 px-3 py-2',
+    'group relative flex items-center overflow-hidden rounded-md text-sm transition-colors duration-150 ease-out',
+    collapsed ? 'h-10 justify-center px-0' : 'gap-2.5 px-2 py-1.5',
     active
-      ? 'bg-brand/8 font-bold text-brand'
-      : 'font-medium text-text-secondary hover:bg-cream-light hover:text-brand',
+      ? 'bg-sidebar-surface-active font-bold text-white'
+      : 'font-medium text-sidebar-foreground-muted hover:bg-white/10 hover:text-white',
   )
 
   const link = (
@@ -426,7 +485,7 @@ function NavLink({
       href={item.href}
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
-      className={cn(shape, 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50')}
+      className={cn(shape, 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-1 focus-visible:ring-offset-sidebar-surface')}
     >
       {body}
       {collapsed && <span className="sr-only">{item.label}</span>}

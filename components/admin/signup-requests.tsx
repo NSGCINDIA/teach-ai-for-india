@@ -15,10 +15,10 @@ export function SignupRequests({ requests }: { requests: PendingSignup[] }) {
   return (
     <section className="rounded-xl border border-brand-orange/30 bg-brand-orange/5">
       <header className="flex items-center gap-2 border-b border-brand-orange/20 px-4 py-3">
-        <UserRoundCheck className="size-4 text-brand-orange" />
+        <UserRoundCheck className="size-4 text-ink-orange" />
         <h2 className="font-display text-sm font-semibold">
           Account signups awaiting approval
-          <span className="ml-2 rounded-full bg-brand-orange/15 px-2 py-0.5 text-xs font-medium text-brand-orange">
+          <span className="ml-2 rounded-full bg-brand-orange/15 px-2 py-0.5 text-xs font-medium text-ink-orange">
             {requests.length}
           </span>
         </h2>

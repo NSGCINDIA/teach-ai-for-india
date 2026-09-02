@@ -24,7 +24,7 @@ export function SuperAdminOverview({
         userName={name}
         role="Super Admin"
         impact={[
-          { label: 'Schools Reached', value: formatNumber(k.schoolsActive), icon: School, variant: 'highlight' } as any,
+          { label: 'Schools Reached', value: formatNumber(k.schoolsActive), icon: School, tone: 'brand' },
           { label: 'Active Volunteers', value: formatNumber(k.volunteersActive), icon: Users },
           { label: 'Awaiting Approval', value: formatNumber(k.schoolsAwaitingApproval), icon: ClipboardList },
           { label: 'Sessions This Week', value: formatNumber(k.sessionsScheduledThisWeek), icon: CalendarClock },

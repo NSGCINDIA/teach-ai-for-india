@@ -39,7 +39,7 @@ interface PageHeaderProps {
 const STAT_TONE: Record<NonNullable<PageHeaderStat['tone']>, string> = {
   default: 'text-foreground',
   brand: 'text-brand',
-  attention: 'text-brand-orange',
+  attention: 'text-ink-orange',
   success: 'text-success',
 }
 
@@ -81,9 +81,13 @@ export function PageHeader({
 
           <div className="min-w-0">
             {eyebrow && (
-              <p className="mb-1 text-xs font-bold tracking-wide text-brand-orange">{eyebrow}</p>
+              <p className="mb-1 text-xs font-bold tracking-wide text-ink-orange">{eyebrow}</p>
             )}
-            <h1 className="text-2xl font-bold leading-tight tracking-tight text-foreground text-balance md:text-3xl">
+            {/* The poster voice, same as the dashboard hero: one big line per
+                screen you arrive on. Page titles are short fixed labels
+                ("Schools", "Finance", "Analytics"), which is exactly what a
+                condensed caps face is for. */}
+            <h1 className="font-poster text-poster-brand text-3xl text-balance md:text-4xl">
               {title}
             </h1>
             {description && (
