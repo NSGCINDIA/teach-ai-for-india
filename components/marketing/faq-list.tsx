@@ -145,22 +145,22 @@ export function FAQList({ items = [] }: FaqListProps) {
       </div>
 
       {/* Accordion Questions List */}
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {filteredItems.length > 0 ? (
           <Accordion type="single" collapsible className="w-full space-y-4">
             {filteredItems.map((item, i) => (
               <AccordionItem
                 key={`${item.question || i}-${i}`}
                 value={`faq-item-${i}-${(item.question || '').slice(0, 15)}`}
-                className="border border-border bg-card/40 rounded-2xl px-6 hover:bg-card hover:border-brand/25 transition-all shadow-soft duration-300"
+                className="border border-border bg-card/40 rounded-2xl px-6 sm:px-8 hover:bg-card hover:border-brand/25 transition-all shadow-soft duration-300"
               >
-                <AccordionTrigger className="text-left text-base font-bold py-5 hover:no-underline [&[data-state=open]]:text-brand">
+                <AccordionTrigger className="text-left text-lg font-bold py-5 hover:no-underline [&[data-state=open]]:text-brand">
                   <span className="flex items-center gap-3">
                     <HelpCircle className="size-5 text-brand/75 shrink-0" />
                     {item.question}
                   </span>
                 </AccordionTrigger>
-                <AccordionContent className="text-pretty text-muted-foreground text-sm pb-5 leading-relaxed pl-8 border-t border-border/40 pt-4 mt-1">
+                <AccordionContent className="text-pretty text-muted-foreground text-base pb-5 leading-relaxed pl-8 border-t border-border/40 pt-4 mt-1">
                   {item.answer}
                 </AccordionContent>
               </AccordionItem>

@@ -44,13 +44,13 @@ const MOMENTS: HeroMoment[] = [
  */
 export function Hero({ content }: { content: HeroContent }) {
   return (
-    <section className="relative -mt-16 min-h-[92dvh] overflow-hidden bg-background pt-16">
+    <section className="relative -mt-16 overflow-hidden bg-background pt-20 pb-12 md:pb-16 lg:pb-20">
       <div className="tai-container-wide px-5 md:px-8 lg:px-12">
         <div className="flex items-center justify-between gap-4 border-b border-foreground/15 pb-4 pt-8">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground sm:text-sm">
             {content.eyebrow}
           </span>
-          <span className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+          <span className="shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground/70 sm:text-sm">
             N&deg; 01
           </span>
         </div>
@@ -65,29 +65,29 @@ export function Hero({ content }: { content: HeroContent }) {
               lines={content.headline.split('\n').filter(Boolean)}
             />
 
-            <p className="mt-6 max-w-[520px] text-base leading-relaxed text-muted-foreground md:text-lg">
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
               {content.subheadline}
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 href="/impact"
-                className="group inline-flex h-12 items-center gap-2 border border-brand bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-deep"
+                className="group inline-flex h-13 items-center gap-2 border border-brand bg-brand px-7 text-base font-semibold text-white transition-colors hover:bg-brand-deep shadow-sm"
               >
                 See the movement
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+                <ArrowRight className="size-4.5 transition-transform group-hover:translate-x-1" aria-hidden />
               </Link>
               <Link
                 href="/join"
-                className="group inline-flex h-12 items-center gap-2 border border-foreground/30 px-6 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+                className="group inline-flex h-13 items-center gap-2 border border-foreground/30 px-7 text-base font-semibold text-foreground transition-colors hover:bg-muted"
               >
                 Join the movement
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+                <ArrowRight className="size-4.5 transition-transform group-hover:translate-x-1" aria-hidden />
               </Link>
             </div>
 
             <div className="mt-12 border-t border-foreground/15 pt-4">
-              <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              <p className="font-mono text-sm uppercase tracking-[0.12em] text-muted-foreground font-medium">
                 {content.proofLine}
               </p>
             </div>

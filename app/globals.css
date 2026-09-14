@@ -262,7 +262,35 @@
     font-weight: 700;
   }
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto !important;
+    font-size: 16px;
+  }
+  @media (min-width: 768px) {
+    html {
+      font-size: 17px;
+    }
+  }
+  @media (min-width: 1280px) {
+    html {
+      font-size: 17.5px;
+    }
+  }
+  @media (min-width: 1536px) {
+    html {
+      font-size: 18px;
+    }
+  }
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
   }
   ::placeholder {
     color: var(--placeholder);
@@ -353,10 +381,10 @@
     @apply py-14 md:py-20 px-5 md:px-8 lg:px-16;
   }
   .container-wide {
-    @apply mx-auto w-full max-w-7xl;
+    @apply mx-auto w-full max-w-[1680px];
   }
   .section-label {
-    @apply text-xs font-bold uppercase tracking-[0.18em];
+    @apply text-sm font-bold uppercase tracking-[0.18em];
   }
   /* The poster heading's fill. It is deliberately not .text-gradient-brand:
      that ramp ends on #F6A500, which measures 2.04:1 on white — a headline you
@@ -709,6 +737,7 @@
 
   background: var(--background);
   color: var(--foreground);
+  font-size: 1.05rem;
 }
 
 /* Unlayered on purpose: Tailwind v4 doesn't emit a `.font-display` utility
@@ -756,42 +785,42 @@
 
 @layer utilities {
   /* ── Typography scale ── */
-  .tai-text-display-xl { font-size: clamp(3rem, 5.5vw, 5.5rem); line-height: 0.95; letter-spacing: -0.02em; }
-  .tai-text-display     { font-size: clamp(2.5rem, 4.5vw, 4.5rem); line-height: 0.95; letter-spacing: -0.02em; }
-  .tai-text-h1           { font-size: clamp(2rem, 3.5vw, 3.5rem); line-height: 1.1; letter-spacing: -0.02em; }
-  .tai-text-h2           { font-size: clamp(1.75rem, 2.75vw, 2.75rem); line-height: 1.1; letter-spacing: -0.02em; }
-  .tai-text-h3           { font-size: clamp(1.25rem, 1.75vw, 1.75rem); line-height: 1.1; }
-  .tai-text-body-lg      { font-size: clamp(1.125rem, 1.25vw, 1.25rem); line-height: 1.65; }
-  .tai-text-metric       { font-size: clamp(3rem, 4.5vw, 4.5rem); line-height: 1; font-variant-numeric: tabular-nums; }
+  .tai-text-display-xl { font-size: clamp(3.25rem, 6vw, 6.25rem); line-height: 0.96; letter-spacing: -0.02em; }
+  .tai-text-display     { font-size: clamp(2.75rem, 5vw, 5rem); line-height: 0.98; letter-spacing: -0.02em; }
+  .tai-text-h1           { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.1; letter-spacing: -0.02em; }
+  .tai-text-h2           { font-size: clamp(2rem, 3.25vw, 3.25rem); line-height: 1.12; letter-spacing: -0.02em; }
+  .tai-text-h3           { font-size: clamp(1.35rem, 2vw, 2rem); line-height: 1.15; }
+  .tai-text-body-lg      { font-size: clamp(1.2rem, 1.35vw, 1.35rem); line-height: 1.7; }
+  .tai-text-metric       { font-size: clamp(3.5rem, 5vw, 5.25rem); line-height: 1; font-variant-numeric: tabular-nums; }
   /* The small uppercase key above a value — "Students reached", "Coordinator",
      "Total requested". The school workspace had spelled this four different ways
      (text-xs / text-[10px] / text-[11px], tracking-wide / tracking-wider,
      with and without font-semibold), which is why columns of labels never quite
      lined up with each other. */
   .field-label {
-    font-size: 0.6875rem;
-    line-height: 1rem;
+    font-size: 0.75rem;
+    line-height: 1.1rem;
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--muted-foreground);
   }
 
   .tai-eyebrow {
     font-family: var(--font-body);
-    font-weight: 500;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
   /* ── Layout ── */
-  .tai-container      { margin-inline: auto; width: 100%; max-width: 1200px; }
-  .tai-container-wide { margin-inline: auto; width: 100%; max-width: 1400px; }
-  .tai-prose           { max-width: 680px; }
-  .tai-reading         { max-width: 800px; }
-  .tai-section         { padding-block: clamp(4rem, 8vw, 7rem); }
-  .tai-section-lg      { padding-block: clamp(5rem, 10vw, 10rem); }
+  .tai-container      { margin-inline: auto; width: 100%; max-width: min(94vw, 1500px); }
+  .tai-container-wide { margin-inline: auto; width: 100%; max-width: min(95vw, 1680px); }
+  .tai-prose           { max-width: 880px; }
+  .tai-reading         { max-width: 1040px; }
+  .tai-section         { padding-block: clamp(2.5rem, 4vw, 4rem); }
+  .tai-section-lg      { padding-block: clamp(3.25rem, 5vw, 5rem); }
 
   /* ── Motion primitives ──
      `.tai-mask` is the clipping box for the line-mask headline reveal (see

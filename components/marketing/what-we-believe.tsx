@@ -16,7 +16,7 @@ export function WhatWeBelieve({ content }: { content: WhatWeBelieveContent }) {
         <MaskHeading
           as="h3"
           lines={[content.believeLine]}
-          className="tai-text-display mx-auto max-w-3xl font-display text-[var(--tai-crimson)]"
+          className="tai-text-display mx-auto max-w-4xl font-display text-[var(--tai-crimson)]"
         />
       </div>
     </section>

@@ -31,21 +31,21 @@ export function CtaBand({
               aria-hidden
               className="pointer-events-none absolute -left-20 -bottom-20 size-72 rounded-full bg-[#e11d48]/20 blur-3xl"
             />
-            <div className="relative mx-auto max-w-2xl">
-              <h2 className="font-display text-3xl font-extrabold tracking-tight text-balance md:text-4xl">{title}</h2>
-              <p className="mx-auto mt-4 max-w-xl text-pretty text-rose-100/90 md:text-lg">{description}</p>
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Button asChild size="lg" className="group w-full bg-white text-[#881337] hover:bg-slate-100 sm:w-auto font-bold rounded-full shadow-lg shadow-rose-950/30">
+            <div className="relative mx-auto max-w-4xl">
+              <h2 className="font-display text-3xl font-extrabold tracking-tight text-balance md:text-5xl lg:text-6xl">{title}</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-pretty text-rose-100/95 text-lg md:text-xl leading-relaxed">{description}</p>
+              <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Button asChild size="lg" className="group h-13 px-8 text-base w-full bg-white text-[#881337] hover:bg-slate-100 sm:w-auto font-bold rounded-full shadow-lg shadow-rose-950/30">
                   <Link href={primary.href}>
                     {primary.label}
-                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                    <ArrowRight className="size-4.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
                   </Link>
                 </Button>
                 <Button
                   asChild
                   size="lg"
                   variant="outline"
-                  className="w-full border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white sm:w-auto rounded-full"
+                  className="h-13 px-8 text-base w-full border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white sm:w-auto rounded-full"
                 >
                   <Link href={secondary.href}>{secondary.label}</Link>
                 </Button>

@@ -37,7 +37,7 @@ export function Voices({ content }: { content: TestimonialsContent }) {
     >
       <div className="tai-container-wide px-5 md:px-8 lg:px-12">
         <p className="tai-eyebrow text-brand">Voices</p>
-        <h2 className="tai-text-display mt-4 max-w-2xl font-display text-foreground">
+        <h2 className="tai-text-display mt-4 max-w-4xl font-display text-foreground">
           What the movement sounds like on the ground.
         </h2>
 
@@ -50,10 +50,10 @@ export function Voices({ content }: { content: TestimonialsContent }) {
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.4 }}
             >
-              <p className="font-display text-2xl italic leading-snug text-foreground md:text-3xl">
+              <p className="font-display text-3xl italic leading-snug text-foreground md:text-4xl lg:text-5xl">
                 &ldquo;{current.quote}&rdquo;
               </p>
-              <p className="mt-6 text-sm text-muted-foreground">
+              <p className="mt-6 text-base text-muted-foreground">
                 <span className="font-semibold text-foreground">{current.name}</span> — {current.role}
               </p>
             </m.div>

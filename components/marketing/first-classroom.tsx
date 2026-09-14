@@ -15,14 +15,14 @@ export function FirstClassroom({ content, mainPhoto, insetPhoto }: FirstClassroo
     <section className="tai-section bg-background">
       <div className="tai-container-wide px-5 md:px-8 lg:px-12">
         <p className="tai-eyebrow text-brand">{content.eyebrow}</p>
-        <MaskHeading as="h2" lines={[content.headline]} className="tai-text-display mt-4 max-w-2xl font-display text-foreground" />
+        <MaskHeading as="h2" lines={[content.headline]} className="tai-text-display mt-4 max-w-4xl font-display text-foreground" />
 
         <Reveal delay={0.1}>
-          <p className="mt-4 text-sm font-medium uppercase tracking-wide text-muted-foreground">{content.metaLine}</p>
+          <p className="mt-4 text-sm sm:text-base font-medium uppercase tracking-wide text-muted-foreground">{content.metaLine}</p>
         </Reveal>
 
         <Reveal delay={0.15}>
-          <p className="tai-reading mt-6 text-base leading-relaxed text-muted-foreground md:text-lg">{content.body}</p>
+          <p className="tai-reading mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">{content.body}</p>
         </Reveal>
 
         <div className="relative mt-14">

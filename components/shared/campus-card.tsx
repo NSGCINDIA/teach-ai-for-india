@@ -56,14 +56,14 @@ export function CampusCard({ campus, className }: { campus: PublicCampusCard; cl
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-display text-lg font-bold">{campus.name}</h3>
-        <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">{campus.university_name}</p>
-        <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
-          <MapPin className="size-3" aria-hidden /> {campus.city}, {campus.state}
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="font-display text-xl font-bold text-foreground">{campus.name}</h3>
+        <p className="mt-1 line-clamp-1 text-base text-muted-foreground">{campus.university_name}</p>
+        <p className="mt-1.5 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+          <MapPin className="size-3.5 text-brand" aria-hidden /> {campus.city}, {campus.state}
         </p>
 
-        <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border pt-4">
+        <div className="mt-5 grid grid-cols-3 gap-2 border-t border-border pt-4">
           <Stat icon={GraduationCap} value={campus.schools_reached} label="Schools" />
           <Stat icon={Users} value={campus.students_impacted} label="Students" />
           <Stat value={campus.sessions_completed} label="Sessions" />
@@ -76,9 +76,9 @@ export function CampusCard({ campus, className }: { campus: PublicCampusCard; cl
 function Stat({ icon: Icon, value, label }: { icon?: typeof MapPin; value: number; label: string }) {
   return (
     <div className="text-center">
-      <p className="font-display text-lg font-bold tabular-nums">{value.toLocaleString('en-IN')}</p>
-      <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-        {Icon && <Icon className="size-3" aria-hidden />} {label}
+      <p className="font-display text-xl font-bold tabular-nums text-foreground">{value.toLocaleString('en-IN')}</p>
+      <p className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
+        {Icon && <Icon className="size-3.5" aria-hidden />} {label}
       </p>
     </div>
   )

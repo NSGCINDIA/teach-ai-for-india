@@ -19,10 +19,10 @@ export function Testimonials({ content }: { content: TestimonialsContent }) {
             <Reveal key={`${t.name}-${i}`} delay={i * 0.08}>
               <figure className="flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-soft">
                 <Quote className="size-7 text-brand/30" aria-hidden />
-                <blockquote className="mt-4 flex-1 text-pretty text-foreground">{t.quote}</blockquote>
+                <blockquote className="mt-4 flex-1 text-pretty text-foreground text-base sm:text-lg leading-relaxed">{t.quote}</blockquote>
                 <figcaption className="mt-6 border-t border-border pt-4">
-                  <span className="block font-display font-bold">{t.name}</span>
-                  <span className="block text-sm text-muted-foreground">{t.role}</span>
+                  <span className="block font-display text-lg font-bold text-foreground">{t.name}</span>
+                  <span className="block text-sm sm:text-base text-muted-foreground">{t.role}</span>
                 </figcaption>
               </figure>
             </Reveal>

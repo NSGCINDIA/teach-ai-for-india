@@ -22,13 +22,14 @@ on conflict (slug) do nothing;
 insert into content_blocks (block_key, content) values
   ('hero', jsonb_build_object(
       'eyebrow', 'Now live across Telangana & Andhra Pradesh',
-      'headline', 'Building India''s first student-led AI education movement',
-      'subheadline', 'We bring applied AI literacy to government school students across Telangana & Andhra Pradesh — run entirely by students.',
+      'headline', 'AI is reaching every classroom. But not every child.',
+      'subheadline', 'We bring practical AI education to students in government schools — so the next generation doesn''t just consume technology. They build with it.',
       'primaryCtaText', 'See our impact',
       'primaryCtaHref', '/impact',
       'secondaryCtaText', 'Join the movement',
       'secondaryCtaHref', '/join',
       'backgroundImageUrl', null )),
+      
 
   ('mission', jsonb_build_object(
       'title', 'Why we exist',

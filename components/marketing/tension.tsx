@@ -7,13 +7,13 @@ import { WordReveal } from '@/components/marketing/word-reveal'
  */
 export function Tension() {
   return (
-    <section className="bg-[var(--tai-deep)] px-5 py-24 text-[var(--tai-linen)] md:px-8 md:py-32">
-      <div className="tai-prose mx-auto text-center">
+    <section className="bg-[var(--tai-deep)] px-5 py-14 text-[var(--tai-linen)] md:px-8 md:py-20">
+      <div className="max-w-4xl mx-auto text-center">
         <WordReveal
           text="AI is changing how we learn, work, and create. But access to that future is not equally distributed."
-          className="font-display text-3xl leading-tight md:text-5xl"
+          className="font-display text-3xl leading-tight sm:text-4xl md:text-5xl lg:text-6xl"
         />
-        <p className="mt-8 text-base leading-relaxed text-white/60 md:text-lg">
+        <p className="mt-8 text-lg leading-relaxed text-white/75 md:text-xl">
           Private school students are building with AI tools that government school students have
           never even heard of. We saw that gap. We refused to accept it.
         </p>
