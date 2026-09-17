@@ -20,11 +20,11 @@ const TIERS: Tier[] = [
   {
     amount: 500,
     displayAmount: '₹500',
-    label: 'Learning materials for a student',
-    badge: 'Child Starter',
-    description: 'Provides a student in a rural or government school with printed prompt cards, learning workbook, and practice tools.',
+    label: 'Learning resources for students',
+    badge: 'Student Starter',
+    description: 'Provides a student in a government school with printed prompt cards, bilingual AI workbook, and practice materials.',
     deliverables: ['Full printed prompt workbook', 'Bilingual AI cheat-sheet', 'Classroom project supplies'],
-    equivalent: 'Equips 1 student for lifelong AI curiosity',
+    equivalent: 'Equips 1 student for hands-on AI practice',
   },
   {
     amount: 2500,
@@ -39,16 +39,16 @@ const TIERS: Tier[] = [
   {
     amount: 10000,
     displayAmount: '₹10,000',
-    label: 'Equip a classroom for hands-on learning',
+    label: 'Support an AI-enabled classroom',
     badge: 'Classroom Sponsor',
-    description: 'Enables repeated hands-on access with shared hardware kits, teacher guides, and a 4-week practice program.',
+    description: 'Enables repeated hands-on access with shared hardware kits, teacher guides, and a multi-week practice program.',
     deliverables: ['Shared tablet hardware deployment', 'School teacher orientation manual', 'Follow-up curriculum workbook pack'],
     equivalent: 'Transforms an entire grade into creators',
   },
   {
     amount: 25000,
     displayAmount: '₹25,000',
-    label: 'Support an entire school program',
+    label: 'Support a school program',
     badge: 'School Champion',
     description: 'Powers a complete multi-class rollout across an entire government school, including a student showcase exhibition.',
     deliverables: ['Multi-week curriculum delivery', 'Headmaster & teacher integration', 'Final school AI showcase & certificates'],
@@ -57,7 +57,7 @@ const TIERS: Tier[] = [
   {
     amount: 100000,
     displayAmount: '₹1,00,000',
-    label: 'Sponsor a multi-school AI program',
+    label: 'Help scale AI education across multiple classrooms',
     badge: 'Institutional Sponsor',
     description: 'Funds a multi-campus regional deployment across 4+ schools in Telangana or Andhra Pradesh with audited impact reporting.',
     deliverables: ['4+ government schools sponsored', 'Dedicated university campus team', 'Audited field report with photo logs'],
@@ -77,22 +77,23 @@ export function FundraisingTiers() {
   }
 
   return (
-    <section id="fund" className="tai-section relative overflow-hidden bg-background">
+    <section id="fund-a-classroom" className="tai-section relative overflow-hidden bg-background">
       {/* Background accents */}
       <div className="pointer-events-none absolute -left-40 top-1/4 size-96 rounded-full bg-[var(--brand-orange)]/5 blur-3xl" />
       <div className="pointer-events-none absolute -right-40 bottom-1/4 size-96 rounded-full bg-[var(--brand-maroon)]/5 blur-3xl" />
 
       <div className="tai-container-wide relative px-5 md:px-8 lg:px-12">
         <div className="max-w-4xl">
-          <p className="tai-eyebrow text-brand">What your support makes possible</p>
+          <p className="tai-eyebrow text-brand">Your contribution in action</p>
           <h2 className="tai-text-display mt-4 font-display text-foreground">
-            Your support isn&apos;t a donation. <br className="hidden sm:inline" />
-            It&apos;s a child&apos;s first prompt.
+            Your support becomes a classroom.
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground md:text-xl">
-            Instead of abstract pledges, every rupee directly funds tangible classroom delivery. 
-            Here is the exact math of how your contribution transforms government school classrooms.
+            Every contribution helps bring practical AI education to students who may not otherwise have access.
           </p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-lg bg-muted/60 px-3.5 py-1.5 text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">Note:</span> Tier amounts represent indicative program unit costs and will directly reflect verified audit numbers.
+          </div>
         </div>
 
         {/* Interactive Tier Grid */}
@@ -161,13 +162,13 @@ export function FundraisingTiers() {
                       setSelectedTier(tier)
                       setIsModalOpen(true)
                     }}
-                    className={`w-full rounded-lg py-2.5 text-sm font-bold uppercase tracking-wider transition-all ${
+                    className={`inline-flex items-center justify-center gap-1.5 w-full rounded-lg py-2.5 text-sm font-bold uppercase tracking-wider transition-all ${
                       isSelected
                         ? 'bg-brand text-white hover:bg-brand-deep shadow-sm'
                         : 'bg-foreground/5 text-foreground hover:bg-brand hover:text-white'
                     }`}
                   >
-                    Support {tier.displayAmount}
+                    Fund a Classroom &rarr;
                   </button>
                 </div>
               </div>
@@ -198,8 +199,7 @@ export function FundraisingTiers() {
                   onClick={() => setIsModalOpen(true)}
                   className="inline-flex h-12 items-center gap-2 rounded-xl bg-brand px-7 text-base font-semibold text-white shadow-sm transition-colors hover:bg-brand-deep"
                 >
-                  Pledge {selectedTier.displayAmount}
-                  <ArrowRight className="size-4.5" />
+                  Fund a Classroom &rarr;
                 </button>
                 <Link
                   href="/join?intent=sponsor"

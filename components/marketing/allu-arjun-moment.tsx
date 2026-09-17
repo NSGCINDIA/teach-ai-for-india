@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Sparkles, ArrowRight, Play, RotateCcw, CheckCircle2, MessageSquare, Terminal } from 'lucide-react'
+import { Sparkles, ArrowRight, Play, RotateCcw, Terminal } from 'lucide-react'
 import { Reveal } from '@/components/marketing/reveal'
 
 interface Stage {
@@ -19,46 +19,70 @@ interface Stage {
 const STAGES: Stage[] = [
   {
     id: 1,
-    title: 'The Question',
+    title: "A Student's Question",
     subtitle: 'MPPS Nandakramaguda, Rangareddy District',
-    badge: 'Classroom Ask',
+    badge: 'The Spark',
     image:
       'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg',
-    caption: 'Class 7 student typing on a shared tablet for the first time',
+    caption: 'Class 7 student raising his hand on a shared tablet for the first time',
     description:
       'The session had just begun. Students were quiet, uncertain if they were allowed to touch the tablets. Then one student raised his hand with a grin and asked in Telugu: "Anna, can it make a picture of Allu Arjun?"',
     quote: '"Anna, can it make a picture of Allu Arjun?"',
   },
   {
     id: 2,
-    title: 'The AI Output',
-    subtitle: 'Neural generation rendered live in the classroom',
-    badge: 'The Generation',
+    title: 'Curiosity',
+    subtitle: 'The entire classroom leans in',
+    badge: 'Leaning In',
     image:
       'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177877/DJI_20260711131020_0287_D_rvh8gg.jpg',
-    caption: 'Volunteers and students huddling around the screen as the prompt resolves',
+    caption: 'The room shifts from hesitant silence into shared, collective curiosity',
     description:
-      'The volunteer didn\'t say no. He showed the student how to construct the prompt: "Cinematic portrait of movie hero Allu Arjun, golden hour light, Hyderabad background, heroic stance." In seconds, the screen populated with art.',
-    quote: '"You don\'t just ask for an image — you describe the world you want to see."',
+      'The volunteer didn\'t say no or pivot to a textbook slide. Instead, he asked: "What kind of picture do you want? What is he wearing? Where is he standing?" In an instant, thirty students stopped being passive listeners and started imagining.',
+    quote: '"What does the movie hero look like in your mind?"',
   },
   {
     id: 3,
-    title: 'The Reaction',
-    subtitle: 'The moment passive listeners became active creators',
-    badge: 'The Room Erupts',
+    title: 'Hands-on AI Experience',
+    subtitle: 'Translating imagination into descriptive prompts',
+    badge: 'Creating Together',
+    image:
+      'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg',
+    caption: 'Students taking turns typing their ideas directly into the interface',
+    description:
+      'The students took the tablet. Together with the volunteer, they translated Telugu thoughts into structured descriptive prompts: cinematic lighting, hero pose, Charminar backdrop. Hands reached out to touch the keys.',
+    quote: '"You don\'t just ask for an image — you describe the world you want to see."',
+  },
+  {
+    id: 4,
+    title: 'Learning',
+    subtitle: 'Neural generation renders live in the classroom',
+    badge: 'The Concept Clicks',
     image:
       'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177867/IMG_20260324_121056961_prkzll.jpg',
     caption: 'The classroom erupting in laughter, high-fives, and hands in the air',
     description:
-      'The entire classroom leaned in. The silence broke into loud cheers and laughter. Suddenly every single hand was up: "Can it make an astronaut?", "Can it explain Mars in Telugu?", "Can I make my own movie poster?" The divide vanished.',
-    quote: '"That\'s when we knew: once a child realizes technology can build their own ideas, fear disappears forever."',
+      'In seconds, the output appeared on screen. The room erupted into cheers. But right behind the excitement came the realization: AI wasn\'t magic, and it wasn\'t just for software engineers in tech parks. It was a tool that listened to clear thinking.',
+    quote: '"Wait — it understood what we asked for! The words became a picture!"',
+  },
+  {
+    id: 5,
+    title: 'Possibility',
+    subtitle: 'The question that changed everything',
+    badge: 'What Comes Next',
+    image:
+      'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177911/DJI_20260711132101_0313_D_a48glv.jpg',
+    caption: 'Students surrounding university mentors after the session ended',
+    description:
+      'Class had ended, but nobody wanted to leave. Hands stayed up: "Can it explain Mars in Telugu?", "Can I make my own comic book?", "Anna, when are you coming again?" One question opened the door to a world they didn\'t know they belonged in.',
+    quote: '"Anna, when are you coming again? Can we build something next time?"',
   },
 ]
 
 export function AlluArjunMoment() {
   const [currentStage, setCurrentStage] = useState<number>(1)
   const [isGenerating, setIsGenerating] = useState<boolean>(false)
-  const [promptText, setPromptText] = useState<string>(
+  const [promptText] = useState<string>(
     'Cinematic hero portrait of Allu Arjun, golden festive lighting, Hyderabad street backdrop, vibrant colors'
   )
 
@@ -68,7 +92,7 @@ export function AlluArjunMoment() {
     setIsGenerating(true)
     setTimeout(() => {
       setIsGenerating(false)
-      setCurrentStage(3)
+      setCurrentStage(4)
     }, 1800)
   }
 
@@ -79,7 +103,7 @@ export function AlluArjunMoment() {
         <div className="max-w-4xl">
           <div className="inline-flex items-center gap-2 font-mono text-sm font-bold uppercase tracking-[0.2em] text-brand">
             <Sparkles className="size-4" />
-            The first question matters
+            Real classroom story
           </div>
           <h2 className="tai-text-display mt-4 font-display text-3xl font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
             &ldquo;Anna, can it make a picture of Allu Arjun?&rdquo;
@@ -88,19 +112,26 @@ export function AlluArjunMoment() {
             Technology is never adopted through abstract theory. It starts with what a child already loves. 
             Here is the exact story of how one spontaneous question transformed an entire classroom.
           </p>
+
+          {/* Emotional Highlight Line */}
+          <div className="mt-6 inline-block rounded-xl border border-brand/20 bg-brand/5 px-4 py-2.5 sm:px-5">
+            <p className="font-display text-base font-semibold text-foreground sm:text-lg">
+              &ldquo;One question became curiosity. Curiosity became learning. Learning became possibility.&rdquo;
+            </p>
+          </div>
         </div>
 
         {/* Interactive Story Showcase Container */}
         <div className="mt-12 rounded-3xl border border-foreground/15 bg-card p-6 shadow-xl lg:p-10">
-          {/* Stage Progress Bar / Tabs */}
-          <div className="grid grid-cols-3 gap-2 border-b border-foreground/10 pb-6 md:gap-6">
+          {/* Stage Progress Bar / Tabs — 5 Steps Flow */}
+          <div className="grid grid-cols-2 gap-2 border-b border-foreground/10 pb-6 sm:grid-cols-3 lg:grid-cols-5 md:gap-3">
             {STAGES.map((s) => {
               const isActive = s.id === currentStage
               return (
                 <button
                   key={s.id}
                   onClick={() => setCurrentStage(s.id)}
-                  className={`group relative flex flex-col items-start rounded-xl p-3 text-left transition-all sm:p-4 ${
+                  className={`group relative flex flex-col items-start rounded-xl p-3 text-left transition-all ${
                     isActive
                       ? 'bg-brand/10 text-brand ring-1 ring-brand/30'
                       : 'hover:bg-muted text-muted-foreground hover:text-foreground'
@@ -108,17 +139,17 @@ export function AlluArjunMoment() {
                 >
                   <div className="flex items-center gap-2">
                     <span
-                      className={`flex size-7 items-center justify-center rounded-full text-xs font-bold sm:text-sm ${
+                      className={`flex size-6 items-center justify-center rounded-full text-xs font-bold ${
                         isActive ? 'bg-brand text-white' : 'bg-foreground/10 text-foreground'
                       }`}
                     >
                       {s.id}
                     </span>
-                    <span className="font-mono text-xs font-bold uppercase tracking-wider hidden sm:inline sm:text-sm">
-                      {s.badge}
+                    <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Step {s.id}
                     </span>
                   </div>
-                  <span className="mt-2 text-sm font-semibold sm:text-base lg:text-lg text-foreground">
+                  <span className="mt-2 text-xs sm:text-sm font-semibold text-foreground line-clamp-1">
                     {s.title}
                   </span>
                   <div
@@ -161,14 +192,14 @@ export function AlluArjunMoment() {
             <div className="flex flex-col justify-between lg:col-span-5">
               <div>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3.5 py-1 font-mono text-xs sm:text-sm font-bold text-brand">
-                  Phase {activeStageData.id} of 3 · {activeStageData.badge}
+                  Step {activeStageData.id} of 5 · {activeStageData.badge}
                 </span>
 
-                <h3 className="mt-4 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+                <h3 className="mt-4 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                   {activeStageData.quote || activeStageData.title}
                 </h3>
 
-                <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                   {activeStageData.description}
                 </p>
 
@@ -179,22 +210,22 @@ export function AlluArjunMoment() {
                       <Terminal className="size-4 text-brand" />
                       Classroom Prompt Studio
                     </span>
-                    <span className="font-mono text-xs sm:text-sm font-semibold text-emerald-600">Model: Live Demo</span>
+                    <span className="font-mono text-xs font-semibold text-emerald-600">Model: Live Demo</span>
                   </div>
 
-                  <div className="mt-2.5 rounded-lg bg-muted/60 p-3.5 font-mono text-sm text-foreground">
+                  <div className="mt-2.5 rounded-lg bg-muted/60 p-3 font-mono text-xs sm:text-sm text-foreground">
                     &gt; &quot;{promptText}&quot;
                   </div>
 
                   <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <span className="text-xs sm:text-sm text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       Telugu translation: అల్లు అర్జున్ సినిమా పోస్టర్
                     </span>
                     <button
                       type="button"
                       disabled={isGenerating}
                       onClick={handleSimulateGeneration}
-                      className="inline-flex items-center gap-1.5 rounded-md bg-brand px-3.5 py-2 text-xs sm:text-sm font-semibold text-white transition-colors hover:bg-brand-deep disabled:opacity-50 shrink-0"
+                      className="inline-flex items-center gap-1.5 rounded-md bg-brand px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-deep disabled:opacity-50 shrink-0"
                     >
                       {isGenerating ? (
                         <>
@@ -216,19 +247,19 @@ export function AlluArjunMoment() {
               <div className="mt-8 flex items-center justify-between border-t border-foreground/10 pt-4">
                 <button
                   type="button"
-                  onClick={() => setCurrentStage((prev) => (prev > 1 ? prev - 1 : 3))}
+                  onClick={() => setCurrentStage((prev) => (prev > 1 ? prev - 1 : 5))}
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
                 >
                   <RotateCcw className="size-4" />
-                  Previous Stage
+                  Previous Step
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setCurrentStage((prev) => (prev < 3 ? prev + 1 : 1))}
+                  onClick={() => setCurrentStage((prev) => (prev < 5 ? prev + 1 : 1))}
                   className="inline-flex items-center gap-1.5 text-sm font-bold text-brand hover:text-brand-deep"
                 >
-                  Next: {currentStage === 3 ? 'Back to The Question' : STAGES[currentStage]?.title}
+                  Next: {currentStage === 5 ? 'Back to Step 1' : STAGES[currentStage]?.title}
                   <ArrowRight className="size-4" />
                 </button>
               </div>

@@ -11,35 +11,35 @@ interface ComparisonPoint {
 
 const BEFORE_POINTS: ComparisonPoint[] = [
   {
-    title: 'Never used an AI tool',
-    detail: 'Only encountered smartphones for entertainment or video scrolling. Had never interacted with a generative AI model.',
+    title: 'Limited exposure to AI',
+    detail: 'Little to no prior interaction with artificial intelligence tools or modern digital creation platforms.',
   },
   {
-    title: 'Limited access to technology',
+    title: 'AI feels distant or complicated',
+    detail: 'Assumed AI belonged only to software engineers and tech giants in faraway cities — completely out of reach.',
+  },
+  {
+    title: 'Few opportunities for hands-on experimentation',
     detail: 'School computer rooms are often locked or unequipped. Practical digital experimentation was practically zero.',
-  },
-  {
-    title: 'AI felt distant and complicated',
-    detail: 'Assumed AI belonged only to software engineers and tech giants in faraway cities. Felt completely out of reach.',
   },
 ]
 
 const AFTER_POINTS: ComparisonPoint[] = [
   {
-    title: 'Created their first AI image',
-    detail: 'Typed their own imaginative ideas in Telugu and English, watching a live neural model generate art in seconds.',
+    title: 'Students interact with real AI tools',
+    detail: 'Hands-on access to live generative tools during interactive workshops on shared tablets.',
   },
   {
-    title: 'Learned how prompts work',
-    detail: 'Understood structure, constraints, and vocabulary. Realized that better thinking produces better AI output.',
+    title: 'Students understand practical AI concepts',
+    detail: 'Grasping how prompts work, how models process instructions, and how clear thinking produces better output.',
   },
   {
-    title: 'Built something themselves',
-    detail: 'Designed cultural artwork, science diagrams, and creative stories with their own signature and ideas.',
+    title: 'Students create and experiment themselves',
+    detail: 'Designing artwork, exploring bilingual concepts in Telugu and English, and generating original ideas with confidence.',
   },
   {
-    title: 'Started asking what else AI can do',
-    detail: 'Fear turned into curiosity: asking volunteers how code works, how models learn, and how they can build more.',
+    title: 'Students begin imagining AI-related possibilities',
+    detail: 'Fear turns into ambition: asking volunteers about coding, science, problem-solving, and future technology pathways.',
   },
 ]
 

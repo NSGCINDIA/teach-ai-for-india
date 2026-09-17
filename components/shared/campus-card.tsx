@@ -51,22 +51,56 @@ export function CampusCard({ campus, className }: { campus: PublicCampusCard; cl
           className="transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
-        <div className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-card/80 text-foreground opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 z-10">
-          <ArrowUpRight className="size-4" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+        
+        {/* Top Badges */}
+        <div className="absolute top-3 inset-x-3 flex items-center justify-between z-10">
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md">
+            <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Active Chapter
+          </span>
+          <div className="grid size-8 place-items-center rounded-full bg-card/85 text-foreground backdrop-blur shadow-sm transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+            <ArrowUpRight className="size-4" aria-hidden />
+          </div>
+        </div>
+
+        {/* State Tag at bottom of image */}
+        <div className="absolute bottom-2.5 left-3 z-10">
+          <span className="inline-flex items-center gap-1 rounded-md bg-card/90 dark:bg-card/75 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground backdrop-blur-md border border-border/40">
+            {campus.state}
+          </span>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="font-display text-xl font-bold text-foreground">{campus.name}</h3>
-        <p className="mt-1 line-clamp-1 text-base text-muted-foreground">{campus.university_name}</p>
-        <p className="mt-1.5 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-          <MapPin className="size-3.5 text-brand" aria-hidden /> {campus.city}, {campus.state}
-        </p>
+        <div>
+          <h3 className="font-display text-xl font-bold text-foreground group-hover:text-brand transition-colors">
+            {campus.name}
+          </h3>
+          <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">{campus.university_name}</p>
+          <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <MapPin className="size-3.5 text-brand shrink-0" aria-hidden /> {campus.city}, {campus.state}
+          </p>
+        </div>
+
+        {campus.lead_name && (
+          <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-muted/50 px-2.5 py-1.5 text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">Lead:</span> {campus.lead_name}
+          </div>
+        )}
 
         <div className="mt-5 grid grid-cols-3 gap-2 border-t border-border pt-4">
           <Stat icon={GraduationCap} value={campus.schools_reached} label="Schools" />
           <Stat icon={Users} value={campus.students_impacted} label="Students" />
           <Stat value={campus.sessions_completed} label="Sessions" />
+        </div>
+
+        {/* Action button bar */}
+        <div className="mt-5 flex items-center justify-between border-t border-border/50 pt-3.5 text-xs font-semibold text-brand">
+          <span className="text-[11px] font-medium text-muted-foreground">Student-led team</span>
+          <span className="inline-flex items-center gap-1 font-bold group-hover:translate-x-0.5 transition-transform">
+            Explore Campus →
+          </span>
         </div>
       </div>
     </Link>

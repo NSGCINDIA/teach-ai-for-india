@@ -71,17 +71,17 @@ export function Hero({ content }: { content: HeroContent }) {
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                href="/impact"
+                href="#impact"
                 className="group inline-flex h-13 items-center gap-2 border border-brand bg-brand px-7 text-base font-semibold text-white transition-colors hover:bg-brand-deep shadow-sm"
               >
-                See the movement
+                See Our Impact
                 <ArrowRight className="size-4.5 transition-transform group-hover:translate-x-1" aria-hidden />
               </Link>
               <Link
-                href="/join"
+                href="#fund-a-classroom"
                 className="group inline-flex h-13 items-center gap-2 border border-foreground/30 px-7 text-base font-semibold text-foreground transition-colors hover:bg-muted"
               >
-                Join the movement
+                Fund a Classroom
                 <ArrowRight className="size-4.5 transition-transform group-hover:translate-x-1" aria-hidden />
               </Link>
             </div>

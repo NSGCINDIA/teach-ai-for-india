@@ -11,10 +11,10 @@ const STORY_IMAGE =
 export function Evidence({ stats }: { stats: PublicImpactStats }) {
   const metrics = [
     {
-      value: stats.active_campuses || 9,
-      suffix: '',
-      label: 'Campuses',
-      sublabel: 'Active university chapters',
+      value: Math.max(stats.students_impacted || 0, 1800),
+      suffix: '+',
+      label: 'Students Reached',
+      sublabel: 'Hands-on practical AI literacy',
     },
     {
       value: Math.max(stats.schools_reached || 0, 20),
@@ -23,15 +23,15 @@ export function Evidence({ stats }: { stats: PublicImpactStats }) {
       sublabel: 'Across Telangana & AP',
     },
     {
-      value: Math.max(stats.students_impacted || 0, 1800),
-      suffix: '+',
-      label: 'Students Reached',
-      sublabel: 'Hands-on practical AI literacy',
+      value: stats.active_campuses || 9,
+      suffix: '',
+      label: 'Campuses',
+      sublabel: 'Active university chapters',
     },
     {
-      value: Math.max(stats.sessions_completed || 0, 35),
+      value: stats.sessions_completed || 35,
       suffix: '+',
-      label: 'AI Sessions Delivered',
+      label: 'AI Sessions',
       sublabel: 'Verified & fully documented',
     },
     {
@@ -43,7 +43,7 @@ export function Evidence({ stats }: { stats: PublicImpactStats }) {
   ]
 
   return (
-    <section id="impact-evidence" className="tai-section relative overflow-hidden bg-background">
+    <section id="impact" className="tai-section relative overflow-hidden bg-background">
       <div className="tai-container-wide px-5 md:px-8 lg:px-12">
         <div className="flex flex-col items-start justify-between gap-4 border-b border-foreground/15 pb-6 sm:flex-row sm:items-end">
           <div>
@@ -88,10 +88,10 @@ export function Evidence({ stats }: { stats: PublicImpactStats }) {
           <div className="mt-12 rounded-2xl border border-brand/20 bg-gradient-to-r from-brand/10 via-[var(--brand-orange)]/10 to-brand/5 p-6 text-center md:p-10">
             <div className="inline-flex items-center gap-2 rounded-full bg-background/80 px-3.5 py-1.5 text-xs sm:text-sm font-semibold uppercase tracking-wider text-brand backdrop-blur-sm">
               <Sparkles className="size-4 text-brand" />
-              Human Impact
+              Real Classroom Impact
             </div>
             <p className="mt-4 font-display text-2xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
-              &ldquo;Every number represents a child who got to experience AI for the first time.&rdquo;
+              &ldquo;Every number represents a student who got the opportunity to experience AI.&rdquo;
             </p>
             <p className="mt-3 text-base text-muted-foreground md:text-lg">
               Not slideware or passive demonstrations — students typing, questioning, and generating their very first AI outputs with their own ideas.

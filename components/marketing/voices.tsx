@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion'
+import { Sparkles, GraduationCap, School } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { TestimonialsContent } from '@/app/(public)/content'
 
 /**
- * "Voices from the ground" — one large-format quote at a time, sitting
- * directly on the surface with no card, auto-advancing on an interval that
- * pauses on hover/focus. Deliberately not a card grid: cards make every
- * testimonial section on the internet look the same.
+ * "Voices from the ground" — Prioritizing authentic student voices from government
+ * schools across Telangana and Andhra Pradesh, alongside verified partner school principals.
  */
 export function Voices({ content }: { content: TestimonialsContent }) {
   const items = content.items
@@ -20,15 +19,17 @@ export function Voices({ content }: { content: TestimonialsContent }) {
 
   useEffect(() => {
     if (paused || reduce || items.length <= 1) return
-    timerRef.current = setInterval(() => setIndex((i) => (i + 1) % items.length), 6000)
+    timerRef.current = setInterval(() => setIndex((i) => (i + 1) % items.length), 6500)
     return () => clearInterval(timerRef.current)
   }, [paused, reduce, items.length])
 
   if (items.length === 0) return null
   const current = items[index]
+  const isStudent = current.role.toLowerCase().includes('class') || current.role.toLowerCase().includes('student')
 
   return (
     <section
+      id="voices"
       className="tai-section bg-[var(--tai-clay)]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -36,12 +37,22 @@ export function Voices({ content }: { content: TestimonialsContent }) {
       onBlur={() => setPaused(false)}
     >
       <div className="tai-container-wide px-5 md:px-8 lg:px-12">
-        <p className="tai-eyebrow text-brand">Voices</p>
-        <h2 className="tai-text-display mt-4 max-w-4xl font-display text-foreground">
-          What the movement sounds like on the ground.
-        </h2>
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <div className="inline-flex items-center gap-2 font-mono text-sm font-bold uppercase tracking-[0.2em] text-brand">
+              <Sparkles className="size-4" />
+              Authentic ground feedback
+            </div>
+            <h2 className="tai-text-display mt-3 max-w-4xl font-display text-foreground">
+              What the classroom sounds like.
+            </h2>
+          </div>
+          <p className="max-w-md text-sm text-muted-foreground">
+            Unfiltered feedback from the children building their first prompts and the headmasters who host us.
+          </p>
+        </div>
 
-        <div className="tai-reading mx-auto mt-16 min-h-[220px] text-center">
+        <div className="tai-reading mx-auto mt-14 min-h-[260px] text-center">
           <AnimatePresence mode="wait">
             <m.div
               key={index}
@@ -49,27 +60,52 @@ export function Voices({ content }: { content: TestimonialsContent }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.4 }}
+              className="flex flex-col items-center"
             >
-              <p className="font-display text-3xl italic leading-snug text-foreground md:text-4xl lg:text-5xl">
+              <div className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-background/80 px-3.5 py-1 text-xs font-mono font-semibold uppercase tracking-wider text-foreground shadow-sm">
+                {isStudent ? (
+                  <>
+                    <GraduationCap className="size-3.5 text-brand" />
+                    <span>Real Student Voice</span>
+                  </>
+                ) : (
+                  <>
+                    <School className="size-3.5 text-brand" />
+                    <span>School Leadership</span>
+                  </>
+                )}
+              </div>
+
+              <p className="font-display text-2xl italic leading-snug text-foreground sm:text-3xl md:text-4xl lg:text-5xl">
                 &ldquo;{current.quote}&rdquo;
               </p>
-              <p className="mt-6 text-base text-muted-foreground">
-                <span className="font-semibold text-foreground">{current.name}</span> — {current.role}
-              </p>
+
+              <div className="mt-6 flex flex-col items-center">
+                <span className="text-lg font-bold text-foreground">{current.name}</span>
+                <span className="font-mono text-sm text-muted-foreground">{current.role}</span>
+              </div>
             </m.div>
           </AnimatePresence>
         </div>
 
         {items.length > 1 && (
-          <div className="mt-10 flex items-center justify-center gap-2">
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-2">
             {items.map((t, i) => (
               <button
                 key={`${t.name}-${i}`}
                 onClick={() => setIndex(i)}
-                aria-label={`Show testimonial ${i + 1} of ${items.length}`}
+                aria-label={`Show testimonial from ${t.name}`}
                 aria-current={i === index}
-                className={cn('h-2 w-2 rounded-full transition-colors', i === index ? 'bg-brand' : 'bg-border')}
-              />
+                className={cn(
+                  'group flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-all',
+                  i === index
+                    ? 'bg-brand text-white shadow-sm ring-2 ring-brand/30'
+                    : 'bg-background/60 text-muted-foreground hover:bg-background hover:text-foreground'
+                )}
+              >
+                <span>{t.name}</span>
+                <span className="text-[10px] opacity-75 hidden sm:inline">({t.role.split(',')[0]})</span>
+              </button>
             ))}
           </div>
         )}

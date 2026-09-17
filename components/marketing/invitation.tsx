@@ -10,25 +10,24 @@ export function Invitation() {
         <MaskHeading
           as="h2"
           className="tai-text-display font-display"
-          lines={['There is another classroom waiting.']}
+          lines={['Help us take the next AI classroom', 'to a student who needs it.']}
         />
-        <p className="mt-6 text-lg leading-relaxed text-white/75 md:text-xl">
-          Become a campus volunteer and bring applied AI to a classroom that has never had access.
-          No prior teaching experience required.
+        <p className="mt-6 text-lg leading-relaxed text-white/75 md:text-xl max-w-2xl mx-auto">
+          Every session gives a government school student their first opportunity to build with AI. Join as an institutional partner or fund a classroom today.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
-            href="/join"
+            href="#fund-a-classroom"
             className="group inline-flex h-13 items-center gap-2 rounded-xl bg-brand px-8 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-brand-deep shadow-md"
           >
-            Join the movement
+            Fund a Classroom
             <ArrowRight className="size-4.5 transition-transform group-hover:translate-x-1" aria-hidden />
           </Link>
           <Link
-            href="/contact"
+            href="/contact?intent=partner"
             className="inline-flex h-13 items-center rounded-xl border border-white/25 px-8 text-base font-semibold text-white transition-colors hover:bg-white/10"
           >
-            Partner with us
+            Partner With Us
           </Link>
         </div>
         <p className="mt-6 text-sm uppercase tracking-wider text-white/50">We reply within 24 hours.</p>

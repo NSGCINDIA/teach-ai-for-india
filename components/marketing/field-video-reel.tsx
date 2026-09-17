@@ -136,7 +136,7 @@ export function FieldVideoReel() {
             </h2>
           </div>
           <p className="max-w-xl text-base text-muted-foreground leading-relaxed md:text-lg">
-            No actors. No corporate marketing speak. 45 seconds of raw, unscripted field documentation inside government classrooms.
+            Don&apos;t just take our word for it. See what happens inside the classroom.
           </p>
         </div>
 
@@ -286,6 +286,25 @@ export function FieldVideoReel() {
               </button>
             )
           })}
+        </div>
+
+        {/* Bring Teach AI to Your School CTA */}
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-2xl border border-foreground/15 bg-card/60 p-6 sm:flex-row sm:px-8">
+          <div>
+            <h4 className="font-display text-xl font-bold text-foreground">
+              Are you an educator, principal, or school leader?
+            </h4>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every Teach AI session and curriculum kit is delivered completely free of cost to partner government schools.
+            </p>
+          </div>
+          <Link
+            href="/contact?intent=school"
+            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-xl bg-brand px-6 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-deep"
+          >
+            Bring Teach AI to Your School
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
       </div>
     </section>
