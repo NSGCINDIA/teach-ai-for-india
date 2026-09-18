@@ -6,7 +6,7 @@ const STAGES = [
     step: '01',
     title: 'REACH',
     tagline: 'How many students and schools we engage.',
-    description: 'Documenting verified classroom attendance, school locations, and campus chapter participation with transparent logs.',
+    description: 'Documenting verified classroom attendance, school locations, and NIAT campus chapter participation with transparent logs.',
     icon: Users,
   },
   {
@@ -27,7 +27,7 @@ const STAGES = [
     step: '04',
     title: 'IMPROVEMENT',
     tagline: 'How feedback informs future sessions.',
-    description: 'Using classroom learnings to iterate exercises, improve Telugu translations, and refine volunteer coaching.',
+    description: 'Using classroom learnings to iterate exercises, improve Telugu translations, and refine NIAT volunteer coaching.',
     icon: RefreshCw,
   },
 ]

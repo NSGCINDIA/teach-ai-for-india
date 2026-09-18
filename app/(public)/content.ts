@@ -148,11 +148,11 @@ export interface OriginStoryContent {
 // ─── Fallbacks ───────────────────────────────────────────────────────────────
 
 export const HERO_FALLBACK: HeroContent = {
-  eyebrow: 'Student-led · AI education · India',
+  eyebrow: 'Student-led initiative powered by students and campus teams from NIAT',
   headline: 'Every child deserves\na chance to build\nwith AI.',
   subheadline:
-    'We bring practical AI education to students in government schools, helping them move from simply using technology to creating with it.',
-  proofLine: '1,842 students addressed · 20+ schools · 9 campuses',
+    'A student-led initiative powered by students and campus teams from NIAT, bringing practical AI education to classrooms in government and community schools.',
+  proofLine: '1,842 students addressed · 20+ schools · Across NIAT campuses',
 }
 
 export const MISSION_FALLBACK: MissionContent = {
@@ -171,7 +171,7 @@ export const MISSION_FALLBACK: MissionContent = {
       icon: 'Users',
       title: 'Student-led at the core',
       description:
-        'University volunteers run every session, mentoring the next generation across their own communities.',
+        'NIAT student volunteers run every session, mentoring the next generation across their own communities.',
     },
     {
       icon: 'ShieldCheck',
@@ -190,7 +190,7 @@ export const HOW_IT_WORKS_FALLBACK: HowItWorksContent = {
     },
     {
       title: 'Outreach',
-      description: 'Campus teams connect with school leaders and build lasting trust.',
+      description: 'NIAT student campus teams connect with school leaders and build lasting trust.',
     },
     {
       title: 'Approve',
@@ -198,7 +198,7 @@ export const HOW_IT_WORKS_FALLBACK: HowItWorksContent = {
     },
     {
       title: 'Deliver',
-      description: 'Volunteers run hands-on, age-appropriate AI workshops in the classroom.',
+      description: 'NIAT student volunteers run hands-on, age-appropriate AI workshops in the classroom.',
     },
     {
       title: 'Report',
@@ -257,13 +257,13 @@ export const FAQ_FALLBACK: FaqContent = {
     {
       question: 'What is Teach AI for India?',
       answer:
-        'Teach AI for India is a student-led social initiative bringing practical AI literacy to students in government and community schools. University students form campus chapters, undergo rigorous pedagogy training, and deliver interactive, hands-on AI workshops directly in local classrooms.',
+        'Teach AI for India is a student-led social initiative powered by NIAT students, bringing practical AI literacy to students in government and community schools. University students form campus chapters, undergo rigorous pedagogy training, and deliver interactive, hands-on AI workshops directly in local classrooms.',
       category: 'General',
     },
     {
       question: 'Is this a student-led initiative?',
       answer:
-        'Yes. Teach AI for India was founded and is led by university students who believe that high-quality AI education should not be restricted by geography or family income. While mentored by technology professionals, our student campus teams handle outreach, curriculum facilitation, and classroom sessions.',
+        'Yes. Teach AI for India was founded and is led by passionate NIAT students who believe that high-quality AI education should not be restricted by geography or family income. While mentored by technology professionals, our NIAT student campus teams handle outreach, curriculum facilitation, and classroom sessions.',
       category: 'General',
     },
     {
@@ -281,7 +281,7 @@ export const FAQ_FALLBACK: FaqContent = {
     {
       question: 'Where do you currently operate?',
       answer:
-        'Our active campus chapters operate primarily across Telangana and Andhra Pradesh, with student-led teams in Hyderabad, Vijayawada, Vizag, and surrounding districts. We continue to expand as new university campus chapters complete their verification and onboarding.',
+        'Our active chapters operate primarily across Telangana and Andhra Pradesh, with teams across NIAT campuses in Hyderabad, Vijayawada, Vizag, and surrounding districts. We continue to expand as new campus chapters complete their verification and onboarding.',
       category: 'General',
     },
 
@@ -321,7 +321,7 @@ export const FAQ_FALLBACK: FaqContent = {
     {
       question: 'Who can volunteer with Teach AI for India?',
       answer:
-        'University and college students who are passionate about education equity and technology. We look for individuals with empathy, strong communication skills, patience, and a willingness to commit to classroom teaching.',
+        'NIAT students and university undergraduates who are passionate about education equity and technology. We look for individuals with empathy, strong communication skills, patience, and a willingness to commit to classroom teaching.',
       category: 'Volunteers',
     },
     {
@@ -417,7 +417,7 @@ export const FAQ_FALLBACK: FaqContent = {
     {
       question: 'Can our corporate volunteers participate directly?',
       answer:
-        'Yes. We organize joint volunteering and mentorship days where corporate teams can co-facilitate workshops, share industry insights, and inspire students alongside our university campus teams.',
+        'Yes. We organize joint volunteering and mentorship days where corporate teams can co-facilitate workshops, share industry insights, and inspire students alongside our NIAT student campus teams.',
       category: 'Partners & CSR',
     },
     {
@@ -461,7 +461,7 @@ export const ORIGIN_STORY_FALLBACK: OriginStoryContent = {
     eyebrow: 'Why we exist',
     headline: 'We learned something valuable. We decided to give it back.',
     body:
-      "Teach AI for India started in March 2026, inside a small group of NIAT students who wanted to give something back to their community. We weren't trying to build an organization. We were trying to answer one question: what do we actually know that's worth teaching someone else? This is the story of how we answered it, what happened in the first classroom, and why we kept going.",
+      "Teach AI for India originated from students at NIAT who wanted to give something back to their community. Today, NIAT students and campus teams contribute as active volunteers, carrying what they learn in technology into government-school classrooms. We weren't trying to build an organization — we were answering one question: what do we know that's worth sharing? This is the story of how we answered it, what happened in the first classroom, and why we kept going.",
   },
   originMoment: {
     eyebrow: 'March 2026',
@@ -493,12 +493,12 @@ export const ORIGIN_STORY_FALLBACK: OriginStoryContent = {
     eyebrow: 'How the movement runs',
     headline: "Student-led isn't a tagline. It's how the work gets done.",
     supportingLine:
-      'Finding schools, building the curriculum, running the session, improving it — every part of this is done by students, for students.',
+      'Finding schools, building the curriculum, running the session, improving it — every part of this is powered by passionate NIAT students, for students.',
     steps: [
-      { title: 'Identify a school', description: 'Students map which government schools need this the most and make the first approach.' },
+      { title: 'Identify a school', description: 'NIAT students map which government schools need this the most and make the first approach.' },
       { title: 'Build the session', description: 'Content, fellows, and cohort plans come together before anyone sets foot in a classroom.' },
-      { title: 'Get the campus ready', description: 'Principal approvals, campus permissions, transport, funding — coordinated end to end by students.' },
-      { title: 'Enter the classroom', description: 'Volunteers run the session. No script — just the plan and the room.' },
+      { title: 'Get the campus ready', description: 'Principal approvals, NIAT campus permissions, transport, funding — coordinated end to end by students.' },
+      { title: 'Enter the classroom', description: 'NIAT student volunteers run the session. No script — just the plan and the room.' },
       { title: 'Listen to students', description: "What worked. What didn't. What they actually asked for." },
       { title: 'Improve', description: 'The next session is built on what the last one taught us.' },
       { title: 'Go again', description: 'Another school. Another classroom. The loop keeps running.' },
@@ -506,7 +506,7 @@ export const ORIGIN_STORY_FALLBACK: OriginStoryContent = {
   },
   volunteerNote: {
     body:
-      "The volunteer program is still taking shape. But the idea behind it is simple: you don't join because you want NGO experience on a résumé. You join because there's something you've learned, and you want to give some of it back.",
+      "The volunteer program connects passionate NIAT students with young minds. You don't join because you want NGO experience on a résumé. You join because there's something you've learned, and you want to give some of it back.",
   },
   whyWeContinue: {
     eyebrow: 'Why we keep going',

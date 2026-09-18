@@ -29,7 +29,7 @@ export async function Footer() {
               TEACH <span className="text-[var(--tai-crimson-subtle)]">AI</span> FOR INDIA
             </Link>
             <p className="mt-4 max-w-xs text-base leading-relaxed text-white/60">
-              Student-led applied AI education for every classroom.
+              A student-led movement powered by the NIAT community, bringing applied AI education to every classroom.
             </p>
             <p className="mt-3 text-sm text-white/50">Based in Hyderabad, Telangana</p>
           </div>
@@ -105,7 +105,7 @@ export async function Footer() {
         </div>
 
         <div className="mt-16 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-sm text-white/40 sm:flex-row">
-          <p>© {new Date().getFullYear()} Teach AI for India. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Teach AI for India. A student-led movement powered by the NIAT community.</p>
           <p className="inline-flex items-center gap-1.5">
             Made with intent in India <span aria-hidden>🇮🇳</span>
           </p>

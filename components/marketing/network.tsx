@@ -31,9 +31,9 @@ export function Network({ campuses }: { campuses: PublicCampusCard[] }) {
   return (
     <section className="tai-section bg-background">
       <div className="tai-container-wide px-5 md:px-8 lg:px-12">
-        <p className="tai-eyebrow text-brand">The campuses</p>
+        <p className="tai-eyebrow text-brand">NIAT Campus Chapters</p>
         <h2 className="tai-text-display mt-4 max-w-4xl font-display text-foreground">
-          One campus became nine. One school became {active.schools_reached >= 18 ? 'eighteen' : 'many'}.
+          One campus became nine. From NIAT campuses to government-school classrooms.
         </h2>
 
         <Reveal className="mt-10">

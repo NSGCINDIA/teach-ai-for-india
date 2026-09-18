@@ -61,7 +61,7 @@ export function StoriesCtaCloser() {
               </h2>
 
               <p className="mx-auto max-w-xl text-lg text-muted-foreground leading-relaxed md:text-xl text-pretty">
-                Help us create more classrooms where students can ask, experiment, and discover.
+                Join NIAT students in creating meaningful learning experiences where students can ask, experiment, and discover.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
@@ -82,7 +82,7 @@ export function StoriesCtaCloser() {
               </div>
 
               <p className="pt-4 text-xs text-muted-foreground font-medium">
-                Always free for government schools • Driven by student communities
+                Always free for government schools • A student-led movement powered by the NIAT community
               </p>
             </div>
           </Reveal>

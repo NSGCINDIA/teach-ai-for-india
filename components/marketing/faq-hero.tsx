@@ -42,7 +42,7 @@ export function FAQHero() {
 
           {/* Supporting Text */}
           <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-8 font-serif sm:font-sans">
-            Everything you need to know about Teach AI for India, our classrooms, our campus teams, and how you can get involved.
+            Everything you need to know about Teach AI for India, our classrooms powered by NIAT students, campus chapters, and how you can get involved.
           </p>
 
           {/* Audience quick tags */}

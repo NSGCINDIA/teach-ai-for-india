@@ -13,7 +13,7 @@ export function Invitation() {
           lines={['Help us take the next AI classroom', 'to a student who needs it.']}
         />
         <p className="mt-6 text-lg leading-relaxed text-white/75 md:text-xl max-w-2xl mx-auto">
-          Every session gives a government school student their first opportunity to build with AI. Join as an institutional partner or fund a classroom today.
+          Every session gives a government school student their first opportunity to build with AI. Join NIAT students in creating meaningful learning experiences — partner with us or fund a classroom today.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
@@ -30,7 +30,9 @@ export function Invitation() {
             Partner With Us
           </Link>
         </div>
-        <p className="mt-6 text-sm uppercase tracking-wider text-white/50">We reply within 24 hours.</p>
+        <p className="mt-6 text-sm uppercase tracking-wider text-white/50">
+          A student-led movement powered by the NIAT community &bull; We reply within 24 hours.
+        </p>
       </div>
     </section>
   )

@@ -17,21 +17,21 @@ const STAGES: Stage[] = [
     label: 'PREPARE',
     title: 'Hardware & Syllabus Readiness',
     description:
-      'The university campus team gathers early, loads tablets and spare peripherals into travel bags, and runs a final check on offline teaching kits.',
+      'The NIAT campus team gathers early, loads tablets and spare peripherals into travel bags, and runs a final check on offline teaching kits.',
   },
   {
     stageNumber: '02',
     label: 'ARRIVE',
     title: 'School Welcome & Setup',
     description:
-      'Volunteers arrive at the partner government school, greet the headmaster, and configure the computer lab or multipurpose classroom.',
+      'NIAT student volunteers arrive at the partner government school, greet the headmaster, and configure the computer lab or multipurpose classroom.',
   },
   {
     stageNumber: '03',
     label: 'TEACH',
     title: 'Interactive Foundational Concepts',
     description:
-      'Using relatable analogies from daily life, facilitators explain how computers learn from examples rather than pure programmed rules.',
+      'Using relatable analogies from daily life, NIAT student facilitators explain how computers learn from examples rather than pure programmed rules.',
   },
   {
     stageNumber: '04',
@@ -68,7 +68,7 @@ export function StoriesDayJourney() {
               A Day in a Teach AI Classroom
             </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
-              What does a session actually look like from start to finish? Six key stages turn an
+              What does a session led by NIAT students actually look like from start to finish? Six key stages turn an
               unfamiliar computer lab into a place of joyful digital creation.
             </p>
           </div>

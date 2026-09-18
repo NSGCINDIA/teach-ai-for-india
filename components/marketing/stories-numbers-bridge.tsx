@@ -32,7 +32,7 @@ const BRIDGES = [
     metric: 'Campuses',
     bridge: 'Real Student Teams',
     description:
-      'University chapters self-organizing outreach, hardware logistics, and classroom delivery in their home regions.',
+      'NIAT campus chapters self-organizing outreach, hardware logistics, and classroom delivery in their home regions.',
     icon: Building2,
     color: 'text-brand-teal',
   },
@@ -60,7 +60,7 @@ export function StoriesNumbersBridge() {
             </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
               Numbers document scale, but stories capture the shift in confidence. See how each verified
-              metric connects to students, teachers, and volunteers on the ground.
+              metric connects to students, teachers, and NIAT student volunteers on the ground.
             </p>
           </div>
         </Reveal>

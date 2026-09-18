@@ -21,7 +21,7 @@ export function ImpactHero({ stats }: { stats: PublicImpactStats }) {
       value: stats.active_campuses || 9,
       suffix: '',
       label: 'Campuses',
-      sublabel: 'Active collegiate chapters',
+      sublabel: 'Active NIAT campus chapters',
     },
     {
       value: stats.sessions_completed || 35,
@@ -36,7 +36,7 @@ export function ImpactHero({ stats }: { stats: PublicImpactStats }) {
       <div className="tai-container-wide px-5 md:px-8 lg:px-12">
         <div className="max-w-4xl">
           <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-brand font-semibold sm:text-sm">
-            Verified impact &bull; Classroom-led &bull; Student-driven
+            Verified impact &bull; Powered by NIAT students &bull; Classroom-led
           </div>
 
           <MaskHeading
@@ -48,7 +48,7 @@ export function ImpactHero({ stats }: { stats: PublicImpactStats }) {
           />
 
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-            Every number represents a student who got the opportunity to explore AI, ask questions, experiment, and create.
+            Powered by a growing community of NIAT student volunteers and campus teams. Every number represents a student who got the opportunity to explore AI, ask questions, experiment, and create.
           </p>
         </div>
 

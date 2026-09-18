@@ -34,12 +34,12 @@ const CHAPTERS: Chapter[] = [
     startSec: 5,
     endSec: 10,
     rangeLabel: '00:05 – 00:10',
-    title: 'Volunteers Arriving',
+    title: 'NIAT Volunteers Arriving',
     location: 'Campus Lead & Volunteer Squad',
     image:
       'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1400/v1784177876/DJI_20260711124202_0244_D_zgvqzo.jpg',
     overlayTitle: '09:15 AM · The Setup',
-    subtitle: 'Four engineering students carrying tablets, offline workbooks, and mobile hotspots into the government school compound.',
+    subtitle: 'Four NIAT engineering students carrying tablets, offline workbooks, and mobile hotspots into the government school compound.',
   },
   {
     startSec: 10,

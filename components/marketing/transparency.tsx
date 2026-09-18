@@ -28,11 +28,11 @@ const CATEGORIES: Category[] = [
     title: 'Programs',
     subtitle: 'Classroom Delivery & Chapters',
     description:
-      'Direct hands-on delivery in government schools, volunteer cohort training, campus lead coordination, and student showcase events.',
+      'Direct hands-on delivery in government schools, NIAT volunteer cohort training, campus lead coordination, and student showcase events.',
     icon: Compass,
     items: [
       'In-person 90-minute AI workshops',
-      'Campus chapter bootcamps & trainer certification',
+      'NIAT campus chapter bootcamps & trainer certification',
       'Headmaster and school administrator coordination',
     ],
   },

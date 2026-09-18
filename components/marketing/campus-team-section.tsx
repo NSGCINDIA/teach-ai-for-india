@@ -69,11 +69,11 @@ export function CampusTeamSection({ customTeam }: { customTeam?: VerifiedTeamMem
           <div className="max-w-3xl">
             <span className="section-label text-brand">Campus Leadership</span>
             <h2 className="mt-3 font-display text-3xl font-extrabold text-foreground sm:text-4xl md:text-5xl text-balance">
-              The students behind the classrooms.
+              The NIAT students behind the classrooms.
             </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
-              Campus leads and student facilitators handle school outreach, session logistics,
-              and volunteer coordination. Meet a few of the university students making it happen.
+              Built by passionate NIAT students — campus leads and student facilitators handle school outreach, session logistics,
+              and volunteer coordination. Meet a few of the students making it happen.
             </p>
           </div>
         </Reveal>

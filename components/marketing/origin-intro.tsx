@@ -17,7 +17,7 @@ export function OriginIntro({ content }: { content: OriginStoryIntro }) {
 
         {/* Concise Credibility Statement */}
         <p className="mt-4 font-mono text-sm uppercase tracking-wider text-brand font-semibold sm:text-base">
-          A student-led initiative bringing practical AI education to government schools.
+          A student-led initiative powered by NIAT students, bringing practical AI education to government schools.
         </p>
 
         <Reveal delay={0.15}>

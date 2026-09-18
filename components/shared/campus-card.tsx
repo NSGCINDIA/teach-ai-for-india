@@ -97,7 +97,7 @@ export function CampusCard({ campus, className }: { campus: PublicCampusCard; cl
 
         {/* Action button bar */}
         <div className="mt-5 flex items-center justify-between border-t border-border/50 pt-3.5 text-xs font-semibold text-brand">
-          <span className="text-[11px] font-medium text-muted-foreground">Student-led team</span>
+          <span className="text-[11px] font-medium text-muted-foreground">NIAT student team</span>
           <span className="inline-flex items-center gap-1 font-bold group-hover:translate-x-0.5 transition-transform">
             Explore Campus →
           </span>

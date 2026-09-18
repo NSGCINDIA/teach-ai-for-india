@@ -128,7 +128,7 @@ export function CampusGalleryMoments() {
                 Real moments. Real classrooms.
               </h2>
               <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
-                Authentic photographs from campus preparation, laboratory setups, school outreach,
+                Authentic photographs from NIAT campus preparation, laboratory setups, school outreach,
                 and hands-on AI interaction with students.
               </p>
             </div>

@@ -39,7 +39,7 @@ const AFTER_POINTS: ComparisonPoint[] = [
   },
   {
     title: 'Students begin imagining AI-related possibilities',
-    detail: 'Fear turns into ambition: asking volunteers about coding, science, problem-solving, and future technology pathways.',
+    detail: 'Fear turns into ambition: asking NIAT student volunteers about coding, science, problem-solving, and future technology pathways.',
   },
 ]
 

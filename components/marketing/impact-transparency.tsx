@@ -52,7 +52,7 @@ export function ImpactTransparency() {
               See the work behind the numbers.
             </h2>
             <p className="mt-3 text-base text-muted-foreground md:text-lg">
-              Every figure is supported by classroom documentation, school partnerships, and open reporting.
+              Every figure is supported by classroom documentation, NIAT student chapter logs, school partnerships, and open reporting.
             </p>
           </div>
 

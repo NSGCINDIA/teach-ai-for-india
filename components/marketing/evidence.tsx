@@ -26,7 +26,7 @@ export function Evidence({ stats }: { stats: PublicImpactStats }) {
       value: stats.active_campuses || 9,
       suffix: '',
       label: 'Campuses',
-      sublabel: 'Active university chapters',
+      sublabel: 'Active NIAT campus chapters',
     },
     {
       value: stats.sessions_completed || 35,
@@ -38,7 +38,7 @@ export function Evidence({ stats }: { stats: PublicImpactStats }) {
       value: 120,
       suffix: '+',
       label: 'Student Volunteers',
-      sublabel: 'College mentors in classrooms',
+      sublabel: 'NIAT student mentors in classrooms',
     },
   ]
 
@@ -94,7 +94,7 @@ export function Evidence({ stats }: { stats: PublicImpactStats }) {
               &ldquo;Every number represents a student who got the opportunity to experience AI.&rdquo;
             </p>
             <p className="mt-3 text-base text-muted-foreground md:text-lg">
-              Not slideware or passive demonstrations — students typing, questioning, and generating their very first AI outputs with their own ideas.
+              NIAT students bringing practical AI education to classrooms — students typing, questioning, and generating their very first AI outputs with their own ideas.
             </p>
           </div>
         </Reveal>

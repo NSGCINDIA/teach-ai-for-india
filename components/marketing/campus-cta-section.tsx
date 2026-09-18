@@ -157,7 +157,7 @@ export function CampusCtaSection() {
               </h2>
 
               <p className="mx-auto max-w-xl text-lg text-muted-foreground leading-relaxed md:text-xl text-pretty">
-                The next student-led team could be yours.
+                The next student-led team could be yours. Join NIAT students in creating meaningful learning experiences.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
@@ -177,7 +177,7 @@ export function CampusCtaSection() {
               </div>
 
               <p className="pt-4 text-xs text-muted-foreground font-medium">
-                Free for all partner government schools • 100% student-powered
+                Free for all partner government schools • Powered by the NIAT student community
               </p>
             </div>
           </Reveal>

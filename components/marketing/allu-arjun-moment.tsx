@@ -38,7 +38,7 @@ const STAGES: Stage[] = [
       'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177877/DJI_20260711131020_0287_D_rvh8gg.jpg',
     caption: 'The room shifts from hesitant silence into shared, collective curiosity',
     description:
-      'The volunteer didn\'t say no or pivot to a textbook slide. Instead, he asked: "What kind of picture do you want? What is he wearing? Where is he standing?" In an instant, thirty students stopped being passive listeners and started imagining.',
+      'The NIAT student volunteer didn\'t say no or pivot to a textbook slide. Instead, he asked: "What kind of picture do you want? What is he wearing? Where is he standing?" In an instant, thirty students stopped being passive listeners and started imagining.',
     quote: '"What does the movie hero look like in your mind?"',
   },
   {
@@ -50,7 +50,7 @@ const STAGES: Stage[] = [
       'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg',
     caption: 'Students taking turns typing their ideas directly into the interface',
     description:
-      'The students took the tablet. Together with the volunteer, they translated Telugu thoughts into structured descriptive prompts: cinematic lighting, hero pose, Charminar backdrop. Hands reached out to touch the keys.',
+      'The students took the tablet. Together with the NIAT volunteer, they translated Telugu thoughts into structured descriptive prompts: cinematic lighting, hero pose, Charminar backdrop. Hands reached out to touch the keys.',
     quote: '"You don\'t just ask for an image — you describe the world you want to see."',
   },
   {

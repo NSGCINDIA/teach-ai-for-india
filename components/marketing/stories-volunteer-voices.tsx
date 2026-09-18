@@ -72,11 +72,11 @@ export function StoriesVolunteerVoices() {
           <div className="max-w-3xl">
             <span className="section-label text-brand">Volunteer Reflections</span>
             <h2 className="mt-3 font-display text-3xl font-extrabold text-foreground sm:text-4xl md:text-5xl text-balance">
-              Students teaching students.
+              NIAT students teaching students.
             </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
-              Teach AI for India isn&apos;t run by a distant corporate headquarters. It is powered by
-              university undergraduates who spend weekends in government school computer labs.
+              Teach AI for India is powered by the NIAT student community — passionate undergraduates
+              who spend weekends in government school computer labs bringing practical AI education to classrooms.
             </p>
           </div>
         </Reveal>

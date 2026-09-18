@@ -4,8 +4,8 @@ import { Reveal } from '@/components/marketing/reveal'
 const SCALE_PILLARS = [
   {
     title: 'CAMPUS TEAMS',
-    tagline: 'Student teams can organize and deliver locally.',
-    description: 'Collegiate volunteers live close to schools, communicate in regional languages, and build genuine rapport with students.',
+    tagline: 'NIAT student teams organize and deliver locally.',
+    description: 'Teams of NIAT students live close to schools, communicate in regional languages, and build genuine rapport with students.',
     icon: Users,
   },
   {
@@ -38,7 +38,7 @@ export function AboutScale() {
             Built to grow from one campus to many.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-            How a decentralized, student-led movement organizes for consistent, localized classroom delivery.
+            How a decentralized, student-led movement powered by NIAT students organizes for consistent, localized classroom delivery.
           </p>
         </div>
 

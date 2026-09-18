@@ -26,7 +26,7 @@ export function FirstClassroom({ content, mainPhoto, insetPhoto }: FirstClassroo
         <div className="mt-8 grid gap-8 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-6 space-y-4 text-base leading-relaxed text-muted-foreground md:text-lg">
             <p>
-              Our first pilot was MPPS Nandakramaguda, a government school a short distance from our own college. About 150 students showed up.
+              Our first pilot was MPPS Nandakramaguda, a government school a short distance from our NIAT campus. About 150 students showed up.
             </p>
             <p>
               We had one hour and fifteen minutes, a few shared tablets, and one simple goal: show them what AI actually is in practice.

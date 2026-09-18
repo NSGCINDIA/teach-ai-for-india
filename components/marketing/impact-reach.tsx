@@ -73,13 +73,13 @@ export function ImpactReach({ campuses }: { campuses: PublicCampusCard[] }) {
               From one classroom to a growing network.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              Active across Telangana and Andhra Pradesh through collegiate chapters partnering directly with neighborhood government schools.
+              From NIAT campuses to government-school classrooms — active across Telangana and Andhra Pradesh through NIAT student chapters partnering directly with neighborhood schools.
             </p>
           </div>
 
           <div className="inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-card px-4 py-2 text-xs font-mono text-muted-foreground">
             <MapPin className="size-4 text-brand" />
-            2 States &bull; 9 Collegiate Chapters &bull; 20+ Schools
+            2 States &bull; 9 NIAT Chapters &bull; 20+ Schools
           </div>
         </div>
 

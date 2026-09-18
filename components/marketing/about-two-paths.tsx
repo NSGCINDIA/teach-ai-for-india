@@ -31,7 +31,7 @@ export function AboutTwoPaths() {
                   Bring what you&apos;ve learned to a classroom.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  Join a collegiate team or start a chapter on your campus. We provide sandbox environments, bilingual curriculum, and classroom safety coordination.
+                  Join NIAT students in creating meaningful learning experiences, or start a chapter with your campus team. We provide sandbox environments, bilingual curriculum, and classroom safety coordination.
                 </p>
               </div>
 
@@ -60,7 +60,7 @@ export function AboutTwoPaths() {
                   Help us bring practical AI education to more schools.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  Connect as a school principal, corporate CSR team, or philanthropic foundation to sponsor classrooms, fund learning kits, or adopt school programs.
+                  Partner with our NIAT student community to sponsor classrooms, fund learning kits, or support school programs across Telangana and Andhra Pradesh.
                 </p>
               </div>
 

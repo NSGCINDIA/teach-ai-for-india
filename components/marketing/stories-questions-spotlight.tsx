@@ -22,7 +22,7 @@ const QUESTIONS: StudentQuestion[] = [
   },
   {
     question: 'Anna, when are you coming again?',
-    context: 'Asked while volunteers were packing equipment after a 75-minute workshop.',
+    context: 'Asked while NIAT student volunteers were packing equipment after a 75-minute workshop.',
     student: 'Class 7 Student',
     school: 'MPPS Nanakramguda, Hyderabad',
     impact: 'Turned a single pilot school into a recurring campus chapter commitment.',
@@ -32,7 +32,7 @@ const QUESTIONS: StudentQuestion[] = [
     context: 'Students experimenting with native-language text parameters.',
     student: 'Class 9 Student',
     school: 'Government High School, Warangal',
-    impact: 'Inspired volunteers to develop a localized Telugu translation wrapper.',
+    impact: 'Inspired NIAT students to develop a localized Telugu translation wrapper.',
   },
   {
     question: 'How does the computer know what a mango tree looks like?',
@@ -69,7 +69,7 @@ export function StoriesQuestionsSpotlight() {
             </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
               In government-school classrooms, children don&apos;t ask theoretical questions.
-              They ask questions rooted in wonder, culture, and their everyday lives.
+              They ask NIAT students questions rooted in wonder, culture, and their everyday lives.
             </p>
           </div>
         </Reveal>

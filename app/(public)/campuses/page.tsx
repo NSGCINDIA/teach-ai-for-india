@@ -16,7 +16,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: 'Campuses',
   description:
-    'Teach AI for India grows through student-led campus teams that bring practical AI learning from their own communities into classrooms.',
+    'Teach AI for India grows through student-led campus teams powered by NIAT students, bringing practical AI learning from their own communities into classrooms.',
 }
 
 export default async function CampusesPage() {
@@ -50,10 +50,10 @@ export default async function CampusesPage() {
             <div className="mb-10 max-w-3xl">
               <span className="section-label text-brand">Campus Directory</span>
               <h2 className="mt-3 font-display text-3xl font-extrabold text-foreground sm:text-4xl md:text-5xl text-balance">
-                Meet the campuses powering the classrooms.
+                Meet the NIAT campuses powering the classrooms.
               </h2>
               <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
-                Explore individual chapters run by local university students. Search by campus or
+                Explore individual chapters run by NIAT student teams. Search by campus or
                 filter by state to see schools reached, students engaged, and delivered sessions.
               </p>
             </div>

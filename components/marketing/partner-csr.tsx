@@ -41,7 +41,7 @@ const PARTNER_CARDS: PartnerPillar[] = [
     title: 'Sponsor a Classroom',
     tagline: 'Direct cohort transformation',
     description:
-      'Enable an individual grade to experience applied AI. Covers hardware access kits, mobile hotspot connectivity, and college student volunteer facilitators.',
+      'Enable an individual grade to experience applied AI. Covers hardware access kits, mobile hotspot connectivity, and NIAT student volunteer facilitators.',
     icon: GraduationCap,
     outcomes: [
       '30+ students in hands-on workshops',
@@ -67,7 +67,7 @@ const PARTNER_CARDS: PartnerPillar[] = [
     title: 'Employee Volunteering',
     tagline: 'Corporate tech mentorship',
     description:
-      'Connect your engineering, product, or design teams with young learners as guest mentors, speakers, and project reviewers alongside our student chapters.',
+      'Connect your engineering, product, or design teams with young learners as guest mentors, speakers, and project reviewers alongside our NIAT student chapters.',
     icon: Users2,
     outcomes: [
       'Structured corporate volunteering days',
@@ -88,7 +88,7 @@ export function PartnerCSR() {
               Partner with Teach AI for India
             </h2>
             <p className="mt-4 text-lg leading-relaxed text-muted-foreground md:text-xl">
-              Turn your support into measurable AI education.
+              Turn your support into measurable AI education. Partner with the NIAT student community to bring hands-on AI literacy directly to government school classrooms.
             </p>
           </div>
 

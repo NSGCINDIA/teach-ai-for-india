@@ -16,8 +16,8 @@ const STEPS: OperatingStep[] = [
   {
     step: '01',
     title: 'FORM A TEAM',
-    summary: 'Students come together around the mission.',
-    detail: 'Undergraduates from engineering and science disciplines unite as a recognized campus chapter, assigning outreach and execution coordinators.',
+    summary: 'NIAT students come together around the mission.',
+    detail: 'Passionate NIAT students unite as a recognized campus chapter, assigning outreach and execution coordinators.',
     icon: Users,
     badge: 'Mobilization',
   },
@@ -40,8 +40,8 @@ const STEPS: OperatingStep[] = [
   {
     step: '04',
     title: 'TEACH',
-    summary: 'Students facilitate hands-on AI learning.',
-    detail: 'In 60 to 90 minute interactive sessions, volunteers guide children through prompt engineering, creative tools, and basic programming concepts.',
+    summary: 'NIAT students facilitate hands-on AI learning.',
+    detail: 'In 60 to 90 minute interactive sessions, NIAT student volunteers guide children through prompt engineering, creative tools, and basic programming concepts.',
     icon: Lightbulb,
     badge: 'Execution',
   },
@@ -74,7 +74,7 @@ export function CampusOperatingModel() {
               How a campus turns an idea into impact.
             </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
-              Every Teach AI for India chapter runs on a disciplined, repeatable student-led cycle.
+              Every Teach AI for India chapter is powered by NIAT students running a disciplined, repeatable cycle.
               From the first volunteer meetup to the final classroom evaluation, each step is designed
               for genuine student learning.
             </p>

@@ -21,7 +21,7 @@ export function AboutGap() {
                 Our response
               </div>
               <p className="mt-3 text-base leading-relaxed text-foreground md:text-lg font-medium">
-                Teach AI for India brings practical AI learning into government-school classrooms through trained student volunteers and campus-led teams.
+                Teach AI for India originated from students at NIAT. Today, NIAT students contribute as active volunteers and campus teams, carrying their own learning, technical skills, and collegiate experiences directly into government-school classrooms.
               </p>
             </div>
           </Reveal>

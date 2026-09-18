@@ -23,7 +23,7 @@ export function StoriesHero() {
                 {/* Proofline */}
                 <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/5 px-4 py-1.5 text-xs font-semibold text-brand backdrop-blur-sm">
                   <Sparkles className="size-3.5" />
-                  <span>The Emotional Heart • Authentic Field Notes • Student Voices</span>
+                  <span>The Emotional Heart • Authentic Field Notes • Powered by NIAT Students</span>
                 </div>
 
                 {/* Headline */}
@@ -36,7 +36,7 @@ export function StoriesHero() {
 
                 {/* Supporting Text */}
                 <p className="max-w-2xl text-lg text-muted-foreground leading-relaxed md:text-xl text-pretty">
-                  Behind every number is a student who asked a question, tried something new,
+                  Volunteers from the NIAT student community bringing practical AI education to government schools. Behind every number is a student who asked a question, tried something new,
                   or discovered that AI could be something they could create with.
                 </p>
 

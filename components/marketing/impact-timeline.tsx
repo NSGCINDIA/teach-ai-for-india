@@ -12,7 +12,7 @@ const MILESTONES: Milestone[] = [
   {
     dateOrTag: 'MARCH 2026',
     title: 'Movement Begins',
-    detail: 'Inside NIAT, students asked what they could uniquely give back. Rather than tutoring textbook theory, we decided to teach applied AI.',
+    detail: 'Inside NIAT, students asked what they could uniquely give back. Rather than tutoring textbook theory, NIAT students decided to teach applied AI.',
     icon: Compass,
   },
   {
@@ -23,14 +23,14 @@ const MILESTONES: Milestone[] = [
   },
   {
     dateOrTag: 'CHAPTER EXPANSION',
-    title: '9 Collegiate Chapters',
-    detail: 'Students across Telangana and Andhra Pradesh formed local chapters to coordinate directly with nearby government high schools.',
+    title: '9 NIAT Chapters',
+    detail: 'Students across NIAT campuses formed local chapters to coordinate directly with nearby government high schools.',
     icon: Calendar,
   },
   {
     dateOrTag: 'TODAY',
     title: '1,842+ Students Reached',
-    detail: 'Documented sessions across 20+ partner government schools, powered by college volunteers and verified open logs.',
+    detail: 'Documented sessions across 20+ partner government schools, powered by NIAT student volunteers and verified open logs.',
     icon: Sparkles,
   },
 ]

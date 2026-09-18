@@ -47,7 +47,7 @@ export function CampusWhySection() {
               Why campuses matter.
             </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
-              We didn&apos;t choose a top-down NGO structure. We organized around student communities
+              We didn&apos;t choose a top-down NGO structure. We organized around the NIAT community and NIAT Campus Teams
               because local trust, personal ownership, and peer connection are what actually make
               classrooms light up.
             </p>

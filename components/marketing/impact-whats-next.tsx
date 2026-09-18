@@ -16,7 +16,7 @@ export function ImpactWhatsNext() {
             More classrooms are ahead.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-            We&apos;re continuing to work with campus teams and schools to bring practical AI learning to more students.
+            Students across NIAT campuses are helping bring AI learning to more classrooms. We&apos;re continuing to work with schools and partners to expand this movement.
           </p>
         </div>
 
@@ -27,7 +27,7 @@ export function ImpactWhatsNext() {
               Help the next classroom experience AI.
             </h3>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base max-w-2xl mx-auto leading-relaxed">
-              Whether you are a school, volunteer, CSR team, foundation, or institution, you can help bring the next learning experience to students.
+              Whether you are a school, CSR team, foundation, or partner, you can join NIAT students in creating meaningful learning experiences for children across India.
             </p>
           </div>
 

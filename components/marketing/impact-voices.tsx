@@ -64,7 +64,7 @@ export function ImpactVoices() {
             Listen to the students.
           </h2>
           <p className="mt-3 text-base text-muted-foreground md:text-lg">
-            Unfiltered words from students holding a tablet for the first time and the educators who invite us in.
+            Unfiltered words from students holding a tablet for the first time with NIAT mentors and the educators who invite us in.
           </p>
         </div>
 

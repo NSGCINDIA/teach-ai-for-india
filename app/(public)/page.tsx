@@ -18,7 +18,7 @@ export const revalidate = 300
 
 export const metadata: Metadata = {
   description:
-    "India's first student-led AI education movement — bringing applied AI literacy to government school classrooms across Telangana and Andhra Pradesh.",
+    "India's first student-led AI education movement powered by NIAT students — bringing applied AI literacy to government school classrooms across Telangana and Andhra Pradesh.",
 }
 
 export default async function HomePage() {

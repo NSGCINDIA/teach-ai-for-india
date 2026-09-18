@@ -29,7 +29,7 @@ const PILLARS: Pillar[] = [
     badge: 'Peer-to-Peer Energy',
     headline: "Young people aren't just talking about change. They're delivering it.",
     description:
-      'Our university volunteers relate naturally to schoolchildren. There is zero intimidation — only curiosity, shared excitement, and collegiate role models showing what is possible.',
+      'Our NIAT student volunteers relate naturally to schoolchildren. There is zero intimidation — only curiosity, shared excitement, and collegiate role models showing what is possible.',
     icon: Users,
   },
   {
@@ -47,7 +47,7 @@ const PILLARS: Pillar[] = [
     badge: 'Decentralized Growth',
     headline: 'Our campus model expands without building a heavy bureaucracy.',
     description:
-      'Each collegiate chapter functions as an autonomous outreach hub. This allows us to reach schools in tier-2 and tier-3 towns without bloating administrative costs or management layers.',
+      'Each NIAT campus chapter functions as an autonomous outreach hub. This allows us to reach schools in tier-2 and tier-3 towns without bloating administrative costs or management layers.',
     icon: TrendingUp,
   },
   {

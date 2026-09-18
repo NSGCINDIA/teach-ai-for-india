@@ -19,22 +19,22 @@ export function CampusesCascade({ campusCount, stats }: CampusesCascadeProps) {
   const steps = [
     {
       step: '01',
-      title: 'Campuses',
+      title: 'NIAT Campus Teams',
       count: displayCampuses,
       suffix: '',
       unit: 'Chapters',
-      description: 'Self-organizing student teams rooted in their local universities.',
+      description: 'Self-organizing NIAT student teams rooted in their local campuses.',
       icon: Building2,
       color: 'bg-brand/10 text-brand border-brand/20',
       badge: 'Anchor',
     },
     {
       step: '02',
-      title: 'Volunteers',
+      title: 'NIAT Student Volunteers',
       count: 150,
       suffix: '+',
       unit: 'Trained Students',
-      description: 'Undergraduates trained in applied AI curriculum and child-safe prompting.',
+      description: 'NIAT students trained in applied AI curriculum and child-safe prompting.',
       icon: Users,
       color: 'bg-brand-orange/10 text-brand-orange border-brand-orange/20',
       badge: 'Facilitators',
@@ -84,8 +84,8 @@ export function CampusesCascade({ campusCount, stats }: CampusesCascadeProps) {
               How a campus turns energy into classroom impact.
             </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
-              Campuses aren&apos;t passive dots on a map. They are active contributors — recruiting
-              student volunteers, connecting with nearby government schools, and delivering
+              Students across NIAT campuses are active contributors — recruiting
+              NIAT student volunteers, connecting with nearby government schools, and delivering
               high-touch AI experiences that leave lasting curiosity.
             </p>
           </div>

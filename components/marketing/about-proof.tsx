@@ -22,7 +22,7 @@ export function AboutProof({ stats }: { stats: PublicImpactStats }) {
       value: stats.active_campuses || 9,
       suffix: '',
       label: 'Campuses',
-      sublabel: 'Active collegiate teams',
+      sublabel: 'Active NIAT campus teams',
     },
     {
       value: stats.sessions_completed || 35,
@@ -42,7 +42,7 @@ export function AboutProof({ stats }: { stats: PublicImpactStats }) {
               The model is already in motion.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              These aren&apos;t just numbers. Each represents a real classroom, a real session, and students getting hands-on exposure to AI.
+              These aren&apos;t just numbers. Each represents a real classroom, a real session, and NIAT students bringing practical AI education to classrooms.
             </p>
           </div>
 

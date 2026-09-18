@@ -125,8 +125,8 @@ const RICH_STORIES: RichStory[] = [
     },
     quote: 'The students showed strong interest and picked things up quickly. With proper teaching, they have clear potential to grow and perform well.',
     fullContent: [
-      'When university volunteers first approached our school with an offer to teach applied AI, I was skeptical about whether our eighth and ninth-graders could understand such advanced tools without prerequisite coding backgrounds.',
-      'During the first session, I stood in the back of the room. I watched volunteers replace abstract technical jargon with real-world metaphors that connected directly with our children.',
+      'When NIAT student volunteers first approached our school with an offer to teach applied AI, I was skeptical about whether our eighth and ninth-graders could understand such advanced tools without prerequisite coding backgrounds.',
+      'During the first session, I stood in the back of the room. I watched these NIAT students replace abstract technical jargon with real-world metaphors that connected directly with our children.',
       'Students who usually hesitate during standard classes were raising their hands, offering creative analogies, and collaborating enthusiastically.',
       'Partnerships like this show that public school children do not lack intellect or curiosity — they simply lack access to the right mentors.'
     ]

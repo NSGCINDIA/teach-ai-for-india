@@ -28,7 +28,7 @@ const STUDENTS: StudentProfile[] = [
     before:
       'Had only interacted with smartphones for video streaming and gaming. Had never seen an AI tool or written instructions for software.',
     inside:
-      'Paired with a university volunteer copilot on a tablet; learned how descriptive keywords and style parameters influence machine outputs.',
+      'Paired with a NIAT student volunteer copilot on a tablet; learned how descriptive keywords and style parameters influence machine outputs.',
     moment:
       'Asked if the system knew his favorite Telugu cinema icon; watched the room erupt in excitement when his prompt synthesized on screen.',
     after:
@@ -48,7 +48,7 @@ const STUDENTS: StudentProfile[] = [
     moment:
       'Realized the computer was responding to his thoughts rather than just executing pre-saved slides.',
     after:
-      'Asked the volunteers as they packed up when they would return, sparking our commitment to recurring campus visits.',
+      'Asked the NIAT volunteers as they packed up when they would return, sparking our commitment to recurring campus visits.',
   },
   {
     id: 'divya',

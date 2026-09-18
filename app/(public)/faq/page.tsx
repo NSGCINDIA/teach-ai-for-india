@@ -11,7 +11,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: 'FAQ',
   description:
-    'Frequently asked questions about Teach AI for India — our student-led classrooms, volunteer onboarding, school partnerships, student safety, and impact.',
+    'Frequently asked questions about Teach AI for India — our student-led classrooms powered by NIAT students, volunteer onboarding, school partnerships, student safety, and impact.',
 }
 
 export default async function FaqPage() {

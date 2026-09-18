@@ -48,7 +48,7 @@ export function Voices({ content }: { content: TestimonialsContent }) {
             </h2>
           </div>
           <p className="max-w-md text-sm text-muted-foreground">
-            Unfiltered feedback from the children building their first prompts and the headmasters who host us.
+            Unfiltered feedback from the children building their first prompts with NIAT students and the headmasters who host us.
           </p>
         </div>
 

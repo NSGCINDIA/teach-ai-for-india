@@ -16,7 +16,7 @@ interface Journey {
 const JOURNEYS: Journey[] = [
   {
     campus: 'NIAT × KKH (Hyderabad)',
-    team: '12 Student Facilitators',
+    team: '12 NIAT Student Facilitators',
     school: 'ZPHS Bachupally',
     classroom: '45 Students • Applied Prompting',
     moment: 'Anna, can it make a picture of Allu Arjun?',
@@ -24,7 +24,7 @@ const JOURNEYS: Journey[] = [
   },
   {
     campus: 'NIAT × NSRIT (Visakhapatnam)',
-    team: '8 Engineering Volunteers',
+    team: '8 NIAT Student Volunteers',
     school: 'ZPH High School Sontyam',
     classroom: '60 Students • Telugu Parameter Lab',
     moment: 'Technology literacy is about logical thinking, not English fluency.',
@@ -32,7 +32,7 @@ const JOURNEYS: Journey[] = [
   },
   {
     campus: 'NIAT × CDU (Hyderabad)',
-    team: '6 Senior Volunteers',
+    team: '6 NIAT Senior Volunteers',
     school: 'MPPS Nanakramguda',
     classroom: '30 Students • Tablet-Based Workshop',
     moment: 'Anna, when are you coming again?',
@@ -49,10 +49,10 @@ export function StoriesCampusJourneys() {
             <div className="max-w-3xl">
               <span className="section-label text-brand">The Network in Action</span>
               <h2 className="mt-3 font-display text-3xl font-extrabold text-foreground sm:text-4xl md:text-5xl text-balance">
-                From campus to classroom.
+                From NIAT campuses to government-school classrooms.
               </h2>
               <p className="mt-4 text-base text-muted-foreground leading-relaxed md:text-lg">
-                Campuses are the engines that turn mission statements into real classrooms.
+                Students across NIAT campuses are helping bring AI learning to more classrooms.
                 See how university chapters connect with their nearby schools.
               </p>
             </div>

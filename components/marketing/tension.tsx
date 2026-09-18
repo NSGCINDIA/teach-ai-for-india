@@ -15,7 +15,7 @@ export function Tension() {
         />
         <p className="mt-8 text-lg leading-relaxed text-white/75 md:text-xl">
           Private school students are building with AI tools that government school students have
-          never even heard of. We saw that gap. We refused to accept it.
+          never even heard of. NIAT students saw that gap. We refused to accept it.
         </p>
         <div className="mx-auto mt-10 h-px w-20 bg-[var(--tai-terracotta)]" aria-hidden />
       </div>

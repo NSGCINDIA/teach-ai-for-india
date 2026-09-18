@@ -23,7 +23,7 @@ export function CampusesHero({ campusCount, stats }: CampusesHeroProps) {
       value: displayCampuses,
       suffix: '',
       label: 'Campuses',
-      sublabel: 'Active university chapters',
+      sublabel: 'Active NIAT campus chapters',
       icon: Building2,
       color: 'text-brand',
     },
@@ -69,7 +69,7 @@ export function CampusesHero({ campusCount, stats }: CampusesHeroProps) {
             {/* Subtle Proofline Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/5 px-4 py-1.5 text-xs font-semibold text-brand backdrop-blur-sm">
               <Sparkles className="size-3.5" />
-              <span>Student-led • Campus-powered • Classroom-focused</span>
+              <span>Student-led • Powered by NIAT students • Classroom-focused</span>
             </div>
 
             {/* Headline */}
@@ -82,8 +82,7 @@ export function CampusesHero({ campusCount, stats }: CampusesHeroProps) {
 
             {/* Supporting Text */}
             <p className="mt-5 max-w-3xl text-lg text-muted-foreground leading-relaxed md:text-xl text-pretty">
-              Teach AI for India grows through student-led campus teams that bring practical AI learning
-              from their own communities into classrooms.
+              Students across NIAT campuses are helping bring AI learning to more classrooms. Teach AI for India grows through passionate student-led teams bringing practical AI education into government schools.
             </p>
 
             {/* CTAs */}
