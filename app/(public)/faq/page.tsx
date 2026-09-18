@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getContentBlock } from '@/lib/data/public'
-import { FAQ_FALLBACK, type FaqContent } from '@/app/(public)/content'
+import { FAQ_FALLBACK, type FaqContent, type FaqItem } from '@/app/(public)/content'
 import { FAQHero } from '@/components/marketing/faq-hero'
 import { FAQList } from '@/components/marketing/faq-list'
 import { FAQSchema } from '@/components/marketing/faq-schema'
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default async function FaqPage() {
   const cmsFaq = await getContentBlock<FaqContent>('faq', FAQ_FALLBACK)
-  
+
   // Merge items so that all categorized questions are present, while preserving any custom CMS entries
   const seen = new Set<string>()
   const items: FaqItem[] = []
