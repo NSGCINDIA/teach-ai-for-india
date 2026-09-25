@@ -16,7 +16,8 @@
   --brand-orange: #F47A20;          /* Progress, energy, accent */
   --brand-gold: #F6A500;            /* Highlights, achievement */
   --brand-warm-gold: #E7B823;       /* Secondary accent */
-  
+  --brand-teal: #1C7C74;            /* Chart accent — approved-spend bars, etc. */
+
   /* ── Surface ladder ───────────────────────────────────────────────────────
      The page is white, by choice. That settles how depth has to be built: a
      white card on a white page cannot separate itself by tone, so the work
@@ -210,6 +211,7 @@
   --color-brand-orange: var(--brand-orange);
   --color-brand-gold: var(--brand-gold);
   --color-brand-warm-gold: var(--brand-warm-gold);
+  --color-brand-teal: var(--brand-teal);
 
   /* Accessible text colours for brand-tinted surfaces — see :root above. */
   --color-ink-neutral: var(--ink-neutral);
@@ -252,7 +254,11 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
-    overflow-x: hidden;
+    /* clip, not hidden: `overflow-x: hidden` makes body a scroll container,
+       which breaks `position: sticky` for every descendant (the dashboard
+       app bar included) since sticky resolves against the nearest scrolling
+       ancestor. `clip` still stops horizontal overflow without creating one. */
+    overflow-x: clip;
     -webkit-font-smoothing: antialiased;
     font-feature-settings: 'kern' 1, 'liga' 1;
   }
