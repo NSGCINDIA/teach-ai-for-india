@@ -82,8 +82,8 @@ proxy.ts        Session refresh + route protection
 
 - Server actions: **21** files in `actions/`
 - Data readers: **29** files in `lib/data/`
-- Validation schemas: **24** files in `lib/validations/`
-- SQL migrations: **74**, latest `0069_execution_plan_single_open_plan.sql`
+- Validation schemas: **23** files in `lib/validations/`
+- SQL migrations: **75**, latest `0070_fix_volunteer_session_visibility.sql`
 
 <!-- /AUTO:repo-stats -->
 
