@@ -7,13 +7,14 @@ import {
   getCampusSchoolPipeline,
 } from '@/lib/data/campus-analytics'
 import { getSessionFunnel, getSchoolPipeline, getProgramSummary } from '@/lib/data/analytics'
-import { getFinanceSummary, getMonthlyTrend } from '@/lib/data/finance'
+import { getFinanceSummary, getMonthlyTrend, getSpendByTravelMode } from '@/lib/data/finance'
 import { formatCurrency, formatNumber } from '@/lib/format'
 import { SESSION_STATUS_META, SCHOOL_STATUS_META, SCHOOL_PIPELINE } from '@/lib/constants/status'
 import type { SessionStatus, SchoolStatus, StatusCount } from '@/types/database'
 import { MetricCard } from '@/components/shared/metric-card'
 import { StatusBreakdown, type BreakdownItem } from '@/components/analytics/status-breakdown'
 import { CampusSpendChart } from '@/components/analytics/campus-spend-chart'
+import { SpendByModeChart } from '@/components/analytics/spend-by-mode-chart'
 import { EmptyState } from '@/components/shared/states'
 import { PageHeader } from '@/components/dashboard/page-header'
 
@@ -71,10 +72,11 @@ export default async function DashboardAnalyticsPage() {
     return <EmptyState title="No campus assigned" description="Analytics need a campus to scope to." />
   }
 
-  const [scope, finance, monthly] = await Promise.all([
+  const [scope, finance, monthly, byMode] = await Promise.all([
     seesEveryCampus ? programScope() : campusScope(user.campus_id!),
     getFinanceSummary(),
     getMonthlyTrend(),
+    getSpendByTravelMode(),
   ])
 
   const sessionPct = scope.targetSessions > 0
@@ -113,7 +115,10 @@ export default async function DashboardAnalyticsPage() {
         />
       </section>
 
-      <CampusSpendChart data={monthly} />
+      <section aria-label="Spend" className="grid gap-4 lg:grid-cols-2">
+        <CampusSpendChart data={monthly} />
+        <SpendByModeChart data={byMode} />
+      </section>
 
       <section aria-label="Operational breakdowns" className="grid gap-4 lg:grid-cols-2">
         <StatusBreakdown title="Session funnel" items={orderedItems(scope.funnel, SESSION_ORDER, SESSION_STATUS_META)} />

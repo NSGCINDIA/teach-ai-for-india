@@ -154,12 +154,21 @@
   --status-completed: var(--brand-gold);
   --status-archived: #D4C4B0;       /* Warm archived */
 
-  /* Chart colors — TAI brand palette */
-  --chart-1: var(--brand-deep-maroon);
-  --chart-2: var(--brand-orange);
-  --chart-3: var(--brand-gold);
-  --chart-4: var(--success);
-  --chart-5: var(--brand-warm-gold);
+  /* Chart colors — a categorical series palette, not the raw brand swatches
+     above. Series-identity color has its own gate (fixed hue order, OKLCH
+     lightness band, chroma floor, CVD + normal-vision adjacent-pair
+     distance) that the marketing brand hex values don't clear as a group —
+     e.g. brand-orange next to brand-gold measures ΔE 10.2 for a normal-vision
+     reader, below the 15 floor. These six are brand-adjacent hues stepped to
+     clear every check (dataviz skill, six-check validator), frozen as one
+     fixed-order theme and reused everywhere a chart needs series identity
+     (see components/analytics/pie-chart.tsx, campus-spend-chart.tsx). */
+  --chart-1: #9A2030;   /* maroon */
+  --chart-2: #2A5C9A;   /* navy */
+  --chart-3: #0A9385;   /* teal */
+  --chart-4: #F47A20;   /* orange */
+  --chart-5: #0F7A45;   /* green */
+  --chart-6: #E89A00;   /* gold */
 }
 
 @theme inline {
@@ -238,6 +247,7 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
 
   /* TAI Radius Scale: 8px controls → 24px hero panels */
   --radius-sm: 0.5rem;        /* 8px — small controls, pills */
