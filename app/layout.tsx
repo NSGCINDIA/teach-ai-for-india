@@ -59,11 +59,11 @@ export const metadata: Metadata = {
     template: '%s — TEACHAIFORINDIA',
   },
   description:
-    'Building India\'s first student-led AI education movement. Applied AI literacy for government school students across Telangana & Andhra Pradesh.',
+    'AI is reaching every classroom. But not every child. Applied AI literacy for government school students across Telangana & Andhra Pradesh.',
   keywords: ['AI education', 'India', 'NGO', 'government schools', 'Telangana', 'Andhra Pradesh', 'AI literacy', 'students'],
   openGraph: {
     title: 'TEACHAIFORINDIA',
-    description: 'Building India\'s first student-led AI education movement.',
+    description: 'AI is reaching every classroom. But not every child.',
     url: siteUrl,
     siteName: 'TEACHAIFORINDIA',
     type: 'website',

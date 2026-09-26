@@ -31,7 +31,7 @@ const RICH_STORIES: RichStory[] = [
     excerpt: 'How 45 government school children created their first digital drawings using text instructions, led by NIAT × KKH student volunteers.',
     campus: 'NIAT × KKH, Hyderabad',
     date: '2026-06-15',
-    category: 'Classroom Joy',
+    category: 'CLASSROOM',
     readTime: '3 min read',
     image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg',
     author: {
@@ -52,7 +52,7 @@ const RICH_STORIES: RichStory[] = [
     excerpt: 'How local translation models helped kids in a remote school write code and launch prompts in Telugu.',
     campus: 'NIAT × NSRIT, Visakhapatnam',
     date: '2026-06-28',
-    category: 'Innovations',
+    category: 'STUDENT MOMENT',
     readTime: '4 min read',
     image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177877/DJI_20260711131020_0287_D_rvh8gg.jpg',
     author: {
@@ -73,7 +73,7 @@ const RICH_STORIES: RichStory[] = [
     excerpt: 'Karthik shares his experience of travelling 30km every weekend to setup temporary labs in rural classrooms.',
     campus: 'NIAT × CDU, Hyderabad',
     date: '2026-07-02',
-    category: 'Volunteer Journey',
+    category: 'VOLUNTEER',
     readTime: '3 min read',
     image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/WhatsApp_Image_2026-04-18_at_15.25.48_2_qd8mq3.jpg',
     author: {
@@ -94,7 +94,7 @@ const RICH_STORIES: RichStory[] = [
     excerpt: 'Volunteers host a weekend workshop where school children design village solution prototypes using AI helpers.',
     campus: 'NIAT × Aurora, Hyderabad',
     date: '2026-07-04',
-    category: 'Classroom Joy',
+    category: 'CAMPUS',
     readTime: '5 min read',
     image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177911/DJI_20260711132101_0313_D_a48glv.jpg',
     author: {
@@ -109,11 +109,59 @@ const RICH_STORIES: RichStory[] = [
       'One group designed a "Glow Path Finder" — a simple conceptual layout showing where solar lamps should be placed in dark alleyways based on input traffic indicators. Another made a simple Telugu voice chatbot that gives basic plant disease remedies.',
       'By the end of the day, these eighth and ninth graders were pitching their prototypes to our department dean. It showed that when given access, their ambition matches any private school.'
     ]
+  },
+  {
+    title: 'Why We Opened Our Lab: Principal Balaji’s Perspective',
+    excerpt: 'Headmaster at ZPH High School Sontyam discusses why practical AI literacy matters for government school students.',
+    campus: 'ZPH High School Sontyam',
+    date: '2026-07-10',
+    category: 'EDUCATOR',
+    readTime: '3 min read',
+    image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177876/DJI_20260711124202_0244_D_zgvqzo.jpg',
+    author: {
+      name: 'Balaji',
+      avatar: 'BP',
+      role: 'Principal, ZPH High School'
+    },
+    quote: 'The students showed strong interest and picked things up quickly. With proper teaching, they have clear potential to grow and perform well.',
+    fullContent: [
+      'When NIAT student volunteers first approached our school with an offer to teach applied AI, I was skeptical about whether our eighth and ninth-graders could understand such advanced tools without prerequisite coding backgrounds.',
+      'During the first session, I stood in the back of the room. I watched these NIAT students replace abstract technical jargon with real-world metaphors that connected directly with our children.',
+      'Students who usually hesitate during standard classes were raising their hands, offering creative analogies, and collaborating enthusiastically.',
+      'Partnerships like this show that public school children do not lack intellect or curiosity — they simply lack access to the right mentors.'
+    ]
+  },
+  {
+    title: '1,842 Students Reached Across Telangana and Andhra Pradesh',
+    excerpt: 'Celebrating our verified milestone of delivering practical AI workshops across 20+ government schools.',
+    campus: '9 Partner Campuses',
+    date: '2026-07-15',
+    category: 'MILESTONE',
+    readTime: '4 min read',
+    image: 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177867/IMG_20260324_121056961_prkzll.jpg',
+    author: {
+      name: 'Teach AI Network',
+      avatar: 'TN',
+      role: 'Campus Coordination Council'
+    },
+    quote: 'Every single number in our database represents a student who got the opportunity to explore AI and build with it.',
+    fullContent: [
+      'What began in March 2026 inside a single classroom at MPPS Nanakramguda has steadily expanded into nine active university chapters across two states.',
+      'Reaching 1,842 students across twenty government schools is not a victory of scale, but of dedication. Each workshop was coordinated, traveled to, and delivered by undergraduate student volunteers.',
+      'From Visakhapatnam to Warangal, from Hyderabad to Chevella, every session has proved that the future of technology education is student-led.',
+      'We look forward to opening our next fifty classrooms alongside partners, donors, and educational institutions.'
+    ]
   }
 ]
 
 function getCategoryColor(category: string) {
   switch (category) {
+    case 'STUDENT MOMENT': return 'bg-brand'
+    case 'CLASSROOM': return 'bg-brand'
+    case 'VOLUNTEER': return 'bg-brand-orange'
+    case 'EDUCATOR': return 'bg-brand-teal'
+    case 'CAMPUS': return 'bg-purple-600'
+    case 'MILESTONE': return 'bg-amber-600'
     case 'Classroom Joy': return 'bg-brand'
     case 'Volunteer Journey': return 'bg-brand-orange'
     case 'Innovations': return 'bg-brand-teal'
@@ -330,7 +378,7 @@ export function StoriesDashboard({ initialBlogs = [] }: { initialBlogs?: any[] }
                     </div>
                   </div>
                   <span className="text-xs font-bold text-brand group-hover:text-brand-orange flex items-center transition-colors">
-                    Read <ArrowRight size={12} className="ml-1 group-hover:translate-x-0.5 transition-transform" />
+                    Read Story <ArrowRight size={12} className="ml-1 group-hover:translate-x-0.5 transition-transform" />
                   </span>
                 </div>
               </article>

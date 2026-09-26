@@ -83,8 +83,8 @@ export function Navbar() {
 
   const linkClass = (href: string) =>
     cn(
-      'flex h-full items-center px-5 text-xs font-semibold uppercase tracking-wider transition-colors hover:text-brand',
-      isActive(href) ? 'text-brand' : 'text-foreground/70',
+      'flex h-full items-center px-5 text-sm font-semibold uppercase tracking-wider transition-colors hover:text-brand',
+      isActive(href) ? 'text-brand' : 'text-foreground/80',
     )
 
   return (
@@ -100,7 +100,7 @@ export function Navbar() {
       <div className="flex h-16 items-center justify-between px-5 md:px-8 lg:hidden">
         <Link
           href="/"
-          className="select-none rounded-sm text-sm font-bold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="select-none text-base font-bold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Teach AI for India — home"
         >
           TEACH <span className="text-brand">AI</span> FOR INDIA
@@ -118,7 +118,7 @@ export function Navbar() {
 
       {/* Desktop bar — links | centered wordmark | links + actions */}
       <nav
-        className="tai-container-wide hidden h-full grid-cols-[1fr_auto_1fr] items-stretch lg:grid"
+        className="tai-container-wide hidden h-full grid-cols-[1fr_auto_1fr] items-stretch lg:grid px-4 sm:px-6"
         aria-label="Primary"
       >
         <div className="flex items-stretch justify-start">
@@ -132,7 +132,7 @@ export function Navbar() {
         <div className="flex items-center justify-center px-8">
           <Link
             href="/"
-            className="select-none rounded-sm text-sm font-bold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="select-none rounded-sm text-base font-bold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Teach AI for India — home"
           >
             TEACH <span className="text-brand">AI</span> FOR INDIA

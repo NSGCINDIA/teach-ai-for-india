@@ -148,11 +148,11 @@ export interface OriginStoryContent {
 // ─── Fallbacks ───────────────────────────────────────────────────────────────
 
 export const HERO_FALLBACK: HeroContent = {
-  eyebrow: 'Student-led · AI education · India',
-  headline: "The future shouldn't\ndepend on what school\nyou go to.",
+  eyebrow: 'Student-led initiative powered by students and campus teams from NIAT',
+  headline: 'Every child deserves\na chance to build\nwith AI.',
   subheadline:
-    'We bring practical AI literacy into government-school classrooms through student-led campus teams — helping students understand what AI is, how they can use it, and how to use it responsibly.',
-  proofLine: '1,842 students addressed · 18 schools · 9 campuses',
+    'A student-led initiative powered by students and campus teams from NIAT, bringing practical AI education to classrooms in government and community schools.',
+  proofLine: '1,842 students addressed · 20+ schools · Across NIAT campuses',
 }
 
 export const MISSION_FALLBACK: MissionContent = {
@@ -171,7 +171,7 @@ export const MISSION_FALLBACK: MissionContent = {
       icon: 'Users',
       title: 'Student-led at the core',
       description:
-        'University volunteers run every session, mentoring the next generation across their own communities.',
+        'NIAT student volunteers run every session, mentoring the next generation across their own communities.',
     },
     {
       icon: 'ShieldCheck',
@@ -190,7 +190,7 @@ export const HOW_IT_WORKS_FALLBACK: HowItWorksContent = {
     },
     {
       title: 'Outreach',
-      description: 'Campus teams connect with school leaders and build lasting trust.',
+      description: 'NIAT student campus teams connect with school leaders and build lasting trust.',
     },
     {
       title: 'Approve',
@@ -198,7 +198,7 @@ export const HOW_IT_WORKS_FALLBACK: HowItWorksContent = {
     },
     {
       title: 'Deliver',
-      description: 'Volunteers run hands-on, age-appropriate AI workshops in the classroom.',
+      description: 'NIAT student volunteers run hands-on, age-appropriate AI workshops in the classroom.',
     },
     {
       title: 'Report',
@@ -211,15 +211,27 @@ export const TESTIMONIALS_FALLBACK: TestimonialsContent = {
   items: [
     {
       quote:
-        'The students showed strong interest and picked things up quickly. With proper teaching, they have clear potential to grow and perform well.',
-      name: 'Balaji',
-      role: 'Principal, ZPH High School Sontyam',
+        'Anna, can it make a picture of Allu Arjun? Can we build something like this again next week?',
+      name: 'Raju',
+      role: 'Class 7, MPPS Nandakramaguda',
     },
     {
       quote:
-        'All the volunteers did a solid job delivering the sessions clearly and effectively. The students were fully engaged and genuinely enjoyed the learning experience.',
-      name: 'Srinivas',
-      role: 'Principal, ZPH High School Pendurthi',
+        'I thought computers only worked for typing exams or games someone else made. Today I wrote three prompts myself and made a Telugu space picture.',
+      name: 'Kavitha',
+      role: 'Class 8, ZPHS Bachupally',
+    },
+    {
+      quote:
+        'When the image appeared on the screen, everyone stood up and clapped. We didn’t want the session to end.',
+      name: 'Sai',
+      role: 'Class 9, ZPH High School Pendurthi',
+    },
+    {
+      quote:
+        'The students showed strong interest and picked things up quickly. With proper teaching, they have clear potential to grow and perform well.',
+      name: 'Balaji',
+      role: 'Principal, ZPH High School Sontyam',
     },
     {
       quote:
@@ -241,59 +253,192 @@ export const PARTNERS_FALLBACK: PartnersContent = {
 
 export const FAQ_FALLBACK: FaqContent = {
   items: [
+    // General / About
     {
       question: 'What is Teach AI for India?',
       answer:
-        'We are a student-led non-profit movement bringing applied AI literacy to government school students, beginning in Telangana and Andhra Pradesh.',
+        'Teach AI for India is a student-led social initiative powered by NIAT students, bringing practical AI literacy to students in government and community schools. University students form campus chapters, undergo rigorous pedagogy training, and deliver interactive, hands-on AI workshops directly in local classrooms.',
       category: 'General',
     },
     {
-      question: 'Who can volunteer?',
+      question: 'Is this a student-led initiative?',
       answer:
-        'Trained university volunteers organised into campus teams. Each campus has a lead who coordinates outreach, scheduling, and reporting.',
-      category: 'Volunteering',
-    },
-    {
-      question: 'What topics are covered in the curriculum?',
-      answer:
-        'Our curriculum focuses on applied AI literacy: prompt engineering, creative AI tools, generative safe-use guidelines, and introduction to Python coding basics.',
+        'Yes. Teach AI for India was founded and is led by passionate NIAT students who believe that high-quality AI education should not be restricted by geography or family income. While mentored by technology professionals, our NIAT student campus teams handle outreach, curriculum facilitation, and classroom sessions.',
       category: 'General',
     },
     {
-      question: 'How do I apply as a volunteer?',
+      question: 'Why focus on AI education in government schools?',
       answer:
-        'Head to the Join page and submit an application. Tell us your preferred campus and why you want to be part of the movement — we will be in touch.',
-      category: 'Volunteering',
+        'While private schools rapidly integrate AI and computing into daily learning, government school students face a compounding opportunity gap. We teach students that AI is not an intimidating black box or just for entertainment, but a powerful creative tool they can use to solve problems in their own lives and communities.',
+      category: 'General',
     },
     {
-      question: 'What is the time commitment required?',
+      question: 'How is Teach AI for India different from typical coding programs?',
       answer:
-        'Typically 3-4 hours per week, which includes local travel to schools, classroom session delivery, and short reporting tasks.',
-      category: 'Volunteering',
+        'We do not teach abstract syntax or require expensive setups. Our curriculum focuses on applied AI literacy: understanding machine intelligence, prompt engineering, critical evaluation of AI outputs, creative problem solving, and safe technology habits, taught with relatable everyday analogies in local languages.',
+      category: 'General',
     },
     {
-      question: 'Do I need prior coding or teaching experience?',
+      question: 'Where do you currently operate?',
       answer:
-        'No. We provide comprehensive training, sandbox environments, and curriculum materials to prepare all volunteers for classroom teaching.',
-      category: 'Volunteering',
+        'Our active chapters operate primarily across Telangana and Andhra Pradesh, with teams across NIAT campuses in Hyderabad, Vijayawada, Vizag, and surrounding districts. We continue to expand as new campus chapters complete their verification and onboarding.',
+      category: 'General',
+    },
+
+    // Students
+    {
+      question: 'Who can attend Teach AI workshops?',
+      answer:
+        'Our sessions are designed primarily for middle and high school students (grades 6 through 10) in partner government and community schools. Workshops are arranged directly with school administrations during school hours or dedicated activity periods.',
+      category: 'Students',
     },
     {
-      question: 'Does it cost schools anything?',
+      question: 'Do I need my own laptop or prior coding experience?',
       answer:
-        'No. Every session and learning material is delivered entirely free of charge to partner government schools.',
-      category: 'Partnering',
+        'Not at all. You do not need any prior coding knowledge, and you do not need your own device. When schools lack computer labs, our volunteers bring demonstration devices and run collaborative offline and interactive group activities.',
+      category: 'Students',
     },
     {
-      question: 'How can our school partner with you?',
+      question: 'What will I actually learn and build in a workshop?',
       answer:
-        'Reach out through the Contact page and our outreach team will start the coordination process.',
-      category: 'Partnering',
+        'You will learn how AI models "see" and "think", how to write clear prompts to generate stories, artwork, and educational aids, how to identify AI hallucinations or biases, and how to brainstorm AI solutions for real community challenges.',
+      category: 'Students',
     },
     {
-      question: 'What infrastructure does the school need?',
+      question: 'Is there any fee or cost to attend?',
       answer:
-        'A computer lab with internet connectivity is ideal. If labs are offline or lack equipment, we coordinate with campuses to arrange offline visual setups.',
-      category: 'Partnering',
+        'No. Teach AI for India workshops, learning materials, and student guides are 100% free of cost for all participating students.',
+      category: 'Students',
+    },
+    {
+      question: 'Do students get a certificate or recognition?',
+      answer:
+        'Yes. Every student who participates in our workshop series receives a Certificate of Completion celebrating their curiosity and new foundational AI skills.',
+      category: 'Students',
+    },
+
+    // Volunteers
+    {
+      question: 'Who can volunteer with Teach AI for India?',
+      answer:
+        'NIAT students and university undergraduates who are passionate about education equity and technology. We look for individuals with empathy, strong communication skills, patience, and a willingness to commit to classroom teaching.',
+      category: 'Volunteers',
+    },
+    {
+      question: 'What is the weekly time commitment?',
+      answer:
+        'Volunteers commit approximately 3 to 4 hours per week. This includes weekend prep/sync, travel to local partner schools, interactive classroom teaching, and session feedback logging.',
+      category: 'Volunteers',
+    },
+    {
+      question: 'Do volunteers receive training before entering classrooms?',
+      answer:
+        'Yes. Every volunteer completes our specialized training module covering classroom management, age-appropriate AI analogies, interactive teaching pedagogy, and child safeguarding standards before their first school visit.',
+      category: 'Volunteers',
+    },
+    {
+      question: 'What does a volunteer actually do during a session?',
+      answer:
+        'Volunteers facilitate interactive discussions, guide students through live AI prompts and experiments, help students overcome hesitation with technology, and translate technical concepts into intuitive local language explanations.',
+      category: 'Volunteers',
+    },
+    {
+      question: 'How do campus teams work?',
+      answer:
+        'Volunteers belong to a recognized campus chapter led by a Campus Lead and Co-Leads. The campus team handles school outreach, session scheduling, teaching materials, and safety protocols under central guidelines.',
+      category: 'Volunteers',
+    },
+
+    // Schools
+    {
+      question: 'How can our school host a Teach AI workshop?',
+      answer:
+        'School headmasters, teachers, or administrators can submit an inquiry through our Contact page or reach out to our local campus outreach team. We coordinate dates, align with school timetables, and handle curriculum delivery.',
+      category: 'Schools',
+    },
+    {
+      question: 'Does it cost our school anything?',
+      answer:
+        'Zero. There are no fees for the school, students, or staff. All learning resources, printed activity sheets, and mentorship are provided completely free.',
+      category: 'Schools',
+    },
+    {
+      question: 'What infrastructure or lab setup is required?',
+      answer:
+        'A functional computer lab with internet access is ideal, but not mandatory. Our curriculum is adaptable: our volunteer teams bring laptops, offline demonstrations, and unplugged algorithmic thinking exercises when computer labs are unavailable.',
+      category: 'Schools',
+    },
+    {
+      question: 'Can teachers observe or participate in the sessions?',
+      answer:
+        'Absolutely! We strongly encourage school teachers to join, observe, and engage in the sessions. We also share teaching reference kits so teachers can continue AI discussions with students throughout the year.',
+      category: 'Schools',
+    },
+    {
+      question: 'How do you ensure student safety and classroom discipline?',
+      answer:
+        'All sessions are conducted during school-approved hours in the presence of school staff. Volunteers adhere to strict child safeguarding protocols, professional conduct guidelines, and verified identity verification.',
+      category: 'Schools',
+    },
+
+    // Parents
+    {
+      question: 'Is AI safe and age-appropriate for my child?',
+      answer:
+        'Yes. Our curriculum emphasizes digital safety, responsible AI usage, and data privacy. Students are taught to critically examine AI outputs and never share personal information online.',
+      category: 'Parents',
+    },
+    {
+      question: 'Will this interfere with my child\'s regular school studies?',
+      answer:
+        'No. Workshops are scheduled in coordination with school authorities during designated activity periods, substitution hours, or weekend community sessions so regular academic classes are never disrupted.',
+      category: 'Parents',
+    },
+    {
+      question: 'How does learning AI help my child\'s future?',
+      answer:
+        'AI is rapidly transforming every career path. By demystifying AI early, students build confidence with modern digital tools, develop logical thinking, and discover that they too can pursue careers in technology and innovation.',
+      category: 'Parents',
+    },
+
+    // Partners & CSR
+    {
+      question: 'How can corporations or foundations partner with Teach AI for India?',
+      answer:
+        'Organizations can support our movement through CSR grants, sponsoring hardware/laptops for rural schools, funding campus chapter toolkits, or engaging employees as guest industry mentors.',
+      category: 'Partners & CSR',
+    },
+    {
+      question: 'What impact metrics and reporting do you provide to partners?',
+      answer:
+        'We provide transparent, structured impact reporting including verified student attendance, pre- and post-workshop learning assessments, school feedback surveys, and verifiable classroom documentation.',
+      category: 'Partners & CSR',
+    },
+    {
+      question: 'Can our corporate volunteers participate directly?',
+      answer:
+        'Yes. We organize joint volunteering and mentorship days where corporate teams can co-facilitate workshops, share industry insights, and inspire students alongside our NIAT student campus teams.',
+      category: 'Partners & CSR',
+    },
+    {
+      question: 'How is funding utilized?',
+      answer:
+        '100% of external contributions directly support classroom delivery: student workbook printing, offline hardware kits for schools without labs, volunteer travel stipends to remote rural schools, and curriculum development.',
+      category: 'Partners & CSR',
+    },
+
+    // Funding & Privacy
+    {
+      question: 'How is Teach AI for India funded?',
+      answer:
+        'Teach AI for India operates as a grassroots student-led initiative supported by academic institutions, philanthropic partners, CSR grants, and community contributions.',
+      category: 'Funding & Privacy',
+    },
+    {
+      question: 'How do you protect student privacy and data?',
+      answer:
+        'We maintain strict student privacy standards. We do not collect personal identifying information (PII) from children, we do not require students to create third-party accounts, and all classroom photography is conducted strictly with institutional consent.',
+      category: 'Funding & Privacy',
     },
   ],
 }
@@ -316,7 +461,7 @@ export const ORIGIN_STORY_FALLBACK: OriginStoryContent = {
     eyebrow: 'Why we exist',
     headline: 'We learned something valuable. We decided to give it back.',
     body:
-      "Teach AI for India started in March 2026, inside a small group of NIAT students who wanted to give something back to their community. We weren't trying to build an organization. We were trying to answer one question: what do we actually know that's worth teaching someone else? This is the story of how we answered it, what happened in the first classroom, and why we kept going.",
+      "Teach AI for India originated from students at NIAT who wanted to give something back to their community. Today, NIAT students and campus teams contribute as active volunteers, carrying what they learn in technology into government-school classrooms. We weren't trying to build an organization — we were answering one question: what do we know that's worth sharing? This is the story of how we answered it, what happened in the first classroom, and why we kept going.",
   },
   originMoment: {
     eyebrow: 'March 2026',
@@ -348,12 +493,12 @@ export const ORIGIN_STORY_FALLBACK: OriginStoryContent = {
     eyebrow: 'How the movement runs',
     headline: "Student-led isn't a tagline. It's how the work gets done.",
     supportingLine:
-      'Finding schools, building the curriculum, running the session, improving it — every part of this is done by students, for students.',
+      'Finding schools, building the curriculum, running the session, improving it — every part of this is powered by passionate NIAT students, for students.',
     steps: [
-      { title: 'Identify a school', description: 'Students map which government schools need this the most and make the first approach.' },
+      { title: 'Identify a school', description: 'NIAT students map which government schools need this the most and make the first approach.' },
       { title: 'Build the session', description: 'Content, fellows, and cohort plans come together before anyone sets foot in a classroom.' },
-      { title: 'Get the campus ready', description: 'Principal approvals, campus permissions, transport, funding — coordinated end to end by students.' },
-      { title: 'Enter the classroom', description: 'Volunteers run the session. No script — just the plan and the room.' },
+      { title: 'Get the campus ready', description: 'Principal approvals, NIAT campus permissions, transport, funding — coordinated end to end by students.' },
+      { title: 'Enter the classroom', description: 'NIAT student volunteers run the session. No script — just the plan and the room.' },
       { title: 'Listen to students', description: "What worked. What didn't. What they actually asked for." },
       { title: 'Improve', description: 'The next session is built on what the last one taught us.' },
       { title: 'Go again', description: 'Another school. Another classroom. The loop keeps running.' },
@@ -361,7 +506,7 @@ export const ORIGIN_STORY_FALLBACK: OriginStoryContent = {
   },
   volunteerNote: {
     body:
-      "The volunteer program is still taking shape. But the idea behind it is simple: you don't join because you want NGO experience on a résumé. You join because there's something you've learned, and you want to give some of it back.",
+      "The volunteer program connects passionate NIAT students with young minds. You don't join because you want NGO experience on a résumé. You join because there's something you've learned, and you want to give some of it back.",
   },
   whyWeContinue: {
     eyebrow: 'Why we keep going',

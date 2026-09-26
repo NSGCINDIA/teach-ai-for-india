@@ -19,13 +19,13 @@ export function PageHeader({ eyebrow, title, description, children }: PageHeader
       />
       <div className="container-wide relative px-5 py-16 md:px-8 md:py-24 lg:px-16">
         <Reveal>
-          <div className="max-w-3xl">
+          <div className="max-w-4xl">
             {eyebrow && <p className="section-label text-brand">{eyebrow}</p>}
-            <h1 className="mt-3 font-display text-4xl font-extrabold tracking-tight text-balance md:text-5xl">
+            <h1 className="mt-3 font-display text-4xl font-extrabold tracking-tight text-balance md:text-5xl lg:text-6xl">
               {title}
             </h1>
             {description && (
-              <p className="mt-5 max-w-2xl text-pretty text-muted-foreground md:text-lg">{description}</p>
+              <p className="mt-5 max-w-3xl text-pretty text-muted-foreground text-lg md:text-xl leading-relaxed">{description}</p>
             )}
             {children && <div className="mt-7">{children}</div>}
           </div>

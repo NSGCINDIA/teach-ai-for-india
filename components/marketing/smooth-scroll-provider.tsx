@@ -22,9 +22,11 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     ensureGsapRegistered()
 
     const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t: number) => 1 - Math.pow(1 - t, 3),
+      duration: 0.9,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.2,
     })
 
     lenis.on('scroll', ScrollTrigger.update)
@@ -35,7 +37,13 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     gsap.ticker.add(onTick)
     gsap.ticker.lagSmoothing(0)
 
+    // Ensure ScrollTrigger recalculates after fonts/images load
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh()
+    }, 800)
+
     return () => {
+      clearTimeout(refreshTimer)
       lenis.destroy()
       gsap.ticker.remove(onTick)
     }
