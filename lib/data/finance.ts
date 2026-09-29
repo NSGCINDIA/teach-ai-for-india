@@ -1,6 +1,6 @@
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import type { ReimbursementRow, ReimbursementStatus, CampusFinanceSummary } from '@/types/database'
+import type { ReimbursementRow, ReimbursementStatus, TravelMode, CampusFinanceSummary } from '@/types/database'
 
 export type ReimbursementListItem = ReimbursementRow & {
   claimant: { id: string; full_name: string } | null
@@ -106,6 +106,32 @@ export async function getMonthlyTrend(): Promise<{ month: string; approved_total
     .select('month, approved_total')
     .order('month', { ascending: true })
   return (data as { month: string; approved_total: number }[] | null) ?? []
+}
+
+/**
+ * Approved/paid spend split by travel mode — a genuinely nominal category
+ * (swapping the order doesn't change its meaning, unlike a lifecycle stage),
+ * so it's the one figure on the analytics page suited to a pie/donut rather
+ * than an ordinal bar. RLS-scoped the same way as getFinanceSummary/
+ * getMonthlyTrend above (no explicit campus filter — the caller only ever
+ * sees rows their role can read).
+ */
+export async function getSpendByTravelMode(): Promise<{ travel_mode: TravelMode; total: number }[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('reimbursements')
+    .select('travel_mode, amount')
+    .in('status', ['approved', 'paid'])
+
+  const rows = (data as { travel_mode: TravelMode; amount: number }[] | null) ?? []
+  const totals = new Map<TravelMode, number>()
+  for (const r of rows) {
+    totals.set(r.travel_mode, (totals.get(r.travel_mode) ?? 0) + Number(r.amount || 0))
+  }
+  return [...totals.entries()]
+    .map(([travel_mode, total]) => ({ travel_mode, total }))
+    .filter((r) => r.total > 0)
+    .sort((a, b) => b.total - a.total)
 }
 
 /**
