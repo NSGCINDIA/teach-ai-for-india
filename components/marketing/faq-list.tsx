@@ -269,13 +269,13 @@ export function FAQList({ items = [] }: FaqListProps) {
                 value={`faq-item-${i}-${item.question.slice(0, 20)}`}
                 className="group border border-border bg-card/40 rounded-2xl px-5 sm:px-7 hover:bg-card hover:border-brand/30 transition-all shadow-soft duration-300"
               >
-                <AccordionTrigger className="text-left text-base sm:text-lg font-bold py-5 hover:no-underline [&[data-state=open]]:text-brand transition-colors">
-                  <span className="flex items-start sm:items-center gap-3 pr-2">
-                    <span className="inline-flex items-center justify-center size-6 rounded-lg bg-brand/10 text-brand text-xs font-semibold shrink-0 mt-0.5 sm:mt-0">
+                <AccordionTrigger className="text-left font-sans text-base sm:text-lg font-semibold py-5 hover:no-underline [&[data-state=open]]:text-brand transition-colors tracking-normal">
+                  <span className="flex items-start sm:items-center gap-3 pr-2 font-sans w-full">
+                    <span className="inline-flex items-center justify-center size-6 rounded-lg bg-brand/10 text-brand text-xs font-semibold shrink-0 mt-0.5 sm:mt-0 font-sans">
                       Q
                     </span>
-                    <span className="flex-1">{item.question}</span>
-                    <span className="hidden sm:inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground shrink-0 group-hover:bg-brand/10 group-hover:text-brand transition-colors">
+                    <span className="flex-1 font-sans text-base sm:text-lg font-semibold text-foreground tracking-normal leading-snug">{item.question}</span>
+                    <span className="hidden sm:inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground shrink-0 group-hover:bg-brand/10 group-hover:text-brand transition-colors font-sans">
                       {item.normalizedCategory}
                     </span>
                   </span>

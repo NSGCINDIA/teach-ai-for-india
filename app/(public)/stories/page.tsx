@@ -7,7 +7,6 @@ import { StoriesStudentProfiles } from '@/components/marketing/stories-student-p
 import { StoriesQuestionsSpotlight } from '@/components/marketing/stories-questions-spotlight'
 import { StoriesEducatorVoices } from '@/components/marketing/stories-educator-voices'
 import { StoriesVolunteerVoices } from '@/components/marketing/stories-volunteer-voices'
-import { StoriesCampusJourneys } from '@/components/marketing/stories-campus-journeys'
 import { StoriesGalleryWall } from '@/components/marketing/stories-gallery-wall'
 import { StoriesDayJourney } from '@/components/marketing/stories-day-journey'
 import { StoriesNumbersBridge } from '@/components/marketing/stories-numbers-bridge'
@@ -17,7 +16,7 @@ import { Reveal } from '@/components/marketing/reveal'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Stories',
+  title: 'Student Stories',
   description:
     'Every classroom has a story. Behind every number is a student who asked a question, tried something new, or discovered that AI could be something they could create with.',
 }
@@ -65,10 +64,7 @@ export default async function StoriesPage() {
       {/* 7. VOLUNTEER STORIES — STUDENTS TEACHING STUDENTS */}
       <StoriesVolunteerVoices />
 
-      {/* 8. CAMPUS STORIES — FROM CAMPUS TO CLASSROOM */}
-      <StoriesCampusJourneys />
-
-      {/* 9. PHOTO / VIDEO STORY WALL WITH LIGHTBOX */}
+      {/* 8. PHOTO / VIDEO STORY WALL WITH LIGHTBOX */}
       <StoriesGalleryWall />
 
       {/* 10. "A DAY WITH TEACH AI" — CHRONOLOGICAL CLASSROOM JOURNEY */}

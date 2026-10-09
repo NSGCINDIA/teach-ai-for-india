@@ -14,7 +14,7 @@ import { Reveal } from '@/components/marketing/reveal'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Campuses',
+  title: 'Campus Chapters',
   description:
     'Teach AI for India grows through student-led campus teams powered by NIAT students, bringing practical AI learning from their own communities into classrooms.',
 }

@@ -12,12 +12,12 @@ import type { User } from '@supabase/supabase-js'
 const LEFT_LINKS = [
   { href: '/about', label: 'About' },
   { href: '/impact', label: 'Impact' },
-  { href: '/campuses', label: 'Campuses' },
+  { href: '/campuses', label: 'Campus Chapters' },
 ] as const
 
 const RIGHT_LINKS = [
-  { href: '/stories', label: 'Stories' },
-  { href: '/faq', label: 'FAQ' },
+  { href: '/stories', label: 'Student Stories' },
+  { href: '/faq', label: 'Frequently Asked Questions' },
 ] as const
 
 const ALL_LINKS = [...LEFT_LINKS, ...RIGHT_LINKS] as const
@@ -34,11 +34,16 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80)
+    const isHome = pathname === '/'
+    const onScroll = () => {
+      // On homepage, standard navbar appears once user finishes the 2-scroll intro (~100vh)
+      const threshold = isHome ? window.innerHeight * 0.9 : 80
+      setScrolled(window.scrollY > threshold)
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [pathname])
 
   useEffect(() => {
     if (!hasAuthCookie()) return
@@ -83,14 +88,19 @@ export function Navbar() {
 
   const linkClass = (href: string) =>
     cn(
-      'flex h-full items-center px-5 text-sm font-semibold uppercase tracking-wider transition-colors hover:text-brand',
+      'flex h-full items-center px-3 xl:px-4 text-xs xl:text-sm font-semibold uppercase tracking-wider whitespace-nowrap transition-colors hover:text-brand',
       isActive(href) ? 'text-brand' : 'text-foreground/80',
     )
+
+  const isHomeCinematic = pathname === '/' && !scrolled && !open
 
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 h-16 border-b transition-[background-color,border-color,backdrop-filter] duration-300',
+        'fixed inset-x-0 top-0 z-50 h-16 border-b transition-all duration-500',
+        isHomeCinematic
+          ? 'opacity-0 pointer-events-none -translate-y-2'
+          : 'opacity-100 pointer-events-auto translate-y-0',
         scrolled || open
           ? 'border-border bg-background/90 backdrop-blur-md'
           : 'border-transparent bg-transparent',

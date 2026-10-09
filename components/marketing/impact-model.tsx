@@ -65,7 +65,7 @@ export function ImpactModel() {
                     <h3 className="mt-4 font-mono text-xs font-bold uppercase tracking-widest text-brand">
                       {s.title}
                     </h3>
-                    <p className="mt-2 font-display text-lg font-bold leading-snug text-foreground">
+                    <p className="mt-2 font-sans text-base sm:text-lg font-bold leading-snug text-foreground">
                       {s.tagline}
                     </p>
                     <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed">

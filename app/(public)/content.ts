@@ -524,3 +524,291 @@ export const ORIGIN_STORY_FALLBACK: OriginStoryContent = {
     ctaNote: "The volunteer program is still being planned. If you want to give some of what you've learned back, this is where to start.",
   },
 }
+
+// ─── Landing Page 14-Section Copy Architecture ──────────────────────────────
+
+import landingContentJson from './content.json'
+
+export interface HeroVariation {
+  id: number
+  text: string
+  status: string
+}
+
+export interface MediaSlot {
+  type: string
+  url: string
+  alt: string
+  caption: string
+  tag: string
+}
+
+export interface LandingHeroContent {
+  eyebrow: string
+  headline: string
+  subheadline: string
+  primaryCta: {
+    label: string
+    href: string
+    microcopy: string
+  }
+  secondaryCta: {
+    label: string
+    href: string
+  }
+  proofLine: string
+  coreCycle: string[]
+  headlineVariations: HeroVariation[]
+  mediaSlots: MediaSlot[]
+}
+
+export interface HumanStoryContent {
+  eyebrow: string
+  title: string
+  lead: string
+  paragraphs: string[]
+  progression: string[]
+  closingQuote: string
+  cta: {
+    label: string
+    href: string
+  }
+  photoSlot: {
+    url: string
+    alt: string
+    caption: string
+  }
+}
+
+export interface StudentProfile {
+  id: string
+  name: string
+  role: string
+  campus: string
+  studyFocus: string
+  story: string
+  quote: string
+  photoSlot: string
+  photoUrl: string
+}
+
+export interface WhoAreTheStudentsContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  profiles: StudentProfile[]
+}
+
+export interface WhyTheyTeachContrast {
+  learnTitle: string
+  learnDescription: string
+  giveTitle: string
+  giveDescription: string
+  icon: string
+}
+
+export interface WhyTheyTeachContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  contrasts: WhyTheyTeachContrast[]
+}
+
+export interface NiatRoleNode {
+  step: string
+  title: string
+  role: string
+  description: string
+  accent: string
+}
+
+export interface NiatRoleContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  nodes: NiatRoleNode[]
+  clarificationNote: string
+}
+
+export interface OperatingLoopStepItem {
+  step: string
+  name: string
+  description: string
+}
+
+export interface FourSessionJourneyItem {
+  session: string
+  title: string
+  focus: string
+  summary: string
+  outcome: string
+}
+
+export interface FromLearningToClassroomsContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  operatingLoop: OperatingLoopStepItem[]
+  fourSessionJourney: FourSessionJourneyItem[]
+}
+
+export interface ReelChapter {
+  startSec: number
+  endSec: number
+  title: string
+  location: string
+  overlay: string
+  description: string
+  quote?: string
+  image: string
+}
+
+export interface GalleryMoment {
+  id: string
+  url: string
+  title: string
+  caption: string
+  tag: string
+}
+
+export interface SeeInActionContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  videoReel: {
+    durationSec: number
+    title: string
+    chapters: ReelChapter[]
+  }
+  galleryMoments: GalleryMoment[]
+}
+
+export interface StatItem {
+  value: number
+  suffix: string
+  label: string
+  sublabel: string
+  verifyTag: string
+}
+
+export interface NumbersContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  stats: StatItem[]
+}
+
+export interface OutcomeItem {
+  id: string
+  feature: string
+  benefit: string
+  observable: string
+}
+
+export interface WhatChangesContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  outcomes: OutcomeItem[]
+}
+
+export interface StoryFieldItem {
+  id: string
+  title: string
+  school: string
+  quote: string
+  narrative: string
+  speaker: string
+  photoSlot: string
+  photoUrl: string
+}
+
+export interface StoriesFromTheFieldContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  stories: StoryFieldItem[]
+}
+
+export interface StateActiveItem {
+  name: string
+  campuses: string[]
+  reach: string
+}
+
+export interface WhereMovementIsGoingContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  statesActive: StateActiveItem[]
+  expansionGoal: string
+}
+
+export interface HelpCard {
+  id: string
+  title: string
+  category: string
+  description: string
+  icon: string
+}
+
+export interface HowOthersCanHelpContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  fundingClarification: string
+  cards: HelpCard[]
+  cta: {
+    label: string
+    href: string
+  }
+}
+
+export interface LandingFaqItem {
+  id: string
+  question: string
+  answer: string
+}
+
+export interface LandingFaqContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  items: LandingFaqItem[]
+}
+
+export interface FinalCtaContent {
+  eyebrow: string
+  title: string
+  microcopy: string
+  description: string
+  email: string
+  phone: string
+  location: string
+  promise: string
+}
+
+export interface LandingPageContent {
+  meta: {
+    title: string
+    description: string
+    coreLine: string
+  }
+  hero: LandingHeroContent
+  humanStory: HumanStoryContent
+  whoAreTheStudents: WhoAreTheStudentsContent
+  whyTheyTeach: WhyTheyTeachContent
+  niatRole: NiatRoleContent
+  fromLearningToClassrooms: FromLearningToClassroomsContent
+  seeInAction: SeeInActionContent
+  numbers: NumbersContent
+  whatChangesInAClassroom: WhatChangesContent
+  storiesFromTheField: StoriesFromTheFieldContent
+  whereMovementIsGoing: WhereMovementIsGoingContent
+  howOthersCanHelp: HowOthersCanHelpContent
+  faq: LandingFaqContent
+  finalCta: FinalCtaContent
+}
+
+export const landingContent: LandingPageContent = landingContentJson as LandingPageContent
+

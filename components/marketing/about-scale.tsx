@@ -56,7 +56,7 @@ export function AboutScale() {
                     <h3 className="mt-5 font-mono text-xs font-bold uppercase tracking-widest text-brand">
                       {pillar.title}
                     </h3>
-                    <p className="mt-2 font-display text-lg font-bold leading-snug text-foreground">
+                    <p className="mt-2 font-sans text-base sm:text-lg font-bold leading-snug text-foreground">
                       {pillar.tagline}
                     </p>
 

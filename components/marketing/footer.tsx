@@ -1,17 +1,18 @@
 import Link from 'next/link'
-import { Mail, MapPin, Phone } from 'lucide-react'
+import { Mail, Phone } from 'lucide-react'
 import { getContactInfo } from '@/lib/data/public'
+import { GraduationCapDoodle, RocketDoodle, OpenBookDoodle } from '@/components/marketing/floating-doodles'
 
 const EXPLORE_LINKS = [
   { href: '/about', label: 'About' },
   { href: '/impact', label: 'Impact' },
-  { href: '/campuses', label: 'Campuses' },
-  { href: '/stories', label: 'Stories' },
+  { href: '/campuses', label: 'Campus Chapters' },
+  { href: '/stories', label: 'Student Stories' },
   { href: '/gallery', label: 'Gallery' },
 ]
 const INVOLVED_LINKS = [
   { href: '/join', label: 'Volunteer' },
-  { href: '/faq', label: 'FAQ' },
+  { href: '/faq', label: 'Frequently Asked Questions' },
   { href: '/contact', label: 'Contact' },
   { href: '/join', label: 'Partner' },
 ]
@@ -21,8 +22,18 @@ export async function Footer() {
   const contact = await getContactInfo()
 
   return (
-    <footer className="bg-[var(--tai-ink)] text-white/70">
-      <div className="tai-container-wide px-5 pb-10 pt-20 md:px-8 lg:px-12">
+    <footer className="relative bg-[var(--tai-ink)] text-white/70 overflow-hidden">
+      {/* Decorative ambient doodles tucked into footer outer margin corners */}
+      <div className="absolute -bottom-6 left-6 pointer-events-none opacity-[0.08] select-none hidden xl:block" aria-hidden="true">
+        <GraduationCapDoodle className="size-28 text-white" />
+      </div>
+      <div className="absolute top-8 right-8 pointer-events-none opacity-[0.08] select-none hidden xl:block" aria-hidden="true">
+        <RocketDoodle className="size-28 text-white" />
+      </div>
+      <div className="absolute -bottom-6 right-1/4 pointer-events-none opacity-[0.06] select-none hidden 2xl:block" aria-hidden="true">
+        <OpenBookDoodle className="size-20 text-white" />
+      </div>
+      <div className="tai-container-wide relative z-10 px-5 pb-10 pt-20 md:px-8 lg:px-12">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <Link href="/" className="text-base font-bold uppercase tracking-wide text-white">
@@ -31,7 +42,6 @@ export async function Footer() {
             <p className="mt-4 max-w-xs text-base leading-relaxed text-white/60">
               A student-led movement powered by the NIAT community, bringing applied AI education to every classroom.
             </p>
-            <p className="mt-3 text-sm text-white/50">Based in Hyderabad, Telangana</p>
           </div>
 
           <nav aria-label="Footer — Explore">
@@ -71,17 +81,6 @@ export async function Footer() {
               <li>
                 <a href={`tel:${contact.phone.replace(/\s+/g, '')}`} className="inline-flex items-center gap-2 transition-colors hover:text-white">
                   <Phone className="size-4.5 shrink-0 text-white/40" aria-hidden /> {contact.phone}
-                </a>
-              </li>
-              <li className="inline-flex items-start gap-2">
-                <MapPin className="mt-0.5 size-4.5 shrink-0 text-white/40" aria-hidden />
-                <a
-                  href="https://maps.google.com/?q=NxtWave+of+Innovation+in+Advanced+Technologies:+NIAT+Financial+District+Nanakramguda+Telangana+500032"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="transition-colors hover:text-white"
-                >
-                  {contact.address}
                 </a>
               </li>
             </ul>

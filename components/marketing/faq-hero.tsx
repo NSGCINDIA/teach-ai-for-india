@@ -29,14 +29,14 @@ export function FAQHero() {
           {/* Eyebrow Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand mb-6 shadow-soft">
             <HelpCircle className="size-3.5" />
-            <span>Help Center & FAQ</span>
+            <span>Help Center & Frequently Asked Questions</span>
           </div>
 
           {/* Headline */}
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-[1.15] mb-6">
-            Questions?{' '}
-            <span className="bg-gradient-to-r from-brand via-brand-orange to-brand-amber bg-clip-text text-transparent">
-              Start here.
+            Frequently Asked{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8F240D] via-[#B93F12] to-[#7A0E17]">
+              Questions
             </span>
           </h1>
 

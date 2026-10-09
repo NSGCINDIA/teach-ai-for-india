@@ -59,7 +59,7 @@ export function CampusesHero({ campusCount, stats }: CampusesHeroProps) {
       <div aria-hidden className="pointer-events-none absolute inset-0 dot-grid opacity-40" />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 size-[42rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand/12 via-brand-orange/8 to-brand-teal/5 blur-3xl"
+        className="pointer-events-none absolute -top-40 left-1/2 size-[42rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand/12 via-brand-orange/8 to-brand/5 blur-3xl"
       />
 
       <div className="container-wide relative px-5 md:px-8 lg:px-16">
@@ -74,15 +74,15 @@ export function CampusesHero({ campusCount, stats }: CampusesHeroProps) {
 
             {/* Headline */}
             <h1 className="mt-5 font-display text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl text-balance">
-              <span className="text-brand">{displayCampuses} campuses.</span> One mission.{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand via-brand-orange to-brand-teal">
+              <span className="text-brand">{displayCampuses} Campus Chapters.</span> One mission.{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8F240D] via-[#B93F12] to-[#7A0E17]">
                 Thousands of possibilities.
               </span>
             </h1>
 
             {/* Supporting Text */}
             <p className="mt-5 max-w-3xl text-lg text-muted-foreground leading-relaxed md:text-xl text-pretty">
-              Students across NIAT campuses are helping bring AI learning to more classrooms. Teach AI for India grows through passionate student-led teams bringing practical AI education into government schools.
+              Students across NIAT campus chapters are helping bring AI learning to more classrooms. Teach AI for India grows through passionate student-led teams bringing practical AI education into government schools.
             </p>
 
             {/* CTAs */}

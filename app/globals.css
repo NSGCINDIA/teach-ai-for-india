@@ -783,6 +783,14 @@
   letter-spacing: normal;
 }
 
+/* Ensure accordion trigger questions use clean modern body font (DM Sans) rather than display serif */
+.tai-public [data-slot="accordion-header"],
+.tai-public [data-slot="accordion-trigger"],
+.tai-public [data-slot="accordion-item"] h3,
+.tai-public [data-slot="accordion-item"] button {
+  font-family: var(--font-body);
+}
+
 @layer utilities {
   /* ── Typography scale ── */
   .tai-text-display-xl { font-size: clamp(3.25rem, 6vw, 6.25rem); line-height: 0.96; letter-spacing: -0.02em; }

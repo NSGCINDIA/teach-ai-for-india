@@ -11,7 +11,7 @@ export function StoriesHero() {
       <div aria-hidden className="pointer-events-none absolute inset-0 dot-grid opacity-35" />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 size-[44rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand/15 via-brand-orange/10 to-brand-teal/5 blur-3xl"
+        className="pointer-events-none absolute -top-40 left-1/2 size-[44rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand/15 via-brand-orange/10 to-brand/5 blur-3xl"
       />
 
       <div className="container-wide relative px-5 md:px-8 lg:px-16">
@@ -23,14 +23,14 @@ export function StoriesHero() {
                 {/* Proofline */}
                 <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/5 px-4 py-1.5 text-xs font-semibold text-brand backdrop-blur-sm">
                   <Sparkles className="size-3.5" />
-                  <span>The Emotional Heart • Authentic Field Notes • Powered by NIAT Students</span>
+                  <span>Student Stories • Authentic Field Notes • Powered by NIAT Students</span>
                 </div>
 
                 {/* Headline */}
                 <h1 className="font-display text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl text-balance">
-                  Every classroom{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand via-brand-orange to-brand-teal">
-                    has a story.
+                  Student Stories:{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8F240D] via-[#B93F12] to-[#7A0E17]">
+                    Every Classroom Has a Voice.
                   </span>
                 </h1>
 
