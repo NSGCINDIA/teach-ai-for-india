@@ -321,7 +321,7 @@ const ROUTE_ACCESS: { prefix: string; roles: UserRole[] }[] = [
   { prefix: '/dashboard/reimbursements', roles: ['super_admin', 'campus_lead', 'outreach_lead', 'exec_lead', 'volunteer_lead', 'volunteer', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/assignments', roles: ['super_admin', 'volunteer_lead', 'volunteer'] },
   { prefix: '/dashboard/volunteers', roles: ['super_admin', 'campus_lead', 'exec_lead', 'volunteer_lead'] },
-  { prefix: '/dashboard/volunteer-applications', roles: ['super_admin', 'campus_lead', 'volunteer_lead'] },
+  { prefix: '/dashboard/volunteer-applications', roles: ['super_admin', 'campus_lead', 'volunteer_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/analytics', roles: ['super_admin', 'campus_lead', 'finance_lead', 'campus_mgmt_admin'] },
   { prefix: '/dashboard/settings', roles: ['super_admin', 'campus_lead'] },
   { prefix: '/dashboard/reports', roles: ['super_admin', 'exec_lead'] },

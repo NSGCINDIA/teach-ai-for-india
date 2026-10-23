@@ -83,7 +83,7 @@ proxy.ts        Session refresh + route protection
 - Server actions: **21** files in `actions/`
 - Data readers: **30** files in `lib/data/`
 - Validation schemas: **24** files in `lib/validations/`
-- SQL migrations: **76**, latest `0071_volunteer_application_pipeline.sql`
+- SQL migrations: **77**, latest `0072_campus_mgmt_admin_reads_applications.sql`
 
 <!-- /AUTO:repo-stats -->
 
@@ -192,7 +192,7 @@ Applied → picked up by the campus Volunteer Lead → interview scheduled
   matching campus is admin-only.
 - **Only the `volunteer_lead` of that campus acts**, through five RPCs
   (`claim_…`, `schedule_…`, `mark_volunteer_invite_sent`, `record_…_result`,
-  `finalize_…`). `campus_lead` can read but not act. Claiming is atomic
+  `finalize_…`). `campus_lead` and `campus_mgmt_admin` (0072) can read their campus but not act. Claiming is atomic
   (`UPDATE … WHERE claimed_by IS NULL`). Direct UPDATE is `super_admin` only.
 - **Emails use Nodemailer**, not Resend (`lib/email/mailer.ts`, `SMTP_*` env).
   The thank-you mail is best-effort; the lead-triggered mails (invite, selected,

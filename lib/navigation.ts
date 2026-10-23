@@ -116,6 +116,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   campus_mgmt_admin: [
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools', group: 'field' },
+    { label: 'Volunteer Applications', href: '/dashboard/volunteer-applications', icon: 'applications', group: 'people' },
     { label: 'Finance', href: '/dashboard/finance', icon: 'finance', group: 'money' },
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics', group: 'insight' },
   ],
