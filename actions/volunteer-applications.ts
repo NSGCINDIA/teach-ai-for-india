@@ -138,10 +138,11 @@ export async function recordInterviewResult(
   formData: FormData,
 ): Promise<ApplicationActionState> {
   await requireUser(PATH)
+  const rawNotes = formData.get('notes')
   const parsed = interviewResultSchema.safeParse({
     id: formData.get('id'),
     result: formData.get('result'),
-    notes: String(formData.get('notes') ?? ''),
+    notes: typeof rawNotes === 'string' ? rawNotes : '',
   })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 

@@ -37,7 +37,7 @@ const GAP_PX = 3 // surface-color gap between adjacent wedges
  * at a glance" (dataviz skill, anti-patterns). Values stay directly readable
  * in the legend rather than resting on angle judgment alone.
  */
-export function SpendByModeChart({ data }: { data: { travel_mode: TravelMode; total: number }[] }) {
+export function SpendByModeChart({ data }: Readonly<{ data: { travel_mode: TravelMode; total: number }[] }>) {
   const gradientId = useId()
   const [hovered, setHovered] = useState<number | null>(null)
 
@@ -53,12 +53,13 @@ export function SpendByModeChart({ data }: { data: { travel_mode: TravelMode; to
   }
 
   const total = data.reduce((sum, d) => sum + d.total, 0)
-  let offset = 0
   const segments = data.map((d, i) => {
     const fraction = total > 0 ? d.total / total : 0
     const length = Math.max(0, fraction * CIRCUMFERENCE - GAP_PX)
-    const dashoffset = -offset
-    offset += fraction * CIRCUMFERENCE
+    // Each wedge starts where the wedges before it end. Summed from the data
+    // rather than accumulated in a variable reassigned during render.
+    const before = data.slice(0, i).reduce((sum, p) => sum + p.total, 0)
+    const dashoffset = total > 0 ? -(before / total) * CIRCUMFERENCE : 0
     return { ...d, fraction, length, dashoffset, slot: SLOTS[i % SLOTS.length] }
   })
 

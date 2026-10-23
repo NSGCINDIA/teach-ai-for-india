@@ -29,7 +29,7 @@ function useAction(fn: ActionFn) {
   return { state, action, pending }
 }
 
-function FieldError({ state }: { state: ApplicationActionState }) {
+function FieldError({ state }: Readonly<{ state: ApplicationActionState }>) {
   if (!state.error) return null
   return <p role="alert" className="text-xs text-error">{state.error}</p>
 }
@@ -37,7 +37,7 @@ function FieldError({ state }: { state: ApplicationActionState }) {
 /** A one-button form that posts just the application id. */
 function IdButton({
   id, fn, children, variant = 'default',
-}: { id: string; fn: ActionFn; children: ReactNode; variant?: 'default' | 'outline' }) {
+}: Readonly<{ id: string; fn: ActionFn; children: ReactNode; variant?: 'default' | 'outline' }>) {
   const { state, action, pending } = useAction(fn)
   return (
     <form action={action} className="space-y-1">
@@ -51,7 +51,7 @@ function IdButton({
   )
 }
 
-function ScheduleForm({ application, submitLabel }: { application: CampusVolunteerApplication; submitLabel: string }) {
+function ScheduleForm({ application, submitLabel }: Readonly<{ application: CampusVolunteerApplication; submitLabel: string }>) {
   const { state, action, pending } = useAction(scheduleVolunteerInterview)
   const formRef = useRef<HTMLFormElement>(null)
   const id = `schedule-${application.id}`
@@ -81,7 +81,7 @@ function ScheduleForm({ application, submitLabel }: { application: CampusVolunte
   )
 }
 
-function ResultForm({ application }: { application: CampusVolunteerApplication }) {
+function ResultForm({ application }: Readonly<{ application: CampusVolunteerApplication }>) {
   const { state, action, pending } = useAction(recordInterviewResult)
   const id = `result-${application.id}`
   return (
@@ -91,11 +91,11 @@ function ResultForm({ application }: { application: CampusVolunteerApplication }
         <legend className="sr-only">Interview result</legend>
         <label className="flex items-center gap-2 text-sm">
           <input type="radio" name="result" value="selected" required defaultChecked={application.interview_result === 'selected'} />
-          Selected
+          <span>Selected</span>
         </label>
         <label className="flex items-center gap-2 text-sm">
           <input type="radio" name="result" value="rejected" defaultChecked={application.interview_result === 'rejected'} />
-          Rejected
+          <span>Rejected</span>
         </label>
       </fieldset>
       <div className="space-y-1.5">
@@ -113,7 +113,7 @@ function ResultForm({ application }: { application: CampusVolunteerApplication }
   )
 }
 
-function Step({ title, children }: { title: string; children: ReactNode }) {
+function Step({ title, children }: Readonly<{ title: string; children: ReactNode }>) {
   return (
     <div className="mt-3 rounded-lg border border-border bg-background p-3">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
@@ -126,12 +126,12 @@ export function VolunteerApplicationCard({
   application,
   canAct,
   currentUserId,
-}: {
+}: Readonly<{
   application: CampusVolunteerApplication
   /** True only for a volunteer_lead — the database refuses everyone else too. */
   canAct: boolean
   currentUserId: string
-}) {
+}>) {
   const stage = applicationStage(application)
   const meta = STAGE_META[stage]
   const mine = canAct && application.claimed_by === currentUserId

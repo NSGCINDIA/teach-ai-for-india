@@ -74,7 +74,7 @@ export default async function VolunteerApplicationsPage() {
 
 function Section({
   title, count, empty, children,
-}: { title: string; count: number; empty: string; children: React.ReactNode }) {
+}: Readonly<{ title: string; count: number; empty: string; children: React.ReactNode }>) {
   return (
     <section className="space-y-3">
       <h2 className="font-display text-sm font-semibold">

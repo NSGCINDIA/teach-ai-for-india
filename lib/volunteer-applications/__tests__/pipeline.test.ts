@@ -51,8 +51,8 @@ test('invite shows the interview time in IST', () => {
 
 test('selected email links to signup', () => {
   const mail = selectedEmail({ fullName: 'Asha Rao', signupUrl: 'https://tai.example/signup' })
-  assert.ok(mail.html.includes('https://tai.example/signup'))
-  assert.ok(mail.text.includes('https://tai.example/signup'))
+  assert.match(mail.html, /href="https:\/\/tai\.example\/signup"/)
+  assert.match(mail.text, /account: https:\/\/tai\.example\/signup$/m)
 })
 
 test('scheduleInterviewSchema reads datetime-local as IST and rejects the past', () => {
