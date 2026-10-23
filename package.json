@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --import ./scripts/test-setup.mjs --test \"lib/**/*.test.ts\"",
-    "test:coverage": "node --import ./scripts/test-setup.mjs --test --experimental-test-coverage --test-coverage-include=\"lib/**/*.ts\" --test-coverage-exclude=\"**/__tests__/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"lib/**/*.test.ts\""
+    "test:coverage": "node -e \"require('fs').mkdirSync('coverage',{recursive:true})\" && node --import ./scripts/test-setup.mjs --test --experimental-test-coverage --test-coverage-include=\"lib/**/*.ts\" --test-coverage-exclude=\"**/__tests__/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"lib/**/*.test.ts\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

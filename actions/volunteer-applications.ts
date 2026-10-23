@@ -16,7 +16,7 @@ import {
   interviewResultSchema,
   scheduleInterviewSchema,
 } from '@/lib/validations/volunteer-applications'
-import type { VolunteerApplicationRow } from '@/types/database'
+import type { UserRow, VolunteerApplicationRow } from '@/types/database'
 
 /**
  * Volunteer-application pipeline — the Volunteer Lead's side (steps 5–8).
@@ -40,6 +40,17 @@ function mailError(result: Extract<MailResult, { sent: false }>, what: string): 
     : `The ${what} could not be sent. Check the student's email address and try again.`
 }
 
+/**
+ * Every action here is the Volunteer Lead's. The RPCs enforce it too, but the two
+ * email actions send mail before any RPC runs, so the role is checked up front.
+ * Campus Leads and admins can read applications and nothing more.
+ */
+async function requireVolunteerLead(): Promise<{ user: UserRow } | { error: string }> {
+  const user = await requireUser(PATH)
+  if (user.role !== 'volunteer_lead') return { error: 'Only the Volunteer Lead can act on volunteer applications.' }
+  return { user }
+}
+
 async function loadApplication(id: string): Promise<VolunteerApplicationRow | null> {
   const supabase = await createClient()
   const { data } = await supabase.from('volunteer_applications').select('*').eq('id', id).maybeSingle()
@@ -51,7 +62,8 @@ export async function claimVolunteerApplication(
   _prev: ApplicationActionState,
   formData: FormData,
 ): Promise<ApplicationActionState> {
-  await requireUser(PATH)
+  const lead = await requireVolunteerLead()
+  if ('error' in lead) return { error: lead.error }
   const parsed = claimApplicationSchema.safeParse({ id: formData.get('id') })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
@@ -92,7 +104,8 @@ export async function scheduleVolunteerInterview(
   _prev: ApplicationActionState,
   formData: FormData,
 ): Promise<ApplicationActionState> {
-  await requireUser(PATH)
+  const lead = await requireVolunteerLead()
+  if ('error' in lead) return { error: lead.error }
   const parsed = scheduleInterviewSchema.safeParse({
     id: formData.get('id'),
     interview_at: formData.get('interview_at'),
@@ -121,7 +134,8 @@ export async function resendInterviewInvite(
   _prev: ApplicationActionState,
   formData: FormData,
 ): Promise<ApplicationActionState> {
-  await requireUser(PATH)
+  const lead = await requireVolunteerLead()
+  if ('error' in lead) return { error: lead.error }
   const parsed = applicationIdSchema.safeParse({ id: formData.get('id') })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
@@ -137,7 +151,8 @@ export async function recordInterviewResult(
   _prev: ApplicationActionState,
   formData: FormData,
 ): Promise<ApplicationActionState> {
-  await requireUser(PATH)
+  const lead = await requireVolunteerLead()
+  if ('error' in lead) return { error: lead.error }
   const rawNotes = formData.get('notes')
   const parsed = interviewResultSchema.safeParse({
     id: formData.get('id'),
@@ -168,7 +183,8 @@ export async function sendDecisionEmail(
   _prev: ApplicationActionState,
   formData: FormData,
 ): Promise<ApplicationActionState> {
-  await requireUser(PATH)
+  const lead = await requireVolunteerLead()
+  if ('error' in lead) return { error: lead.error }
   const parsed = applicationIdSchema.safeParse({ id: formData.get('id') })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
