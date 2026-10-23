@@ -269,12 +269,6 @@ function UserMenu({ user }: { user: ShellUser }) {
             Your profile
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard/settings" className="cursor-pointer">
-            <Settings className="size-4" />
-            Settings
-          </Link>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={() => setConfirmSignOut(true)}

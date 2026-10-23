@@ -2,7 +2,6 @@ import { requireAccess } from '@/lib/auth/user'
 import { roleLabel } from '@/lib/auth/roles'
 import { getCampusById } from '@/lib/data/admin'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ProfileForm } from '@/components/dashboard/profile-form'
 
 export const metadata = { title: 'Profile' }
 
@@ -37,21 +36,13 @@ export default async function DashboardProfilePage() {
         {user.niat_id && (
           <div><dt className="text-xs text-muted-foreground">NIAT ID</dt><dd className="font-medium">{user.niat_id}</dd></div>
         )}
-        {user.role === 'volunteer' && (
-          <>
-            <div><dt className="text-xs text-muted-foreground">Full name</dt><dd className="font-medium">{user.full_name}</dd></div>
-            <div><dt className="text-xs text-muted-foreground">Phone</dt><dd className="font-medium">{user.phone ?? '—'}</dd></div>
-          </>
-        )}
+        <div><dt className="text-xs text-muted-foreground">Full name</dt><dd className="font-medium">{user.full_name}</dd></div>
+        <div><dt className="text-xs text-muted-foreground">Phone</dt><dd className="font-medium">{user.phone ?? '—'}</dd></div>
       </dl>
 
-      {user.role === 'volunteer' ? (
-        <p className="text-sm text-muted-foreground">
-          Your details are managed by your campus lead. Contact them if anything needs to change.
-        </p>
-      ) : (
-        <ProfileForm user={user} />
-      )}
+      <p className="text-sm text-muted-foreground">
+        These details are read-only. Contact an administrator if anything needs to change.
+      </p>
     </div>
   )
 }
