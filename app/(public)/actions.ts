@@ -3,6 +3,9 @@
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email/resend'
+import { sendMail } from '@/lib/email/mailer'
+import { rateLimit } from '@/lib/security/rate-limit'
+import { applicationReceivedEmail } from '@/lib/email/volunteer-application-emails'
 
 /** Where form notifications are sent. Best-effort — flows succeed even if unset. */
 function getNotifyEmail(): string | null {
@@ -52,6 +55,18 @@ export async function submitVolunteerApplication(input: VolunteerInput): Promise
   } catch (err) {
     console.error('[volunteer] unexpected error:', err)
     return { ok: false, error: 'Something went wrong. Please try again in a moment.' }
+  }
+
+  // Step 3 of the volunteer pipeline: "Thanks for applying". Best-effort — the
+  // application is already saved, so a mail failure must not fail the submission.
+  // Throttled per address: this form is public, so without a cap it could be
+  // used to flood someone else's inbox.
+  try {
+    if (rateLimit(`volunteer-thanks:${data.email.toLowerCase()}`, 2, 60 * 60 * 1000).allowed) {
+      await sendMail({ to: data.email, ...applicationReceivedEmail({ fullName: data.full_name }) })
+    }
+  } catch (err) {
+    console.error('[volunteer] thank-you email failed:', err)
   }
 
   // Best-effort admin notification — never blocks a successful submission.

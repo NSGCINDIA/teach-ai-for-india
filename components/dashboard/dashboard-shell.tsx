@@ -8,7 +8,7 @@ import {
   LayoutDashboard, CalendarDays, School, ClipboardCheck, Receipt, Images,
   Building2, Users, Wallet, FileBarChart, BarChart3, FileText, Settings,
   CalendarRange, UserRoundCheck, CalendarClock, Award, ClipboardList, UserCircle,
-  BookOpen, ChevronDown,
+  BookOpen, ChevronDown, UserPlus,
   type LucideIcon,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -54,6 +54,7 @@ const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
   profile: UserCircle,
   blogs: FileText,
   blog: BookOpen,
+  applications: UserPlus,
 }
 
 const COLLAPSE_KEY = 'tai:sidebar-collapsed'

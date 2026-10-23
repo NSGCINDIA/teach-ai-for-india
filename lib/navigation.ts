@@ -11,7 +11,7 @@ export type NavIconKey =
   | 'evidence' | 'campuses' | 'volunteers' | 'finance'
   | 'reports' | 'analytics' | 'content' | 'settings'
   | 'calendar' | 'assignments' | 'availability' | 'certificates' | 'outreach' | 'profile'
-  | 'blogs' | 'blog'
+  | 'blogs' | 'blog' | 'applications'
 
 /**
  * Sidebar sections. A flat list of eleven items reads as eleven equally-weighted
@@ -53,6 +53,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Gallery', href: '/dashboard/evidence', icon: 'evidence', group: 'field' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar', group: 'field' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers', group: 'people' },
+    { label: 'Volunteer Applications', href: '/dashboard/volunteer-applications', icon: 'applications', group: 'people' },
     { label: 'Finance Analysis', href: '/dashboard/reimbursements', icon: 'finance', group: 'money' },
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics', group: 'insight' },
     { label: 'Blogs', href: '/dashboard/blogs', icon: 'blogs', group: 'insight' },
@@ -71,6 +72,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools', group: 'field' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar', group: 'field' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers', group: 'people' },
+    { label: 'Volunteer Applications', href: '/dashboard/volunteer-applications', icon: 'applications', group: 'people' },
     { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments', group: 'people' },
     { label: 'Availability', href: '/dashboard/availability', icon: 'availability', group: 'people' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance', group: 'people' },
