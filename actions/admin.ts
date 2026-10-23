@@ -195,8 +195,8 @@ export async function reviewVolunteerApplication(_prev: AdminActionState, formDa
     .eq('id', id)
     .maybeSingle()
   if (!application) return { error: 'Application not found.' }
-  if (application.status !== 'new' && application.status !== 'reviewing') {
-    return { error: 'This application has already been reviewed.' }
+  if (application.status !== 'new') {
+    return { error: 'This application has already been picked up or reviewed.' }
   }
 
   const { error } = await supabase

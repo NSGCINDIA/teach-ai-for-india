@@ -3,6 +3,9 @@
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email/resend'
+import { sendMail } from '@/lib/email/mailer'
+import { rateLimit } from '@/lib/security/rate-limit'
+import { applicationReceivedEmail } from '@/lib/email/volunteer-application-emails'
 
 /** Where form notifications are sent. Best-effort — flows succeed even if unset. */
 function getNotifyEmail(): string | null {
@@ -15,14 +18,9 @@ export type ActionResult = { ok: true } | { ok: false; error: string }
 const volunteerSchema = z.object({
   full_name: z.string().trim().min(2, 'Please enter your full name.').max(120),
   email: z.string().trim().email('Please enter a valid email address.').max(160),
-  phone: z
-    .string()
-    .trim()
-    .min(7, 'Please enter a valid phone number.')
-    .max(20)
-    .optional()
-    .or(z.literal('')),
-  campus_slug: z.string().trim().max(120).optional().or(z.literal('')),
+  phone: z.string().trim().regex(/^\d{10}$/, 'Enter a 10-digit mobile number.'),
+  // Required: the campus decides which Volunteer Lead receives the application.
+  campus_slug: z.string().trim().min(1, 'Please select your preferred campus.').max(120),
   motivation: z.string().trim().min(10, 'Tell us a little more (at least 10 characters).').max(2000),
 })
 
@@ -40,8 +38,8 @@ export async function submitVolunteerApplication(input: VolunteerInput): Promise
     const { error } = await supabase.from('volunteer_applications').insert({
       full_name: data.full_name,
       email: data.email,
-      phone: data.phone || null,
-      campus_slug: data.campus_slug || null,
+      phone: data.phone,
+      campus_slug: data.campus_slug,
       motivation: data.motivation,
       status: 'new',
     })
@@ -52,6 +50,18 @@ export async function submitVolunteerApplication(input: VolunteerInput): Promise
   } catch (err) {
     console.error('[volunteer] unexpected error:', err)
     return { ok: false, error: 'Something went wrong. Please try again in a moment.' }
+  }
+
+  // Step 3 of the volunteer pipeline: "Thanks for applying". Best-effort — the
+  // application is already saved, so a mail failure must not fail the submission.
+  // Throttled per address: this form is public, so without a cap it could be
+  // used to flood someone else's inbox.
+  try {
+    if (rateLimit(`volunteer-thanks:${data.email.toLowerCase()}`, 2, 60 * 60 * 1000).allowed) {
+      await sendMail({ to: data.email, ...applicationReceivedEmail({ fullName: data.full_name }) })
+    }
+  } catch (err) {
+    console.error('[volunteer] thank-you email failed:', err)
   }
 
   // Best-effort admin notification — never blocks a successful submission.

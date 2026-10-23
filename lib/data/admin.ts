@@ -173,7 +173,7 @@ export async function listVolunteerApplications(): Promise<VolunteerApplicationR
     const { data, error } = await supabase
       .from('volunteer_applications')
       .select('*')
-      .in('status', ['new', 'reviewing'])
+      .eq('status', 'new') // picked-up ones belong to the campus Volunteer Lead's pipeline
       .order('created_at', { ascending: true })
     if (error) {
       console.error('listVolunteerApplications failed:', error.message)

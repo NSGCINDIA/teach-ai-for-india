@@ -15,6 +15,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Node 24 runs the .ts tests natively (same as ci.yml).
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Writes coverage/lcov.info, read via sonar.javascript.lcov.reportPaths.
+      - name: Test with coverage
+        run: pnpm test:coverage
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:

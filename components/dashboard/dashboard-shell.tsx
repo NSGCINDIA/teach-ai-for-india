@@ -8,7 +8,7 @@ import {
   LayoutDashboard, CalendarDays, School, ClipboardCheck, Receipt, Images,
   Building2, Users, Wallet, FileBarChart, BarChart3, FileText, Settings,
   CalendarRange, UserRoundCheck, CalendarClock, Award, ClipboardList, UserCircle,
-  BookOpen, ChevronDown,
+  BookOpen, ChevronDown, UserPlus,
   type LucideIcon,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -54,6 +54,7 @@ const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
   profile: UserCircle,
   blogs: FileText,
   blog: BookOpen,
+  applications: UserPlus,
 }
 
 const COLLAPSE_KEY = 'tai:sidebar-collapsed'
@@ -266,12 +267,6 @@ function UserMenu({ user }: { user: ShellUser }) {
           <Link href="/dashboard/profile" className="cursor-pointer">
             <UserCircleIcon className="size-4" />
             Your profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard/settings" className="cursor-pointer">
-            <Settings className="size-4" />
-            Settings
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

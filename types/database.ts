@@ -244,7 +244,16 @@ export type VolunteerApplicationRow = {
   id: string; full_name: string; email: string; phone: string | null
   campus_slug: string | null; motivation: string | null; status: ApplicationStatus
   reviewed_by: string | null; created_at: string
+  // Hiring pipeline (0071_volunteer_application_pipeline.sql)
+  campus_id: string | null
+  claimed_by: string | null; claimed_at: string | null
+  interview_at: string | null; interview_mode: string | null; interviewer_name: string | null
+  interview_invite_sent_at: string | null
+  interview_result: VolunteerInterviewResult | null; interview_notes: string | null
+  decided_at: string | null
 }
+
+export type VolunteerInterviewResult = 'selected' | 'rejected'
 
 export type ContactMessageRow = {
   id: string; name: string; email: string; subject: string | null
@@ -429,6 +438,26 @@ export interface Database {
       campus_finance_summary: { Row: CampusFinanceSummary; Relationships: [] }
     }
     Functions: {
+      claim_volunteer_application: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
+      schedule_volunteer_interview: {
+        Args: { p_id: string; p_interview_at: string; p_interviewer: string; p_mode: string }
+        Returns: undefined
+      }
+      mark_volunteer_invite_sent: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
+      record_volunteer_interview_result: {
+        Args: { p_id: string; p_result: VolunteerInterviewResult; p_notes?: string | null }
+        Returns: undefined
+      }
+      finalize_volunteer_application: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
       change_school_status: {
         Args: { p_school_id: string; p_new_status: SchoolStatus; p_note?: string }
         Returns: undefined

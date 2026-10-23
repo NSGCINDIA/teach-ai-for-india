@@ -11,7 +11,7 @@ export type NavIconKey =
   | 'evidence' | 'campuses' | 'volunteers' | 'finance'
   | 'reports' | 'analytics' | 'content' | 'settings'
   | 'calendar' | 'assignments' | 'availability' | 'certificates' | 'outreach' | 'profile'
-  | 'blogs' | 'blog'
+  | 'blogs' | 'blog' | 'applications'
 
 /**
  * Sidebar sections. A flat list of eleven items reads as eleven equally-weighted
@@ -50,9 +50,10 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   campus_lead: [
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools', group: 'field' },
-    { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence', group: 'field' },
+    { label: 'Gallery', href: '/dashboard/evidence', icon: 'evidence', group: 'field' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar', group: 'field' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers', group: 'people' },
+    { label: 'Volunteer Applications', href: '/dashboard/volunteer-applications', icon: 'applications', group: 'people' },
     { label: 'Finance Analysis', href: '/dashboard/reimbursements', icon: 'finance', group: 'money' },
     { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics', group: 'insight' },
     { label: 'Blogs', href: '/dashboard/blogs', icon: 'blogs', group: 'insight' },
@@ -71,6 +72,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools', group: 'field' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar', group: 'field' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers', group: 'people' },
+    { label: 'Volunteer Applications', href: '/dashboard/volunteer-applications', icon: 'applications', group: 'people' },
     { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments', group: 'people' },
     { label: 'Availability', href: '/dashboard/availability', icon: 'availability', group: 'people' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance', group: 'people' },
@@ -80,7 +82,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   exec_lead: [
     OVERVIEW,
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools', group: 'field' },
-    { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence', group: 'field' },
+    { label: 'Gallery', href: '/dashboard/evidence', icon: 'evidence', group: 'field' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar', group: 'field' },
     { label: 'Reports', href: '/dashboard/reports', icon: 'reports', group: 'insight' },
     { label: 'Blogs', href: '/dashboard/blogs', icon: 'blogs', group: 'insight' },
@@ -90,7 +92,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'My Assignments', href: '/dashboard/assignments', icon: 'assignments', group: 'field' },
     { label: 'Availability', href: '/dashboard/availability', icon: 'availability', group: 'field' },
     { label: 'Attendance', href: '/dashboard/attendance', icon: 'attendance', group: 'field' },
-    { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence', group: 'field' },
+    { label: 'Gallery', href: '/dashboard/evidence', icon: 'evidence', group: 'field' },
     { label: 'Certificates', href: '/dashboard/certificates', icon: 'certificates', group: 'insight' },
     { label: 'Blogs', href: '/dashboard/blogs', icon: 'blogs', group: 'insight' },
     { label: 'Profile', href: '/dashboard/profile', icon: 'profile', group: 'account' },
@@ -99,7 +101,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     OVERVIEW,
     { label: 'Admin Panel', href: '/admin', icon: 'settings', group: 'main' },
     { label: 'Schools', href: '/dashboard/schools', icon: 'schools', group: 'field' },
-    { label: 'Evidence', href: '/dashboard/evidence', icon: 'evidence', group: 'field' },
+    { label: 'Gallery', href: '/dashboard/evidence', icon: 'evidence', group: 'field' },
     { label: 'Calendar', href: '/dashboard/calendar', icon: 'calendar', group: 'field' },
     { label: 'Volunteers', href: '/dashboard/volunteers', icon: 'volunteers', group: 'people' },
     { label: 'Assignments', href: '/dashboard/assignments', icon: 'assignments', group: 'people' },
@@ -131,7 +133,7 @@ const ADMIN_NAV: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: 'overview', group: 'main' },
   { label: 'Campuses', href: '/admin/campuses', icon: 'campuses', group: 'field' },
   { label: 'Schools', href: '/admin/schools', icon: 'schools', group: 'field' },
-  { label: 'Evidence', href: '/admin/evidence', icon: 'evidence', group: 'field' },
+  { label: 'Gallery', href: '/admin/evidence', icon: 'evidence', group: 'field' },
   { label: 'Volunteers', href: '/admin/volunteers', icon: 'volunteers', group: 'people' },
   { label: 'Finance', href: '/admin/finance', icon: 'finance', group: 'money' },
   { label: 'Reports', href: '/admin/reports', icon: 'reports', group: 'insight' },

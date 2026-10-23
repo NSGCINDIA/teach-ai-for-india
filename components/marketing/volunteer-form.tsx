@@ -23,8 +23,8 @@ import { submitVolunteerApplication } from '@/app/(public)/actions'
 const formSchema = z.object({
   full_name: z.string().trim().min(2, 'Please enter your full name.').max(120),
   email: z.string().trim().email('Please enter a valid email address.').max(160),
-  phone: z.string().trim().min(7, 'Please enter a valid phone number.').max(20),
-  campus_slug: z.string().trim().optional(),
+  phone: z.string().trim().regex(/^\d{10}$/, 'Enter a 10-digit mobile number.'),
+  campus_slug: z.string().trim().min(1, 'Please select your preferred campus.'),
   motivation: z.string().trim().min(10, 'Tell us a little more (at least 10 characters).').max(2000),
 })
 
@@ -130,10 +130,14 @@ export function VolunteerForm({ campuses }: { campuses: CampusOption[] }) {
           <Input
             id="phone"
             type="tel"
-            autoComplete="tel"
+            inputMode="numeric"
+            maxLength={10}
+            autoComplete="tel-national"
             aria-invalid={!!errors.phone}
             aria-describedby={errors.phone ? 'phone-error' : undefined}
-            {...register('phone')}
+            {...register('phone', {
+              onChange: (e) => setValue('phone', e.target.value.replaceAll(/\D/g, '').slice(0, 10)),
+            })}
           />
           {errors.phone && (
             <p id="phone-error" className="text-sm text-error">{errors.phone.message}</p>
@@ -141,8 +145,13 @@ export function VolunteerForm({ campuses }: { campuses: CampusOption[] }) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="campus_slug">Preferred campus</Label>
-          <Select value={campusValue || ''} onValueChange={(v) => setValue('campus_slug', v)}>
+          <Label htmlFor="campus_slug">
+            Preferred campus <span className="text-error">*</span>
+          </Label>
+          <Select
+            value={campusValue || ''}
+            onValueChange={(v) => setValue('campus_slug', v, { shouldValidate: true })}
+          >
             <SelectTrigger id="campus_slug" className="w-full">
               <SelectValue placeholder={campuses.length ? 'Select a campus' : 'No campuses yet'} />
             </SelectTrigger>
@@ -154,6 +163,7 @@ export function VolunteerForm({ campuses }: { campuses: CampusOption[] }) {
               ))}
             </SelectContent>
           </Select>
+          {errors.campus_slug && <p className="text-sm text-error">{errors.campus_slug.message}</p>}
         </div>
       </div>
 
