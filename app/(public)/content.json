@@ -1,0 +1,641 @@
+{
+  "meta": {
+    "title": "Teach AI for India — Student-Led AI Literacy by NIAT Students",
+    "description": "NIAT students turning what they learn into something they give back. Applied AI literacy for government school classrooms across Telangana and Andhra Pradesh.",
+    "coreLine": "Learn → Teach → Build → Lead → Pass It On."
+  },
+  "hero": {
+    "eyebrow": "Student-Led Initiative by NIAT Students",
+    "headline": "We learned it.\nWe chose to pass it on.",
+    "subheadline": "NIAT students bringing hands-on, applied AI literacy to government school classrooms across Telangana and Andhra Pradesh — because learning becomes meaningful when shared.",
+    "primaryCta": {
+      "label": "See Teach AI in Action",
+      "href": "#see-in-action",
+      "microcopy": "Meet the students and see what they're building."
+    },
+    "secondaryCta": {
+      "label": "Meet the Students",
+      "href": "#who-are-the-students"
+    },
+    "proofLine": "[VERIFY: 1,842+ students addressed · 20+ schools · 9 NIAT campus teams]",
+    "coreCycle": ["Learn", "Teach", "Build", "Lead", "Pass It On"],
+    "headlineVariations": [
+      { "id": 1, "text": "We learned it. We chose to pass it on.", "status": "selected" },
+      { "id": 2, "text": "From what we learn, to what we give back.", "status": "alternative" },
+      { "id": 3, "text": "Learning AI. Teaching India.", "status": "alternative" }
+    ],
+    "mediaSlots": [
+      {
+        "type": "photo",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1400/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg",
+        "alt": "[REAL PHOTO: NIAT students preparing a government school classroom at ZPHS Bachupally for their first interactive AI session]",
+        "caption": "ZPHS Bachupally · Before the first prompt",
+        "tag": "Fig. 01 — Classroom Setup"
+      },
+      {
+        "type": "photo",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1400/v1784177867/IMG_20260324_121056961_prkzll.jpg",
+        "alt": "[REAL PHOTO: Government school students at MPPS Nandakramaguda interacting with an AI prompt interface on a shared tablet]",
+        "caption": "MPPS Nandakramaguda · The first classroom",
+        "tag": "Fig. 02 — Hands-on Prompting"
+      },
+      {
+        "type": "photo",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1400/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg",
+        "alt": "[REAL PHOTO: A student writing prompts in Telugu during an interactive session]",
+        "caption": "NIAT × Aurora · Bilingual Prompt Engineering",
+        "tag": "Fig. 03 — Local Language AI"
+      },
+      {
+        "type": "photo",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1400/v1784177911/DJI_20260711132101_0313_D_a48glv.jpg",
+        "alt": "[REAL PHOTO: Government school students asking questions to NIAT student volunteers after the session bell]",
+        "caption": "MPPS Nandakramaguda · After the bell rang",
+        "tag": "Fig. 04 — The Questions"
+      }
+    ]
+  },
+  "humanStory": {
+    "eyebrow": "The Human Story",
+    "title": "We saw the gap firsthand. So we packed our tablets and walked into a classroom.",
+    "lead": "This didn't begin as an NGO proposal or a corporate mandate. It began inside college hostel rooms and lab benches at NIAT, among students who were learning the most transformative technology of our time — and realized almost nobody was sharing it with the classrooms down the road.",
+    "paragraphs": [
+      "Every day at NIAT, we write code, fine-tune models, and experiment with generative tools. We see where the world is racing. But when we looked outside our campus gates, we saw government school students who had only ever seen a computer used for typing tests or teacher spreadsheets.",
+      "The divide wasn't about intelligence — these kids are sharp, inquisitive, and quick to grasp ideas. The divide was pure, arbitrary access. Private schools were integrating AI copilots into 6th grade, while rural and community schools didn't have anyone to show them what an algorithm actually does.",
+      "We realized tutoring textbook physics or math was already happening. But almost no one was demystifying AI for kids who needed it most. We decided to take what we were learning inside NIAT and turn it into something we could pass forward."
+    ],
+    "progression": [
+      "Students learn tech at NIAT",
+      "Gain real exposure",
+      "Realize access is unequal",
+      "Decide to share what they know",
+      "Pass it on"
+    ],
+    "closingQuote": "Learning becomes more meaningful when passed forward.",
+    "cta": {
+      "label": "Meet the Students",
+      "href": "#who-are-the-students"
+    },
+    "photoSlot": {
+      "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg",
+      "alt": "[REAL PHOTO: NIAT student volunteers sitting on classroom benches with government school students, reviewing prompts]",
+      "caption": "NIAT student volunteers sitting side-by-side with middle-school students at ZPHS Bachupally."
+    }
+  },
+  "whoAreTheStudents": {
+    "eyebrow": "Who Are the Students",
+    "title": "Undergraduates by day. Classroom mentors on weekends.",
+    "subtitle": "Teach AI for India is run entirely by NIAT students across campuses in Telangana and Andhra Pradesh. Meet a few of the campus coordinators and volunteers bringing AI to life.",
+    "profiles": [
+      {
+        "id": "student-1",
+        "name": "[VERIFY: Sneha Reddy]",
+        "role": "Chapter Lead & Curriculum Facilitator",
+        "campus": "NIAT Hyderabad (KKH Campus)",
+        "studyFocus": "Full-Stack Development & Applied AI",
+        "story": "Guides 15 campus volunteers each week. Specializes in translating machine learning fundamentals into intuitive Telugu analogies.",
+        "quote": "\"When a 7th grader realizes the computer responds to her thoughts, her entire posture changes.\"",
+        "photoSlot": "[REAL PHOTO: Sneha Reddy facilitating at ZPHS Bachupally]",
+        "photoUrl": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177876/DJI_20260711124202_0244_D_zgvqzo.jpg"
+      },
+      {
+        "id": "student-2",
+        "name": "[VERIFY: Ravi Teja]",
+        "role": "Outreach & School Relations Coordinator",
+        "campus": "NIAT Visakhapatnam (NSRIT Campus)",
+        "studyFocus": "Cloud Infrastructure & Data Systems",
+        "story": "Visits rural headmasters across Vizag district to schedule free workshop slots and set up mobile demonstration labs.",
+        "quote": "\"Headmasters are often skeptical until they see our students leave with working prompts they created themselves.\"",
+        "photoSlot": "[REAL PHOTO: Ravi Teja meeting with school principal]",
+        "photoUrl": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177877/DJI_20260711131020_0287_D_rvh8gg.jpg"
+      },
+      {
+        "id": "student-3",
+        "name": "[VERIFY: Karthik Mohan]",
+        "role": "Session Lead & Tablet Lab Manager",
+        "campus": "NIAT Vijayawada (CDU Campus)",
+        "studyFocus": "AI Systems & Generative Media",
+        "story": "Manages offline cache kits and shared tablets so sessions run smoothly even in schools with zero broadband connectivity.",
+        "quote": "\"We carry our own mobile hotspots and battery packs. A school's lack of Wi-Fi should never stop a child from exploring AI.\"",
+        "photoSlot": "[REAL PHOTO: Karthik Mohan setting up tablets]",
+        "photoUrl": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177867/IMG_20260324_121056961_prkzll.jpg"
+      },
+      {
+        "id": "student-4",
+        "name": "[VERIFY: Ananya Sharma]",
+        "role": "Curriculum Co-Lead & Ethics Facilitator",
+        "campus": "NIAT Hyderabad (Aurora Campus)",
+        "studyFocus": "Software Engineering & Responsible AI",
+        "story": "Designs the 'Session 3: AI Safety & Ethics' module, teaching students how to spot deepfakes and identify biased outputs.",
+        "quote": "\"Teaching safety isn't about scaring kids — it's about making them discerning, confident digital citizens.\"",
+        "photoSlot": "[REAL PHOTO: Ananya Sharma explaining safety concepts on blackboard]",
+        "photoUrl": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg"
+      },
+      {
+        "id": "student-5",
+        "name": "[VERIFY: Ahladini Sindhu Sri]",
+        "role": "Rural School Liaison & Logistics Lead",
+        "campus": "NIAT Chevella Campus",
+        "studyFocus": "Frontend Systems & UI/UX",
+        "story": "Coordinates transport and logistics to bring student volunteers into remote mandal schools across Rangareddy district.",
+        "quote": "\"The warmest welcomes come from the schools furthest from the city highway.\"",
+        "photoSlot": "[REAL PHOTO: Ahladini Sindhu Sri on campus]",
+        "photoUrl": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784178443/motion_photo_8450246088682134754_gtddpq.jpg"
+      },
+      {
+        "id": "student-6",
+        "name": "[VERIFY: Jahnavi Chandra]",
+        "role": "Classroom Facilitator & Student Mentor",
+        "campus": "NIAT Guntur (CIET Campus)",
+        "studyFocus": "Full-Stack Development",
+        "story": "Pairs one-on-one with students who feel nervous around touchscreens, building their confidence prompt by prompt.",
+        "quote": "\"When they see an elder college sister coding and teaching, girls in the back row immediately move to the front.\"",
+        "photoSlot": "[REAL PHOTO: Jahnavi Chandra mentoring a student]",
+        "photoUrl": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177911/DJI_20260711132101_0313_D_a48glv.jpg"
+      }
+    ]
+  },
+  "whyTheyTeach": {
+    "eyebrow": "Why They Teach",
+    "title": "What we learn at NIAT. What we chose to give back.",
+    "subtitle": "Technical education is often treated as a private asset for personal career progression. NIAT students choose to view it as a shared responsibility.",
+    "contrasts": [
+      {
+        "learnTitle": "What We Learn at NIAT",
+        "learnDescription": "Advanced algorithms, deep learning, prompt architecture, and enterprise software engineering.",
+        "giveTitle": "What We Choose to Give Back",
+        "giveDescription": "Demystifying tech fear so a 7th grader in a village school can prompt in Telugu and realize AI is accessible to them too.",
+        "icon": "Cpu"
+      },
+      {
+        "learnTitle": "What We Learn at NIAT",
+        "learnDescription": "Building production software, solving complex bugs, and mastering cutting-edge toolchains.",
+        "giveTitle": "What We Choose to Give Back",
+        "giveDescription": "Hands-on, unplugged exercises and collaborative tablet sessions that turn passive observers into active builders.",
+        "icon": "Code"
+      },
+      {
+        "learnTitle": "What We Learn at NIAT",
+        "learnDescription": "Navigating modern digital ecosystems, professional career paths, and industry possibilities.",
+        "giveTitle": "What We Choose to Give Back",
+        "giveDescription": "Being relatable mentors from similar backgrounds, showing kids what's possible after 10th grade and inspiring tech dreams.",
+        "icon": "Users"
+      }
+    ]
+  },
+  "niatRole": {
+    "eyebrow": "The Relationship",
+    "title": "NIAT's Role: The Environment, Not the Owner.",
+    "subtitle": "Teach AI for India is student-built, student-led, and community-driven. NIAT provides the rigorous tech environment where students learn; TAI is what the students chose to create.",
+    "nodes": [
+      {
+        "step": "01",
+        "title": "NIAT",
+        "role": "The Learning Environment",
+        "description": "Provides the curriculum, coding ecosystem, and technical environment where university students develop modern AI proficiency.",
+        "accent": "border-brand/30 bg-brand/5 text-brand"
+      },
+      {
+        "step": "02",
+        "title": "The Students",
+        "role": "The Initiative Creators",
+        "description": "NIAT students voluntarily unite, design classroom pedagogy, map government schools, and commit their weekends to teaching.",
+        "accent": "border-brand-orange/30 bg-brand-orange/5 text-brand-orange"
+      },
+      {
+        "step": "03",
+        "title": "Teach AI for India",
+        "role": "The Classroom Vehicle",
+        "description": "The student-led movement that brings structured four-session AI workshops into government school classrooms.",
+        "accent": "border-brand-gold/30 bg-brand-gold/5 text-brand-gold"
+      },
+      {
+        "step": "04",
+        "title": "Partners & Ecosystem",
+        "role": "Capacity & Reach",
+        "description": "Schools, educators, institutions, and supporters who provide classroom access, hardware kits, and mentorship to scale the work.",
+        "accent": "border-emerald-600/30 bg-emerald-600/5 text-emerald-600"
+      }
+    ],
+    "clarificationNote": "Teach AI for India is an independent student-led social initiative powered by NIAT student volunteers. NIAT is the academic and technical training ground that equips students with tech capabilities; TAI is an organic student response to educational inequality."
+  },
+  "fromLearningToClassrooms": {
+    "eyebrow": "From Learning to Classrooms",
+    "title": "How the work actually reaches a child.",
+    "subtitle": "A disciplined, student-run operational loop combined with a structured four-session school curriculum.",
+    "operatingLoop": [
+      {
+        "step": "01",
+        "name": "Identify & Connect",
+        "description": "Student outreach leads map government schools in their district, meet with the headmaster, and secure classroom time slots."
+      },
+      {
+        "step": "02",
+        "name": "Prepare & Train",
+        "description": "Volunteers rehearse age-appropriate analogies, prepare bilingual prompt sheets in Telugu & English, and test offline demo kits."
+      },
+      {
+        "step": "03",
+        "name": "Enter the Classroom",
+        "description": "Student teams arrive with shared tablets and demo setups, guiding students through active, screen-shared experimentation."
+      },
+      {
+        "step": "04",
+        "name": "Listen & Document",
+        "description": "Every question, student artwork, and teacher reflection is logged in verified session reports with signed attendance."
+      },
+      {
+        "step": "05",
+        "name": "Refine & Loop",
+        "description": "Learnings from one classroom directly improve the next session across all 9 collegiate campus chapters."
+      }
+    ],
+    "fourSessionJourney": [
+      {
+        "session": "Session 1",
+        "title": "AI Awareness",
+        "focus": "Demystifying the machine",
+        "summary": "What is AI, where does it live, and how is it different from normal software? Separating myth from reality through everyday analogies.",
+        "outcome": "Students understand that AI learns from examples and is built by people, not magic."
+      },
+      {
+        "session": "Session 2",
+        "title": "AI Conversations & Prompt Engineering",
+        "focus": "Hands-on prompting in local languages",
+        "summary": "Writing descriptive prompts in Telugu and English. Exploring how clarity, detail, and context shape generated images and text.",
+        "outcome": "Every student creates at least two original visual generations using their own ideas."
+      },
+      {
+        "session": "Session 3",
+        "title": "AI Safety, Ethics & Future Careers",
+        "focus": "Critical evaluation & digital responsibility",
+        "summary": "Spotting AI hallucinations, understanding data privacy, recognizing deepfakes, and discovering careers in tech.",
+        "outcome": "Students develop critical thinking to question AI outputs rather than believing everything on screen."
+      },
+      {
+        "session": "Session 4",
+        "title": "Using AI for Building & Problem Solving",
+        "focus": "Solving community challenges",
+        "summary": "Students work in small teams to brainstorm how AI can solve real issues in their school, agriculture, or village health.",
+        "outcome": "Teams present their AI problem-solving concepts and receive Certificate of Completion."
+      }
+    ]
+  },
+  "seeInAction": {
+    "eyebrow": "See Teach AI in Action",
+    "title": "Real classrooms. Real moments. Real questions.",
+    "subtitle": "We prioritize raw field footage and authentic session moments over promotional graphics. Here is what happens when students take the tablet.",
+    "videoReel": {
+      "durationSec": 45,
+      "title": "45-Second Field Reel: Inside a Government School Session",
+      "chapters": [
+        {
+          "startSec": 0,
+          "endSec": 8,
+          "title": "The Arrival",
+          "location": "ZPHS Bachupally, Medchal-Malkajgiri",
+          "overlay": "08:45 AM · The Morning Classroom",
+          "description": "NIAT volunteers arrive with tablets and mobile hotspots. High school students gather with curiosity.",
+          "image": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg"
+        },
+        {
+          "startSec": 8,
+          "endSec": 18,
+          "title": "First Prompts",
+          "location": "Shared Tablet Pairs",
+          "overlay": "09:15 AM · Breaking the Ice",
+          "description": "Students take turns typing in Telugu: 'Can it make a space rocket over Charminar?'",
+          "image": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg"
+        },
+        {
+          "startSec": 18,
+          "endSec": 30,
+          "title": "The Click Moment",
+          "location": "MPPS Nandakramaguda",
+          "overlay": "09:40 AM · The Classroom Errupts",
+          "description": "The generated artwork appears. Hesitation turns into cheers, laughter, and a dozen waving hands.",
+          "quote": "\"Anna, it actually understood what we asked! The words became a picture!\"",
+          "image": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177867/IMG_20260324_121056961_prkzll.jpg"
+        },
+        {
+          "startSec": 30,
+          "endSec": 45,
+          "title": "The Questions That Linger",
+          "location": "Post-Session Huddle",
+          "overlay": "10:15 AM · After the Final Bell",
+          "description": "Class ends, but nobody leaves. Students cluster around college volunteers asking about engineering careers.",
+          "quote": "\"Anna, when are you coming again? Can we build something next week?\"",
+          "image": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1200/v1784177911/DJI_20260711132101_0313_D_a48glv.jpg"
+        }
+      ]
+    },
+    "galleryMoments": [
+      {
+        "id": "gal-1",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg",
+        "title": "ZPHS Bachupally",
+        "caption": "Students crowded around a volunteer to test their first descriptive prompt.",
+        "tag": "Prompting"
+      },
+      {
+        "id": "gal-2",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177877/DJI_20260711131020_0287_D_rvh8gg.jpg",
+        "title": "NIAT × CDU",
+        "caption": "Volunteers guiding middle-school students through tablet-based creative exercises.",
+        "tag": "Hands-On"
+      },
+      {
+        "id": "gal-3",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg",
+        "title": "NIAT × Aurora",
+        "caption": "A 9th-grade student formulating a prompt in Telugu script.",
+        "tag": "Bilingual AI"
+      },
+      {
+        "id": "gal-4",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177867/IMG_20260324_121056961_prkzll.jpg",
+        "title": "MPPS Nandakramaguda",
+        "caption": "The room going quiet right as an AI model generates an image from student words.",
+        "tag": "First Output"
+      },
+      {
+        "id": "gal-5",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784178443/motion_photo_8450246088682134754_gtddpq.jpg",
+        "title": "NIAT × Chevella",
+        "caption": "Volunteer squad setting up power extensions and offline materials in a rural classroom.",
+        "tag": "Rural Outreach"
+      },
+      {
+        "id": "gal-6",
+        "url": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177911/DJI_20260711132101_0313_D_a48glv.jpg",
+        "title": "After-Session Discussion",
+        "caption": "Students asking volunteers how software models are trained and how to learn coding.",
+        "tag": "Mentorship"
+      }
+    ]
+  },
+  "numbers": {
+    "eyebrow": "The Numbers Behind the Work",
+    "title": "Every number is a student who got to touch AI.",
+    "subtitle": "Documented, volunteer-led sessions verified through signed school attendance logs and photo records.",
+    "stats": [
+      {
+        "value": 1842,
+        "suffix": "+",
+        "label": "Students Addressed",
+        "sublabel": "Hands-on classroom sessions",
+        "verifyTag": "[VERIFY: 1,842+ students]"
+      },
+      {
+        "value": 20,
+        "suffix": "+",
+        "label": "Government Schools",
+        "sublabel": "Across Telangana & Andhra Pradesh",
+        "verifyTag": "[VERIFY: 20+ schools]"
+      },
+      {
+        "value": 9,
+        "suffix": "",
+        "label": "Campus Chapters",
+        "sublabel": "Active NIAT collegiate teams",
+        "verifyTag": "[VERIFY: 9 campus teams]"
+      },
+      {
+        "value": 35,
+        "suffix": "+",
+        "label": "Sessions Delivered",
+        "sublabel": "Verified & documented",
+        "verifyTag": "[VERIFY: 35+ sessions]"
+      },
+      {
+        "value": 120,
+        "suffix": "+",
+        "label": "NIAT Volunteers",
+        "sublabel": "Undergraduate student mentors",
+        "verifyTag": "[VERIFY: 120+ volunteers]"
+      },
+      {
+        "value": 2,
+        "suffix": "",
+        "label": "States Active",
+        "sublabel": "Telangana & Andhra Pradesh",
+        "verifyTag": "[VERIFY: 2 states]"
+      }
+    ]
+  },
+  "whatChangesInAClassroom": {
+    "eyebrow": "Observable Outcomes",
+    "title": "What actually changes in a classroom?",
+    "subtitle": "We convert every session feature into an observable outcome — putting the student first, before the organization.",
+    "outcomes": [
+      {
+        "id": "outcome-1",
+        "feature": "Hands-on tablet workshops instead of blackboard lectures",
+        "benefit": "so students can touch the tools, write prompts directly, and see their own ideas materialize on screen.",
+        "observable": "Students overcome technology hesitation within the first 15 minutes."
+      },
+      {
+        "id": "outcome-2",
+        "feature": "Bilingual prompt instruction in Telugu and English",
+        "benefit": "so students can think, experiment, and create in the mother tongue they feel most natural and confident in.",
+        "observable": "Over 70% of first prompts are formulated in Telugu before students try English variations."
+      },
+      {
+        "id": "outcome-3",
+        "feature": "Practical lessons on AI hallucinations and biases",
+        "benefit": "so students can question computer outputs rather than treating digital screens as infallible sources of truth.",
+        "observable": "Students actively challenge incorrect AI answers in classroom fact-check exercises."
+      },
+      {
+        "id": "outcome-4",
+        "feature": "College-age mentors from nearby campuses",
+        "benefit": "so students can see relatable role models and ask honest questions about college, coding, and technology careers.",
+        "observable": "Students stay behind after the bell to ask about high-school subject streams."
+      },
+      {
+        "id": "outcome-5",
+        "feature": "Small-group community problem-solving activities",
+        "benefit": "so students can discover that technology is a creative problem-solving tool for their own village or neighbourhood.",
+        "observable": "Teams propose ideas ranging from crop pest scanners to bilingual exam helpers."
+      },
+      {
+        "id": "outcome-6",
+        "feature": "Permanent printed prompt guides and student workbooks",
+        "benefit": "so students can revisit prompt structures, share concepts with siblings, and continue learning after volunteers leave.",
+        "observable": "Teachers report students referring to workbooks during subsequent computer lab hours."
+      }
+    ]
+  },
+  "storiesFromTheField": {
+    "eyebrow": "Stories From the Field",
+    "title": "Three moments that shaped this movement.",
+    "subtitle": "Unrehearsed moments from actual classrooms that showed us why this work cannot wait.",
+    "stories": [
+      {
+        "id": "field-1",
+        "title": "The Allu Arjun Moment",
+        "school": "MPPS Nandakramaguda, Rangareddy District",
+        "quote": "\"Anna, can it make a picture of Allu Arjun?\"",
+        "narrative": "The room had started silent. Thirty 7th graders sat stiffly, afraid that touching the tablets might break them. Then one student broke the ice with a grin. The NIAT volunteer didn't redirect him to a curriculum slide; he asked: 'What is he wearing? Where is he standing? What color is the sky?' In ten minutes, the entire room was shouting descriptive keywords. When the generated portrait appeared, thirty kids leaped to their feet. In that single moment, technology transformed from an intimidating machine into a canvas for their own imagination.",
+        "speaker": "Raju, Class 7 Student",
+        "photoSlot": "[REAL PHOTO: Students celebrating an image prompt output]",
+        "photoUrl": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/IMG-20260406-WA0007_3_hboy0k.jpg"
+      },
+      {
+        "id": "field-2",
+        "title": "Prompts in Our Mother Tongue",
+        "school": "ZPHS Bachupally, Medchal-Malkajgiri",
+        "quote": "\"I thought computers only worked for people who speak fluent English.\"",
+        "narrative": "Kavitha had always felt left out during computer periods because software menus were in English. When our volunteers demonstrated that prompt models understand Telugu nuance — from describing a village harvest festival to local mythological tales — she spent thirty minutes crafting a prompt about a girl flying a kite over Telangana paddy fields. Seeing her native language command high-level machine outputs altered how she viewed her own capability.",
+        "speaker": "Kavitha, Class 8 Student",
+        "photoSlot": "[REAL PHOTO: Student taking notes in bilingual workbook]",
+        "photoUrl": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177864/WhatsApp_Image_2026-04-18_at_14.46.43_vtswq0.jpg"
+      },
+      {
+        "id": "field-3",
+        "title": "The Headmaster's Verdict",
+        "school": "ZPH High School Sontyam, Visakhapatnam",
+        "quote": "\"Our children have intelligence. What they lack is exposure. You gave them exposure.\"",
+        "narrative": "Headmaster Balaji had seen many external visitors deliver one-off motivational speeches that left no lasting trace. What surprised him was seeing college students sit beside kids on benches, work through four consecutive structured sessions, and leave behind functional workbooks. 'They didn't lecture from a podium,' he said. 'They gave each child the tablet and waited patiently until the child figured it out.'",
+        "speaker": "Balaji, School Headmaster",
+        "photoSlot": "[REAL PHOTO: Headmaster observing classroom engagement]",
+        "photoUrl": "https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_800/v1784177876/DJI_20260711124202_0244_D_zgvqzo.jpg"
+      }
+    ]
+  },
+  "whereMovementIsGoing": {
+    "eyebrow": "Expansion & Scale",
+    "title": "From 1 classroom to 9 campuses — and beyond.",
+    "subtitle": "NIAT student chapters are active across Telangana and Andhra Pradesh, with new campus chapters currently completing orientation.",
+    "statesActive": [
+      {
+        "name": "Telangana",
+        "campuses": ["NIAT Hyderabad (KKH)", "NIAT Hyderabad (CDU)", "NIAT Hyderabad (Aurora)", "NIAT Hyderabad (MRV)", "NIAT Chevella"],
+        "reach": "Hyderabad, Medchal-Malkajgiri, Rangareddy, and peri-urban districts"
+      },
+      {
+        "name": "Andhra Pradesh",
+        "campuses": ["NIAT Visakhapatnam (NSRIT)", "NIAT Vijayawada (NRI)", "NIAT Guntur (CIET)", "NIAT Kadapa (Annamacharya)"],
+        "reach": "Visakhapatnam, Krishna, Guntur, and Rayalaseema districts"
+      }
+    ],
+    "expansionGoal": "Scaling the student-led model to 50+ government schools across 5 southern districts in the upcoming academic cycle."
+  },
+  "howOthersCanHelp": {
+    "eyebrow": "How Others Can Help",
+    "title": "Nine ways to increase our capacity.",
+    "subtitle": "Money is one option among many, not the identity of this work. We look for collaborators who can open school doors, provide devices, offer pedagogical feedback, and mentor students.",
+    "fundingClarification": "Financial support is welcomed when relevant — strictly to cover student workbooks, tablet batteries, and rural travel stipends. But access, devices, and educator guidance are equally critical.",
+    "cards": [
+      {
+        "id": "help-school-access",
+        "title": "School Access",
+        "category": "Facilitation",
+        "description": "Connect our campus teams with government schools, district education officers, or headmasters in your region.",
+        "icon": "School"
+      },
+      {
+        "id": "help-curriculum",
+        "title": "Curriculum Expertise",
+        "category": "Pedagogy",
+        "description": "Educators, linguists, and researchers who can review our bilingual worksheets, child safety frameworks, and analogies.",
+        "icon": "BookOpen"
+      },
+      {
+        "id": "help-tech",
+        "title": "Technology & Devices",
+        "category": "Hardware",
+        "description": "Provide refurbished tablets, laptops, demo monitors, or portable Wi-Fi dongles for volunteer classroom kits.",
+        "icon": "Tablet"
+      },
+      {
+        "id": "help-mentorship",
+        "title": "Guest Mentorship",
+        "category": "Role Models",
+        "description": "Engineers, data scientists, and design professionals joining as weekend guest speakers alongside NIAT student leads.",
+        "icon": "Sparkles"
+      },
+      {
+        "id": "help-institutional",
+        "title": "Institutional Guidance",
+        "category": "Advisory",
+        "description": "Academic bodies and education NGOs helping guide long-term learning outcomes and research assessment.",
+        "icon": "GraduationCap"
+      },
+      {
+        "id": "help-volunteer-dev",
+        "title": "Volunteer Development",
+        "category": "Training",
+        "description": "Workshops and training materials on classroom management, child safeguarding, and active listening for our collegiate volunteers.",
+        "icon": "Users"
+      },
+      {
+        "id": "help-infrastructure",
+        "title": "Infrastructure Support",
+        "category": "Logistics",
+        "description": "Transport support or community lab spaces for student volunteers traveling to remote mandal schools.",
+        "icon": "Truck"
+      },
+      {
+        "id": "help-strategic",
+        "title": "Strategic Partnerships",
+        "category": "Collegiate Growth",
+        "description": "Colleges and universities interested in supporting their own student bodies in setting up collegiate TAI chapters.",
+        "icon": "Handshake"
+      },
+      {
+        "id": "help-funding",
+        "title": "Program Funding",
+        "category": "Sponsorship",
+        "description": "Underwrite student workbook printing costs, hardware maintenance, and volunteer travel stipends for rural school visits.",
+        "icon": "Heart"
+      }
+    ],
+    "cta": {
+      "label": "Explore a Partnership",
+      "href": "#start-a-conversation"
+    }
+  },
+  "faq": {
+    "eyebrow": "Frequently Asked Questions",
+    "title": "Clear answers to essential questions.",
+    "subtitle": "Everything you need to know about the student-led model, NIAT's role, and how we operate in schools.",
+    "items": [
+      {
+        "id": "faq-1",
+        "question": "Who is behind Teach AI for India?",
+        "answer": "Teach AI for India is founded, organized, and delivered by undergraduate students at NIAT. College students form campus chapters, design bilingual session plans, coordinate with local government schools, and travel to classrooms as volunteer facilitators. Central guidance ensures child safety protocols, rigorous curriculum standards, and verified documentation across all chapters."
+      },
+      {
+        "id": "faq-2",
+        "question": "What is NIAT's role?",
+        "answer": "NIAT is the learning environment and academic ecosystem where our student volunteers master advanced software, AI fundamentals, and engineering principles. Teach AI for India is what the students chose to build using that knowledge. NIAT supports the student initiative with training environments and ecosystem encouragement, but TAI is student-led and student-run."
+      },
+      {
+        "id": "faq-3",
+        "question": "Is this a one-time activity or a structured program?",
+        "answer": "It is a structured program. While we offer introductory demo sessions to break the ice, partner schools participate in a structured four-session journey: 1. AI Awareness, 2. AI Conversations & Prompt Engineering, 3. AI Safety, Ethics & Future Careers, and 4. Using AI for Building & Problem Solving. Each school cohort is tracked across this progression."
+      },
+      {
+        "id": "faq-4",
+        "question": "Does it actually reach students in need?",
+        "answer": "Yes. We focus specifically on government and community schools across Telangana and Andhra Pradesh where students have zero prior access to generative AI or modern digital creation tools. Every session is documented with photographs, headmaster acknowledgements, and verified student attendance counts."
+      },
+      {
+        "id": "faq-5",
+        "question": "How can our school, company, or institution partner with you?",
+        "answer": "You can partner with us in multiple ways: schools can invite our campus teams for free four-session workshop cohorts; educators can provide curriculum feedback; tech companies can donate tablets or provide guest mentors; and organizations can help underwrite student workbooks or rural transport. Reach out via the conversation form below to get started."
+      }
+    ]
+  },
+  "finalCta": {
+    "eyebrow": "Get in Touch",
+    "title": "Start a Conversation",
+    "microcopy": "Schools, organizations, educators and institutions can work with us in different ways.",
+    "description": "Whether you are a government school headmaster wanting AI sessions for your students, an educator with curriculum insights, or an organization with devices or mentorship to share — we would love to connect.",
+    "email": "hello@teachaiforindia.org",
+    "phone": "+91 90000 00000 [VERIFY]",
+    "location": "NIAT Campuses · Telangana & Andhra Pradesh",
+    "promise": "A student chapter coordinator will respond within 24 to 48 hours."
+  }
+}

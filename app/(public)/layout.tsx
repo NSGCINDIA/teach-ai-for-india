@@ -17,14 +17,12 @@ const instrumentSerif = Instrument_Serif({
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
   variable: '--font-dm-sans',
   display: 'swap',
 })
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  weight: ['400', '500'],
   variable: '--font-jetbrains-mono',
   display: 'swap',
 })
@@ -59,7 +57,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                 Skip to content
               </a>
               <Navbar />
-              <main id="main" className="relative z-10 flex flex-1 flex-col pt-16">
+              <main id="main" className="relative z-10 flex flex-1 flex-col">
                 <div className="flex-1">{children}</div>
                 <Footer />
               </main>

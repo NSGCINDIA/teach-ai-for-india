@@ -12,12 +12,12 @@ import type { User } from '@supabase/supabase-js'
 const LEFT_LINKS = [
   { href: '/about', label: 'About' },
   { href: '/impact', label: 'Impact' },
-  { href: '/campuses', label: 'Campuses' },
+  { href: '/campuses', label: 'Campus Chapters' },
 ] as const
 
 const RIGHT_LINKS = [
-  { href: '/stories', label: 'Stories' },
-  { href: '/faq', label: 'FAQ' },
+  { href: '/stories', label: 'Student Stories' },
+  { href: '/faq', label: 'Frequently Asked Questions' },
 ] as const
 
 const ALL_LINKS = [...LEFT_LINKS, ...RIGHT_LINKS] as const
@@ -34,11 +34,16 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80)
+    const isHome = pathname === '/'
+    const onScroll = () => {
+      // On homepage, standard navbar appears once user finishes the 2-scroll intro (~100vh)
+      const threshold = isHome ? window.innerHeight * 0.9 : 80
+      setScrolled(window.scrollY > threshold)
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [pathname])
 
   useEffect(() => {
     if (!hasAuthCookie()) return
@@ -83,14 +88,19 @@ export function Navbar() {
 
   const linkClass = (href: string) =>
     cn(
-      'flex h-full items-center px-5 text-xs font-semibold uppercase tracking-wider transition-colors hover:text-brand',
-      isActive(href) ? 'text-brand' : 'text-foreground/70',
+      'flex h-full items-center px-3 xl:px-4 text-xs xl:text-sm font-semibold uppercase tracking-wider whitespace-nowrap transition-colors hover:text-brand',
+      isActive(href) ? 'text-brand' : 'text-foreground/80',
     )
+
+  const isHomeCinematic = pathname === '/' && !scrolled && !open
 
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 h-16 border-b transition-[background-color,border-color,backdrop-filter] duration-300',
+        'fixed inset-x-0 top-0 z-50 h-16 border-b transition-all duration-500',
+        isHomeCinematic
+          ? 'opacity-0 pointer-events-none -translate-y-2'
+          : 'opacity-100 pointer-events-auto translate-y-0',
         scrolled || open
           ? 'border-border bg-background/90 backdrop-blur-md'
           : 'border-transparent bg-transparent',
@@ -100,7 +110,7 @@ export function Navbar() {
       <div className="flex h-16 items-center justify-between px-5 md:px-8 lg:hidden">
         <Link
           href="/"
-          className="select-none rounded-sm text-sm font-bold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="select-none text-base font-bold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Teach AI for India — home"
         >
           TEACH <span className="text-brand">AI</span> FOR INDIA
@@ -118,7 +128,7 @@ export function Navbar() {
 
       {/* Desktop bar — links | centered wordmark | links + actions */}
       <nav
-        className="tai-container-wide hidden h-full grid-cols-[1fr_auto_1fr] items-stretch lg:grid"
+        className="tai-container-wide hidden h-full grid-cols-[1fr_auto_1fr] items-stretch lg:grid px-4 sm:px-6"
         aria-label="Primary"
       >
         <div className="flex items-stretch justify-start">
@@ -132,7 +142,7 @@ export function Navbar() {
         <div className="flex items-center justify-center px-8">
           <Link
             href="/"
-            className="select-none rounded-sm text-sm font-bold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="select-none rounded-sm text-base font-bold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Teach AI for India — home"
           >
             TEACH <span className="text-brand">AI</span> FOR INDIA

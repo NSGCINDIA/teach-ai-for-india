@@ -31,11 +31,11 @@ function AccordionTrigger({
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
   return (
-    <AccordionPrimitive.Header className="flex">
+    <AccordionPrimitive.Header className="flex font-sans">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          'focus-visible:ring-brand/20 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-semibold transition-all outline-none hover:text-brand focus-visible:text-brand focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180',
+          'focus-visible:ring-brand/20 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-semibold transition-all outline-none hover:text-brand focus-visible:text-brand focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 font-sans',
           className,
         )}
         {...props}

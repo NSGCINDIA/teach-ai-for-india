@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useReducedMotion } from 'framer-motion'
 import { ensureGsapRegistered, gsap, ScrollTrigger } from '@/lib/gsap'
 
@@ -53,17 +54,12 @@ const MOMENTS: Moment[] = [
   },
 ]
 
-/**
- * "This is what it looks like" — horizontal scroll-storytelling on desktop
- * (pinned viewport, vertical scroll drives horizontal translation), a plain
- * vertical stack everywhere else. No other part of the site shows the work at
- * this level of concreteness, which is the point.
- */
 export function SessionStory() {
-  const sectionRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
   const reduce = useReducedMotion()
+  const [activeMobileIdx, setActiveMobileIdx] = useState(0)
 
   useEffect(() => {
     const section = sectionRef.current
@@ -75,65 +71,143 @@ export function SessionStory() {
     const mm = gsap.matchMedia()
 
     mm.add('(min-width: 1024px)', () => {
-      const getDistance = () => track.scrollWidth - section.clientWidth
-      const st = ScrollTrigger.create({
-        trigger: section,
-        start: 'top top',
-        end: () => `+=${getDistance()}`,
-        pin: true,
-        scrub: 0.6,
-        onUpdate: (self) => {
-          gsap.set(track, { x: -getDistance() * self.progress })
-          gsap.set(progress, { scaleX: self.progress })
+      const getDistance = () => Math.max(0, track.scrollWidth - window.innerWidth + 120)
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: () => `+=${getDistance()}`,
+          pin: true,
+          scrub: 1, // Smooth, interpolated physics matching Lenis
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
         },
       })
-      return () => st.kill()
+
+      tl.to(track, {
+        x: () => -getDistance(),
+        ease: 'none',
+      })
+
+      tl.to(
+        progress,
+        {
+          scaleX: 1,
+          ease: 'none',
+        },
+        0
+      )
+
+      return () => {
+        tl.kill()
+      }
     })
 
-    return () => mm.revert()
+    // Refresh after images load to ensure precise dimensions
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh()
+    }, 600)
+
+    return () => {
+      clearTimeout(timer)
+      mm.revert()
+    }
   }, [reduce])
 
+  const scrollMobile = (direction: 'next' | 'prev') => {
+    if (!trackRef.current) return
+    const newIdx =
+      direction === 'next'
+        ? Math.min(MOMENTS.length - 1, activeMobileIdx + 1)
+        : Math.max(0, activeMobileIdx - 1)
+    setActiveMobileIdx(newIdx)
+    const itemWidth = trackRef.current.clientWidth * 0.85
+    trackRef.current.scrollTo({
+      left: newIdx * itemWidth,
+      behavior: 'smooth',
+    })
+  }
+
   return (
-    <section id="session" className="tai-section bg-background">
-      <div className="tai-container-wide px-5 md:px-8 lg:px-12">
-        <p className="tai-eyebrow text-brand">Inside a session</p>
-        <h2 className="tai-text-display mt-4 max-w-2xl font-display text-foreground">
-          This is what it looks like when a classroom meets AI for the first time.
-        </h2>
+    <section
+      ref={sectionRef}
+      id="session"
+      className="relative overflow-hidden bg-background py-8 lg:py-10 lg:h-screen lg:flex lg:flex-col lg:justify-between"
+    >
+      <div className="tai-container-wide shrink-0 px-5 md:px-8 lg:px-12">
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="tai-eyebrow text-brand">Inside a session</p>
+            <h2 className="tai-text-display mt-2 max-w-4xl font-display text-foreground">
+              This is what it looks like when a classroom meets AI for the first time.
+            </h2>
+          </div>
+
+          {/* Mobile Swiper Controls */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <button
+              onClick={() => scrollMobile('prev')}
+              disabled={activeMobileIdx === 0}
+              className="flex size-9 items-center justify-center rounded-full border border-foreground/20 bg-background text-foreground disabled:opacity-30"
+              aria-label="Previous story"
+            >
+              <ArrowLeft className="size-4" />
+            </button>
+            <button
+              onClick={() => scrollMobile('next')}
+              disabled={activeMobileIdx === MOMENTS.length - 1}
+              className="flex size-9 items-center justify-center rounded-full border border-foreground/20 bg-background text-foreground disabled:opacity-30"
+              aria-label="Next story"
+            >
+              <ArrowRight className="size-4" />
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div ref={sectionRef} className="relative mt-14 lg:h-screen lg:overflow-hidden">
+      <div className="relative my-auto mt-6 flex-1 flex flex-col justify-center overflow-hidden lg:mt-0">
         <div
           ref={trackRef}
-          className="flex flex-col gap-6 px-5 md:px-8 lg:h-full lg:flex-row lg:items-center lg:gap-10 lg:px-12"
+          className="flex gap-6 overflow-x-auto px-5 pb-4 md:px-8 lg:flex-row lg:items-center lg:gap-10 lg:overflow-visible lg:px-12 lg:pb-0 scroll-smooth no-scrollbar snap-x snap-mandatory lg:snap-none"
+          style={{ willChange: 'transform' }}
         >
-          {MOMENTS.map((moment) => (
+          {MOMENTS.map((moment, idx) => (
             <article
               key={moment.label}
-              className="flex flex-col gap-6 lg:w-[70vw] lg:flex-shrink-0 lg:flex-row lg:items-center lg:gap-12 xl:w-[62vw]"
+              className="flex w-[85vw] shrink-0 snap-center flex-col gap-6 rounded-2xl border border-foreground/10 bg-card/40 p-5 sm:w-[70vw] md:w-[60vw] lg:w-[68vw] lg:flex-row lg:items-center lg:gap-10 lg:border-none lg:bg-transparent lg:p-0 xl:w-[62vw]"
             >
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl lg:aspect-[3/2] lg:w-[58%]">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-lg lg:aspect-[16/10] lg:w-[56%]">
                 <Image
                   src={moment.image}
                   alt={moment.alt}
                   fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
+                  sizes="(max-width: 1024px) 85vw, 50vw"
+                  className="object-cover transition-transform duration-500 hover:scale-105"
                 />
               </div>
-              <div className="lg:w-[42%]">
-                <span className="tai-eyebrow text-brand">{moment.label}</span>
+              <div className="lg:w-[44%]">
+                <span className="tai-eyebrow text-brand">
+                  {idx + 1}. {moment.label}
+                </span>
                 {moment.quote && (
-                  <p className="mt-3 font-display text-2xl italic text-foreground md:text-3xl">{moment.quote}</p>
+                  <p className="mt-2.5 font-display text-2xl italic text-foreground md:text-3xl lg:text-4xl">
+                    {moment.quote}
+                  </p>
                 )}
-                <p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground">{moment.body}</p>
+                <p className="mt-2.5 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+                  {moment.body}
+                </p>
               </div>
             </article>
           ))}
         </div>
+      </div>
 
-        <div className="mx-5 mt-6 hidden h-0.5 overflow-hidden rounded-full bg-border md:mx-8 lg:mx-12 lg:block">
-          <div ref={progressRef} className="h-full w-full origin-left scale-x-0 bg-brand" />
+      {/* Desktop Progress Bar */}
+      <div className="tai-container-wide shrink-0 px-5 pt-3 md:px-8 lg:px-12">
+        <div className="hidden h-1 overflow-hidden rounded-full bg-border lg:block">
+          <div ref={progressRef} className="h-full w-full origin-left scale-x-0 bg-brand transition-transform duration-75" />
         </div>
       </div>
     </section>

@@ -70,12 +70,12 @@ export function CampusesDashboard({ campuses }: CampusesDashboardProps) {
                 setSearchQuery(e.target.value)
                 setSelectedCampusSlug(null) // Clear map node focus on search
               }}
-              className="w-full bg-background dark:bg-card/45 pl-10 pr-4 py-2 text-sm rounded-xl border border-border outline-none focus:border-brand/40 focus:ring-1 focus:ring-brand/20 transition-all text-foreground"
+              className="w-full bg-background dark:bg-card/45 pl-10 pr-4 py-2.5 text-base rounded-xl border border-border outline-none focus:border-brand/40 focus:ring-1 focus:ring-brand/20 transition-all text-foreground"
             />
           </div>
 
           {/* State Tabs */}
-          <div className="flex items-center gap-1.5 p-0.5 bg-muted dark:bg-card/30 border border-border/80 rounded-xl overflow-x-auto">
+          <div className="flex items-center gap-1.5 p-1 bg-muted dark:bg-card/30 border border-border/80 rounded-xl overflow-x-auto">
             {(['all', 'Telangana', 'Andhra Pradesh'] as const).map((st) => (
               <button
                 key={st}
@@ -83,7 +83,7 @@ export function CampusesDashboard({ campuses }: CampusesDashboardProps) {
                   setSelectedState(st)
                   setSelectedCampusSlug(null) // Clear map node focus on filter
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                className={`px-3.5 py-1.5 rounded-lg text-sm font-bold transition-all shrink-0 ${
                   selectedState === st
                     ? 'bg-card text-brand shadow-sm border border-border/30'
                     : 'text-muted-foreground hover:text-foreground'

@@ -9,12 +9,12 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: 'Join the movement',
   description:
-    'Become a campus volunteer with Teach AI for India and bring applied AI literacy to government school classrooms.',
+    'Join NIAT students in creating meaningful learning experiences and bring applied AI literacy to government school classrooms.',
 }
 
 const PERKS = [
   { icon: Rocket, title: 'Real impact, fast', description: 'Run your first classroom session within weeks of joining.' },
-  { icon: Users, title: 'A campus team', description: 'Build alongside other students who care about the same thing.' },
+  { icon: Users, title: 'A growing NIAT community', description: 'Build alongside a growing community of NIAT students who care about real-world impact.' },
   { icon: HeartHandshake, title: 'Mentorship', description: 'Training, playbooks, and support from experienced leads.' },
 ]
 
@@ -27,7 +27,7 @@ export default async function JoinPage() {
       <PageHeader
         eyebrow="Volunteer"
         title="Join the movement"
-        description="Lend your skills to a classroom that has never had access to AI. We welcome students from every discipline — curiosity matters more than a résumé."
+        description="Join NIAT students in creating meaningful learning experiences for classrooms that have never had access to AI. We welcome students from every discipline — curiosity matters more than a résumé."
       />
 
       <section className="section-padding">

@@ -43,7 +43,7 @@ export async function generateMetadata({
     title: `${campus.name} Campus`,
     description:
       campus.description ??
-      `The ${campus.name} campus team brings applied AI education to schools in ${campus.city}, ${campus.state}.`,
+      `The ${campus.name} NIAT campus team brings applied AI education to schools in ${campus.city}, ${campus.state}.`,
   }
 }
 
@@ -246,7 +246,7 @@ export default async function CampusDetailPage({ params }: { params: Promise<{ s
             <Reveal>
               <h2 className="font-display text-2xl font-bold">The team</h2>
               <p className="mt-2 max-w-2xl text-pretty text-muted-foreground">
-                {formatNumber(team.length)} student volunteer{team.length === 1 ? '' : 's'} powering AI education at {campus.name}.
+                {formatNumber(team.length)} NIAT student volunteer{team.length === 1 ? '' : 's'} powering AI education at {campus.name}.
               </p>
             </Reveal>
             <Reveal delay={0.08}>

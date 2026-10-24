@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useEffect, useRef, type CSSProperties } from 'react'
+import React, { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { usePathname } from 'next/navigation'
 
 /**
  * The hand-drawn doodle icons from the site's original floating background
@@ -9,7 +10,7 @@ import React, { useEffect, useRef, type CSSProperties } from 'react'
  * warm editorial palette (crimson / terracotta / saffron / forest) instead of
  * the old maroon/orange/teal brand colors.
  */
-function RobotDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function RobotDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M 50 30 L 50 15" />
@@ -24,7 +25,7 @@ function RobotDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function RocketDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function RocketDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M 50 15 C 65 30, 65 60, 60 75 C 50 78, 50 78, 40 75 C 35 60, 35 30, 50 15 Z" />
@@ -39,7 +40,7 @@ function RocketDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function LightbulbDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function LightbulbDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M 35 60 C 25 50, 25 30, 50 20 C 75 30, 75 50, 65 60 C 62 68, 62 70, 60 75 L 40 75 C 38 70, 38 68, 35 60 Z" />
@@ -58,7 +59,7 @@ function LightbulbDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function OpenBookDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function OpenBookDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M 50 35 L 50 75" strokeWidth={2} />
@@ -72,7 +73,7 @@ function OpenBookDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function GraduationCapDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function GraduationCapDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M 50 25 L 85 37 L 50 49 L 15 37 Z" />
@@ -84,7 +85,7 @@ function GraduationCapDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function AtomDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function AtomDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M 50 10 C 80 20, 80 80, 50 90 C 20 80, 20 20, 50 10 Z" transform="rotate(30 50 50)" />
@@ -95,7 +96,7 @@ function AtomDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function SparklesDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function SparklesDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M 50 15 L 53 35 L 75 38 L 55 45 L 60 65 L 50 50 L 40 65 L 45 45 L 25 38 L 47 35 Z" fill="currentColor" className="opacity-20" />
@@ -105,7 +106,7 @@ function SparklesDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function NeuralNodeDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function NeuralNodeDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <circle cx="30" cy="50" r="5" fill="currentColor" className="opacity-40" />
@@ -121,7 +122,7 @@ function NeuralNodeDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function BlackboardDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function BlackboardDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M 15 80 L 85 80" />
@@ -136,7 +137,7 @@ function BlackboardDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function GlobeDoodle(props: React.SVGProps<SVGSVGElement>) {
+export function GlobeDoodle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
       <circle cx="50" cy="50" r="32" />
@@ -150,7 +151,6 @@ function GlobeDoodle(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-
 function depth(px: number): CSSProperties {
   return {
     transform: `translate3d(calc(var(--bg-x, 0) * ${px}px), calc(var(--bg-y, 0) * ${px}px), 0)`,
@@ -158,15 +158,54 @@ function depth(px: number): CSSProperties {
 }
 
 /**
- * Site-wide ambient background — twelve hand-drawn doodles drifting/spinning
- * gently, plus a subtle pointer-parallax on desktop. Paused via `.deco-layer`
- * until the page goes idle (see globals.css) and stripped by the global
- * `prefers-reduced-motion` media query.
+ * Site-wide ambient background — ten hand-drawn classroom doodles drifting
+ * gently in the outer gutters.
+ *
+ * Guaranteed text safety:
+ * - Positioned strictly in the outer side gutters (left/right gutters outside max-w-6xl).
+ * - Hidden on narrower screens (< 1280px / xl) so they NEVER overlap reading text or paragraphs.
+ * - Layered at z-[2] (below main's relative z-10) with pointer-events-none select-none.
+ * - On the homepage, activates when reaching "Our Mission" and persists all the way down to the footer.
  */
 export function FloatingDoodles() {
+  const [mounted, setMounted] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
+  const isHome = pathname === '/'
+  const [inScope, setInScope] = useState(!isHome)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    if (!isHome) {
+      setInScope(true)
+      return
+    }
+
+    // On the homepage, activate doodles strictly starting from "Our Mission" (#scene-mission) down to footer
+    const handleScroll = () => {
+      const missionEl = document.getElementById('scene-mission')
+      if (missionEl) {
+        const rect = missionEl.getBoundingClientRect()
+        // When mission section enters the viewport or has already been passed
+        setInScope(rect.top <= window.innerHeight * 0.8)
+      } else {
+        // Fallback: entrance is approx 200vh
+        setInScope(window.scrollY >= window.innerHeight * 1.2)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [mounted, isHome, pathname])
+
+  useEffect(() => {
+    if (!mounted) return
     const root = rootRef.current
     if (!root) return
 
@@ -205,62 +244,71 @@ export function FloatingDoodles() {
       window.removeEventListener('pointermove', handlePointerMove)
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [])
+  }, [mounted])
+
+  if (!mounted) {
+    return null
+  }
 
   return (
     <div
       ref={rootRef}
       aria-hidden
-      className="deco-layer pointer-events-none fixed inset-0 z-40 select-none overflow-hidden contain-layout contain-paint contain-style"
+      className={`deco-layer pointer-events-none fixed inset-0 z-[2] select-none overflow-hidden contain-layout contain-paint contain-style transition-opacity duration-700 ${
+        inScope ? 'opacity-100' : 'opacity-0'
+      }`}
     >
-      <div className="absolute top-[8%] left-[4%]" style={depth(-8)}>
+      {/* ─── LEFT OUTER GUTTER (Strictly in the outer margin, outside text columns) ─── */}
+      <div className="absolute top-[10%] left-3 xl:left-6 2xl:left-12 hidden xl:block" style={depth(-8)}>
         <div className="animate-float-slow">
-          <RobotDoodle className="size-10 text-brand/40 sm:size-14 md:size-16" />
+          <RobotDoodle className="size-10 text-[#9E2A2B]/30 xl:size-12 2xl:size-14" />
         </div>
       </div>
-      <div className="absolute top-[25%] left-[15%] md:left-[12%]" style={depth(-12)}>
+      <div className="absolute top-[28%] left-2.5 xl:left-5 2xl:left-10 hidden xl:block" style={depth(-12)}>
         <div className="animate-float">
-          <RocketDoodle className="size-10 text-brand-orange/40 sm:size-12 md:size-14" />
+          <LightbulbDoodle className="size-10 text-[#E09F3E]/35 xl:size-12 2xl:size-14" />
         </div>
       </div>
-      <div className="absolute top-[48%] left-[3%] md:left-[6%]" style={depth(-10)}>
+      <div className="absolute top-[48%] left-3 xl:left-6 2xl:left-12 hidden xl:block" style={depth(-10)}>
         <div className="animate-float-slow">
-          <LightbulbDoodle className="size-12 text-brand-gold/45 sm:size-14 md:size-16" />
+          <OpenBookDoodle className="size-10 text-[#2D5A27]/30 xl:size-12 2xl:size-14" />
         </div>
       </div>
-      <div className="absolute bottom-[22%] left-[14%] md:left-[10%]" style={depth(-7)}>
+      <div className="absolute top-[68%] left-2.5 xl:left-5 2xl:left-10 hidden xl:block" style={depth(-7)}>
         <div className="animate-float">
-          <OpenBookDoodle className="size-10 text-brand/40 sm:size-12 md:size-14" />
+          <NeuralNodeDoodle className="size-10 text-[#1D3557]/30 xl:size-12 2xl:size-14" />
         </div>
       </div>
-      <div className="absolute bottom-[8%] left-[4%] md:left-[5%]" style={depth(-9)}>
+      <div className="absolute top-[86%] left-3 xl:left-6 2xl:left-12 hidden xl:block" style={depth(-9)}>
         <div className="animate-float-slow">
-          <GraduationCapDoodle className="size-10 text-forest/40 sm:size-14 md:size-16" />
+          <GraduationCapDoodle className="size-10 text-[#9E2A2B]/30 xl:size-12 2xl:size-14" />
         </div>
       </div>
-      <div className="absolute top-[10%] right-[4%]" style={depth(-6)}>
+
+      {/* ─── RIGHT OUTER GUTTER (Strictly in the outer margin, outside text columns) ─── */}
+      <div className="absolute top-[14%] right-3 xl:right-6 2xl:right-12 hidden xl:block" style={depth(-6)}>
         <div className="animate-spin-slow">
-          <AtomDoodle className="size-12 text-forest/40 sm:size-16 md:size-18" />
+          <RocketDoodle className="size-10 text-[#E09F3E]/35 xl:size-12 2xl:size-14" />
         </div>
       </div>
-      <div className="absolute top-[28%] right-[16%] md:right-[12%]" style={depth(-14)}>
+      <div className="absolute top-[34%] right-2.5 xl:right-5 2xl:right-10 hidden xl:block" style={depth(-14)}>
         <div className="animate-pulse-slow">
-          <SparklesDoodle className="size-8 text-brand-gold/50 sm:size-12 md:size-14" />
+          <AtomDoodle className="size-10 text-[#2D5A27]/30 xl:size-12 2xl:size-14" />
         </div>
       </div>
-      <div className="absolute top-[50%] right-[3%] md:right-[6%]" style={depth(-11)}>
+      <div className="absolute top-[54%] right-3 xl:right-6 2xl:right-12 hidden xl:block" style={depth(-11)}>
         <div className="animate-float-slow">
-          <NeuralNodeDoodle className="size-12 text-forest/40 sm:size-16 md:size-18" />
+          <SparklesDoodle className="size-8 text-[#E09F3E]/40 xl:size-10 2xl:size-12" />
         </div>
       </div>
-      <div className="absolute bottom-[25%] right-[15%] md:right-[10%]" style={depth(-8)}>
+      <div className="absolute top-[72%] right-2.5 xl:right-5 2xl:right-10 hidden xl:block" style={depth(-8)}>
         <div className="animate-float">
-          <BlackboardDoodle className="size-10 text-brand-orange/40 sm:size-12 md:size-14" />
+          <BlackboardDoodle className="size-10 text-[#9E2A2B]/30 xl:size-12 2xl:size-14" />
         </div>
       </div>
-      <div className="absolute bottom-[8%] right-[4%] md:right-[5%]" style={depth(-7)}>
+      <div className="absolute top-[88%] right-3 xl:right-6 2xl:right-12 hidden xl:block" style={depth(-7)}>
         <div className="animate-float-slow">
-          <GlobeDoodle className="size-10 text-forest/40 sm:size-14 md:size-16" />
+          <GlobeDoodle className="size-10 text-[#1D3557]/30 xl:size-12 2xl:size-14" />
         </div>
       </div>
     </div>
