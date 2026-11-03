@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { MaskHeading } from '@/components/marketing/mask-heading'
 import { HeroPhotoSequence, type HeroMoment } from '@/components/marketing/hero-photo-sequence'
-import type { HeroContent } from '@/app/(public)/content'
+import { landingContent, type HeroContent, type LandingHeroContent } from '@/app/(public)/content'
 
 const CLOUDINARY = 'https://res.cloudinary.com/dz7yh98jd/image/upload/f_auto,q_auto,w_1400'
 
@@ -42,53 +42,75 @@ const MOMENTS: HeroMoment[] = [
  * a hand-stamped "verified session" mark; verified figures run in monospace
  * like a tally, distinct from the serif story and sans body.
  */
-export function Hero({ content }: { content: HeroContent }) {
+export function Hero({ content }: { content?: Partial<LandingHeroContent & HeroContent> }) {
+  const c = { ...landingContent.hero, ...content }
+
   return (
-    <section className="relative -mt-16 min-h-[92dvh] overflow-hidden bg-background pt-16">
+    <section className="relative -mt-16 overflow-hidden bg-background pt-20 pb-12 md:pb-16 lg:pb-20">
       <div className="tai-container-wide px-5 md:px-8 lg:px-12">
         <div className="flex items-center justify-between gap-4 border-b border-foreground/15 pb-4 pt-8">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-            {content.eyebrow}
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground sm:text-sm">
+            {c.eyebrow}
           </span>
-          <span className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+          <span className="shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground/70 sm:text-sm">
             N&deg; 01
           </span>
         </div>
 
         <div className="mt-10 grid gap-12 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-7 lg:-mt-6">
+            {/* Learning Cycle Badge */}
+            <div className="mb-6 inline-flex flex-wrap items-center gap-2 rounded-full border border-brand/20 bg-brand/5 px-3.5 py-1 font-mono text-xs font-semibold text-brand">
+              {c.coreCycle ? (
+                c.coreCycle.map((step, idx) => (
+                  <span key={step} className="inline-flex items-center gap-2">
+                    <span>{step}</span>
+                    {idx < c.coreCycle.length - 1 && <span className="text-brand/40">→</span>}
+                  </span>
+                ))
+              ) : (
+                <span>Learn → Teach → Build → Lead → Pass It On</span>
+              )}
+            </div>
+
             <MaskHeading
               as="h1"
               immediate
               delay={0.25}
               className="tai-text-display-xl font-display leading-[0.95] text-foreground"
-              lines={content.headline.split('\n').filter(Boolean)}
+              lines={c.headline.split('\n').filter(Boolean)}
             />
 
-            <p className="mt-6 max-w-[520px] text-base leading-relaxed text-muted-foreground md:text-lg">
-              {content.subheadline}
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+              {c.subheadline}
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                href="/impact"
-                className="group inline-flex h-12 items-center gap-2 border border-brand bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-deep"
+                href={c.primaryCta?.href || '#see-in-action'}
+                className="group inline-flex h-13 items-center gap-2 rounded-xl border border-brand bg-brand px-7 text-base font-semibold text-white transition-colors hover:bg-brand-deep shadow-sm"
               >
-                See the movement
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+                {c.primaryCta?.label || 'See Teach AI in Action'}
+                <ArrowRight className="size-4.5 transition-transform group-hover:translate-x-1" aria-hidden />
               </Link>
               <Link
-                href="/join"
-                className="group inline-flex h-12 items-center gap-2 border border-foreground/30 px-6 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+                href={c.secondaryCta?.href || '#who-are-the-students'}
+                className="group inline-flex h-13 items-center gap-2 rounded-xl border border-foreground/30 px-7 text-base font-semibold text-foreground transition-colors hover:bg-muted"
               >
-                Join the movement
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+                {c.secondaryCta?.label || 'Meet the Students'}
+                <ArrowRight className="size-4.5 transition-transform group-hover:translate-x-1" aria-hidden />
               </Link>
             </div>
 
-            <div className="mt-12 border-t border-foreground/15 pt-4">
-              <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">
-                {content.proofLine}
+            {c.primaryCta?.microcopy && (
+              <p className="mt-3 text-xs text-muted-foreground font-mono">
+                {c.primaryCta.microcopy}
+              </p>
+            )}
+
+            <div className="mt-10 border-t border-foreground/15 pt-4">
+              <p className="font-mono text-sm uppercase tracking-[0.12em] text-muted-foreground font-medium">
+                {c.proofLine}
               </p>
             </div>
           </div>

@@ -31,9 +31,9 @@ export function Network({ campuses }: { campuses: PublicCampusCard[] }) {
   return (
     <section className="tai-section bg-background">
       <div className="tai-container-wide px-5 md:px-8 lg:px-12">
-        <p className="tai-eyebrow text-brand">The campuses</p>
-        <h2 className="tai-text-display mt-4 max-w-2xl font-display text-foreground">
-          One campus became nine. One school became {active.schools_reached >= 18 ? 'eighteen' : 'many'}.
+        <p className="tai-eyebrow text-brand">NIAT Campus Chapters</p>
+        <h2 className="tai-text-display mt-4 max-w-4xl font-display text-foreground">
+          One campus became nine. From NIAT campuses to government-school classrooms.
         </h2>
 
         <Reveal className="mt-10">
@@ -53,21 +53,21 @@ export function Network({ campuses }: { campuses: PublicCampusCard[] }) {
           </div>
 
           <div className="lg:col-span-5">
-            <h3 className="font-display text-2xl text-foreground">{active.name}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{active.city}, {active.state}</p>
-            <p className="mt-4 text-sm font-medium uppercase tracking-wide text-foreground">
+            <h3 className="font-display text-3xl font-bold text-foreground">{active.name}</h3>
+            <p className="mt-1 text-base text-muted-foreground">{active.city}, {active.state}</p>
+            <p className="mt-4 text-base font-medium uppercase tracking-wide text-foreground">
               {active.schools_reached} schools · {active.students_impacted.toLocaleString('en-IN')} students ·{' '}
               {active.sessions_completed} sessions
             </p>
             {active.description && (
-              <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground">{active.description}</p>
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">{active.description}</p>
             )}
             <Link
               href={`/campuses/${active.slug}`}
-              className="group mt-6 inline-flex items-center gap-2 text-sm font-semibold text-brand"
+              className="group mt-6 inline-flex items-center gap-2 text-base font-semibold text-brand"
             >
               Explore this campus
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+              <ArrowRight className="size-4.5 transition-transform group-hover:translate-x-1" aria-hidden />
             </Link>
           </div>
         </Reveal>
