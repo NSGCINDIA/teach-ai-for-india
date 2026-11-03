@@ -9,7 +9,6 @@ import { InteractiveIndiaMapSection } from '@/components/marketing/cinematic/int
 import { StudentStoriesDesk } from '@/components/marketing/cinematic/student-stories-desk'
 import { NoticeBoardGallery } from '@/components/marketing/cinematic/notice-board-gallery'
 import { ThreePathwaysSection } from '@/components/marketing/cinematic/three-pathways-section'
-import { TangibleSupportSection } from '@/components/marketing/cinematic/tangible-support-section'
 import { FaqSection } from '@/components/marketing/faq-section'
 import { SunsetExitEnding } from '@/components/marketing/cinematic/sunset-exit-ending'
 
@@ -50,8 +49,6 @@ export default function HomePage() {
       {/* ─── 10. GET INVOLVED: THREE ACTIONABLE PATHWAYS ──────────────────── */}
       <ThreePathwaysSection />
 
-      {/* ─── 11. TANGIBLE TRANSPARENCY: WHERE EVERY RUPEE GOES ────────────── */}
-      <TangibleSupportSection />
 
       {/* ─── FAQ ACCORDION ───────────────────────────────────────────────── */}
       <FaqSection />

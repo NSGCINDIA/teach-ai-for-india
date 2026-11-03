@@ -165,10 +165,7 @@ export function ClassroomDoorsPrograms() {
                     </div>
 
                     <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-[#777]">
-                      <span>{door.sessionCount}</span>
-                      <span className="text-[#9E2A2B] font-semibold group-hover:underline">
-                        {isOpen ? 'Door Open ✓' : 'Click to Open →'}
-                      </span>
+                      <span className="font-medium text-[#666]">{door.sessionCount}</span>
                     </div>
                   </div>
                 </div>

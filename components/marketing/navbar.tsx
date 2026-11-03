@@ -17,7 +17,7 @@ const LEFT_LINKS = [
 
 const RIGHT_LINKS = [
   { href: '/stories', label: 'Student Stories' },
-  { href: '/faq', label: 'Frequently Asked Questions' },
+  { href: '/faq', label: 'FAQ' },
 ] as const
 
 const ALL_LINKS = [...LEFT_LINKS, ...RIGHT_LINKS] as const
@@ -34,15 +34,29 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const isHome = pathname === '/'
+    const isHome = pathname === '/' || pathname === ''
     const onScroll = () => {
-      // On homepage, standard navbar appears once user finishes the 2-scroll intro (~100vh)
-      const threshold = isHome ? window.innerHeight * 0.9 : 80
+      // If the cinematic entrance section is on the page, the navbar must remain
+      // completely hidden while the entrance images (exterior & classroom) are in view.
+      // It only appears once the entire 200vh entrance container has scrolled past.
+      const entranceEl = document.getElementById('scene-entrance')
+      if (entranceEl) {
+        const rect = entranceEl.getBoundingClientRect()
+        setScrolled(rect.bottom <= 64)
+        return
+      }
+
+      const threshold = isHome ? window.innerHeight * 1.8 : 80
       setScrolled(window.scrollY > threshold)
     }
+
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('resize', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [pathname])
 
   useEffect(() => {
@@ -92,16 +106,17 @@ export function Navbar() {
       isActive(href) ? 'text-brand' : 'text-foreground/80',
     )
 
-  const isHomeCinematic = pathname === '/' && !scrolled && !open
+  const isHome = pathname === '/' || pathname === ''
+  const isHomeCinematic = isHome && !scrolled && !open
 
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 h-16 border-b transition-all duration-500',
+        'fixed inset-x-0 top-0 z-50 h-16 border-b transition-all duration-500 ease-out',
         isHomeCinematic
-          ? 'opacity-0 pointer-events-none -translate-y-2'
+          ? 'opacity-0 pointer-events-none -translate-y-full'
           : 'opacity-100 pointer-events-auto translate-y-0',
-        scrolled || open
+        scrolled || open || isHome
           ? 'border-border bg-background/90 backdrop-blur-md'
           : 'border-transparent bg-transparent',
       )}
